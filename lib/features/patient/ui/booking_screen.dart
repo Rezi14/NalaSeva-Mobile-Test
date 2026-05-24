@@ -166,12 +166,19 @@ class _BookingScreenState extends State<BookingScreen> {
                           onTap: selectedDoctorId == null ? null : () async {
                             final selectedSchedule = provider.availableSchedules.firstWhere((s) => s.id == selectedDoctorId);
                             final targetDayOfWeek = _getDayOfWeekInt(selectedSchedule.dayOfWeek);
-                            final initialDate = selectedDate.weekday == targetDayOfWeek ? selectedDate : _getNearestDateForWeekday(targetDayOfWeek, provider);
+                            final selDateStr = selectedDate.toIso8601String().split('T')[0];
+                            final isSelHoliday = provider.clinicHolidays.contains(selDateStr);
+                            final isSelLeave = provider.doctorLeaves.contains(selDateStr);
+                            final initialDate = (selectedDate.weekday == targetDayOfWeek && !isSelHoliday && !isSelLeave)
+                                ? selectedDate
+                                : _getNearestDateForWeekday(targetDayOfWeek, provider);
+                            final limitDate = DateTime.now().add(const Duration(days: 30));
+                            final adjustedLastDate = initialDate.isAfter(limitDate) ? initialDate.add(const Duration(days: 7)) : limitDate;
                             final picked = await showDatePicker(
                               context: context,
                               initialDate: initialDate,
                               firstDate: DateTime.now().add(const Duration(days: 1)),
-                              lastDate: DateTime.now().add(const Duration(days: 7)),
+                              lastDate: adjustedLastDate,
                               selectableDayPredicate: (date) {
                                 final dateStr = date.toIso8601String().split('T')[0];
                                 final isHoliday = provider.clinicHolidays.contains(dateStr);

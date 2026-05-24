@@ -120,7 +120,10 @@ class PatientRepository {
       final response = await _apiClient.dio.get('clinic-holidays');
       _checkResponse(response, 'Gagal mengambil hari libur');
       final List data = response.data['data'];
-      return data.map((e) => e['holiday_date'].toString()).toList();
+      return data.map((e) {
+        final rawDate = e['holiday_date']?.toString() ?? '';
+        return rawDate.split(' ')[0].split('T')[0];
+      }).where((d) => d.isNotEmpty).toList();
     } on DioException catch (e) {
       throw _errorMessage(e, 'Gagal mengambil hari libur');
     }
@@ -131,7 +134,10 @@ class PatientRepository {
       final response = await _apiClient.dio.get('doctor-leaves?doctor_id=$doctorId');
       _checkResponse(response, 'Gagal mengambil cuti dokter');
       final List data = response.data['data'];
-      return data.map((e) => e['leave_date'].toString()).toList();
+      return data.map((e) {
+        final rawDate = e['leave_date']?.toString() ?? '';
+        return rawDate.split(' ')[0].split('T')[0];
+      }).where((d) => d.isNotEmpty).toList();
     } on DioException catch (e) {
       throw _errorMessage(e, 'Gagal mengambil cuti dokter');
     }
