@@ -70,7 +70,7 @@ class TomorrowReminderCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Besok Anda dijadwalkan di ${q.polyclinic.name} pada jam ${q.estimatedServiceTime?.substring(0, 5) ?? "08:00"} WIB.',
+                    'Besok Anda dijadwalkan di ${q.polyclinic.name} pada jam ${q.estimatedServiceTime != null && q.estimatedServiceTime!.length >= 5 ? q.estimatedServiceTime!.substring(0, 5) : (q.estimatedServiceTime ?? "08:00")} WIB.',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

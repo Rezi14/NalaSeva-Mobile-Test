@@ -269,9 +269,9 @@ class BookingDetailScreen extends StatelessWidget {
                                   label: 'Estimasi Pelayanan', 
                                   value: queue.status == QueueStatus.examining
                                       ? 'Sekarang'
-                                      : (queue.estimatedServiceTime != null 
+                                      : (queue.estimatedServiceTime != null && queue.estimatedServiceTime!.length >= 5
                                           ? queue.estimatedServiceTime!.substring(0, 5) 
-                                          : '$estimatedTime'), 
+                                          : (queue.estimatedServiceTime ?? '$estimatedTime')), 
                                   unit: queue.status == QueueStatus.examining
                                       ? 'pemeriksaan'
                                       : (queue.estimatedServiceTime != null ? 'WIB' : 'menit'),

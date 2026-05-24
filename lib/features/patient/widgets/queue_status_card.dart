@@ -189,9 +189,9 @@ class QueueStatusCard extends StatelessWidget {
                   label: 'Estimasi Pelayanan',
                   value: q.status == QueueStatus.examining
                       ? 'Sekarang'
-                      : (q.estimatedServiceTime != null 
+                      : (q.estimatedServiceTime != null && q.estimatedServiceTime!.length >= 5
                           ? '${q.estimatedServiceTime!.substring(0, 5)} WIB' 
-                          : '$estimatedTime menit'),
+                          : (q.estimatedServiceTime != null ? '${q.estimatedServiceTime} WIB' : '$estimatedTime menit')),
                 ),
               ],
             ),
