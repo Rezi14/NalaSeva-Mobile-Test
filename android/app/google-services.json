@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "671807060347",
+    "project_id": "nalaseva-pbmb15",
+    "storage_bucket": "nalaseva-pbmb15.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671807060347:android:6b3ed9d3f487998e02a5de",
+        "android_client_info": {
+          "package_name": "com.example.nalaseva"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOeXWQgRDuE_lUY1gCNw33-cfTVbcD0No"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

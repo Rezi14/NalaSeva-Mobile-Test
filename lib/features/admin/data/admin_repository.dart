@@ -1,0 +1,240 @@
+import 'package:dio/dio.dart';
+import '../../../core/api/api_client.dart';
+import '../../../shared/models/user_model.dart';
+import '../../../shared/models/polyclinic_model.dart';
+import '../../../shared/models/queue_model.dart';
+import '../../../shared/models/doctor_model.dart';
+import '../../../shared/models/schedule_model.dart';
+import '../../../shared/models/examination_model.dart';
+import '../../../shared/models/patient_model.dart';
+import '../../../shared/models/dashboard_stats_model.dart';
+
+class AdminRepository {
+  final ApiClient _apiClient;
+
+  AdminRepository(this._apiClient);
+
+  // User Management
+  Future<List<UserModel>> getUsers() async {
+    try {
+      final response = await _apiClient.dio.get('users');
+      final List data = response.data['data'];
+      return data.map((e) => UserModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal mengambil data user';
+    }
+  }
+
+  Future<void> createUser(Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.post('users', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal membuat user';
+    }
+  }
+
+  Future<void> createPatient(Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.post('patients', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal membuat pasien';
+    }
+  }
+
+  Future<void> updateUser(int id, Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.put('users/$id', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal memperbarui user';
+    }
+  }
+
+  Future<void> deleteUser(int id) async {
+    try {
+      await _apiClient.dio.delete('users/$id');
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal menghapus user';
+    }
+  }
+
+  // Patient Management
+  Future<List<PatientModel>> getPatients() async {
+    try {
+      final response = await _apiClient.dio.get('patients');
+      final List data = response.data['data'];
+      return data.map((e) => PatientModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal mengambil data pasien';
+    }
+  }
+
+  // Doctor Management
+  Future<List<DoctorModel>> getDoctors() async {
+    try {
+      final response = await _apiClient.dio.get('doctors');
+      final List data = response.data['data'];
+      return data.map((e) => DoctorModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal mengambil data dokter';
+    }
+  }
+
+  Future<void> createDoctor(Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.post('doctors', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal membuat dokter';
+    }
+  }
+
+  Future<void> updateDoctor(int id, Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.put('doctors/$id', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal memperbarui dokter';
+    }
+  }
+
+  Future<void> deleteDoctor(int id) async {
+    try {
+      await _apiClient.dio.delete('doctors/$id');
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal menghapus dokter';
+    }
+  }
+
+  // Polyclinic Management
+  Future<List<PolyclinicModel>> getPolyclinics() async {
+    try {
+      final response = await _apiClient.dio.get('polyclinics');
+      final List data = response.data['data'];
+      return data.map((e) => PolyclinicModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal mengambil data poliklinik';
+    }
+  }
+
+  Future<void> createPolyclinic(Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.post('polyclinics', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal membuat poliklinik';
+    }
+  }
+
+  Future<void> updatePolyclinic(int id, Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.put('polyclinics/$id', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal memperbarui poliklinik';
+    }
+  }
+
+  Future<void> deletePolyclinic(int id) async {
+    try {
+      await _apiClient.dio.delete('polyclinics/$id');
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal menghapus poliklinik';
+    }
+  }
+
+  // Queue Management
+  Future<List<QueueModel>> getQueues() async {
+    try {
+      final response = await _apiClient.dio.get('queues');
+      final List data = response.data['data'];
+      return data.map((e) => QueueModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal mengambil data antrean';
+    }
+  }
+
+  Future<void> updateQueueStatus(int id, String status) async {
+    try {
+      await _apiClient.dio.put('queues/$id', data: {'status': status});
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal memperbarui status antrean';
+    }
+  }
+
+  Future<void> updateQueue(int id, Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.put('queues/$id', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal memperbarui data antrean';
+    }
+  }
+
+  Future<void> checkInQueue(int id) async {
+    try {
+      await _apiClient.dio.post('queues/$id/checkin');
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal memverifikasi Check-in';
+    }
+  }
+
+  Future<void> deleteQueue(int id) async {
+    try {
+      await _apiClient.dio.delete('queues/$id');
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal menghapus antrean';
+    }
+  }
+
+  // Schedule Management
+  Future<List<ScheduleModel>> getSchedules() async {
+    try {
+      final response = await _apiClient.dio.get('doctor-schedules');
+      final List data = response.data['data'];
+      return data.map((e) => ScheduleModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal mengambil data jadwal';
+    }
+  }
+
+  Future<void> createSchedule(Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.post('doctor-schedules', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal membuat jadwal';
+    }
+  }
+
+  Future<void> updateSchedule(int id, Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.put('doctor-schedules/$id', data: data);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal memperbarui jadwal';
+    }
+  }
+
+  Future<void> deleteSchedule(int id) async {
+    try {
+      await _apiClient.dio.delete('doctor-schedules/$id');
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal menghapus jadwal';
+    }
+  }
+
+  // Examination History
+  Future<List<ExaminationModel>> getExaminations() async {
+    try {
+      final response = await _apiClient.dio.get('examinations');
+      final List data = response.data['data'];
+      return data.map((e) => ExaminationModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal mengambil data pemeriksaan';
+    }
+  }
+
+  // Dashboard Statistics
+  Future<DashboardStatsModel> getDashboardStats() async {
+    try {
+      final response = await _apiClient.dio.get('dashboard-stats');
+      return DashboardStatsModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Gagal mengambil statistik dashboard';
+    }
+  }
+}
+

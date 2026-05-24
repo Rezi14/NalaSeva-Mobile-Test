@@ -1,0 +1,50 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class ApiClient {
+  late Dio dio;
+  static const String baseUrl = 'https://nalaseva-api-production.up.railway.app/api/';
+  final _storage = const FlutterSecureStorage();
+
+  ApiClient() {
+    dio = Dio(BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      validateStatus: (status) {
+        if (status == null) return false;
+        return status < 500; // Do not throw for 401, 404, etc.
+      },
+    ));
+
+    dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+    ));
+
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // Jangan tambahkan token jika sedang login
+        if (options.path.contains('login')) {
+          return handler.next(options);
+        }
+
+        final token = await _storage.read(key: 'access_token');
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        return handler.next(options);
+      },
+      onError: (e, handler) {
+        if (e.response?.statusCode == 401) {
+          // Handle unauthorized (session expired)
+        }
+        return handler.next(e);
+      },
+    ));
+  }
+}
