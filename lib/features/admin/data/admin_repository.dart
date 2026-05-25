@@ -8,6 +8,7 @@ import '../../../shared/models/schedule_model.dart';
 import '../../../shared/models/examination_model.dart';
 import '../../../shared/models/patient_model.dart';
 import '../../../shared/models/dashboard_stats_model.dart';
+import '../../../core/utils/error_parser.dart';
 
 class AdminRepository {
   final ApiClient _apiClient;
@@ -21,7 +22,7 @@ class AdminRepository {
       final List data = response.data['data'];
       return data.map((e) => UserModel.fromJson(e)).toList();
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil data user';
+      throw ErrorParser.parse(e, 'Gagal mengambil data user');
     }
   }
 
@@ -29,7 +30,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.post('users', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal membuat user';
+      throw ErrorParser.parse(e, 'Gagal membuat user');
     }
   }
 
@@ -37,7 +38,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.post('patients', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal membuat pasien';
+      throw ErrorParser.parse(e, 'Gagal membuat pasien');
     }
   }
 
@@ -45,7 +46,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.put('users/$id', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memperbarui user';
+      throw ErrorParser.parse(e, 'Gagal memperbarui user');
     }
   }
 
@@ -53,7 +54,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.delete('users/$id');
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal menghapus user';
+      throw ErrorParser.parse(e, 'Gagal menghapus user');
     }
   }
 
@@ -64,7 +65,7 @@ class AdminRepository {
       final List data = response.data['data'];
       return data.map((e) => PatientModel.fromJson(e)).toList();
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil data pasien';
+      throw ErrorParser.parse(e, 'Gagal mengambil data pasien');
     }
   }
 
@@ -75,7 +76,7 @@ class AdminRepository {
       final List data = response.data['data'];
       return data.map((e) => DoctorModel.fromJson(e)).toList();
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil data dokter';
+      throw ErrorParser.parse(e, 'Gagal mengambil data dokter');
     }
   }
 
@@ -83,7 +84,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.post('doctors', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal membuat dokter';
+      throw ErrorParser.parse(e, 'Gagal membuat dokter');
     }
   }
 
@@ -91,7 +92,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.put('doctors/$id', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memperbarui dokter';
+      throw ErrorParser.parse(e, 'Gagal memperbarui dokter');
     }
   }
 
@@ -99,7 +100,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.delete('doctors/$id');
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal menghapus dokter';
+      throw ErrorParser.parse(e, 'Gagal menghapus dokter');
     }
   }
 
@@ -110,7 +111,7 @@ class AdminRepository {
       final List data = response.data['data'];
       return data.map((e) => PolyclinicModel.fromJson(e)).toList();
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil data poliklinik';
+      throw ErrorParser.parse(e, 'Gagal mengambil data poliklinik');
     }
   }
 
@@ -118,7 +119,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.post('polyclinics', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal membuat poliklinik';
+      throw ErrorParser.parse(e, 'Gagal membuat poliklinik');
     }
   }
 
@@ -126,7 +127,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.put('polyclinics/$id', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memperbarui poliklinik';
+      throw ErrorParser.parse(e, 'Gagal memperbarui poliklinik');
     }
   }
 
@@ -134,7 +135,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.delete('polyclinics/$id');
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal menghapus poliklinik';
+      throw ErrorParser.parse(e, 'Gagal menghapus poliklinik');
     }
   }
 
@@ -145,7 +146,7 @@ class AdminRepository {
       final List data = response.data['data'];
       return data.map((e) => QueueModel.fromJson(e)).toList();
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil data antrean';
+      throw ErrorParser.parse(e, 'Gagal mengambil data antrean');
     }
   }
 
@@ -153,7 +154,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.put('queues/$id', data: {'status': status});
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memperbarui status antrean';
+      throw ErrorParser.parse(e, 'Gagal memperbarui status antrean');
     }
   }
 
@@ -161,7 +162,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.put('queues/$id', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memperbarui data antrean';
+      throw ErrorParser.parse(e, 'Gagal memperbarui data antrean');
     }
   }
 
@@ -169,7 +170,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.post('queues/$id/checkin');
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memverifikasi Check-in';
+      throw ErrorParser.parse(e, 'Gagal memverifikasi Check-in');
     }
   }
 
@@ -177,7 +178,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.delete('queues/$id');
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal menghapus antrean';
+      throw ErrorParser.parse(e, 'Gagal menghapus antrean');
     }
   }
 
@@ -188,7 +189,7 @@ class AdminRepository {
       final List data = response.data['data'];
       return data.map((e) => ScheduleModel.fromJson(e)).toList();
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil data jadwal';
+      throw ErrorParser.parse(e, 'Gagal mengambil data jadwal');
     }
   }
 
@@ -196,7 +197,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.post('doctor-schedules', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal membuat jadwal';
+      throw ErrorParser.parse(e, 'Gagal membuat jadwal');
     }
   }
 
@@ -204,7 +205,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.put('doctor-schedules/$id', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memperbarui jadwal';
+      throw ErrorParser.parse(e, 'Gagal memperbarui jadwal');
     }
   }
 
@@ -212,7 +213,7 @@ class AdminRepository {
     try {
       await _apiClient.dio.delete('doctor-schedules/$id');
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal menghapus jadwal';
+      throw ErrorParser.parse(e, 'Gagal menghapus jadwal');
     }
   }
 
@@ -223,7 +224,7 @@ class AdminRepository {
       final List data = response.data['data'];
       return data.map((e) => ExaminationModel.fromJson(e)).toList();
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil data pemeriksaan';
+      throw ErrorParser.parse(e, 'Gagal mengambil data pemeriksaan');
     }
   }
 
@@ -233,8 +234,7 @@ class AdminRepository {
       final response = await _apiClient.dio.get('dashboard-stats');
       return DashboardStatsModel.fromJson(response.data['data']);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil statistik dashboard';
+      throw ErrorParser.parse(e, 'Gagal mengambil statistik dashboard');
     }
   }
 }
-

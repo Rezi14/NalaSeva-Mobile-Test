@@ -54,7 +54,12 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       } else {
         _onSuccessMessage('Berhasil mengubah status menjadi MENUNGGU (Absen)');
         setState(() {
-          _currentQueue = provider.queues.firstWhere((q) => q.id == _currentQueue.id);
+          final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+          if (matchingQueues.isNotEmpty) {
+            _currentQueue = matchingQueues.first;
+          } else {
+            _currentQueue = _currentQueue.copyWith(status: QueueStatus.waiting);
+          }
         });
       }
     }
@@ -76,9 +81,11 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
         if (provider.error != null) {
           _onErrorMessage(provider.error!);
         } else {
-          final updatedQueue = provider.queues.firstWhere((q) => q.id == _currentQueue.id);
+          final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
           setState(() {
-            _currentQueue = updatedQueue;
+            if (matchingQueues.isNotEmpty) {
+              _currentQueue = matchingQueues.first;
+            }
           });
         }
       }
@@ -104,7 +111,12 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
         } else {
           _onSuccessMessage('Antrean berhasil dibatalkan');
           setState(() {
-            _currentQueue = provider.queues.firstWhere((q) => q.id == _currentQueue.id);
+            final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+            if (matchingQueues.isNotEmpty) {
+              _currentQueue = matchingQueues.first;
+            } else {
+              _currentQueue = _currentQueue.copyWith(status: QueueStatus.cancelled);
+            }
           });
         }
       }
@@ -209,7 +221,12 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                           } else {
                             _onSuccessMessage('Pasien dipanggil dan dimasukkan ke ruang periksa');
                             setState(() {
-                              _currentQueue = provider.queues.firstWhere((q) => q.id == _currentQueue.id);
+                              final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+                              if (matchingQueues.isNotEmpty) {
+                                _currentQueue = matchingQueues.first;
+                              } else {
+                                _currentQueue = _currentQueue.copyWith(status: QueueStatus.examining);
+                              }
                             });
                           }
                         }

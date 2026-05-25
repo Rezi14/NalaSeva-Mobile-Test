@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
 import '../../../shared/models/queue_model.dart';
@@ -7,29 +6,15 @@ import '../../../shared/models/examination_model.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../../../shared/models/doctor_model.dart';
 
+import '../../../core/utils/error_parser.dart';
+
 class PatientRepository {
   final ApiClient _apiClient;
 
   PatientRepository(this._apiClient);
 
   String _errorMessage(DioException e, String defaultMsg) {
-    try {
-      final data = e.response?.data;
-      if (data != null) {
-        if (data is Map) {
-          return data['message']?.toString() ?? defaultMsg;
-        } else if (data is String) {
-          try {
-            final decoded = jsonDecode(data);
-            if (decoded is Map) {
-              return decoded['message']?.toString() ?? defaultMsg;
-            }
-          } catch (_) {}
-          return data;
-        }
-      }
-    } catch (_) {}
-    return e.message ?? defaultMsg;
+    return ErrorParser.parse(e, defaultMsg);
   }
 
   void _checkResponse(Response response, String defaultError) {

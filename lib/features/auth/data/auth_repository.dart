@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
 import '../../../shared/models/user_model.dart';
+import '../../../core/utils/error_parser.dart';
 
 class AuthRepository {
   final ApiClient _apiClient;
@@ -24,7 +25,7 @@ class AuthRepository {
         'user': UserModel.fromJson(data['user']),
       };
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal login. Periksa koneksi atau kredensial Anda.';
+      throw ErrorParser.parse(e, 'Gagal login. Periksa koneksi atau kredensial Anda.');
     } catch (e) {
       rethrow;
     }
@@ -58,7 +59,7 @@ class AuthRepository {
         throw response.data['message'] ?? 'Gagal registrasi';
       }
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal registrasi. Silakan coba lagi.';
+      throw ErrorParser.parse(e, 'Gagal registrasi. Silakan coba lagi.');
     } catch (e) {
       rethrow;
     }
@@ -68,7 +69,7 @@ class AuthRepository {
     try {
       await _apiClient.dio.post('auth/logout');
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal logout';
+      throw ErrorParser.parse(e, 'Gagal logout');
     }
   }
 
@@ -111,7 +112,7 @@ class AuthRepository {
 
       return UserModel.fromJson(response.data['data']);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memperbarui profil. Silakan coba lagi.';
+      throw ErrorParser.parse(e, 'Gagal memperbarui profil. Silakan coba lagi.');
     } catch (e) {
       rethrow;
     }
@@ -124,7 +125,7 @@ class AuthRepository {
       
       return UserModel.fromJson(data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil profil';
+      throw ErrorParser.parse(e, 'Gagal mengambil profil');
     }
   }
 
@@ -140,7 +141,7 @@ class AuthRepository {
         throw response.data['message'] ?? 'Gagal reset password';
       }
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal reset password. Periksa data Anda.';
+      throw ErrorParser.parse(e, 'Gagal reset password. Periksa data Anda.');
     } catch (e) {
       rethrow;
     }

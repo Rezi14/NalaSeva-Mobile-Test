@@ -342,7 +342,7 @@ class AdminDoctorFormSheet {
                         'license_number': licenseController.text.trim(),
                         'phone': phoneController.text.trim(),
                         'address': addressController.text.trim(),
-                        'polyclinic_id': selectedPolyclinicId.toString(),
+                        'polyclinic_id': selectedPolyclinicId,
                         'national_id': nikController.text.trim(),
                         'gender': selectedGender,
                         'birth_date': selectedBirthDate != null 

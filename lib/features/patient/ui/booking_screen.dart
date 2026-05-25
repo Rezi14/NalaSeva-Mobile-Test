@@ -113,9 +113,13 @@ class _BookingScreenState extends State<BookingScreen> {
                         duration: const Duration(milliseconds: 600),
                         delay: const Duration(milliseconds: 500),
                         child: BookingDropdownCard(
-                          hint: selectedPolyId == null ? 'Pilih Poliklinik Terlebih Dahulu' : 'Pilih Dokter & Jadwal',
+                          hint: selectedPolyId == null 
+                              ? 'Pilih Poliklinik Terlebih Dahulu' 
+                              : (provider.availableSchedules.isEmpty 
+                                  ? 'Tidak Ada Jadwal Dokter Tersedia' 
+                                  : 'Pilih Dokter & Jadwal'),
                           value: selectedDoctorId,
-                          enabled: selectedPolyId != null,
+                          enabled: selectedPolyId != null && provider.availableSchedules.isNotEmpty,
                            items: provider.availableSchedules.map((s) {
                              final startStr = s.startTime.length >= 5 ? s.startTime.substring(0, 5) : s.startTime;
                              final endStr = s.endTime.length >= 5 ? s.endTime.substring(0, 5) : s.endTime;
@@ -138,7 +142,9 @@ class _BookingScreenState extends State<BookingScreen> {
                               selectedDoctorId = val;
                             });
                             if (val != null) {
-                              final selectedSchedule = provider.availableSchedules.firstWhere((s) => s.id == val);
+                              final schedules = provider.availableSchedules.where((s) => s.id == val);
+                              if (schedules.isEmpty) return;
+                              final selectedSchedule = schedules.first;
                               final targetDayOfWeek = _getDayOfWeekInt(selectedSchedule.dayOfWeek);
                               
                               // Ambil data libur & cuti dokter asinkron
@@ -164,8 +170,10 @@ class _BookingScreenState extends State<BookingScreen> {
                         delay: const Duration(milliseconds: 550),
                         child: InkWell(
                           onTap: selectedDoctorId == null ? null : () async {
-                            final selectedSchedule = provider.availableSchedules.firstWhere((s) => s.id == selectedDoctorId);
-                            final targetDayOfWeek = _getDayOfWeekInt(selectedSchedule.dayOfWeek);
+                             final schedules = provider.availableSchedules.where((s) => s.id == selectedDoctorId);
+                             if (schedules.isEmpty) return;
+                             final selectedSchedule = schedules.first;
+                             final targetDayOfWeek = _getDayOfWeekInt(selectedSchedule.dayOfWeek);
                             final selDateStr = selectedDate.toIso8601String().split('T')[0];
                             final isSelHoliday = provider.clinicHolidays.contains(selDateStr);
                             final isSelLeave = provider.doctorLeaves.contains(selDateStr);
@@ -354,7 +362,12 @@ class _BookingScreenState extends State<BookingScreen> {
       return;
     }
 
-    final selectedSchedule = provider.availableSchedules.firstWhere((s) => s.id == selectedDoctorId);
+    final schedules = provider.availableSchedules.where((s) => s.id == selectedDoctorId);
+    if (schedules.isEmpty) {
+      _showResultDialog(false, 'Jadwal dokter tidak ditemukan');
+      return;
+    }
+    final selectedSchedule = schedules.first;
     final doctorId = selectedSchedule.doctorId;
 
     await provider.createBooking({

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
 import '../../../shared/models/queue_model.dart';
 import '../../../shared/models/examination_model.dart';
+import '../../../core/utils/error_parser.dart';
 
 class DoctorRepository {
   final ApiClient _apiClient;
@@ -14,7 +15,7 @@ class DoctorRepository {
       final List data = response.data['data'];
       return data.map((e) => QueueModel.fromJson(e)).toList();
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil data antrean';
+      throw ErrorParser.parse(e, 'Gagal mengambil data antrean');
     }
   }
 
@@ -24,7 +25,7 @@ class DoctorRepository {
       final List data = response.data['data'];
       return data.map((e) => ExaminationModel.fromJson(e)).toList();
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal mengambil riwayat rekam medis';
+      throw ErrorParser.parse(e, 'Gagal mengambil riwayat rekam medis');
     }
   }
 
@@ -32,7 +33,7 @@ class DoctorRepository {
     try {
       await _apiClient.dio.post('examinations', data: data);
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal menyimpan data pemeriksaan';
+      throw ErrorParser.parse(e, 'Gagal menyimpan data pemeriksaan');
     }
   }
 
@@ -40,7 +41,7 @@ class DoctorRepository {
     try {
       await _apiClient.dio.put('queues/$id', data: {'status': status});
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memperbarui status antrean';
+      throw ErrorParser.parse(e, 'Gagal memperbarui status antrean');
     }
   }
 
@@ -48,7 +49,7 @@ class DoctorRepository {
     try {
       await _apiClient.dio.post('queues/$id/skip');
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal melepaskan antrean ke barisan belakang';
+      throw ErrorParser.parse(e, 'Gagal melepaskan antrean ke barisan belakang');
     }
   }
 
@@ -56,7 +57,7 @@ class DoctorRepository {
     try {
       await _apiClient.dio.patch('doctors/me/status', data: {'is_online': isOnline});
     } on DioException catch (e) {
-      throw e.response?.data['message'] ?? 'Gagal memperbarui status aktif/istirahat';
+      throw ErrorParser.parse(e, 'Gagal memperbarui status aktif/istirahat');
     }
   }
 }

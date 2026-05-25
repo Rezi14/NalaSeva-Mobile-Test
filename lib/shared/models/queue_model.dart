@@ -56,4 +56,28 @@ class QueueModel {
       'position_waiting': positionWaiting,
     };
   }
+
+  QueueModel copyWith({
+    int? id,
+    String? queueNumber,
+    QueueStatus? status,
+    String? date,
+    PatientModel? patient,
+    PolyclinicModel? polyclinic,
+    String? estimatedServiceTime,
+    int? avgWaitingTime,
+    int? positionWaiting,
+  }) {
+    return QueueModel(
+      id: id ?? this.id,
+      queueNumber: queueNumber ?? this.queueNumber,
+      status: status ?? this.status,
+      date: date ?? this.date,
+      patient: patient ?? this.patient,
+      polyclinic: polyclinic ?? this.polyclinic,
+      estimatedServiceTime: estimatedServiceTime ?? this.estimatedServiceTime,
+      avgWaitingTime: avgWaitingTime ?? this.avgWaitingTime,
+      positionWaiting: positionWaiting ?? this.positionWaiting,
+    );
+  }
 }
