@@ -85,7 +85,7 @@ class MedicalRecordDetailScreen extends StatelessWidget {
                       [
                         _infoTile(Icons.calendar_today_rounded, 'Tanggal', queue.date),
                         _infoTile(Icons.local_hospital_rounded, 'Poliklinik', queue.polyclinic.name),
-                        _infoTile(Icons.person_rounded, 'Dokter', 'dr. ${queue.polyclinic.name} Expert'), // Placeholder for doctor
+                        _infoTile(Icons.person_rounded, 'Dokter', examination?.doctor?.name ?? 'Belum tersedia'),
                       ],
                     ),
                   ),
@@ -104,7 +104,7 @@ class MedicalRecordDetailScreen extends StatelessWidget {
                           const SizedBox(height: 16),
                           _detailCard('Tindakan', examination!.treatment, AppTheme.accentColor),
                           const SizedBox(height: 16),
-                          _detailCard('Resep Obat', 'Amoxicillin 500mg (3x1), Paracetamol 500mg (3x1)', AppTheme.primaryColor), // Placeholder for notes/recipe
+                          _detailCard('Catatan Tambahan', examination!.complaint, AppTheme.primaryColor),
                         ],
                       ),
                     ),

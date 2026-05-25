@@ -19,19 +19,21 @@ class PatientDashboard extends StatefulWidget {
 }
 
 class _PatientDashboardState extends State<PatientDashboard> {
+  late final PatientProvider _patientProvider;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<PatientProvider>();
-      provider.fetchMyData();
-      provider.addListener(_onPatientError);
+      _patientProvider = context.read<PatientProvider>();
+      _patientProvider.fetchMyData();
+      _patientProvider.addListener(_onPatientError);
     });
   }
 
   @override
   void dispose() {
-    context.read<PatientProvider>().removeListener(_onPatientError);
+    _patientProvider.removeListener(_onPatientError);
     super.dispose();
   }
 
@@ -52,7 +54,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     final user = context.watch<AuthProvider>().user;
     final provider = context.watch<PatientProvider>();
     final initials = user?.name.isNotEmpty == true 
-        ? user!.name.split(' ').map((e) => e[0]).take(2).join().toUpperCase() 
+        ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase() 
         : 'PS';
 
     return GestureDetector(

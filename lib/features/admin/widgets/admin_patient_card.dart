@@ -16,7 +16,7 @@ class AdminPatientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = queue.patient.fullName.isNotEmpty
-        ? queue.patient.fullName.split(' ').map((e) => e[0]).take(2).join().toUpperCase()
+        ? queue.patient.fullName.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
         : '?';
 
     Color statusColor;
@@ -110,9 +110,9 @@ class AdminPatientCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  '09:15 AM',
-                  style: TextStyle(
+                Text(
+                  queue.date,
+                  style: const TextStyle(
                     fontSize: 11,
                     color: Colors.grey,
                   ),

@@ -405,15 +405,21 @@ class _BookingScreenState extends State<BookingScreen> {
 
   DateTime _getNearestDateForWeekday(int targetWeekday, PatientProvider provider) {
     DateTime date = DateTime.now().add(const Duration(days: 1));
-    while (true) {
+    final maxDate = DateTime.now().add(const Duration(days: 90)); // Batas pencarian 90 hari
+    while (date.isBefore(maxDate)) {
       if (date.weekday == targetWeekday) {
         final dateStr = date.toIso8601String().split('T')[0];
         final isHoliday = provider.clinicHolidays.contains(dateStr);
         final isLeave = provider.doctorLeaves.contains(dateStr);
         if (!isHoliday && !isLeave) {
-          break;
+          return date;
         }
       }
+      date = date.add(const Duration(days: 1));
+    }
+    // Fallback: kembalikan tanggal pertama yang sesuai hari tanpa cek libur
+    date = DateTime.now().add(const Duration(days: 1));
+    while (date.weekday != targetWeekday) {
       date = date.add(const Duration(days: 1));
     }
     return date;

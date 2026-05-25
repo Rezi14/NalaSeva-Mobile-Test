@@ -289,7 +289,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
 
     final p = _currentQueue.patient;
     final initials = p.fullName.isNotEmpty
-        ? p.fullName.split(' ').map((e) => e[0]).take(2).join().toUpperCase()
+        ? p.fullName.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
         : 'PS';
 
     final ageStr = p.birthDate != null

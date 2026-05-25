@@ -32,7 +32,7 @@ class ExaminationModel {
       complaint: json['complaint'] ?? '',
       diagnosis: json['diagnosis'] ?? '',
       treatment: json['treatment'] ?? '',
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
       doctor: json['doctor'] != null ? DoctorModel.fromJson(json['doctor']) : null,
       queue: json['queue'] != null ? QueueModel.fromJson(json['queue']) : null,
     );

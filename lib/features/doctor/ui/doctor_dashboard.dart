@@ -55,7 +55,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     final user = context.watch<AuthProvider>().user;
     final provider = context.watch<DoctorProvider>();
     final initials = user?.name.isNotEmpty == true 
-        ? user!.name.split(' ').map((e) => e[0]).take(2).join().toUpperCase() 
+        ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase() 
         : 'DR';
 
     return Scaffold(

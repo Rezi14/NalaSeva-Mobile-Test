@@ -236,7 +236,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
     
     // Find matching examination for this queue
     final examination = exams.cast<ExaminationModel?>().firstWhere(
-      (e) => e?.id == q.id, // Assuming ID matching for simplicity, or use specific linkage
+      (e) => e?.queueId == q.id,
       orElse: () => null,
     );
 
