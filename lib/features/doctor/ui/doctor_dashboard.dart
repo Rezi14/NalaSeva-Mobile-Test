@@ -280,12 +280,23 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
 
   Widget _buildAnalyticsChart(List<ExaminationModel> medicalRecords) {
     final List<double> weekdayCounts = List.filled(7, 0.0);
+    final now = DateTime.now();
+    // Monday of the current week
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final startOfWeekOnly = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+    // Sunday of the current week (inclusive)
+    final endOfWeekOnly = startOfWeekOnly.add(const Duration(days: 7));
+
     for (var exam in medicalRecords) {
       final parsedDate = exam.createdAt;
       if (parsedDate != null) {
-        final weekdayIndex = parsedDate.weekday - 1; // 0 (Mon) to 6 (Sun)
-        if (weekdayIndex >= 0 && weekdayIndex < 7) {
-          weekdayCounts[weekdayIndex] += 1.0;
+        final dateOnly = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
+        if (dateOnly.isAtSameMomentAs(startOfWeekOnly) || 
+            (dateOnly.isAfter(startOfWeekOnly) && dateOnly.isBefore(endOfWeekOnly))) {
+          final weekdayIndex = parsedDate.weekday - 1; // 0 (Mon) to 6 (Sun)
+          if (weekdayIndex >= 0 && weekdayIndex < 7) {
+            weekdayCounts[weekdayIndex] += 1.0;
+          }
         }
       }
     }
