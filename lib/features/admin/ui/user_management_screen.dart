@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:animate_do/animate_do.dart';
+import '../../../shared/widgets/staggered_list_animator.dart';
 import '../logic/admin_provider.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../shared/models/user_model.dart';
@@ -45,15 +45,16 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
           return RefreshIndicator(
             onRefresh: provider.fetchUsers,
-            child: ListView.builder(
+            child: StaggeredListAnimator(
               padding: const EdgeInsets.all(20),
               itemCount: provider.users.length,
+              horizontalOffset: -50.0,
+              verticalOffset: 0.0,
+              duration: const Duration(milliseconds: 350),
               itemBuilder: (context, index) {
                 final user = provider.users[index];
-                return FadeInLeft(
-                  delay: Duration(milliseconds: 100 * index),
-                  child: Card(
-                    margin: const EdgeInsets.only(bottom: 16),
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 16),
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(16),
                       leading: CircleAvatar(
@@ -96,9 +97,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                             )
                           : const Icon(Icons.info_outline, color: Colors.grey), // Just for view
                     ),
-                  ),
-                );
-              },
+                  );
+                },
             ),
           );
         },

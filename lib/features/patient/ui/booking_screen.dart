@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../logic/patient_provider.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -40,32 +41,70 @@ class _BookingScreenState extends State<BookingScreen> {
         builder: (context, provider, child) {
           return Column(
             children: [
-              // Header
-              FadeInDown(
-                duration: const Duration(milliseconds: 600),
+              // Premium Header with smooth bottom-up stagger
+              FadeIn(
+                duration: const Duration(milliseconds: 400),
                 child: Container(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10, bottom: 20),
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_rounded),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Ambil Antrean',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                  child: SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                      child: AnimationLimiter(
+                        child: Column(
+                          children: [
+                            AnimationConfiguration.staggeredList(
+                              position: 0,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                verticalOffset: 30.0,
+                                child: FadeInAnimation(
+                                  child: Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        color: AppTheme.primaryColor,
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Ambil Antrean',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Daftar antrean poliklinik secara online',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 13,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),

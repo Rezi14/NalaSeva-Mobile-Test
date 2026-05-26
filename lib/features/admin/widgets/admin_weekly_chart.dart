@@ -29,7 +29,7 @@ class AdminWeeklyChart extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Weekly Traffic',
+                'Trafik Mingguan',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -71,7 +71,7 @@ class AdminWeeklyChart extends StatelessWidget {
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                        const days = ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
                         return Text(
                           days[value.toInt() % 7],
                           style: const TextStyle(
@@ -119,7 +119,7 @@ class AdminWeeklyChart extends StatelessWidget {
                 Icons.history_rounded,
                 size: 16,
               ),
-              label: const Text('View Examination History'),
+              label: const Text('Lihat Riwayat Pemeriksaan'),
               style: TextButton.styleFrom(
                 foregroundColor: AppTheme.primaryColor,
               ),

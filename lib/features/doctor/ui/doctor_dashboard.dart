@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../auth/logic/auth_provider.dart';
@@ -8,6 +9,7 @@ import '../logic/doctor_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../shared/models/queue_model.dart';
+import '../../../shared/models/examination_model.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../widgets/doctor_stat_card.dart';
 import '../widgets/doctor_welcome_card.dart';
@@ -27,6 +29,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<DoctorProvider>();
       provider.fetchMyQueues();
+      provider.fetchMedicalRecords();
       provider.addListener(_onProviderError);
       context.read<AuthProvider>().checkAuth();
     });
@@ -58,13 +61,15 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase() 
         : 'DR';
 
+    final myQueues = provider.queues.where((q) => q.doctorId == user?.doctorId).toList();
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
         children: [
           // Premium Header
-          FadeInDown(
-            duration: const Duration(milliseconds: 600),
+          FadeIn(
+            duration: const Duration(milliseconds: 500),
             child: Container(
               color: Colors.white,
               child: SafeArea(
@@ -155,7 +160,12 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
 
           Expanded(
             child: RefreshIndicator(
-              onRefresh: provider.fetchMyQueues,
+              onRefresh: () async {
+                await Future.wait([
+                  provider.fetchMyQueues(),
+                  provider.fetchMedicalRecords(),
+                ]);
+              },
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(24),
@@ -163,8 +173,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Welcome & Active Toggle Status Card
-                    FadeInDown(
-                      duration: const Duration(milliseconds: 600),
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 500),
                       delay: const Duration(milliseconds: 100),
                       child: DoctorWelcomeCard(
                         doctorName: user?.name ?? 'Dokter',
@@ -178,17 +188,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                     FadeInUp(
                       duration: const Duration(milliseconds: 600),
                       delay: const Duration(milliseconds: 200),
-                      child: _buildStatsRow(provider),
+                      child: _buildStatsRow(myQueues),
                     ),
                     const SizedBox(height: 24),
-
-                    // Analytics Chart
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 600),
-                      delay: const Duration(milliseconds: 300),
-                      child: _buildAnalyticsChart(provider),
-                    ),
-                    const SizedBox(height: 32),
 
                     // Queue section
                     Row(
@@ -203,7 +205,12 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                           ),
                         ),
                         TextButton.icon(
-                          onPressed: () => provider.fetchMyQueues(),
+                          onPressed: () async {
+                            await Future.wait([
+                              provider.fetchMyQueues(),
+                              provider.fetchMedicalRecords(),
+                            ]);
+                          },
                           icon: const Icon(Icons.refresh_rounded, size: 16, color: AppTheme.primaryColor),
                           label: Text(
                             'Refresh',
@@ -213,7 +220,15 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _buildQueueList(provider),
+                    _buildQueueList(provider, myQueues),
+                    const SizedBox(height: 32),
+
+                    // Analytics Chart (Kunjungan Pasien)
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 600),
+                      delay: const Duration(milliseconds: 300),
+                      child: _buildAnalyticsChart(provider.medicalRecords),
+                    ),
                   ],
                 ),
               ),
@@ -224,9 +239,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
-  Widget _buildStatsRow(DoctorProvider provider) {
-    final completedCount = provider.queues.where((q) => q.status == QueueStatus.completed).length;
-    final activeCount = provider.queues.where((q) => q.status == QueueStatus.waiting || q.status == QueueStatus.examining).length;
+  Widget _buildStatsRow(List<QueueModel> myQueues) {
+    final completedCount = myQueues.where((q) => q.status == QueueStatus.completed).length;
+    final activeCount = myQueues.where((q) => q.status == QueueStatus.waiting || q.status == QueueStatus.examining).length;
 
     return Row(
       children: [
@@ -253,7 +268,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         Expanded(
           child: DoctorStatCard(
             label: 'Total',
-            value: '${provider.queues.length}',
+            value: '${myQueues.length}',
             icon: Icons.analytics_outlined,
             color: AppTheme.accentColor,
             bgColor: AppTheme.accentColor.withValues(alpha: 0.1),
@@ -263,29 +278,27 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
-  Widget _buildAnalyticsChart(DoctorProvider provider) {
+  Widget _buildAnalyticsChart(List<ExaminationModel> medicalRecords) {
     final List<double> weekdayCounts = List.filled(7, 0.0);
-    bool hasRealData = false;
-    for (var q in provider.queues) {
-      final parsedDate = DateTime.tryParse(q.date);
+    for (var exam in medicalRecords) {
+      final parsedDate = exam.createdAt;
       if (parsedDate != null) {
         final weekdayIndex = parsedDate.weekday - 1; // 0 (Mon) to 6 (Sun)
         if (weekdayIndex >= 0 && weekdayIndex < 7) {
           weekdayCounts[weekdayIndex] += 1.0;
-          hasRealData = true;
         }
       }
     }
-    final List<double> finalCounts = hasRealData ? weekdayCounts : [4.0, 8.0, 5.0, 12.0, 9.0, 14.0, 7.0];
+    final List<double> finalCounts = weekdayCounts;
     final double maxVal = finalCounts.reduce((a, b) => a > b ? a : b);
     final double dynamicMaxY = maxVal > 5 ? (maxVal * 1.25).ceilToDouble() : 10.0;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,125 +306,81 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Kunjungan Pasien',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Text(
-                    'Statistik 7 hari terakhir',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
+              Text(
+                'Kunjungan Pasien',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Minggu Ini',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor,
-                  ),
-                ),
+              const Icon(
+                Icons.assessment_rounded,
+                color: Colors.grey,
+                size: 20,
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           SizedBox(
-            height: 140,
-            child: LineChart(
-              LineChartData(
-                gridData: const FlGridData(show: false),
-                lineTouchData: LineTouchData(
-                  touchTooltipData: LineTouchTooltipData(
+            height: 150,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceEvenly,
+                maxY: dynamicMaxY,
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchTooltipData: BarTouchTooltipData(
                     getTooltipColor: (_) => AppTheme.primaryColor.withValues(alpha: 0.95),
-                    getTooltipItems: (touchedSpots) {
-                      return touchedSpots.map((spot) {
-                        return LineTooltipItem(
-                          '${spot.y.toInt()} Pasien',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        );
-                      }).toList();
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      return BarTooltipItem(
+                        '${rod.toY.toInt()} Pasien',
+                        const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      );
                     },
                   ),
                 ),
                 titlesData: FlTitlesData(
                   show: true,
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 24,
-                      interval: 1,
                       getTitlesWidget: (value, meta) {
-                        const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-                        if (value.toInt() >= 0 && value.toInt() < days.length) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 6.0),
-                            child: Text(
-                              days[value.toInt()],
-                              style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 9, fontWeight: FontWeight.bold),
-                            ),
-                          );
-                        }
-                        return const Text('');
+                        const days = ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
+                        return Text(
+                          days[value.toInt() % 7],
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 10,
+                          ),
+                        );
                       },
+                      reservedSize: 20,
                     ),
+                  ),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
                   ),
                 ),
+                gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
-                minX: 0,
-                maxX: 6,
-                minY: 0,
-                maxY: dynamicMaxY,
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: [
-                      FlSpot(0, finalCounts[0]),
-                      FlSpot(1, finalCounts[1]),
-                      FlSpot(2, finalCounts[2]),
-                      FlSpot(3, finalCounts[3]),
-                      FlSpot(4, finalCounts[4]),
-                      FlSpot(5, finalCounts[5]),
-                      FlSpot(6, finalCounts[6]),
-                    ],
-                    isCurved: true,
-                    gradient: const LinearGradient(colors: [AppTheme.primaryColor, AppTheme.accentColor]),
-                    barWidth: 3,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: true),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      gradient: LinearGradient(
-                        colors: [
-                          AppTheme.primaryColor.withValues(alpha: 0.15),
-                          AppTheme.accentColor.withValues(alpha: 0.0),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
+                barGroups: [
+                  _makeGroupData(0, finalCounts[0]),
+                  _makeGroupData(1, finalCounts[1]),
+                  _makeGroupData(2, finalCounts[2]),
+                  _makeGroupData(3, finalCounts[3]),
+                  _makeGroupData(4, finalCounts[4]),
+                  _makeGroupData(5, finalCounts[5]),
+                  _makeGroupData(6, finalCounts[6]),
                 ],
               ),
             ),
@@ -421,7 +390,21 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
-  Widget _buildQueueList(DoctorProvider provider) {
+  BarChartGroupData _makeGroupData(int x, double y) {
+    return BarChartGroupData(
+      x: x,
+      barRods: [
+        BarChartRodData(
+          toY: y,
+          color: AppTheme.primaryColor,
+          width: 12,
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQueueList(DoctorProvider provider, List<QueueModel> myQueues) {
     if (provider.isLoading) {
       return const Center(
         child: Padding(
@@ -431,46 +414,76 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       );
     }
     
-    final queues = provider.queues.where((q) => q.status == QueueStatus.waiting || q.status == QueueStatus.examining).toList();
+    final queues = myQueues.where((q) => q.status == QueueStatus.examining).toList();
     
     if (queues.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade100),
-        ),
-        child: Column(
-          children: [
-            const Icon(Icons.people_alt_rounded, size: 48, color: Colors.grey),
-            const SizedBox(height: 12),
-            Text(
-              'Tidak ada antrean aktif saat ini.',
-              style: GoogleFonts.plusJakartaSans(color: Colors.grey, fontWeight: FontWeight.w600),
-            ),
-          ],
+      return FadeInUp(
+        duration: const Duration(milliseconds: 500),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.shade100),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.grey.shade100,
+                child: Icon(Icons.people_alt_rounded, size: 40, color: Colors.grey.shade400),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Tidak ada antrean aktif saat ini',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Semua pasien hari ini telah selesai dilayani.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  color: Colors.grey.shade400,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: queues.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final q = queues[index];
+    return AnimationLimiter(
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: queues.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final q = queues[index];
 
-        return FadeInUp(
-          delay: Duration(milliseconds: 50 * index),
-          child: DoctorQueueTile(
-            queue: q,
-            onExamine: () => _navigateToExamination(q),
-          ),
-        );
-      },
+          return AnimationConfiguration.staggeredList(
+            position: index,
+            duration: const Duration(milliseconds: 375),
+            child: SlideAnimation(
+              verticalOffset: 30.0,
+              child: FadeInAnimation(
+                child: DoctorQueueTile(
+                  queue: q,
+                  onExamine: () => _navigateToExamination(q),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

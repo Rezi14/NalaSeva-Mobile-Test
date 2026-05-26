@@ -180,8 +180,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        alignment: WrapAlignment.center,
                         children: [
                           const Text('Belum punya akun?'),
                           TextButton(
@@ -190,6 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                             style: TextButton.styleFrom(
                               foregroundColor: AppTheme.secondaryColor,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
                             ),
                             child: const Text(
                               'Daftar Sekarang',

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../auth/logic/auth_provider.dart';
-// import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -99,13 +102,109 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profil')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
+      backgroundColor: AppTheme.backgroundColor,
+      body: Column(
+        children: [
+          // Premium Header with smooth bottom-up stagger
+          FadeIn(
+            duration: const Duration(milliseconds: 400),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  child: AnimationLimiter(
+                    child: Column(
+                      children: [
+                        AnimationConfiguration.staggeredList(
+                          position: 0,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            verticalOffset: 30.0,
+                            child: FadeInAnimation(
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Edit Profil',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Perbarui data diri dan kontak akun Anda',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+              // Info Banner read-only fields
+              Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: AppTheme.warningColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.warningColor.withValues(alpha: 0.15)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline_rounded, color: AppTheme.warningColor, size: 22),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Untuk keamanan data, Nomor NIK tidak dapat diubah secara mandiri.',
+                        style: GoogleFonts.inter(
+                          color: AppTheme.warningColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               _buildTextField(
                 controller: _nikController,
                 label: 'NIK (Tidak dapat diubah)',
@@ -236,9 +335,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       : const Text('SIMPAN PERUBAHAN'),
                 ),
               ),
-            ],
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -257,10 +359,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       keyboardType: keyboardType,
       maxLines: maxLines,
       readOnly: readOnly,
+      style: GoogleFonts.plusJakartaSans(
+        color: readOnly ? Colors.grey.shade600 : Colors.black87,
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        prefixIcon: Icon(icon, color: Colors.grey),
+        filled: true,
+        fillColor: readOnly ? Colors.grey.shade100 : Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppTheme.primaryColor),
+        ),
       ),
       validator: validator,
     );

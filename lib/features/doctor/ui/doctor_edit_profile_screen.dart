@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
@@ -127,43 +129,101 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'Edit Profil Saya',
-          style: GoogleFonts.plusJakartaSans(
-            fontWeight: FontWeight.bold,
-            color: AppTheme.primaryColor,
+      body: Column(
+        children: [
+          // Premium Header with smooth bottom-up stagger
+          FadeIn(
+            duration: const Duration(milliseconds: 400),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  child: AnimationLimiter(
+                    child: Column(
+                      children: [
+                        AnimationConfiguration.staggeredList(
+                          position: 0,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            verticalOffset: 30.0,
+                            child: FadeInAnimation(
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Edit Profil Saya',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Perbarui data profesi dan kontak Anda',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: AppTheme.primaryColor,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
               // Info Banner read-only fields
               Container(
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.only(bottom: 24),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentColor.withValues(alpha: 0.08),
+                  color: AppTheme.warningColor.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.accentColor.withValues(alpha: 0.15)),
+                  border: Border.all(color: AppTheme.warningColor.withValues(alpha: 0.15)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline_rounded, color: AppTheme.accentColor, size: 22),
+                    const Icon(Icons.info_outline_rounded, color: AppTheme.warningColor, size: 22),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Untuk keamanan data, Nomor NIK tidak dapat diubah secara mandiri.',
                         style: GoogleFonts.inter(
-                          color: AppTheme.secondaryColor,
+                          color: AppTheme.warningColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -355,9 +415,12 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                         ),
                       ),
               ),
-            ],
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

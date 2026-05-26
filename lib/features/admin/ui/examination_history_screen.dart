@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:animate_do/animate_do.dart';
+import '../../../shared/widgets/staggered_list_animator.dart';
 import 'package:intl/intl.dart';
 import '../logic/admin_provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -47,17 +47,16 @@ class _ExaminationHistoryScreenState extends State<ExaminationHistoryScreen> {
 
           return RefreshIndicator(
             onRefresh: provider.fetchExaminations,
-            child: ListView.builder(
+            child: StaggeredListAnimator(
               padding: const EdgeInsets.all(20),
               itemCount: provider.examinations.length,
+              duration: const Duration(milliseconds: 350),
               itemBuilder: (context, index) {
                 final examination = provider.examinations[index];
                 final date = DateFormat('dd MMM yyyy, HH:mm').format(examination.createdAt?.toLocal() ?? DateTime.now());
 
-                return FadeInUp(
-                  delay: Duration(milliseconds: index * 50),
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -129,9 +128,8 @@ class _ExaminationHistoryScreenState extends State<ExaminationHistoryScreen> {
                         Text(examination.treatment),
                       ],
                     ),
-                  ),
-                );
-              },
+                  );
+                },
             ),
           );
         },

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../data/auth_repository.dart';
 import '../../../shared/models/user_model.dart';
@@ -27,15 +27,17 @@ class AuthProvider extends ChangeNotifier {
       _user = result['user'];
       await _storage.write(key: 'access_token', value: result['token']);
       
-      try {
-        final fcmService = FirebaseMessagingService();
-        await fcmService.initialize();
-        final token = await fcmService.getFCMToken();
-        if (token != null) {
-          await _repository.updateFcmToken(token);
+      if (!kIsWeb) {
+        try {
+          final fcmService = FirebaseMessagingService();
+          await fcmService.initialize();
+          final token = await fcmService.getFCMToken();
+          if (token != null) {
+            await _repository.updateFcmToken(token);
+          }
+        } catch (e) {
+          debugPrint('FCM Setup Error: $e');
         }
-      } catch (e) {
-        debugPrint('FCM Setup Error: $e');
       }
 
       _isLoading = false;

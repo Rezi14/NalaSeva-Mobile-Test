@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
 import '../logic/patient_provider.dart';
 import 'medical_record_detail_screen.dart';
 import '../../../shared/models/queue_model.dart';
 import '../../../shared/models/examination_model.dart';
-import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 
 class PatientHistoryScreen extends StatefulWidget {
@@ -18,6 +18,9 @@ class PatientHistoryScreen extends StatefulWidget {
 }
 
 class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
+  String _selectedFilter = 'Semua';
+  final List<String> _filters = ['Semua', 'Bulan Ini', '3 Bulan', '6 Bulan'];
+
   @override
   void initState() {
     super.initState();
@@ -26,85 +29,102 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
     });
   }
 
+  List<ExaminationModel> _applyFilter(List<ExaminationModel> exams) {
+    final now = DateTime.now();
+    switch (_selectedFilter) {
+      case 'Bulan Ini':
+        return exams.where((e) {
+          final d = e.createdAt;
+          return d != null && d.year == now.year && d.month == now.month;
+        }).toList();
+      case '3 Bulan':
+        final cutoff = now.subtract(const Duration(days: 90));
+        return exams.where((e) => e.createdAt != null && e.createdAt!.isAfter(cutoff)).toList();
+      case '6 Bulan':
+        final cutoff = now.subtract(const Duration(days: 180));
+        return exams.where((e) => e.createdAt != null && e.createdAt!.isAfter(cutoff)).toList();
+      default:
+        return exams;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<PatientProvider>();
-    final allHistory = provider.myQueues.where((q) => 
-      q.status == QueueStatus.completed || q.status == QueueStatus.cancelled
-    ).toList();
-
-    // Grouping by Month (Simple logic for demonstration)
-    final totalVisits = allHistory.length;
-    final thisMonthVisits = allHistory.where((q) {
-      // In real app, check created_at. For now, assume some are this month.
-      return q.status == QueueStatus.completed; 
+    final allExams = _applyFilter(provider.medicalRecords);
+    final thisMonthCount = provider.medicalRecords.where((e) {
+      final d = e.createdAt;
+      final now = DateTime.now();
+      return d != null && d.year == now.year && d.month == now.month;
     }).length;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
         children: [
-          // Header Section
-          FadeInDown(
-            duration: const Duration(milliseconds: 600),
+          // Premium Header — single-line, no filter button
+          FadeIn(
+            duration: const Duration(milliseconds: 400),
             child: Container(
-              color: Colors.white,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+              ),
               child: SafeArea(
                 bottom: false,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Row(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(right: 16),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade200),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Riwayat Antrean',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  child: AnimationLimiter(
+                    child: Column(
+                      children: [
+                        AnimationConfiguration.staggeredList(
+                          position: 0,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            verticalOffset: 30.0,
+                            child: FadeInAnimation(
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    color: AppTheme.primaryColor,
                                   ),
-                                ),
-                                Text(
-                                  'Daftar kunjungan puskesmas Anda',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    color: Colors.grey.shade600,
+                                  const SizedBox(width: 16),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Riwayat Rekam Medis',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Daftar rekam medis Anda',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.filter_list_rounded, color: AppTheme.primaryColor),
-                              onPressed: () {},
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    const Divider(height: 1),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -117,78 +137,172 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
                   children: [
-                    // Stats Cards
+                    // Stat cards
                     FadeInUp(
-                      duration: const Duration(milliseconds: 600),
-                      delay: const Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 500),
+                      delay: const Duration(milliseconds: 100),
                       child: Padding(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                         child: Row(
                           children: [
-                            _statCard('Total Kunjungan', totalVisits.toString(), 'kali'),
+                            _statCard(
+                              'Total Rekam Medis',
+                              provider.medicalRecords.length.toString(),
+                              'kali',
+                              Icons.medical_information_rounded,
+                              AppTheme.primaryColor,
+                            ),
                             const SizedBox(width: 16),
-                            _statCard('Bulan Ini', thisMonthVisits.toString(), 'kali'),
+                            _statCard(
+                              'Bulan Ini',
+                              thisMonthCount.toString(),
+                              'kali',
+                              Icons.calendar_month_rounded,
+                              AppTheme.accentColor,
+                            ),
                           ],
                         ),
                       ),
                     ),
 
-                    // History List
+                    // Filter chips — below header, not in header
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 500),
+                      delay: const Duration(milliseconds: 150),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                        child: SizedBox(
+                          height: 36,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _filters.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            itemBuilder: (context, i) {
+                              final f = _filters[i];
+                              final isActive = _selectedFilter == f;
+                              return GestureDetector(
+                                onTap: () => setState(() => _selectedFilter = f),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? AppTheme.primaryColor
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: isActive
+                                          ? AppTheme.primaryColor
+                                          : Colors.grey.shade200,
+                                    ),
+                                    boxShadow: isActive
+                                        ? [BoxShadow(color: AppTheme.primaryColor.withValues(alpha: 0.2), blurRadius: 6, offset: const Offset(0, 2))]
+                                        : [],
+                                  ),
+                                  child: Text(
+                                    f,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: isActive ? Colors.white : Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // List header
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          FadeInLeft(
+                          FadeInUp(
                             duration: const Duration(milliseconds: 500),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Aktivitas Terbaru',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                Text(
-                                  'Lihat Semua',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 14,
-                                    color: AppTheme.primaryColor,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                            delay: const Duration(milliseconds: 200),
+                            child: Text(
+                              'Rekam Medis',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 24),
-
-                          if (provider.isLoading && allHistory.isEmpty)
-                            const Center(child: CircularProgressIndicator())
-                          else if (allHistory.isEmpty)
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 40),
-                                child: Text('Belum ada riwayat antrean.', 
-                                  style: TextStyle(color: Colors.grey.shade400)),
+                          FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: const Duration(milliseconds: 200),
+                            child: Text(
+                              '${allExams.length} catatan',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: Colors.grey.shade500,
                               ),
-                            )
-                          else
-                            ...allHistory.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final q = entry.value;
-                              return FadeInUp(
-                                duration: const Duration(milliseconds: 500),
-                                delay: Duration(milliseconds: 100 * index),
-                                child: _historyItem(q, provider.myExaminations),
-                              );
-                            }),
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 40),
+
+                    // Records list
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+                      child: provider.isLoading && allExams.isEmpty
+                          ? const Padding(
+                              padding: EdgeInsets.only(top: 60),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                          : allExams.isEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 60),
+                                  child: Column(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 40,
+                                        backgroundColor: Colors.grey.shade100,
+                                        child: Icon(Icons.medical_information_rounded, size: 40, color: Colors.grey.shade400),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'Belum ada rekam medis',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey.shade500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Rekam medis akan muncul setelah\nAnda selesai menjalani pemeriksaan.',
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 13,
+                                          color: Colors.grey.shade400,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : AnimationLimiter(
+                                  child: Column(
+                                    children: AnimationConfiguration.toStaggeredList(
+                                      duration: const Duration(milliseconds: 450),
+                                      childAnimationBuilder: (widget) => SlideAnimation(
+                                        verticalOffset: 40.0,
+                                        child: FadeInAnimation(child: widget),
+                                      ),
+                                      children: allExams.asMap().entries.map((entry) {
+                                        return _recordCard(entry.value, provider.myQueues);
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ),
+                    ),
                   ],
                 ),
               ),
@@ -199,31 +313,67 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
     );
   }
 
-  Widget _statCard(String label, String value, String unit) {
+  Widget _statCard(String label, String value, String unit, IconData icon, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.grey.shade600)),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
-                const SizedBox(width: 4),
-                Text(unit, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.grey.shade400)),
-              ],
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10,
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        value,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        unit,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -231,28 +381,14 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
     );
   }
 
-  Widget _historyItem(QueueModel q, List<ExaminationModel> exams) {
-    final dateStr = DateFormat('dd MMM yyyy • HH:mm').format(DateTime.now()); 
-    
-    // Find matching examination for this queue
-    final examination = exams.cast<ExaminationModel?>().firstWhere(
-      (e) => e?.queueId == q.id,
+  Widget _recordCard(ExaminationModel exam, List<QueueModel> queues) {
+    final queue = queues.cast<QueueModel?>().firstWhere(
+      (q) => q?.id == exam.queueId,
       orElse: () => null,
     );
-
-    Color statusColor;
-    Color statusBg;
-    String statusLabel = q.status.value.toUpperCase();
-
-    if (q.status == QueueStatus.completed) {
-      statusColor = Colors.green;
-      statusBg = Colors.green.withValues(alpha: 0.1);
-      statusLabel = 'SELESAI';
-    } else {
-      statusColor = Colors.red;
-      statusBg = Colors.red.withValues(alpha: 0.1);
-      statusLabel = 'DIBATALKAN';
-    }
+    final dateStr = exam.createdAt != null
+        ? DateFormat('dd MMM yyyy').format(exam.createdAt!.toLocal())
+        : '-';
 
     return InkWell(
       onTap: () {
@@ -260,8 +396,8 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => MedicalRecordDetailScreen(
-              queue: q,
-              examination: examination,
+              queue: queue,
+              examination: exam,
             ),
           ),
         );
@@ -274,44 +410,49 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.grey.shade100),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
+          ],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
+                color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.history_rounded, color: AppTheme.primaryColor, size: 24),
+              child: const Icon(Icons.medical_information_rounded, color: AppTheme.primaryColor, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(dateStr, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey.shade500)),
+                  Text(
+                    dateStr,
+                    style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500),
+                  ),
                   const SizedBox(height: 4),
-                  Text(q.polyclinic.name, style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.bold)),
-                  Text('No. Antrean: ${q.queueNumber}', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                  Text(
+                    exam.diagnosis,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Dr. ${exam.doctorName}',
+                    style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500),
+                  ),
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: statusBg,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                statusLabel,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: statusColor,
-                ),
-              ),
-            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
           ],
         ),
       ),

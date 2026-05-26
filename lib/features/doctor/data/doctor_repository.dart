@@ -29,6 +29,16 @@ class DoctorRepository {
     }
   }
 
+  Future<List<ExaminationModel>> getMyExaminations() async {
+    try {
+      final response = await _apiClient.dio.get('examinations');
+      final List data = response.data['data'];
+      return data.map((e) => ExaminationModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil data pemeriksaan');
+    }
+  }
+
   Future<void> submitExamination(Map<String, dynamic> data) async {
     try {
       await _apiClient.dio.post('examinations', data: data);

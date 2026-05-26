@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../logic/admin_provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -9,6 +10,7 @@ import '../../../shared/models/polyclinic_model.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../widgets/admin_mini_stat_card.dart';
 import '../widgets/admin_service_card.dart';
+import '../widgets/admin_bottom_nav.dart';
 
 class PolyclinicManagementScreen extends StatefulWidget {
   const PolyclinicManagementScreen({super.key});
@@ -20,6 +22,7 @@ class PolyclinicManagementScreen extends StatefulWidget {
 class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _filterOnlyWithSchedules = false;
 
   @override
   void initState() {
@@ -34,10 +37,15 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
-    final polyclinics = provider.polyclinics.where((p) => 
-      p.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-      p.code.toLowerCase().contains(_searchQuery.toLowerCase())
-    ).toList();
+    final polyclinics = provider.polyclinics.where((p) {
+      final matchesSearch = p.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          p.code.toLowerCase().contains(_searchQuery.toLowerCase());
+      if (_filterOnlyWithSchedules) {
+        final quota = _calculatePolyclinicQuota(p, provider.schedules);
+        return matchesSearch && quota > 0;
+      }
+      return matchesSearch;
+    }).toList();
 
     int totalDailyQuota = 0;
     for (var poly in provider.polyclinics) {
@@ -50,9 +58,9 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
         backgroundColor: AppTheme.backgroundColor,
         body: Column(
           children: [
-            // Header
-            FadeInDown(
-              duration: const Duration(milliseconds: 600),
+            // Premium Header with smooth bottom-up stagger
+            FadeIn(
+              duration: const Duration(milliseconds: 400),
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
@@ -65,73 +73,122 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                   bottom: false,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Layanan Klinik',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                    child: AnimationLimiter(
+                      child: Column(
+                        children: [
+                          AnimationConfiguration.staggeredList(
+                            position: 0,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 30.0,
+                              child: FadeInAnimation(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Layanan Klinik',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Atur ruangan dan batas kuota',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 13,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'Atur ruangan dan batas kuota',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 13,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 400),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade100,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: TextField(
-                                    controller: _searchController,
-                                    onChanged: (val) => setState(() => _searchQuery = val),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Cari layanan...',
-                                      border: InputBorder.none,
-                                      icon: Icon(Icons.search_rounded, size: 20, color: Colors.grey),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.grey.shade200),
-                                ),
-                                child: const Icon(Icons.tune_rounded, color: Colors.black87, size: 20),
-                              ),
-                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+                          AnimationConfiguration.staggeredList(
+                            position: 1,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 30.0,
+                              child: FadeInAnimation(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: _searchController,
+                                        onChanged: (val) => setState(() => _searchQuery = val),
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                        decoration: InputDecoration(
+                                          hintText: 'Cari layanan...',
+                                          hintStyle: GoogleFonts.plusJakartaSans(
+                                            color: Colors.grey.shade400,
+                                            fontSize: 14,
+                                          ),
+                                          prefixIcon: const Icon(Icons.search_rounded, size: 20, color: Colors.grey),
+                                          filled: true,
+                                          fillColor: Colors.grey.shade100,
+                                          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(
+                                              color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Material(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: InkWell(
+                                        onTap: () {
+                                          _showFilterSheet(context);
+                                        },
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: Colors.grey.shade200),
+                                          ),
+                                          child: Icon(
+                                            Icons.tune_rounded,
+                                            color: _filterOnlyWithSchedules 
+                                                ? AppTheme.primaryColor 
+                                                : Colors.black87,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -142,8 +199,8 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
 
             // Stats Row
             FadeInUp(
-              duration: const Duration(milliseconds: 600),
-              delay: const Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 200),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
                 child: Row(
@@ -172,7 +229,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                           final poly = polyclinics[index];
                           return FadeInUp(
                             duration: const Duration(milliseconds: 500),
-                            delay: Duration(milliseconds: 100 * index),
+                            delay: Duration(milliseconds: 250 + (index * 80)),
                             child: AdminServiceCard(
                               polyclinic: poly,
                               quota: _calculatePolyclinicQuota(poly, provider.schedules),
@@ -186,46 +243,15 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
               ),
             ),
 
-            // Bottom Actions
+            // Bottom Navigation
             FadeInUp(
               duration: const Duration(milliseconds: 500),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(top: BorderSide(color: Colors.black12)),
-                ),
-                child: Column(
-                  children: [
-                    _actionButton('Perbarui Semua Jadwal', Icons.schedule_rounded, true, () {
-                      AppDialogs.showNotificationDialog(
-                        context,
-                        'Berhasil',
-                        'Jadwal seluruh poliklinik berhasil disinkronisasi & diperbarui!',
-                      );
-                    }),
-                    const SizedBox(height: 12),
-                    _actionButton('Lihat Laporan Antrean', Icons.assessment_rounded, false, () {
-                      AppDialogs.showNotificationDialog(
-                        context,
-                        'Berhasil',
-                        'Laporan antrean poliklinik hari ini berhasil diunduh (PDF)',
-                      );
-                    }),
-                  ],
-                ),
-              ),
-            ),
-
-            // Navigation
-            FadeInUp(
-              duration: const Duration(milliseconds: 500),
-              child: _bottomNav(context),
+              child: const AdminBottomNav(activeIndex: 3),
             ),
           ],
         ),
         floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 226),
+          padding: const EdgeInsets.only(bottom: 76),
           child: FloatingActionButton(
             onPressed: () => _showPolyclinicForm(context),
             backgroundColor: AppTheme.primaryColor,
@@ -254,65 +280,9 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
     }
   }
 
-  Widget _actionButton(String label, IconData icon, bool isPrimary, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: isPrimary ? AppTheme.primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: isPrimary ? null : Border.all(color: AppTheme.primaryColor),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 18, color: isPrimary ? Colors.white : AppTheme.primaryColor),
-            const SizedBox(width: 8),
-            Text(label, style: TextStyle(
-              color: isPrimary ? Colors.white : AppTheme.primaryColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            )),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _bottomNav(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5))],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _navItem(Icons.dashboard_rounded, false, () => Navigator.pushReplacementNamed(context, '/admin/home')),
-              _navItem(Icons.medical_services_rounded, false, () => Navigator.pushReplacementNamed(context, '/admin/doctors')),
-              _navItem(Icons.calendar_month_rounded, false, () => Navigator.pushReplacementNamed(context, '/admin/schedules')),
-              _navItem(Icons.local_hospital_rounded, true, () {}),
-              _navItem(Icons.settings_rounded, false, () => Navigator.pushReplacementNamed(context, '/admin/settings')),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _navItem(IconData icon, bool isActive, VoidCallback onTap) {
-    return IconButton(
-      onPressed: onTap,
-      icon: Icon(icon, color: isActive ? AppTheme.primaryColor : Colors.grey, size: 28),
-    );
-  }
+
 
   void _showPolyclinicForm(BuildContext context, {PolyclinicModel? poly}) {
     final isEdit = poly != null;
@@ -469,5 +439,101 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
     }
     
     return '$earliestStart - $latestEnd';
+  }
+
+  void _showFilterSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Filter Layanan Klinik',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        if (_filterOnlyWithSchedules)
+                          TextButton(
+                            onPressed: () {
+                              setState(() => _filterOnlyWithSchedules = false);
+                              setSheetState(() => _filterOnlyWithSchedules = false);
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'Reset',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: AppTheme.primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Jadwal & Kuota',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        'Hanya Tampilkan Klinik Aktif',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Menyaring poliklinik yang memiliki jadwal dokter dan kuota harian saat ini',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      trailing: Switch(
+                        value: _filterOnlyWithSchedules,
+                        activeThumbColor: AppTheme.primaryColor,
+                        onChanged: (val) {
+                          setState(() {
+                            _filterOnlyWithSchedules = val;
+                          });
+                          setSheetState(() {
+                            _filterOnlyWithSchedules = val;
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

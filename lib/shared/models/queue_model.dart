@@ -12,6 +12,7 @@ class QueueModel {
   final String? estimatedServiceTime;
   final int? avgWaitingTime;
   final int? positionWaiting;
+  final int? doctorId;
 
   QueueModel({
     required this.id,
@@ -23,6 +24,7 @@ class QueueModel {
     this.estimatedServiceTime,
     this.avgWaitingTime,
     this.positionWaiting,
+    this.doctorId,
   });
 
   factory QueueModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class QueueModel {
       estimatedServiceTime: json['estimated_service_time'],
       avgWaitingTime: json['avg_waiting_time'],
       positionWaiting: json['position_waiting'],
+      doctorId: json['doctor_id'] is String ? int.parse(json['doctor_id']) : json['doctor_id'],
     );
   }
 
@@ -54,6 +57,7 @@ class QueueModel {
       'estimated_service_time': estimatedServiceTime,
       'avg_waiting_time': avgWaitingTime,
       'position_waiting': positionWaiting,
+      'doctor_id': doctorId,
     };
   }
 
@@ -67,6 +71,7 @@ class QueueModel {
     String? estimatedServiceTime,
     int? avgWaitingTime,
     int? positionWaiting,
+    int? doctorId,
   }) {
     return QueueModel(
       id: id ?? this.id,
@@ -78,6 +83,7 @@ class QueueModel {
       estimatedServiceTime: estimatedServiceTime ?? this.estimatedServiceTime,
       avgWaitingTime: avgWaitingTime ?? this.avgWaitingTime,
       positionWaiting: positionWaiting ?? this.positionWaiting,
+      doctorId: doctorId ?? this.doctorId,
     );
   }
 }

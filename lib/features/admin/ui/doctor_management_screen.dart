@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../logic/admin_provider.dart';
 import '../../../shared/models/doctor_model.dart';
@@ -20,6 +21,7 @@ class DoctorManagementScreen extends StatefulWidget {
 class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String? _selectedPolyclinicId;
 
   @override
   void initState() {
@@ -33,10 +35,12 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
-    final doctors = provider.doctors.where((d) => 
-      (d.user?.name.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
-      (d.specialization?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
-    ).toList();
+    final doctors = provider.doctors.where((d) {
+      final matchesSearch = (d.user?.name.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
+          (d.specialization?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
+      final matchesPolyclinic = _selectedPolyclinicId == null || d.polyclinicId?.toString() == _selectedPolyclinicId;
+      return matchesSearch && matchesPolyclinic;
+    }).toList();
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -44,8 +48,9 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
         backgroundColor: AppTheme.backgroundColor,
         body: Column(
           children: [
-            FadeInDown(
-              duration: const Duration(milliseconds: 600),
+            // Premium Header with smooth bottom-up stagger
+            FadeIn(
+              duration: const Duration(milliseconds: 400),
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
@@ -58,73 +63,122 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                   bottom: false,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Manajemen Staf',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                    child: AnimationLimiter(
+                      child: Column(
+                        children: [
+                          AnimationConfiguration.staggeredList(
+                            position: 0,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 30.0,
+                              child: FadeInAnimation(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Manajemen Staf',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${provider.doctors.length} tenaga medis aktif',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 13,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    '${provider.doctors.length} tenaga medis aktif',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 13,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 400),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade100,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: TextField(
-                                    controller: _searchController,
-                                    onChanged: (val) => setState(() => _searchQuery = val),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Cari staf...',
-                                      border: InputBorder.none,
-                                      icon: Icon(Icons.search, size: 20, color: Colors.grey),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.grey.shade200),
-                                ),
-                                child: const Icon(Icons.tune_rounded, color: Colors.black87, size: 20),
-                              ),
-                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+                          AnimationConfiguration.staggeredList(
+                            position: 1,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 30.0,
+                              child: FadeInAnimation(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: _searchController,
+                                        onChanged: (val) => setState(() => _searchQuery = val),
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                        decoration: InputDecoration(
+                                          hintText: 'Cari staf...',
+                                          hintStyle: GoogleFonts.plusJakartaSans(
+                                            color: Colors.grey.shade400,
+                                            fontSize: 14,
+                                          ),
+                                          prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
+                                          filled: true,
+                                          fillColor: Colors.grey.shade100,
+                                          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(
+                                              color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Material(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: InkWell(
+                                        onTap: () {
+                                          _showFilterSheet(context);
+                                        },
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: Colors.grey.shade200),
+                                          ),
+                                          child: Icon(
+                                            Icons.tune_rounded,
+                                            color: _selectedPolyclinicId != null 
+                                                ? AppTheme.primaryColor 
+                                                : Colors.black87,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -142,7 +196,11 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _sectionTitle('Tenaga Medis'),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 200),
+                        child: _sectionTitle('Tenaga Medis'),
+                      ),
                       const SizedBox(height: 16),
                       if (provider.isLoading && provider.doctors.isEmpty)
                         const Center(child: CircularProgressIndicator())
@@ -161,7 +219,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                             final doc = doctors[index];
                             return FadeInUp(
                               duration: const Duration(milliseconds: 500),
-                              delay: Duration(milliseconds: 100 * index),
+                              delay: Duration(milliseconds: 250 + (index * 80)),
                               child: AdminDoctorCard(
                                 doctor: doc,
                                 onEdit: () => AdminDoctorFormSheet.show(context, doctor: doc),
@@ -174,7 +232,11 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                       const SizedBox(height: 30),
                       
                       // Stats Card
-                      _availabilityCard(provider),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 350),
+                        child: _availabilityCard(provider),
+                      ),
                     ],
                   ),
                 ),
@@ -261,6 +323,108 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
         Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
       ],
+    );
+  }
+
+  void _showFilterSheet(BuildContext context) {
+    final provider = context.read<AdminProvider>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Filter Tenaga Medis',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        if (_selectedPolyclinicId != null)
+                          TextButton(
+                            onPressed: () {
+                              setState(() => _selectedPolyclinicId = null);
+                              setSheetState(() => _selectedPolyclinicId = null);
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'Reset',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: AppTheme.primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Berdasarkan Poliklinik',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (provider.polyclinics.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(child: Text('Tidak ada poliklinik tersedia')),
+                      )
+                    else
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: provider.polyclinics.map((poly) {
+                          final isSelected = _selectedPolyclinicId == poly.id.toString();
+                          return ChoiceChip(
+                            label: Text(
+                              poly.name,
+                              style: GoogleFonts.plusJakartaSans(
+                                color: isSelected ? Colors.white : Colors.black87,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                            selected: isSelected,
+                            selectedColor: AppTheme.primaryColor,
+                            backgroundColor: Colors.grey.shade100,
+                            checkmarkColor: Colors.white,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedPolyclinicId = selected ? poly.id.toString() : null;
+                              });
+                              setSheetState(() {
+                                _selectedPolyclinicId = selected ? poly.id.toString() : null;
+                              });
+                              Navigator.pop(context);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

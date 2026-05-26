@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../logic/admin_provider.dart';
 import '../../../shared/models/schedule_model.dart';
@@ -53,127 +54,143 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
-          // Header
-          FadeInDown(
-            duration: const Duration(milliseconds: 600),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
+        body: Column(
+          children: [
+            // Premium Header with smooth bottom-up stagger
+            FadeIn(
+              duration: const Duration(milliseconds: 400),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                    child: AnimationLimiter(
+                      child: Column(
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Jadwal Dokter',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+                          AnimationConfiguration.staggeredList(
+                            position: 0,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 30.0,
+                              child: FadeInAnimation(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Jadwal Dokter',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${provider.schedules.length} jadwal rutin',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 13,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Day Filter Chips
+                          AnimationConfiguration.staggeredList(
+                            position: 1,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 30.0,
+                              child: FadeInAnimation(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      _filterChip(null, 'Semua Hari'),
+                                      ..._days.map((day) => _filterChip(day, day)),
+                                    ],
                                   ),
                                 ),
-                                Text(
-                                  '${provider.schedules.length} jadwal rutin',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 13,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      // Day Filter Chips
-                      FadeInUp(
-                        duration: const Duration(milliseconds: 500),
-                        delay: const Duration(milliseconds: 400),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              _filterChip(null, 'Semua Hari'),
-                              ..._days.map((day) => _filterChip(day, day)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          
-          const Divider(height: 1),
+            
+            const Divider(height: 1),
 
-          // Schedule List
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: provider.fetchSchedules,
-              child: provider.isLoading && provider.schedules.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : groupedKeys.isEmpty
-                      ? const Center(child: Text('Tidak ada jadwal untuk filter ini'))
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(24),
-                          itemCount: groupedKeys.length,
-                          itemBuilder: (context, index) {
-                            final docId = groupedKeys[index];
-                            final doctorSchedules = groupedSchedules[docId]!;
-                            final firstSchedule = doctorSchedules.first;
-                            final doctor = (firstSchedule.doctor != null && firstSchedule.doctor!.user != null)
-                                ? firstSchedule.doctor!
-                                : provider.doctors.firstWhere(
-                                    (d) => d.id == firstSchedule.doctorId || d.userId == firstSchedule.doctorId,
-                                    orElse: () => firstSchedule.doctor ?? DoctorModel(id: firstSchedule.doctorId, userId: 0),
-                                  );
-                            final name = doctor.user?.name ?? (doctor.name != 'Dokter' ? doctor.name : 'Unknown Doctor');
-                            final polyName = doctor.polyclinic?.name ?? 
-                              provider.polyclinics.firstWhere(
-                                (p) => p.id == doctor.polyclinicId,
-                                orElse: () => PolyclinicModel(id: 0, name: 'Tidak Ada Klinik', code: '', description: ''),
-                              ).name;
+            // Schedule List
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: provider.fetchSchedules,
+                child: provider.isLoading && provider.schedules.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : groupedKeys.isEmpty
+                        ? const Center(child: Text('Tidak ada jadwal untuk filter ini'))
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(24),
+                            itemCount: groupedKeys.length,
+                            itemBuilder: (context, index) {
+                              final docId = groupedKeys[index];
+                              final doctorSchedules = groupedSchedules[docId]!;
+                              final firstSchedule = doctorSchedules.first;
+                              final doctor = (firstSchedule.doctor != null && firstSchedule.doctor!.user != null)
+                                  ? firstSchedule.doctor!
+                                  : provider.doctors.firstWhere(
+                                      (d) => d.id == firstSchedule.doctorId || d.userId == firstSchedule.doctorId,
+                                      orElse: () => firstSchedule.doctor ?? DoctorModel(id: firstSchedule.doctorId, userId: 0),
+                                    );
+                              final name = doctor.user?.name ?? (doctor.name != 'Dokter' ? doctor.name : 'Unknown Doctor');
+                              final polyName = doctor.polyclinic?.name ?? 
+                                provider.polyclinics.firstWhere(
+                                  (p) => p.id == doctor.polyclinicId,
+                                  orElse: () => PolyclinicModel(id: 0, name: 'Tidak Ada Klinik', code: '', description: ''),
+                                ).name;
 
-                            return FadeInUp(
-                              duration: const Duration(milliseconds: 500),
-                              delay: Duration(milliseconds: 50 * index),
-                              child: AdminScheduleCard(
-                                doctorName: name,
-                                polyclinicName: polyName,
-                                schedules: doctorSchedules,
-                                onEdit: (sched) => _showScheduleForm(context, schedule: sched),
-                                onDelete: (sched) => _confirmDeleteSchedule(context, sched),
-                              ),
-                            );
-                          },
-                        ),
+                              return FadeInUp(
+                                duration: const Duration(milliseconds: 500),
+                                delay: Duration(milliseconds: 200 + (index * 80)),
+                                child: AdminScheduleCard(
+                                  doctorName: name,
+                                  polyclinicName: polyName,
+                                  schedules: doctorSchedules,
+                                  onEdit: (sched) => _showScheduleForm(context, schedule: sched),
+                                  onDelete: (sched) => _confirmDeleteSchedule(context, sched),
+                                ),
+                              );
+                            },
+                          ),
+              ),
             ),
-          ),
 
-          // Navigation
-          FadeInUp(
-            duration: const Duration(milliseconds: 500),
-            child: const AdminBottomNav(activeIndex: 2),
-          ),
-        ],
-      ),
+            // Navigation
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              child: const AdminBottomNav(activeIndex: 2),
+            ),
+          ],
+        ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 76),
         child: FloatingActionButton(

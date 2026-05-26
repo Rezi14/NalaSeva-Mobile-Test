@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../logic/patient_provider.dart';
 // import '../../../shared/models/queue_model.dart';
 import '../../../shared/constants/app_constants.dart';
@@ -28,10 +29,33 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<PatientProvider>();
-    final activeQueues = provider.myQueues.where((q) => 
-        q.status != QueueStatus.completed && q.status != QueueStatus.cancelled).toList();
-    final completedQueues = provider.myQueues.where((q) => 
-        q.status == QueueStatus.completed).toList();
+
+    // base lists
+    final allActiveQueues = provider.myQueues.where((q) => q.status != QueueStatus.completed && q.status != QueueStatus.cancelled).toList();
+    final allCompletedQueues = provider.myQueues.where((q) => q.status == QueueStatus.completed).toList();
+
+    // prepare clinic name list
+    final clinicNames = provider.polyclinics.map((p) => p.name).toList();
+
+    // apply filter selection
+    List<dynamic> activeQueues = [];
+    List<dynamic> completedQueues = [];
+
+    if (_activeFilter == 'Semua') {
+      activeQueues = allActiveQueues;
+      completedQueues = allCompletedQueues;
+    } else if (_activeFilter == 'Antrean Saya') {
+      // 'Antrean Saya' shows all user's queues (same as base lists)
+      activeQueues = allActiveQueues;
+      completedQueues = allCompletedQueues;
+    } else if (clinicNames.any((name) => name == _activeFilter)) {
+      // specific clinic filter
+      activeQueues = allActiveQueues.where((q) => q.polyclinic.name.toLowerCase() == _activeFilter.toLowerCase()).toList();
+      completedQueues = allCompletedQueues.where((q) => q.polyclinic.name.toLowerCase() == _activeFilter.toLowerCase()).toList();
+    } else if (_activeFilter == 'Informasi') {
+      activeQueues = [];
+      completedQueues = [];
+    }
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -99,25 +123,21 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               ),
                             ],
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.done_all_rounded, color: AppTheme.primaryColor),
-                            onPressed: () {},
-                            tooltip: 'Tandai semua dibaca',
-                          ),
+                          const SizedBox(width: 40),
                         ],
                       ),
                     ),
                     
-                    // Filter Categories
+                    // Filter Categories (dynamic: Semua, Antrean Saya, [poliklinik names], Informasi)
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
                       child: Row(
                         children: [
-                          _filterChip('Semua', Icons.check_rounded),
-                          _filterChip('Antrean', null),
-                          _filterChip('Poli Umum', null),
-                          _filterChip('Informasi', null),
+                          // build list from provider.polyclinics
+                          ...([ 'Semua', 'Antrean Saya' ] + provider.polyclinics.map((p) => p.name).toList() + [ 'Informasi' ])
+                              .map((label) => _filterChip(label, null))
+                              .toList(),
                         ],
                       ),
                     ),
@@ -128,82 +148,74 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
           ),
 
-          // Notifications List
           Expanded(
             child: provider.isLoading && provider.myQueues.isEmpty
                 ? const Center(child: CircularProgressIndicator())
-                : ListView(
-                    padding: const EdgeInsets.all(24),
-                    children: [
-                      if (activeQueues.isEmpty && completedQueues.isEmpty)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 40),
-                            child: Text('Tidak ada notifikasi baru.', 
-                              style: TextStyle(color: Colors.grey.shade400)),
+                : AnimationLimiter(
+                    child: ListView(
+                      padding: const EdgeInsets.all(24),
+                      children: AnimationConfiguration.toStaggeredList(
+                        duration: const Duration(milliseconds: 375),
+                        childAnimationBuilder: (widget) => SlideAnimation(
+                          horizontalOffset: 30.0,
+                          child: FadeInAnimation(
+                            child: widget,
                           ),
                         ),
+                        children: [
+                          // show empty state only when there are no queue notifications
+                          // and there will be no informational tips shown for current filter
+                          if (activeQueues.isEmpty && completedQueues.isEmpty && !(_activeFilter == 'Semua' || _activeFilter == 'Informasi'))
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 40),
+                                child: Text('Tidak ada notifikasi baru.', 
+                                  style: TextStyle(color: Colors.grey.shade400)),
+                              ),
+                            ),
 
-                      // Active Queues Notifications
-                      ...activeQueues.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final q = entry.value;
-                        return FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: Duration(milliseconds: 100 * index),
-                          child: _notificationItem(
-                            title: 'Antrean Aktif',
-                            message: 'Pendaftaran Anda di ${q.polyclinic.name} telah dikonfirmasi. Nomor antrean: ${q.queueNumber}.',
-                            time: 'Baru saja',
-                            type: 'update',
-                            actionLabel: 'Lihat Tiket',
-                            onAction: () => Navigator.pushNamed(context, '/patient/home'),
-                          ),
-                        );
-                      }),
+                          // Active Queues Notifications
+                          ...activeQueues.map((q) => _notificationItem(
+                                title: 'Antrean Aktif',
+                                message: 'Pendaftaran Anda di ${q.polyclinic.name} telah dikonfirmasi. Nomor antrean: ${q.queueNumber}.',
+                                time: 'Baru saja',
+                                type: 'update',
+                                actionLabel: 'Lihat Tiket',
+                                onAction: () => Navigator.pushNamed(context, '/patient/home'),
+                              )),
 
-                      // Completed Queues Notifications
-                      ...completedQueues.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final q = entry.value;
-                        return FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: Duration(milliseconds: 100 * (activeQueues.length + index)),
-                          child: _notificationItem(
-                            title: 'Layanan Selesai',
-                            message: 'Pemeriksaan Anda di ${q.polyclinic.name} telah selesai. Semoga lekas sembuh!',
-                            time: 'Hari ini',
-                            type: 'success',
-                            actionLabel: 'Lihat Detail',
-                            onAction: () => Navigator.pushNamed(context, '/patient/history'),
-                          ),
-                        );
-                      }),
-                      
-                      const SizedBox(height: 24),
-                      FadeInLeft(
-                        child: Text(
-                          'Saran Kesehatan',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                            fontSize: 13,
-                          ),
-                        ),
+                          // Completed Queues Notifications
+                          ...completedQueues.map((q) => _notificationItem(
+                                title: 'Layanan Selesai',
+                                message: 'Pemeriksaan Anda di ${q.polyclinic.name} telah selesai. Semoga lekas sembuh!',
+                                time: 'Hari ini',
+                                type: 'success',
+                                actionLabel: 'Lihat Detail',
+                                onAction: () => Navigator.pushNamed(context, '/patient/history'),
+                              )),
+                          
+                          if (_activeFilter == 'Semua' || _activeFilter == 'Informasi') ...[
+                            const SizedBox(height: 24),
+                            Text(
+                              'Saran Kesehatan',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            _notificationItem(
+                              title: 'Tips Kesehatan',
+                              message: 'Jangan lupa minum air putih minimal 8 gelas sehari untuk menjaga hidrasi tubuh.',
+                              time: '1 hari lalu',
+                              type: 'update',
+                            ),
+                          ],
+                        ],
                       ),
-                      const SizedBox(height: 16),
-
-                      FadeInUp(
-                        duration: const Duration(milliseconds: 500),
-                        delay: const Duration(milliseconds: 300),
-                        child: _notificationItem(
-                          title: 'Tips Kesehatan',
-                          message: 'Jangan lupa minum air putih minimal 8 gelas sehari untuk menjaga hidrasi tubuh.',
-                          time: '1 hari lalu',
-                          type: 'update',
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
           ),
         ],

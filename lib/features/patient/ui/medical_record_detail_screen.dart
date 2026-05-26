@@ -6,12 +6,12 @@ import '../../../shared/models/examination_model.dart';
 import '../../../core/theme/app_theme.dart';
 
 class MedicalRecordDetailScreen extends StatelessWidget {
-  final QueueModel queue;
+  final QueueModel? queue;
   final ExaminationModel? examination;
 
   const MedicalRecordDetailScreen({
     super.key,
-    required this.queue,
+    this.queue,
     this.examination,
   });
 
@@ -54,7 +54,7 @@ class MedicalRecordDetailScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            queue.queueNumber,
+                            queue?.queueNumber ?? '-',
                             style: GoogleFonts.inter(
                               fontSize: 13,
                               color: Colors.grey,
@@ -83,8 +83,8 @@ class MedicalRecordDetailScreen extends StatelessWidget {
                     child: _infoSection(
                       'Informasi Kunjungan',
                       [
-                        _infoTile(Icons.calendar_today_rounded, 'Tanggal', queue.date),
-                        _infoTile(Icons.local_hospital_rounded, 'Poliklinik', queue.polyclinic.name),
+                        _infoTile(Icons.calendar_today_rounded, 'Tanggal', queue?.date ?? '-'),
+                        _infoTile(Icons.local_hospital_rounded, 'Poliklinik', queue?.polyclinic.name ?? '-'),
                         _infoTile(Icons.person_rounded, 'Dokter', examination?.doctor?.name ?? 'Belum tersedia'),
                       ],
                     ),

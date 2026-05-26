@@ -12,7 +12,7 @@ class PatientProvider extends ChangeNotifier {
   PatientProvider(this._repository);
 
   List<QueueModel> _myQueues = [];
-  List<ExaminationModel> _myExaminations = [];
+  List<ExaminationModel> _medicalRecords = [];
   List<PolyclinicModel> _polyclinics = [];
   List<ScheduleModel> _availableSchedules = [];
   List<DoctorModel> _doctors = [];
@@ -22,7 +22,7 @@ class PatientProvider extends ChangeNotifier {
   String? _error;
 
   List<QueueModel> get myQueues => _myQueues;
-  List<ExaminationModel> get myExaminations => _myExaminations;
+  List<ExaminationModel> get medicalRecords => _medicalRecords;
   List<PolyclinicModel> get polyclinics => _polyclinics;
   List<ScheduleModel> get availableSchedules => _availableSchedules;
   List<DoctorModel> get doctors => _doctors;
@@ -52,9 +52,9 @@ class PatientProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> fetchMyExaminations() async {
+  Future<void> fetchMedicalRecords() async {
     await _performAction(() async {
-      _myExaminations = await _repository.getMyExaminations();
+      _medicalRecords = await _repository.getMyExaminations();
     });
   }
 
@@ -85,7 +85,7 @@ class PatientProvider extends ChangeNotifier {
         _repository.getPolyclinics(),
       ]);
       _myQueues = results[0] as List<QueueModel>;
-      _myExaminations = results[1] as List<ExaminationModel>;
+      _medicalRecords = results[1] as List<ExaminationModel>;
       _polyclinics = results[2] as List<PolyclinicModel>;
     });
   }

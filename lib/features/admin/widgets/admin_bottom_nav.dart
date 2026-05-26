@@ -25,13 +25,13 @@ class AdminBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navItem(context, Icons.dashboard_rounded, 0, '/admin/home'),
               _navItem(context, Icons.medical_services_rounded, 1, '/admin/doctors'),
               _navItem(context, Icons.calendar_month_rounded, 2, '/admin/schedules'),
+              _navItem(context, Icons.dashboard_rounded, 0, '/admin/home', isCenterDashboard: true),
               _navItem(context, Icons.local_hospital_rounded, 3, '/admin/polyclinics'),
               _navItem(context, Icons.settings_rounded, 4, '/admin/settings'),
             ],
@@ -41,8 +41,37 @@ class AdminBottomNav extends StatelessWidget {
     );
   }
 
-  Widget _navItem(BuildContext context, IconData icon, int index, String route) {
+  Widget _navItem(BuildContext context, IconData icon, int index, String route, {bool isCenterDashboard = false}) {
     final isActive = index == activeIndex;
+    
+    if (isCenterDashboard) {
+      return GestureDetector(
+        onTap: isActive
+            ? null
+            : () => Navigator.pushReplacementNamed(context, route),
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isActive ? AppTheme.primaryColor : AppTheme.primaryColor.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+            boxShadow: isActive ? [
+              BoxShadow(
+                color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            ] : null,
+          ),
+          child: Icon(
+            icon,
+            color: isActive ? Colors.white : AppTheme.primaryColor,
+            size: 28,
+          ),
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: isActive
           ? null

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_dialogs.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -14,40 +17,129 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: const Text('Profil Saya'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: AppTheme.primaryColor,
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pushNamed(context, '/patient/edit-profile'),
-            icon: const Icon(Icons.edit_outlined, color: AppTheme.editColor),
+      body: Column(
+        children: [
+          // Premium Header with smooth bottom-up stagger
+          FadeIn(
+            duration: const Duration(milliseconds: 400),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  child: AnimationLimiter(
+                    child: Column(
+                      children: [
+                        AnimationConfiguration.staggeredList(
+                          position: 0,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            verticalOffset: 30.0,
+                            child: FadeInAnimation(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        color: AppTheme.primaryColor,
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Profil Saya',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Data diri dan informasi akun Anda',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 13,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.editColor.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () => Navigator.pushNamed(context, '/patient/edit-profile'),
+                                      icon: const Icon(Icons.edit_outlined, color: AppTheme.editColor),
+                                      tooltip: 'Edit Profil',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            FadeInDown(
-              child: const CircleAvatar(
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              child: CircleAvatar(
                 radius: 60,
-                backgroundColor: AppTheme.primaryColor,
-                child: Icon(Icons.person, size: 80, color: Colors.white),
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                child: CircleAvatar(
+                  radius: 54,
+                  backgroundColor: AppTheme.primaryColor,
+                  child: Text(
+                    user?.name != null && user!.name.isNotEmpty
+                        ? user.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
+                        : 'U',
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            FadeInDown(
-              delay: const Duration(milliseconds: 200),
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 100),
               child: Text(
                 user?.name ?? 'Nama Pengguna',
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
-            FadeInDown(
-              delay: const Duration(milliseconds: 300),
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 180),
               child: Text(
                 user?.email ?? 'email@example.com',
                 style: TextStyle(color: Colors.grey[600]),
@@ -55,6 +147,8 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 260),
               child: _buildInfoCard(
                 context,
                 title: 'Data Diri',
@@ -69,7 +163,8 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             FadeInUp(
-              delay: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 340),
               child: _buildInfoCard(
                 context,
                 title: 'Akun',
@@ -81,25 +176,27 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             FadeInUp(
-              delay: const Duration(milliseconds: 400),
-              child: ElevatedButton(
-                onPressed: () {
-                  context.read<AuthProvider>().logout();
-                  Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-                },
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 420),
+              child: ElevatedButton.icon(
+                onPressed: () => _showLogoutConfirmation(context),
+                icon: const Icon(Icons.logout_rounded, color: Colors.white),
+                label: const Text('KELUAR DARI AKUN', style: TextStyle(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[50],
-                  foregroundColor: Colors.red,
+                  backgroundColor: AppTheme.cancelColor,
+                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                child: const Text('KELUAR DARI AKUN', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
           ],
         ),
       ),
+    ),
+  ],
+),
     );
   }
 
@@ -142,5 +239,20 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showLogoutConfirmation(BuildContext context) async {
+    final confirm = await AppDialogs.showConfirmationDialog(
+      context,
+      'Konfirmasi Keluar',
+      'Apakah Anda yakin ingin keluar dari akun Anda?',
+      confirmText: 'KELUAR',
+      isDestructive: true,
+    );
+
+    if (confirm == true && context.mounted) {
+      context.read<AuthProvider>().logout();
+      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+    }
   }
 }

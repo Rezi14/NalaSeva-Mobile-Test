@@ -14,12 +14,14 @@ class DoctorProvider extends ChangeNotifier {
   String? _error;
   bool _isOnline = true;
   List<ExaminationModel> _patientHistory = [];
+  List<ExaminationModel> _medicalRecords = [];
 
   List<QueueModel> get queues => _queues;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isOnline => _isOnline;
   List<ExaminationModel> get patientHistory => _patientHistory;
+  List<ExaminationModel> get medicalRecords => _medicalRecords;
 
   Future<void> toggleOnlineStatus() async {
     final newStatus = !_isOnline;
@@ -56,6 +58,12 @@ class DoctorProvider extends ChangeNotifier {
     });
   }
 
+  Future<void> fetchMedicalRecords() async {
+    await _performAction(() async {
+      _medicalRecords = await _repository.getMyExaminations();
+    });
+  }
+
   Future<void> processQueue(int id, QueueStatus status) async {
     await _performAction(() async {
       await _repository.updateQueueStatus(id, status.value);
@@ -67,6 +75,7 @@ class DoctorProvider extends ChangeNotifier {
     await _performAction(() async {
       await _repository.submitExamination(data);
       _queues = await _repository.getMyQueues();
+      _medicalRecords = await _repository.getMyExaminations(); // reload examinations too
     });
   }
 }

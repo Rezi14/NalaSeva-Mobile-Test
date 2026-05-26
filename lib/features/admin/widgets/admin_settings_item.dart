@@ -7,6 +7,7 @@ class AdminSettingsItem extends StatelessWidget {
   final String title;
   final String value;
   final VoidCallback onTap;
+  final Widget? trailing;
 
   const AdminSettingsItem({
     super.key,
@@ -14,11 +15,13 @@ class AdminSettingsItem extends StatelessWidget {
     required this.title,
     required this.value,
     required this.onTap,
+    this.trailing,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -34,17 +37,19 @@ class AdminSettingsItem extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      trailing: Row(
+      trailing: trailing ?? Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            value,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 12,
-              color: Colors.grey,
+          if (value.isNotEmpty)
+            Text(
+              value,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
             ),
-          ),
-          const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
         ],
       ),
       onTap: onTap,

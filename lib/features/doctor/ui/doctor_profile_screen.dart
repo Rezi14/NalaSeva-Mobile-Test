@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
@@ -34,31 +35,97 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'Profil Saya',
-          style: GoogleFonts.plusJakartaSans(
-            fontWeight: FontWeight.bold,
-            color: AppTheme.primaryColor,
+      body: Column(
+        children: [
+          // Premium Header with smooth bottom-up stagger
+          FadeIn(
+            duration: const Duration(milliseconds: 400),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  child: AnimationLimiter(
+                    child: Column(
+                      children: [
+                        AnimationConfiguration.staggeredList(
+                          position: 0,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            verticalOffset: 30.0,
+                            child: FadeInAnimation(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        color: AppTheme.primaryColor,
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Profil Saya',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Data profesi dan lisensi medis Anda',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 13,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.editColor.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () => Navigator.pushNamed(context, '/doctor/edit-profile'),
+                                      icon: const Icon(Icons.edit_outlined, color: AppTheme.editColor),
+                                      tooltip: 'Edit Profil',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: AppTheme.primaryColor,
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pushNamed(context, '/doctor/edit-profile'),
-            icon: const Icon(Icons.edit_outlined, color: AppTheme.editColor),
-            tooltip: 'Edit Profil',
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            FadeInDown(
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+            FadeInUp(
               duration: const Duration(milliseconds: 500),
               child: CircleAvatar(
                 radius: 60,
@@ -78,7 +145,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            FadeInDown(
+            FadeInUp(
               duration: const Duration(milliseconds: 500),
               delay: const Duration(milliseconds: 100),
               child: Text(
@@ -91,7 +158,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-            FadeInDown(
+            FadeInUp(
               duration: const Duration(milliseconds: 500),
               delay: const Duration(milliseconds: 200),
               child: Text(
@@ -104,7 +171,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
               ),
             ),
             if (user?.specialization != null && user!.specialization!.isNotEmpty)
-              FadeInDown(
+              FadeInUp(
                 duration: const Duration(milliseconds: 500),
                 delay: const Duration(milliseconds: 250),
                 child: Padding(
@@ -175,7 +242,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => _showLogoutConfirmation(context),
                 icon: const Icon(Icons.logout_rounded, color: Colors.white),
-                label: const Text('KELUAR DARI AKUN'),
+                label: const Text('KELUAR DARI AKUN', style: TextStyle(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.cancelColor,
                   foregroundColor: Colors.white,
@@ -186,8 +253,11 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-          ],
-        ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
