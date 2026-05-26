@@ -9,6 +9,7 @@ class DoctorModel {
   final String? specialization;
   final UserModel? user;
   final PolyclinicModel? polyclinic;
+  final bool isOnline;
 
   DoctorModel({
     required this.id,
@@ -18,6 +19,7 @@ class DoctorModel {
     this.specialization,
     this.user,
     this.polyclinic,
+    this.isOnline = true,
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class DoctorModel {
       specialization: json['specialization'],
       user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
       polyclinic: json['polyclinic'] != null ? PolyclinicModel.fromJson(json['polyclinic']) : null,
+      isOnline: json['is_online'] == true || json['is_online'] == 1 || json['is_online'] == '1' || json['is_online'] == null,
     );
   }
 
@@ -41,6 +44,7 @@ class DoctorModel {
       'specialization': specialization,
       'user': user?.toJson(),
       'polyclinic': polyclinic?.toJson(),
+      'is_online': isOnline,
     };
   }
 

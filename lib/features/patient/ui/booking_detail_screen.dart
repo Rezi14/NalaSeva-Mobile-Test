@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -120,7 +121,22 @@ class BookingDetailScreen extends StatelessWidget {
                                       shape: BoxShape.circle,
                                     ),
                                     child: IconButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Clipboard.setData(ClipboardData(
+                                          text: 'Puskesmas Sehat Utama - Tiket Antrean NalaSeva\n'
+                                                'Nomor Antrean: ${queue.queueNumber}\n'
+                                                'Poliklinik: ${queue.polyclinic.name}\n'
+                                                'Nama Pasien: ${queue.patient.name}\n'
+                                                'Tanggal Kunjungan: ${queue.date}\n'
+                                                'Estimasi Jam Pelayanan: ${queue.estimatedServiceTime ?? "-"}\n'
+                                                'Pindai QR Kode Anda langsung dari detail aplikasi!'
+                                        ));
+                                        AppDialogs.showNotificationDialog(
+                                          context,
+                                          'Tiket Disalin',
+                                          'Detail tiket antrean Anda berhasil disalin ke papan klip untuk dibagikan!',
+                                        );
+                                      },
                                       icon: const Icon(Icons.share_rounded, color: AppTheme.primaryColor, size: 20),
                                     ),
                                   ),
@@ -349,7 +365,11 @@ class BookingDetailScreen extends StatelessWidget {
                           ),
                           child: Column(
                             children: [
-                              InfoRowItem(icon: Icons.person_rounded, label: 'Nama Pasien', value: queue.patient.name),
+                              InfoRowItem(
+                                icon: Icons.person_rounded, 
+                                label: 'Nama Pasien', 
+                                value: queue.patient.name + (queue.patient.isElderly ? ' (Lansia - Prioritas)' : ''),
+                              ),
                               const Divider(height: 24),
                               InfoRowItem(icon: Icons.badge_rounded, label: 'NIK', value: queue.patient.nationalId ?? '-'),
                               const Divider(height: 24),
@@ -360,6 +380,53 @@ class BookingDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+
+                  // Priority Banner (Tugas 5)
+                  if (queue.patient.isElderly) ...[
+                    const SizedBox(height: 24),
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 600),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.amber.shade200),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.star_rounded, color: Colors.amber.shade700, size: 22),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'LAYANAN JALUR PRIORITAS (LANSIA)',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.amber.shade900,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Pasien diidentifikasi masuk kategori prioritas khusus (Lansia). Silakan hubungi loket pendaftaran Puskesmas untuk verifikasi jalur antrean prioritas.',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      color: Colors.amber.shade800,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
 
                   const SizedBox(height: 24),
 
@@ -402,14 +469,22 @@ class BookingDetailScreen extends StatelessWidget {
                     delay: const Duration(milliseconds: 600),
                     child: Column(
                       children: [
-
-                        TextButton(
+                        TextButton.icon(
                           onPressed: () => _showCancelConfirmation(context),
                           style: TextButton.styleFrom(
-                            foregroundColor: Colors.red,
+                            foregroundColor: _isCancellationLocked(queue) ? Colors.grey.shade500 : Colors.red,
                             minimumSize: const Size(double.infinity, 56),
                           ),
-                          child: const Text('Batalkan Antrean'),
+                          icon: Icon(
+                            _isCancellationLocked(queue) ? Icons.lock_clock_rounded : Icons.cancel_rounded,
+                            size: 18,
+                          ),
+                          label: Text(
+                            _isCancellationLocked(queue) ? 'Pembatalan Dikunci (< 2 Jam)' : 'Batalkan Antrean',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -424,7 +499,49 @@ class BookingDetailScreen extends StatelessWidget {
     );
   }
 
+  bool _isCancellationLocked(QueueModel queue) {
+    if (queue.status == QueueStatus.completed || queue.status == QueueStatus.cancelled) {
+      return true;
+    }
+    
+    try {
+      final dateStr = queue.date;
+      final timeStr = queue.estimatedServiceTime ?? '23:59';
+      
+      final dateParts = dateStr.split('-');
+      final timeParts = timeStr.split(':');
+      
+      if (dateParts.length >= 3 && timeParts.length >= 2) {
+        final year = int.parse(dateParts[0]);
+        final month = int.parse(dateParts[1]);
+        final day = int.parse(dateParts[2]);
+        final hour = int.parse(timeParts[0]);
+        final minute = int.parse(timeParts[1]);
+        
+        final estimatedTime = DateTime(year, month, day, hour, minute);
+        final now = DateTime.now();
+        
+        final difference = estimatedTime.difference(now);
+        if (difference.inMinutes <= 120) {
+          return true;
+        }
+      }
+    } catch (_) {}
+    
+    return false;
+  }
+
   void _showCancelConfirmation(BuildContext context) async {
+    if (_isCancellationLocked(queue)) {
+      AppDialogs.showNotificationDialog(
+        context,
+        'Pembatalan Ditutup',
+        'Pembatalan mandiri tidak diizinkan kurang dari 2 jam sebelum estimasi waktu pelayanan. Silakan hubungi loket pelayanan Puskesmas.',
+        isError: true,
+      );
+      return;
+    }
+
     final confirm = await AppDialogs.showConfirmationDialog(
       context,
       'Batalkan Antrean?',

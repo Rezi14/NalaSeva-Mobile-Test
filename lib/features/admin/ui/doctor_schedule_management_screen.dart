@@ -458,6 +458,57 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                       if (!formKey.currentState!.validate()) return;
 
                       final adminProvider = context.read<AdminProvider>();
+                      
+                      // 1. Validasi Durasi Positif (Tugas 4)
+                      final startMinutes = startTime!.hour * 60 + startTime!.minute;
+                      final endMinutes = endTime!.hour * 60 + endTime!.minute;
+                      if (startMinutes >= endMinutes) {
+                        AppDialogs.showNotificationDialog(
+                          context,
+                          'Jadwal Tidak Valid',
+                          'Waktu mulai harus secara kronologis sebelum waktu selesai.',
+                          isError: true,
+                        );
+                        return;
+                      }
+
+                      // 2. Validasi Tabrakan Jadwal Aktif Dokter (Tugas 5)
+                      bool hasOverlap(String day, int startMin, int endMin, int? excludeId) {
+                        for (var s in adminProvider.schedules) {
+                          if (s.doctorId != doctorId) continue;
+                          if (excludeId != null && s.id == excludeId) continue;
+                          if (s.dayOfWeek.toLowerCase() == day.toLowerCase()) {
+                            try {
+                              final sStartParts = s.startTime.split(':');
+                              final sEndParts = s.endTime.split(':');
+                              if (sStartParts.length >= 2 && sEndParts.length >= 2) {
+                                final sStartMin = int.parse(sStartParts[0]) * 60 + int.parse(sStartParts[1]);
+                                final sEndMin = int.parse(sEndParts[0]) * 60 + int.parse(sEndParts[1]);
+                                
+                                final maxStart = startMin > sStartMin ? startMin : sStartMin;
+                                final minEnd = endMin < sEndMin ? endMin : sEndMin;
+                                if (maxStart < minEnd) {
+                                  return true;
+                                }
+                              }
+                            } catch (_) {}
+                          }
+                        }
+                        return false;
+                      }
+
+                      for (var day in selectedDays) {
+                        if (hasOverlap(day, startMinutes, endMinutes, isEdit ? schedule.id : null)) {
+                          AppDialogs.showNotificationDialog(
+                            context,
+                            'Jadwal Bentrok',
+                            'Dokter ini sudah memiliki jadwal aktif pada hari $day di jam yang bertabrakan.',
+                            isError: true,
+                          );
+                          return;
+                        }
+                      }
+
                       setModalState(() => isSaving = true);
                       try {
                         final startTimeStr = '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}';

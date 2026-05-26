@@ -6,11 +6,15 @@ import '../../../core/theme/app_theme.dart';
 class AdminPatientCard extends StatelessWidget {
   final QueueModel queue;
   final VoidCallback onTap;
+  final VoidCallback? onCheckIn;
+  final bool showCheckIn;
 
   const AdminPatientCard({
     super.key,
     required this.queue,
     required this.onTap,
+    this.onCheckIn,
+    this.showCheckIn = false,
   });
 
   @override
@@ -91,34 +95,56 @@ class AdminPatientCard extends StatelessWidget {
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusBg,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    queue.status.displayName.toUpperCase(),
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+            showCheckIn
+                ? ElevatedButton(
+                    onPressed: onCheckIn,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      minimumSize: const Size(80, 40),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
+                    child: const Text(
+                      'ABSEN',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: statusBg,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          queue.status.displayName.toUpperCase(),
+                          style: TextStyle(
+                            color: statusColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        queue.date,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  queue.date,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),

@@ -9,6 +9,7 @@ import '../widgets/auth_text_field.dart';
 import '../widgets/auth_gender_button.dart';
 import '../widgets/auth_submit_button.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/validators.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -159,7 +160,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hasBorder: true,
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'NIK tidak boleh kosong';
-                    if (v.length != 16) return 'NIK harus 16 digit';
+                    if (v.length != 16 || int.tryParse(v) == null) {
+                      return 'NIK harus berupa 16 digit angka';
+                    }
                     return null;
                   },
                 ),
@@ -184,13 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   hasBorder: true,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Email tidak boleh kosong';
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) {
-                      return 'Format email tidak valid';
-                    }
-                    return null;
-                  },
+                  validator: Validators.validateEmail,
                 ),
               ),
               const SizedBox(height: 16),

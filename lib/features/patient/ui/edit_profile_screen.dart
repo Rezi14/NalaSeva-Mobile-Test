@@ -7,6 +7,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/validators.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -225,7 +226,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 label: 'Email',
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
-                validator: (v) => v!.isEmpty ? 'Email tidak boleh kosong' : null,
+                validator: Validators.validateEmail,
               ),
               const SizedBox(height: 16),
               Column(

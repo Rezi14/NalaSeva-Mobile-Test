@@ -5,6 +5,7 @@ import '../logic/admin_provider.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../shared/models/user_model.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -141,11 +142,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 TextFormField(
                   controller: emailController, 
                   decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Email tidak boleh kosong';
-                    if (!v.contains('@') || !v.contains('.')) return 'Format email tidak valid';
-                    return null;
-                  },
+                  validator: Validators.validateEmail,
                 ),
                 const SizedBox(height: 16),
                 if (!isEdit) ...[

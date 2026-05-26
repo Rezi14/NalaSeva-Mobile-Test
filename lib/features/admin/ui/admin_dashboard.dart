@@ -55,12 +55,25 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final provider = context.watch<AdminProvider>();
 
     final List<double> weeklyCounts = List.filled(7, 0.0);
+    final now = DateTime.now();
+    // Monday of the current week
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final startOfWeekOnly = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+    // Sunday of the current week (inclusive)
+    final endOfWeekOnly = startOfWeekOnly.add(const Duration(days: 7));
+
     for (var q in provider.queues) {
-      final parsedDate = DateTime.tryParse(q.date);
-      if (parsedDate != null) {
-        final weekdayIndex = parsedDate.weekday - 1;
-        if (weekdayIndex >= 0 && weekdayIndex < 7) {
-          weeklyCounts[weekdayIndex] += 1.0;
+      if (q.status == QueueStatus.completed) {
+        final parsedDate = DateTime.tryParse(q.date);
+        if (parsedDate != null) {
+          final dateOnly = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
+          if (dateOnly.isAtSameMomentAs(startOfWeekOnly) || 
+              (dateOnly.isAfter(startOfWeekOnly) && dateOnly.isBefore(endOfWeekOnly))) {
+            final weekdayIndex = parsedDate.weekday - 1;
+            if (weekdayIndex >= 0 && weekdayIndex < 7) {
+              weeklyCounts[weekdayIndex] += 1.0;
+            }
+          }
         }
       }
     }
@@ -282,10 +295,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             itemBuilder: (context, index) {
                               final poly = provider.polyclinics[index];
                               final colors = [
-                                AppTheme.primaryColor,
-                                AppTheme.secondaryColor,
-                                AppTheme.accentColor,
-                                const Color(0xFF64748B),
+                                AppTheme.primaryColor, // Emerald Green
+                                const Color(0xFF10B981), // Mint Success Green
+                                const Color(0xFF0D9488), // Teal Green
+                                const Color(0xFF047857), // Forest Green
                               ];
                               return FadeInUp(
                                 duration: const Duration(milliseconds: 500),

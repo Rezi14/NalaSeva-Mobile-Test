@@ -6,6 +6,7 @@ import '../logic/admin_provider.dart';
 import '../../../shared/models/doctor_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/validators.dart';
 
 class AdminDoctorFormSheet {
   static void show(BuildContext context, {DoctorModel? doctor}) {
@@ -122,11 +123,7 @@ class AdminDoctorFormSheet {
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Email tidak boleh kosong';
-                        if (!v.contains('@') || !v.contains('.')) return 'Format email tidak valid';
-                        return null;
-                      },
+                      validator: Validators.validateEmail,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

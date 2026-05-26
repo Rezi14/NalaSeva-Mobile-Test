@@ -55,6 +55,7 @@ class NalasevaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Nalaseva',
+      navigatorKey: AppRouter.navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       initialRoute: AppRouter.login,

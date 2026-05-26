@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../logic/admin_provider.dart';
-import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/constants/app_constants.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/service_time_validator.dart';
 
 class QRScannerPage extends StatefulWidget {
   const QRScannerPage({super.key});
@@ -58,30 +59,45 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
                 final String? code = barcodes.first.rawValue;
                 if (code != null) {
                   setState(() => _isScanning = false);
-                  int? queueId;
+                  final provider = context.read<AdminProvider>();
+                  dynamic matchedQueue;
                   
                   if (code.startsWith('NALASEVA_QUEUE_')) {
                     final queueIdStr = code.replaceFirst('NALASEVA_QUEUE_', '');
-                    queueId = int.tryParse(queueIdStr);
+                    final parsedId = int.tryParse(queueIdStr);
+                    if (parsedId != null) {
+                      try {
+                        matchedQueue = provider.queues.firstWhere((q) => q.id == parsedId);
+                      } catch (_) {}
+                    }
                   } else {
-                    final provider = context.read<AdminProvider>();
                     try {
-                      final matched = provider.queues.firstWhere(
+                      matchedQueue = provider.queues.firstWhere(
                         (q) => q.queueNumber.trim().toLowerCase() == code.trim().toLowerCase() && q.status == QueueStatus.booked,
                       );
-                      queueId = matched.id;
                     } catch (_) {
                       try {
-                        final matched = provider.queues.firstWhere(
+                        matchedQueue = provider.queues.firstWhere(
                           (q) => q.queueNumber.trim().toLowerCase() == code.trim().toLowerCase(),
                         );
-                        queueId = matched.id;
                       } catch (_) {}
                     }
                   }
                   
-                  if (queueId != null) {
-                    await _handleScanResult(queueId);
+                  if (matchedQueue != null) {
+                    final validationError = ServiceTimeValidator.validateAdminAction(matchedQueue);
+                    if (validationError != null) {
+                      AppDialogs.showNotificationDialog(
+                        context,
+                        'Tidak Sesuai Jam Pelayanan',
+                        validationError,
+                        isError: true,
+                      );
+                      setState(() => _isScanning = true);
+                      return;
+                    }
+
+                    await _handleScanResult(matchedQueue.id);
                   } else {
                     AppDialogs.showNotificationDialog(
                       context,

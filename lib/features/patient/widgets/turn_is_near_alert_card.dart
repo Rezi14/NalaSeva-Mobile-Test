@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:intl/intl.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../logic/patient_provider.dart';
@@ -15,8 +16,10 @@ class TurnIsNearAlertCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final activeQueues = provider.myQueues.where((q) => 
-        q.status == QueueStatus.booked || q.status == QueueStatus.waiting).toList();
+        q.date == todayStr &&
+        (q.status == QueueStatus.booked || q.status == QueueStatus.waiting)).toList();
         
     if (activeQueues.isEmpty) {
       return const SizedBox.shrink();

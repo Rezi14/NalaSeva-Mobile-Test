@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/patient_repository.dart';
 import '../../../shared/models/queue_model.dart';
+import '../../../shared/constants/app_constants.dart';
 import '../../../shared/models/polyclinic_model.dart';
 import '../../../shared/models/examination_model.dart';
 import '../../../shared/models/schedule_model.dart';
@@ -48,7 +49,24 @@ class PatientProvider extends ChangeNotifier {
 
   Future<void> fetchMyQueues() async {
     await _performAction(() async {
-      _myQueues = await _repository.getMyQueues();
+      final queues = await _repository.getMyQueues();
+      final holidays = await _repository.getClinicHolidays();
+      
+      List<QueueModel> validatedQueues = [];
+      for (var q in queues) {
+        if (q.status != QueueStatus.completed && q.status != QueueStatus.cancelled) {
+          final isHoliday = holidays.contains(q.date);
+          if (isHoliday) {
+            try {
+              await _repository.cancelQueue(q.id);
+              q = q.copyWith(status: QueueStatus.cancelled);
+              _error = "Antrean Anda pada tanggal ${q.date} dibatalkan otomatis karena Puskesmas menetapkan hari libur pada tanggal tersebut.";
+            } catch (_) {}
+          }
+        }
+        validatedQueues.add(q);
+      }
+      _myQueues = validatedQueues;
     });
   }
 

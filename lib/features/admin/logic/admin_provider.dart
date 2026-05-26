@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../data/admin_repository.dart';
 import '../../../shared/models/user_model.dart';
 import '../../../shared/models/polyclinic_model.dart';
@@ -148,7 +149,36 @@ class AdminProvider extends ChangeNotifier {
 
   Future<void> fetchQueues() async {
     await _performAction(() async {
-      _queues = await _repository.getQueues();
+      final rawQueues = await _repository.getQueues();
+      
+      final now = DateTime.now();
+      final todayStr = DateFormat('yyyy-MM-dd').format(now);
+      
+      final processedQueues = <QueueModel>[];
+      for (var q in rawQueues) {
+        if (q.status == QueueStatus.booked && q.date == todayStr && q.estimatedServiceTime != null && q.estimatedServiceTime!.isNotEmpty) {
+          try {
+            final timeParts = q.estimatedServiceTime!.split(':');
+            final startHour = int.parse(timeParts[0]);
+            final startMinute = int.parse(timeParts[1]);
+            
+            final startMinutes = startHour * 60 + startMinute;
+            final nowMinutes = now.hour * 60 + now.minute;
+            
+            if (nowMinutes > (startMinutes + 60)) {
+              try {
+                await _repository.updateQueueStatus(q.id, QueueStatus.cancelled.value);
+                processedQueues.add(q.copyWith(status: QueueStatus.cancelled));
+              } catch (_) {
+                processedQueues.add(q);
+              }
+              continue;
+            }
+          } catch (_) {}
+        }
+        processedQueues.add(q);
+      }
+      _queues = processedQueues;
     });
   }
 

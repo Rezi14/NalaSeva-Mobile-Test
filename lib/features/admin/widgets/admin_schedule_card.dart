@@ -167,6 +167,6 @@ class AdminScheduleCard extends StatelessWidget {
         }
       }
     } catch (_) {}
-    return 10; // default fallback quota
+    return 0; // default fallback quota (0 is safer when parse fails)
   }
 }

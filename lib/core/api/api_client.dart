@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../router/app_router.dart';
 
 class ApiClient {
   late Dio dio;
@@ -39,9 +40,13 @@ class ApiClient {
         }
         return handler.next(options);
       },
-      onError: (e, handler) {
+      onError: (e, handler) async {
         if (e.response?.statusCode == 401) {
-          // Handle unauthorized (session expired)
+          // Hapus token akses sesi yang kedaluwarsa
+          await _storage.delete(key: 'access_token');
+          await _storage.delete(key: 'user_role');
+          // Global contextless redirect to login screen
+          AppRouter.navigatorKey.currentState?.pushNamedAndRemoveUntil('/', (route) => false);
         }
         return handler.next(e);
       },

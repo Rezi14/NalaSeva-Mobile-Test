@@ -7,6 +7,7 @@ import '../../../shared/models/queue_model.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/service_time_validator.dart';
 import '../../../core/utils/tts_helper.dart';
 import '../widgets/admin_info_row.dart';
 import '../widgets/admin_booking_action_buttons.dart';
@@ -21,6 +22,7 @@ class AdminBookingDetailScreen extends StatefulWidget {
 
 class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
   late QueueModel _currentQueue;
+  final Map<int, int> _recallCounts = {};
 
   @override
   void initState() {
@@ -45,14 +47,160 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
     );
   }
 
+  Future<String?> _showManualCheckInReasonDialog() async {
+    String? selectedReason = 'Pasien tidak membawa smartphone / Lansia';
+    final reasons = [
+      'Pasien tidak membawa smartphone / Lansia',
+      'Kamera scanner / QR Code bermasalah',
+      'HP Pasien mati / Habis baterai',
+      'Kondisi darurat medis',
+      'Alasan lainnya'
+    ];
+
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.assignment_ind_rounded,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Konfirmasi Absen Manual',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Anda sedang melakukan absensi secara manual. Harap pilih alasan utama untuk pelaporan sistem:',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.grey.shade600,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedReason,
+                        isExpanded: true,
+                        dropdownColor: Colors.white,
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+                        style: GoogleFonts.inter(
+                          color: Colors.black87,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        items: reasons.map((String reason) {
+                          return DropdownMenuItem<String>(
+                            value: reason,
+                            child: Text(reason),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            setDialogState(() {
+                              selectedReason = newValue;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, null),
+                  child: Text(
+                    'Batal',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, selectedReason),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Konfirmasi Absen',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _checkInPatient() async {
+    final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
+    if (validationError != null) {
+      _onErrorMessage(validationError);
+      return;
+    }
+    
+    if (_currentQueue.status != QueueStatus.booked) {
+      _onErrorMessage('Hanya antrean berstatus DIPESAN yang dapat diabsenkan.');
+      return;
+    }
+    
+    final reason = await _showManualCheckInReasonDialog();
+    if (reason == null || !mounted) return; // Cancel check-in or if unmounted
+    
     final provider = context.read<AdminProvider>();
     await provider.checkInQueue(_currentQueue.id);
     if (mounted) {
       if (provider.error != null) {
         _onErrorMessage(provider.error!);
       } else {
-        _onSuccessMessage('Berhasil mengubah status menjadi MENUNGGU (Absen)');
+        _onSuccessMessage('Berhasil mengubah status menjadi MENUNGGU (Absen)\nAlasan: $reason');
         setState(() {
           final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
           if (matchingQueues.isNotEmpty) {
@@ -66,6 +214,17 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
   }
 
   Future<void> _moveQueueToBack() async {
+    final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
+    if (validationError != null) {
+      _onErrorMessage(validationError);
+      return;
+    }
+    
+    if (_currentQueue.status != QueueStatus.booked) {
+      _onErrorMessage('Hanya antrean berstatus DIPESAN yang dapat dipindahkan ke belakang.');
+      return;
+    }
+    
     final provider = context.read<AdminProvider>();
     final confirm = await AppDialogs.showConfirmationDialog(
       context,
@@ -93,6 +252,17 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
   }
 
   Future<void> _cancelQueue() async {
+    final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
+    if (validationError != null) {
+      _onErrorMessage(validationError);
+      return;
+    }
+    
+    if (_currentQueue.status == QueueStatus.completed || _currentQueue.status == QueueStatus.cancelled) {
+      _onErrorMessage('Antrean yang sudah selesai atau dibatalkan tidak dapat dibatalkan lagi.');
+      return;
+    }
+    
     final confirm = await AppDialogs.showConfirmationDialog(
       context,
       'Batalkan Antrean',
@@ -503,14 +673,39 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
               onMoveToBack: _moveQueueToBack,
               onCancel: _cancelQueue,
               onCallPatient: () {
+                final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
+                if (validationError != null) {
+                  _onErrorMessage(validationError);
+                  return;
+                }
+                if (_currentQueue.status != QueueStatus.waiting) {
+                  _onErrorMessage('Hanya antrean berstatus MENUNGGU yang dapat dipanggil.');
+                  return;
+                }
                 final cleanQueueNum = _currentQueue.queueNumber.replaceAll('-', ' ');
                 final text = "Panggilan untuk nomor antrean $cleanQueueNum, atas nama ${_currentQueue.patient.fullName}, silahkan menuju ke ruang ${_currentQueue.polyclinic.name}.";
                 TtsHelper.speak(text);
                 _voiceCallingSimulation(isRecall: false);
               },
               onRecallPatient: () {
+                final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
+                if (validationError != null) {
+                  _onErrorMessage(validationError);
+                  return;
+                }
+                if (_currentQueue.status != QueueStatus.examining) {
+                  _onErrorMessage('Hanya antrean berstatus SEDANG DIPERIKSA yang dapat dipanggil ulang.');
+                  return;
+                }
+                final currentCount = _recallCounts[_currentQueue.id] ?? 0;
+                if (currentCount >= 3) {
+                  _onErrorMessage('Batas maksimal panggilan ulang (3 kali) untuk pasien ini telah tercapai.');
+                  return;
+                }
+                _recallCounts[_currentQueue.id] = currentCount + 1;
+                
                 final cleanQueueNum = _currentQueue.queueNumber.replaceAll('-', ' ');
-                final text = "Panggilan ulang untuk nomor antrean $cleanQueueNum, atas nama ${_currentQueue.patient.fullName}, silahkan menuju ke ruang ${_currentQueue.polyclinic.name}.";
+                final text = "Panggilan ulang untuk nomor antrean $cleanQueueNum, atas nama ${_currentQueue.patient.fullName}, silahkan menuju ke ruang ${_currentQueue.polyclinic.name}. (Panggilan ke-${currentCount + 1})";
                 TtsHelper.speak(text);
                 _voiceCallingSimulation(isRecall: true);
               },

@@ -7,6 +7,7 @@ import '../logic/admin_provider.dart';
 import '../../../shared/models/doctor_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../shared/constants/app_constants.dart';
 import '../widgets/admin_doctor_card.dart';
 import '../widgets/admin_bottom_nav.dart';
 import '../widgets/admin_doctor_form_sheet.dart';
@@ -29,6 +30,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AdminProvider>().fetchDoctors();
       context.read<AdminProvider>().fetchPolyclinics();
+      context.read<AdminProvider>().fetchQueues();
     });
   }
 
@@ -276,6 +278,25 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
   }
 
   void _confirmDeleteDoctor(BuildContext context, DoctorModel doc) async {
+    final provider = context.read<AdminProvider>();
+    
+    // Check if the doctor has any active queues
+    final activeQueues = provider.queues.where((q) =>
+      q.doctorId == doc.id &&
+      q.status != QueueStatus.completed &&
+      q.status != QueueStatus.cancelled
+    ).toList();
+
+    if (activeQueues.isNotEmpty) {
+      AppDialogs.showNotificationDialog(
+        context,
+        'Tidak Dapat Menghapus',
+        '${doc.user?.name ?? "Dokter"} masih memiliki ${activeQueues.length} antrean aktif. Selesaikan atau batalkan semua antrean terlebih dahulu.',
+        isError: true,
+      );
+      return;
+    }
+
     final confirm = await AppDialogs.showConfirmationDialog(
       context,
       'Hapus Dokter',

@@ -105,7 +105,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Selamat Pagi,',
+                                        _getGreeting(),
                                         style: GoogleFonts.inter(
                                           color: Colors.grey.shade600,
                                           fontSize: 12,
@@ -128,10 +128,11 @@ class _PatientDashboardState extends State<PatientDashboard> {
                           Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey.shade200),
+                              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                              border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.2)),
                             ),
                             child: IconButton(
-                              icon: const Icon(Icons.notifications_none_rounded),
+                              icon: const Icon(Icons.notifications_none_rounded, color: AppTheme.primaryColor),
                               onPressed: () => Navigator.pushNamed(context, '/patient/notifications'),
                             ),
                           ),
@@ -141,12 +142,12 @@ class _PatientDashboardState extends State<PatientDashboard> {
                   ),
                 ),
               ),
-
+ 
               TomorrowReminderCard(provider: provider),
               TurnIsNearAlertCard(provider: provider),
-
+ 
               const Divider(height: 1),
-
+ 
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -158,9 +159,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
                       delay: const Duration(milliseconds: 200),
                       child: QueueStatusCard(provider: provider),
                     ),
-
+ 
                     const SizedBox(height: 32),
-
+ 
                     // Health Services Section
                     FadeInUp(
                       duration: const Duration(milliseconds: 600),
@@ -215,9 +216,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
                         ],
                       ),
                     ),
-
+ 
                     const SizedBox(height: 40),
-
+ 
                     // Emergency Button
                     FadeInUp(
                       duration: const Duration(milliseconds: 600),
@@ -231,7 +232,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                             confirmText: 'HUBUNGI',
                             isDestructive: true,
                           );
-
+ 
                           if (confirm == true && context.mounted) {
                             AppDialogs.showNotificationDialog(
                               context,
@@ -257,9 +258,18 @@ class _PatientDashboardState extends State<PatientDashboard> {
                     // Logout Option
                     Center(
                       child: TextButton(
-                        onPressed: () {
-                          context.read<AuthProvider>().logout();
-                          Navigator.pushReplacementNamed(context, '/');
+                        onPressed: () async {
+                          final confirm = await AppDialogs.showConfirmationDialog(
+                            context,
+                            'Konfirmasi Keluar',
+                            'Apakah Anda yakin ingin keluar dari akun Anda?',
+                            confirmText: 'KELUAR',
+                            isDestructive: true,
+                          );
+                          if (confirm == true && context.mounted) {
+                            context.read<AuthProvider>().logout();
+                            Navigator.pushReplacementNamed(context, '/');
+                          }
                         },
                         child: Text(
                           'Keluar dari Aplikasi',
@@ -277,5 +287,17 @@ class _PatientDashboardState extends State<PatientDashboard> {
     );
   }
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour >= 4 && hour < 11) {
+      return 'Selamat Pagi,';
+    } else if (hour >= 11 && hour < 15) {
+      return 'Selamat Siang,';
+    } else if (hour >= 15 && hour < 18) {
+      return 'Selamat Sore,';
+    } else {
+      return 'Selamat Malam,';
+    }
+  }
 }
 

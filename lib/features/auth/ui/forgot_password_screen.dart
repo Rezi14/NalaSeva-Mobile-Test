@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/validators.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -16,14 +17,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
   final _nationalIdController = TextEditingController();
   final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   bool _isObscure = true;
+  bool _isConfirmObscure = true;
 
   @override
   void dispose() {
     _emailController.dispose();
     _nationalIdController.dispose();
     _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -108,15 +112,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email tidak boleh kosong';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Format email tidak valid';
-                    }
-                    return null;
-                  },
+                  validator: Validators.validateEmail,
                 ),
                 const SizedBox(height: 20),
                 
@@ -172,6 +168,40 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     }
                     if (value.length < 8) {
                       return 'Password minimal 8 karakter';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Confirm Password Field
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: _isConfirmObscure,
+                  decoration: InputDecoration(
+                    labelText: 'Konfirmasi Password Baru',
+                    hintText: 'Ulangi password baru',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmObscure ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isConfirmObscure = !_isConfirmObscure;
+                        });
+                      },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Konfirmasi password tidak boleh kosong';
+                    }
+                    if (value != _newPasswordController.text) {
+                      return 'Kata sandi tidak cocok';
                     }
                     return null;
                   },

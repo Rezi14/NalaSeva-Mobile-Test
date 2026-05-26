@@ -159,7 +159,13 @@ class _BookingScreenState extends State<BookingScreen> {
                                   : 'Pilih Dokter & Jadwal'),
                           value: selectedDoctorId,
                           enabled: selectedPolyId != null && provider.availableSchedules.isNotEmpty,
-                           items: provider.availableSchedules.map((s) {
+                           items: provider.availableSchedules.where((s) {
+                             final doc = provider.doctors.firstWhere(
+                               (d) => d.id == s.doctorId,
+                               orElse: () => s.doctor ?? DoctorModel(id: s.doctorId, userId: 0),
+                             );
+                             return doc.isOnline;
+                           }).map((s) {
                              final startStr = s.startTime.length >= 5 ? s.startTime.substring(0, 5) : s.startTime;
                              final endStr = s.endTime.length >= 5 ? s.endTime.substring(0, 5) : s.endTime;
                              final quota = _calculateQuota(s.startTime, s.endTime);
@@ -401,6 +407,22 @@ class _BookingScreenState extends State<BookingScreen> {
       return;
     }
 
+    // Cek apakah pasien sudah memiliki antrean aktif pada tanggal kunjungan yang sama lintas poliklinik (Tugas 1)
+    final selectedDateStr = selectedDate.toIso8601String().split('T')[0];
+    final hasActiveBookingOnSameDate = provider.myQueues.any((q) => 
+        q.date == selectedDateStr &&
+        q.status != QueueStatus.completed &&
+        q.status != QueueStatus.cancelled
+    );
+
+    if (hasActiveBookingOnSameDate) {
+      _showResultDialog(
+        false, 
+        'Anda sudah memiliki antrean aktif pada tanggal kunjungan tersebut di poliklinik lain. Anda hanya diperbolehkan mendaftar maksimal 1 antrean aktif per hari.'
+      );
+      return;
+    }
+
     final schedules = provider.availableSchedules.where((s) => s.id == selectedDoctorId);
     if (schedules.isEmpty) {
       _showResultDialog(false, 'Jadwal dokter tidak ditemukan');
@@ -409,11 +431,40 @@ class _BookingScreenState extends State<BookingScreen> {
     final selectedSchedule = schedules.first;
     final doctorId = selectedSchedule.doctorId;
 
+    // Proteksi tanggal di masa lalu atau jam praktik hari ini yang sudah terlewat (Tugas 2)
+    final now = DateTime.now();
+    final todayStr = now.toIso8601String().split('T')[0];
+    final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+    final todayOnly = DateTime(now.year, now.month, now.day);
+    
+    if (selectedDateOnly.isBefore(todayOnly)) {
+      _showResultDialog(false, 'Tanggal kunjungan tidak boleh di masa lalu.');
+      return;
+    }
+
+    if (selectedDateStr == todayStr) {
+      try {
+        final endParts = selectedSchedule.endTime.split(':');
+        if (endParts.length >= 2) {
+          final endHour = int.parse(endParts[0]);
+          final endMin = int.parse(endParts[1]);
+          final limitTime = DateTime(now.year, now.month, now.day, endHour, endMin);
+          if (now.isAfter(limitTime)) {
+            _showResultDialog(
+              false, 
+              'Jam praktik dokter untuk hari ini sudah selesai. Silakan pilih tanggal lain.'
+            );
+            return;
+          }
+        }
+      } catch (_) {}
+    }
+
     await provider.createBooking({
       'patient_id': patientId,
       'polyclinic_id': selectedPolyId,
       'doctor_id': doctorId,
-      'date': selectedDate.toIso8601String().split('T')[0],
+      'date': selectedDateStr,
     });
     
     if (mounted) {
@@ -495,7 +546,7 @@ class _BookingScreenState extends State<BookingScreen> {
         }
       }
     } catch (_) {}
-    return 10; // default fallback quota
+    return 0; // default fallback quota (0 is safer when parse fails)
   }
 }
 

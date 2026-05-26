@@ -7,6 +7,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/validators.dart';
 import '../widgets/doctor_custom_text_field.dart';
 
 class DoctorEditProfileScreen extends StatefulWidget {
@@ -271,11 +272,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                 label: 'Email',
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Email tidak boleh kosong';
-                  if (!v.contains('@') || !v.contains('.')) return 'Format email tidak valid';
-                  return null;
-                },
+                validator: Validators.validateEmail,
               ),
               const SizedBox(height: 16),
 

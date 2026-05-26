@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../logic/admin_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../shared/constants/app_constants.dart';
 import '../../../shared/models/polyclinic_model.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../widgets/admin_mini_stat_card.dart';
@@ -31,6 +32,8 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
       final provider = context.read<AdminProvider>();
       provider.fetchPolyclinics();
       provider.fetchSchedules();
+      provider.fetchQueues();
+      provider.fetchDoctors();
     });
   }
 
@@ -267,6 +270,38 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
 
 
   void _confirmDeletePolyclinic(BuildContext context, PolyclinicModel poly) async {
+    final provider = context.read<AdminProvider>();
+    
+    // Check if the polyclinic has any doctor schedules
+    final activeSchedules = provider.schedules.where((s) => s.doctor?.polyclinicId == poly.id).toList();
+    if (activeSchedules.isNotEmpty) {
+      AppDialogs.showNotificationDialog(
+        context,
+        'Tidak Dapat Menghapus',
+        'Poliklinik ${poly.name} masih memiliki ${activeSchedules.length} jadwal dokter aktif. Hapus jadwal dokter terlebih dahulu.',
+        isError: true,
+      );
+      return;
+    }
+
+    // Check if there are active queues in this polyclinic (checking the doctors of this polyclinic)
+    final doctorsInPoly = provider.doctors.where((d) => d.polyclinicId == poly.id).map((d) => d.id).toSet();
+    final activeQueues = provider.queues.where((q) =>
+      doctorsInPoly.contains(q.doctorId) &&
+      q.status != QueueStatus.completed &&
+      q.status != QueueStatus.cancelled
+    ).toList();
+
+    if (activeQueues.isNotEmpty) {
+      AppDialogs.showNotificationDialog(
+        context,
+        'Tidak Dapat Menghapus',
+        'Poliklinik ${poly.name} masih memiliki ${activeQueues.length} antrean aktif. Selesaikan atau batalkan semua antrean terlebih dahulu.',
+        isError: true,
+      );
+      return;
+    }
+
     final confirm = await AppDialogs.showConfirmationDialog(
       context,
       'Hapus Poliklinik',

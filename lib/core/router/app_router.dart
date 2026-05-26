@@ -32,6 +32,8 @@ import '../../features/patient/ui/notification_screen.dart';
 import '../../features/patient/ui/edit_profile_screen.dart';
 
 class AppRouter {
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   static const String login = '/';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';

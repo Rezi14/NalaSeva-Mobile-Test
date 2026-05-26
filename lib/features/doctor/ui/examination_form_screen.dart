@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../logic/doctor_provider.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../shared/models/queue_model.dart';
+import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../widgets/doctor_history_row.dart';
@@ -27,6 +28,7 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
 
   // Structured medicines list for Opsi 3
   final List<Map<String, dynamic>> _medicines = [];
+  bool _isSubmitting = false;
 
 
 
@@ -62,46 +64,75 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
 
 
   void _submit(QueueModel queue) async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    // Format the treatment text to be perfectly readable and 100% DB compatible (Opsi 3)
-    String formattedTreatment = "";
-    if (_treatmentNotesController.text.isNotEmpty) {
-      formattedTreatment += "📋 Catatan Tindakan:\n${_treatmentNotesController.text}";
-    }
-    
-    if (_medicines.isNotEmpty) {
-      if (formattedTreatment.isNotEmpty) formattedTreatment += "\n\n";
-      formattedTreatment += "💊 Resep Obat:\n";
-      formattedTreatment += _medicines.map((m) {
-        return "- ${m['name']} (${m['qty']} Tab) - ${m['dose']}";
-      }).join("\n");
-    }
-
-
+    if (_isSubmitting) return;
 
     final doctorId = context.read<AuthProvider>().user?.doctorId ?? context.read<AuthProvider>().user?.id;
-    final provider = context.read<DoctorProvider>();
-    
-    await provider.finishExamination({
-      'queue_id': queue.id,
-      'doctor_id': doctorId,
-      'complaint': _complaintController.text,
-      'diagnosis': _diagnosisController.text,
-      'treatment': formattedTreatment,
-    });
 
-    if (mounted && provider.error == null) {
-      AppDialogs.showSuccessDialog(
-        context,
-        'Berhasil',
-        'Pemeriksaan berhasil disimpan & diselesaikan',
-        onOkPressed: () {
-          Navigator.pop(context);
-        },
-      );
+    setState(() => _isSubmitting = true);
+
+    try {
+      final provider = context.read<DoctorProvider>();
+      
+      // Refresh queues to get the latest status
+      await provider.fetchMyQueues();
+      final freshQueue = provider.queues.where((q) => q.id == queue.id).firstOrNull;
+
+      if (freshQueue == null || 
+          freshQueue.status == QueueStatus.completed || 
+          freshQueue.status == QueueStatus.cancelled) {
+        if (mounted) {
+          AppDialogs.showNotificationDialog(
+            context,
+            'Antrean Tidak Valid',
+            'Pemeriksaan tidak dapat disimpan karena status antrean ini sudah selesai atau telah dibatalkan.',
+            isError: true,
+          );
+        }
+        return;
+      }
+
+      if (!_formKey.currentState!.validate()) {
+        return;
+      }
+
+      // Format the treatment text to be perfectly readable and 100% DB compatible (Opsi 3)
+      String formattedTreatment = "";
+      if (_treatmentNotesController.text.isNotEmpty) {
+        formattedTreatment += "📋 Catatan Tindakan:\n${_treatmentNotesController.text}";
+      }
+      
+      if (_medicines.isNotEmpty) {
+        if (formattedTreatment.isNotEmpty) formattedTreatment += "\n\n";
+        formattedTreatment += "💊 Resep Obat:\n";
+        formattedTreatment += _medicines.map((m) {
+          return "- ${m['name']} (${m['qty']} Tab) - ${m['dose']}";
+        }).join("\n");
+      }
+
+
+      
+      await provider.finishExamination({
+        'queue_id': freshQueue.id,
+        'doctor_id': doctorId,
+        'complaint': _complaintController.text,
+        'diagnosis': _diagnosisController.text,
+        'treatment': formattedTreatment,
+      });
+
+      if (mounted && provider.error == null) {
+        AppDialogs.showSuccessDialog(
+          context,
+          'Berhasil',
+          'Pemeriksaan berhasil disimpan & diselesaikan',
+          onOkPressed: () {
+            Navigator.pop(context);
+          },
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 

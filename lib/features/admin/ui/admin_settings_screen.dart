@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
@@ -30,6 +31,36 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   String _emailReport = 'Mingguan';
   
   String _lastBackup = 'Terakhir: Hari ini 04:00';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _language = prefs.getString('admin_language') ?? 'Bahasa Indonesia (ID)';
+      _darkMode = prefs.getBool('admin_dark_mode') ?? false;
+      _securityAccess = prefs.getString('admin_security_access') ?? 'Standar';
+      _avgServiceTime = prefs.getString('admin_avg_service_time') ?? '15 menit';
+      _autoCall = prefs.getBool('admin_auto_call') ?? true;
+      _emergencyBypass = prefs.getString('admin_emergency_bypass') ?? 'Level 2';
+      _pushNotification = prefs.getBool('admin_push_notification') ?? true;
+      _emailReport = prefs.getString('admin_email_report') ?? 'Mingguan';
+      _lastBackup = prefs.getString('admin_last_backup') ?? 'Terakhir: Hari ini 04:00';
+    });
+  }
+
+  Future<void> _saveSetting(String key, dynamic value) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value is String) {
+      await prefs.setString(key, value);
+    } else if (value is bool) {
+      await prefs.setBool(key, value);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +194,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                               title: 'Pilih Bahasa',
                               currentValue: _language,
                               options: const ['Bahasa Indonesia (ID)', 'English (US)', 'Basa Jawa (JV)'],
-                              onSelected: (val) => setState(() => _language = val),
+                              onSelected: (val) {
+                                setState(() => _language = val);
+                                _saveSetting('admin_language', val);
+                              },
                             ),
                           ),
                           AdminSettingsItem(
@@ -176,9 +210,15 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                               activeTrackColor: AppTheme.primaryColor.withValues(alpha: 0.3),
                               inactiveThumbColor: Colors.grey.shade400,
                               inactiveTrackColor: Colors.grey.shade200,
-                              onChanged: (val) => setState(() => _darkMode = val),
+                              onChanged: (val) {
+                                setState(() => _darkMode = val);
+                                _saveSetting('admin_dark_mode', val);
+                              },
                             ),
-                            onTap: () => setState(() => _darkMode = !_darkMode),
+                            onTap: () {
+                              setState(() => _darkMode = !_darkMode);
+                              _saveSetting('admin_dark_mode', _darkMode);
+                            },
                           ),
                           AdminSettingsItem(
                             icon: Icons.security_rounded,
@@ -188,7 +228,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                               title: 'Akses Keamanan',
                               currentValue: _securityAccess,
                               options: const ['Standar', 'Dua Faktor (2FA)', 'Tinggi (IP Lock)'],
-                              onSelected: (val) => setState(() => _securityAccess = val),
+                              onSelected: (val) {
+                                setState(() => _securityAccess = val);
+                                _saveSetting('admin_security_access', val);
+                              },
                             ),
                           ),
                         ],
@@ -205,7 +248,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                               title: 'Rata-rata Waktu Layanan',
                               currentValue: _avgServiceTime,
                               options: const ['10 menit', '15 menit', '20 menit', '30 menit'],
-                              onSelected: (val) => setState(() => _avgServiceTime = val),
+                              onSelected: (val) {
+                                setState(() => _avgServiceTime = val);
+                                _saveSetting('admin_avg_service_time', val);
+                              },
                             ),
                           ),
                           AdminSettingsItem(
@@ -218,9 +264,15 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                               activeTrackColor: AppTheme.primaryColor.withValues(alpha: 0.3),
                               inactiveThumbColor: Colors.grey.shade400,
                               inactiveTrackColor: Colors.grey.shade200,
-                              onChanged: (val) => setState(() => _autoCall = val),
+                              onChanged: (val) {
+                                setState(() => _autoCall = val);
+                                _saveSetting('admin_auto_call', val);
+                              },
                             ),
-                            onTap: () => setState(() => _autoCall = !_autoCall),
+                            onTap: () {
+                              setState(() => _autoCall = !_autoCall);
+                              _saveSetting('admin_auto_call', _autoCall);
+                            },
                           ),
                           AdminSettingsItem(
                             icon: Icons.priority_high_rounded,
@@ -230,7 +282,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                               title: 'Jalur Darurat',
                               currentValue: _emergencyBypass,
                               options: const ['Level 1', 'Level 2', 'Level 3'],
-                              onSelected: (val) => setState(() => _emergencyBypass = val),
+                              onSelected: (val) {
+                                setState(() => _emergencyBypass = val);
+                                _saveSetting('admin_emergency_bypass', val);
+                              },
                             ),
                           ),
                         ],
@@ -249,9 +304,15 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                               activeTrackColor: AppTheme.primaryColor.withValues(alpha: 0.3),
                               inactiveThumbColor: Colors.grey.shade400,
                               inactiveTrackColor: Colors.grey.shade200,
-                              onChanged: (val) => setState(() => _pushNotification = val),
+                              onChanged: (val) {
+                                setState(() => _pushNotification = val);
+                                _saveSetting('admin_push_notification', val);
+                              },
                             ),
-                            onTap: () => setState(() => _pushNotification = !_pushNotification),
+                            onTap: () {
+                              setState(() => _pushNotification = !_pushNotification);
+                              _saveSetting('admin_push_notification', _pushNotification);
+                            },
                           ),
                           AdminSettingsItem(
                             icon: Icons.email_outlined,
@@ -261,7 +322,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                               title: 'Laporan Email',
                               currentValue: _emailReport,
                               options: const ['Harian', 'Mingguan', 'Bulanan', 'Nonaktif'],
-                              onSelected: (val) => setState(() => _emailReport = val),
+                              onSelected: (val) {
+                                setState(() => _emailReport = val);
+                                _saveSetting('admin_email_report', val);
+                              },
                             ),
                           ),
                         ],
@@ -468,6 +532,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
             setState(() {
               _lastBackup = 'Terakhir: Baru saja';
             });
+            _saveSetting('admin_last_backup', 'Terakhir: Baru saja');
             AppDialogs.showNotificationDialog(
               context,
               'Sukses',

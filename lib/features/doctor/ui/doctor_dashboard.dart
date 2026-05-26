@@ -313,10 +313,23 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Icon(
-                Icons.assessment_rounded,
-                color: Colors.grey,
-                size: 20,
+              Row(
+                children: [
+                  Text(
+                    'Mingguan',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.assessment_rounded,
+                    color: Colors.grey,
+                    size: 20,
+                  ),
+                ],
               ),
             ],
           ),

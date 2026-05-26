@@ -4,6 +4,7 @@ class PatientModel {
   final int id;
   final int userId;
   final String? fullNameFromDb;
+  final String? medicalRecordNumber;
   final String? nationalId;
   final String? gender;
   final DateTime? birthDate;
@@ -13,6 +14,7 @@ class PatientModel {
     required this.id,
     required this.userId,
     this.fullNameFromDb,
+    this.medicalRecordNumber,
     this.nationalId,
     this.gender,
     this.birthDate,
@@ -38,6 +40,7 @@ class PatientModel {
       id: json['id'] ?? 0,
       userId: json['user_id'] ?? 0,
       fullNameFromDb: json['fullname'] ?? json['full_name'] ?? userMap?['name'],
+      medicalRecordNumber: json['medical_record_number'] ?? json['mrn'] ?? userMap?['medical_record_number'],
       nationalId: json['national_id'] ?? userMap?['national_id'],
       gender: genderNormalized,
       birthDate: json['birth_date'] != null 
@@ -56,6 +59,7 @@ class PatientModel {
       'id': id,
       'user_id': userId,
       'fullname': fullNameFromDb,
+      'medical_record_number': medicalRecordNumber,
       'national_id': nationalId,
       'gender': gender,
       'birth_date': birthDate?.toIso8601String(),
@@ -68,4 +72,14 @@ class PatientModel {
   String get fullName => name;
   String? get phone => user?.phone;
   String? get address => user?.address;
+
+  bool get isElderly {
+    if (birthDate == null) return false;
+    final now = DateTime.now();
+    int age = now.year - birthDate!.year;
+    if (now.month < birthDate!.month || (now.month == birthDate!.month && now.day < birthDate!.day)) {
+      age--;
+    }
+    return age >= 60;
+  }
 }

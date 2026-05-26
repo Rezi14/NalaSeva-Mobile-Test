@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/utils/validators.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_theme.dart';
@@ -136,13 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         hintText: 'Email',
                         icon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
-                        validator: (v) {
-                          if (v == null || v.isEmpty) return 'Email tidak boleh kosong';
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) {
-                            return 'Format email tidak valid';
-                          }
-                          return null;
-                        },
+                        validator: Validators.validateEmail,
                       ),
                       const SizedBox(height: 20),
                       AuthTextField(
