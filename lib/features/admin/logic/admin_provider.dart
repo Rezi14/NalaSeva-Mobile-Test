@@ -308,5 +308,12 @@ class AdminProvider extends ChangeNotifier {
       _doctorLeaves = await _repository.getDoctorLeaves();
     });
   }
+
+  Future<void> bookQueueForPatient(Map<String, dynamic> data) async {
+    await _performAction(() async {
+      await _repository.bookQueue(data);
+      _queues = await _repository.getQueues();
+    });
+  }
 }
 

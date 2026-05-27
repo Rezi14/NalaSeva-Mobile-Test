@@ -450,132 +450,183 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                   const SizedBox(height: 32),
 
                   // Save Button
-                  ElevatedButton(
-                    onPressed: isSaving ? null : () async {
-                      if (!formKey.currentState!.validate()) return;
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            if (isEdit) {
+                              final confirm = await AppDialogs.showConfirmationDialog(
+                                context,
+                                'Batalkan Perubahan?',
+                                'Apakah Anda yakin ingin membatalkan perubahan data jadwal dokter ini?',
+                                confirmText: 'YA, BATALKAN',
+                                cancelText: 'TETAP EDIT',
+                                isDestructive: true,
+                              );
+                              if (confirm == true && context.mounted) {
+                                Navigator.pop(context);
+                              }
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.grey),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'BATAL',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: isSaving ? null : () async {
+                            if (!formKey.currentState!.validate()) return;
 
-                      final adminProvider = context.read<AdminProvider>();
-                      
-                      // 1. Validasi Durasi Positif (Tugas 4)
-                      final startMinutes = startTime!.hour * 60 + startTime!.minute;
-                      final endMinutes = endTime!.hour * 60 + endTime!.minute;
-                      if (startMinutes >= endMinutes) {
-                        AppDialogs.showNotificationDialog(
-                          context,
-                          'Jadwal Tidak Valid',
-                          'Waktu mulai harus secara kronologis sebelum waktu selesai.',
-                          isError: true,
-                        );
-                        return;
-                      }
+                            final adminProvider = context.read<AdminProvider>();
+                            
+                            // 1. Validasi Durasi Positif (Tugas 4)
+                            final startMinutes = startTime!.hour * 60 + startTime!.minute;
+                            final endMinutes = endTime!.hour * 60 + endTime!.minute;
+                            if (startMinutes >= endMinutes) {
+                              AppDialogs.showNotificationDialog(
+                                context,
+                                'Jadwal Tidak Valid',
+                                'Waktu mulai harus secara kronologis sebelum waktu selesai.',
+                                isError: true,
+                              );
+                              return;
+                            }
 
-                      // 2. Validasi Tabrakan Jadwal Aktif Dokter (Tugas 5)
-                      bool hasOverlap(String day, int startMin, int endMin, int? excludeId) {
-                        for (var s in adminProvider.schedules) {
-                          if (s.doctorId != doctorId) continue;
-                          if (excludeId != null && s.id == excludeId) continue;
-                          if (s.dayOfWeek.toLowerCase() == day.toLowerCase()) {
-                            try {
-                              final sStartMin = DateTimeParser.parseMinutesOfDay(s.startTime);
-                              final sEndMin = DateTimeParser.parseMinutesOfDay(s.endTime);
-                              if (sStartMin != null && sEndMin != null) {
-                                final maxStart = startMin > sStartMin ? startMin : sStartMin;
-                                final minEnd = endMin < sEndMin ? endMin : sEndMin;
-                                if (maxStart < minEnd) {
-                                  return true;
+                            // 2. Validasi Tabrakan Jadwal Aktif Dokter (Tugas 5)
+                            bool hasOverlap(String day, int startMin, int endMin, int? excludeId) {
+                              for (var s in adminProvider.schedules) {
+                                if (s.doctorId != doctorId) continue;
+                                if (excludeId != null && s.id == excludeId) continue;
+                                if (s.dayOfWeek.toLowerCase() == day.toLowerCase()) {
+                                  try {
+                                    final sStartMin = DateTimeParser.parseMinutesOfDay(s.startTime);
+                                    final sEndMin = DateTimeParser.parseMinutesOfDay(s.endTime);
+                                    if (sStartMin != null && sEndMin != null) {
+                                      final maxStart = startMin > sStartMin ? startMin : sStartMin;
+                                      final minEnd = endMin < sEndMin ? endMin : sEndMin;
+                                      if (maxStart < minEnd) {
+                                        return true;
+                                      }
+                                    }
+                                  } catch (e) {
+                                    debugPrint('DoctorScheduleManagementScreen: gagal cek overlap jadwal dokter: $e');
+                                  }
                                 }
                               }
-                            } catch (e) {
-                              debugPrint('DoctorScheduleManagementScreen: gagal cek overlap jadwal dokter: $e');
+                              return false;
                             }
-                          }
-                        }
-                        return false;
-                      }
 
-                      for (var day in selectedDays) {
-                        if (hasOverlap(day, startMinutes, endMinutes, isEdit ? schedule.id : null)) {
-                          AppDialogs.showNotificationDialog(
-                            context,
-                            'Jadwal Bentrok',
-                            'Dokter ini sudah memiliki jadwal aktif pada hari $day di jam yang bertabrakan.',
-                            isError: true,
-                          );
-                          return;
-                        }
-                      }
+                            for (var day in selectedDays) {
+                              if (hasOverlap(day, startMinutes, endMinutes, isEdit ? schedule.id : null)) {
+                                AppDialogs.showNotificationDialog(
+                                  context,
+                                  'Jadwal Bentrok',
+                                  'Dokter ini sudah memiliki jadwal aktif pada hari $day di jam yang bertabrakan.',
+                                  isError: true,
+                                );
+                                return;
+                              }
+                            }
 
-                      setModalState(() => isSaving = true);
-                      try {
-                        final startTimeStr = '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}';
-                        final endTimeStr = '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}';
+                            final confirm = await AppDialogs.showConfirmationDialog(
+                              context,
+                              isEdit ? 'Perbarui Jadwal?' : 'Buat Jadwal Baru?',
+                              isEdit 
+                                  ? 'Apakah Anda yakin ingin menyimpan perubahan jadwal dokter ini?'
+                                  : 'Apakah Anda yakin ingin menambahkan jadwal dokter baru ini?',
+                              confirmText: isEdit ? 'YA, UPDATE' : 'YA, SIMPAN',
+                              cancelText: 'BATAL',
+                            );
+                            if (confirm != true) return;
 
-                        if (isEdit) {
-                          // Update the original schedule with the first selected day
-                          final firstDay = selectedDays.first;
-                          final data = {
-                            'doctor_id': doctorId,
-                            'day_of_week': firstDay,
-                            'start_time': startTimeStr,
-                            'end_time': endTimeStr,
-                          };
-                          await adminProvider.updateSchedule(schedule.id, data);
+                            setModalState(() => isSaving = true);
+                            try {
+                              final startTimeStr = '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}';
+                              final endTimeStr = '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}';
 
-                          // If additional days selected, create new schedules for them
-                          for (int i = 1; i < selectedDays.length; i++) {
-                            final extraDay = selectedDays[i];
-                            final extraData = {
-                              'doctor_id': doctorId,
-                              'day_of_week': extraDay,
-                              'start_time': startTimeStr,
-                              'end_time': endTimeStr,
-                            };
-                            await adminProvider.createSchedule(extraData);
-                          }
-                        } else {
-                          // Create new schedules for each selected day
-                          for (var day in selectedDays) {
-                            final data = {
-                              'doctor_id': doctorId,
-                              'day_of_week': day,
-                              'start_time': startTimeStr,
-                              'end_time': endTimeStr,
-                            };
-                            await adminProvider.createSchedule(data);
-                          }
-                        }
+                              if (isEdit) {
+                                // Update the original schedule with the first selected day
+                                final firstDay = selectedDays.first;
+                                final data = {
+                                  'doctor_id': doctorId,
+                                  'day_of_week': firstDay,
+                                  'start_time': startTimeStr,
+                                  'end_time': endTimeStr,
+                                };
+                                await adminProvider.updateSchedule(schedule.id, data);
 
-                        if (context.mounted) {
-                          Navigator.pop(context);
-                          AppDialogs.showNotificationDialog(
-                            context,
-                            'Berhasil',
-                            isEdit ? 'Jadwal berhasil diperbarui' : 'Jadwal berhasil dibuat',
-                          );
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          AppDialogs.showNotificationDialog(
-                            context,
-                            'Gagal',
-                            'Error: $e',
-                            isError: true,
-                          );
-                        }
-                      } finally {
-                        setModalState(() => isSaving = false);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      elevation: 0,
-                    ),
-                    child: isSaving
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : Text(isEdit ? 'PERBARUI JADWAL' : 'BUAT JADWAL', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 14)),
+                                // If additional days selected, create new schedules for them
+                                for (int i = 1; i < selectedDays.length; i++) {
+                                  final extraDay = selectedDays[i];
+                                  final extraData = {
+                                    'doctor_id': doctorId,
+                                    'day_of_week': extraDay,
+                                    'start_time': startTimeStr,
+                                    'end_time': endTimeStr,
+                                  };
+                                  await adminProvider.createSchedule(extraData);
+                                }
+                              } else {
+                                // Create new schedules for each selected day
+                                for (var day in selectedDays) {
+                                  final data = {
+                                    'doctor_id': doctorId,
+                                    'day_of_week': day,
+                                    'start_time': startTimeStr,
+                                    'end_time': endTimeStr,
+                                  };
+                                  await adminProvider.createSchedule(data);
+                                }
+                              }
+
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                AppDialogs.showSuccessDialog(
+                                  context,
+                                  'Berhasil Disimpan',
+                                  isEdit ? 'Jadwal dokter telah berhasil diperbarui.' : 'Jadwal dokter telah berhasil dibuat.',
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                AppDialogs.showNotificationDialog(
+                                  context,
+                                  'Gagal',
+                                  'Error: $e',
+                                  isError: true,
+                                );
+                              }
+                            } finally {
+                              setModalState(() => isSaving = false);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: isSaving
+                              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              : Text(isEdit ? 'UPDATE' : 'SIMPAN', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

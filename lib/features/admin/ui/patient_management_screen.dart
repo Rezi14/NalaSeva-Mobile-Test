@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../logic/admin_provider.dart';
-import '../widgets/admin_patient_card.dart';
-import 'admin_booking_detail_screen.dart';
-import '../widgets/qr_scanner_page.dart';
 import 'package:animate_do/animate_do.dart';
+import '../logic/admin_provider.dart';
+import '../../../shared/models/patient_model.dart';
 import '../../../shared/widgets/staggered_list_animator.dart';
-import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
+import 'package:intl/intl.dart';
+import '../../../core/utils/app_dialogs.dart';
+import '../widgets/admin_patient_form_sheet.dart';
+import '../widgets/admin_queue_booking_sheet.dart';
 
 class PatientManagementScreen extends StatefulWidget {
   const PatientManagementScreen({super.key});
@@ -25,359 +26,728 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AdminProvider>().fetchQueues();
+      context.read<AdminProvider>().fetchPatients();
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
 
-    // Filter booked/waiting queues based on status
-    final bookedQueues = provider.queues.where((q) {
-      final isBooked = q.status == QueueStatus.booked;
-      final matchesSearch = q.patient.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          q.queueNumber.toLowerCase().contains(_searchQuery.toLowerCase());
-      return isBooked && matchesSearch;
+    // Filter patients based on name or NIK
+    final filteredPatients = provider.patients.where((p) {
+      final matchesSearch = p.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (p.nationalId ?? '').contains(_searchQuery);
+      return matchesSearch;
     }).toList();
 
-    final waitingQueues = provider.queues.where((q) {
-      final isWaiting = q.status == QueueStatus.waiting;
-      final matchesSearch = q.patient.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          q.queueNumber.toLowerCase().contains(_searchQuery.toLowerCase());
-      return isWaiting && matchesSearch;
-    }).toList();
-
-    return DefaultTabController(
-      length: 2,
-      child: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Scaffold(
-          backgroundColor: AppTheme.backgroundColor,
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _openScanner(context),
-            backgroundColor: AppTheme.primaryColor,
-            elevation: 4,
-            icon: const Icon(
-              Icons.qr_code_scanner_rounded,
-              color: Colors.white,
-            ),
-            label: Text(
-              'SCAN ABSENSI',
-              style: GoogleFonts.plusJakartaSans(
-                fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        body: Column(
+          children: [
+            // Safe Native Premium Header
+            Container(
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                letterSpacing: 0.5,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+                  child: Column(
+                    children: [
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 20,
+                              ),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Manajemen Pasien',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Daftar data pasien yang terdaftar di Puskesmas',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 100),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (val) => setState(() => _searchQuery = val),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Cari nama pasien atau NIK...',
+                            hintStyle: GoogleFonts.plusJakartaSans(
+                              color: Colors.grey.shade400,
+                              fontSize: 14,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search_rounded,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade100,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 16,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: AppTheme.primaryColor.withValues(
+                                  alpha: 0.3,
+                                ),
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-          body: Column(
-            children: [
-              // Safe Native Premium Header
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                ),
-                child: SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-                    child: Column(
-                      children: [
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 600),
-                          child: Row(
-                            children: [
-                              IconButton(
-                                onPressed: () => Navigator.pop(context),
-                                icon: const Icon(
-                                 Icons.arrow_back_ios_new_rounded,
-                                  size: 20,
+
+            const Divider(height: 1),
+
+            // Patient List
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: provider.fetchPatients,
+                child: provider.isLoading && provider.patients.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        children: [
+                          if (provider.error != null) _errorCard(provider.error!),
+                          filteredPatients.isEmpty
+                              ? _emptyState()
+                              : StaggeredListAnimator(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                                  itemCount: filteredPatients.length,
+                                  itemBuilder: (context, index) {
+                                    final patient = filteredPatients[index];
+                                    return _buildPatientCard(patient);
+                                  },
                                 ),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Manajemen Pasien',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Kelola kehadiran dan verifikasi antrean loket',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 13,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 600),
-                          delay: const Duration(milliseconds: 100),
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (val) => setState(() => _searchQuery = val),
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              color: Colors.black87,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Cari nama pasien atau nomor antrean...',
-                              hintStyle: GoogleFonts.plusJakartaSans(
-                                color: Colors.grey.shade400,
-                                fontSize: 14,
-                              ),
-                              prefixIcon: const Icon(
-                                Icons.search_rounded,
-                                size: 20,
-                                color: Colors.grey,
-                              ),
-                              filled: true,
-                              fillColor: Colors.grey.shade100,
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 16,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppTheme.primaryColor.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  width: 1.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // Premium Custom TabBar
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 600),
-                          delay: const Duration(milliseconds: 200),
-                          child: TabBar(
-                            labelColor: AppTheme.primaryColor,
-                            unselectedLabelColor: Colors.grey.shade500,
-                            indicatorColor: AppTheme.primaryColor,
-                            indicatorWeight: 3,
-                            labelStyle: GoogleFonts.plusJakartaSans(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13.5,
-                            ),
-                            unselectedLabelStyle: GoogleFonts.plusJakartaSans(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13.5,
-                            ),
-                            tabs: [
-                              Tab(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text('Dipesan'),
-                                    if (bookedQueues.isNotEmpty) ...[
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          bookedQueues.length.toString(),
-                                          style: GoogleFonts.plusJakartaSans(
-                                            color: AppTheme.primaryColor,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                              Tab(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text('Menunggu'),
-                                    if (waitingQueues.isNotEmpty) ...[
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green.withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          waitingQueues.length.toString(),
-                                          style: GoogleFonts.plusJakartaSans(
-                                            color: Colors.green.shade700,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                        ],
+                      ),
               ),
-
-              const Divider(height: 1),
-
-              // TabBarView content lists
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    // Tab 1: Booked/Dipesan Queues List
-                    RefreshIndicator(
-                      onRefresh: provider.fetchQueues,
-                      child: provider.isLoading && provider.queues.isEmpty
-                          ? const Center(child: CircularProgressIndicator())
-                          : ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                if (provider.error != null) _errorCard(provider.error!),
-                                const SizedBox(height: 12),
-                                bookedQueues.isEmpty
-                                    ? _emptyState(
-                                        title: 'Semua Pasien Sudah Absen',
-                                        description: _searchQuery.isNotEmpty
-                                            ? 'Tidak ada antrean terbooking yang cocok dengan pencarian Anda.'
-                                            : 'Tidak ada data pendaftaran dengan status dipesan yang tersedia.',
-                                      )
-                                    : StaggeredListAnimator(
-                                        shrinkWrap: true,
-                                        physics: const NeverScrollableScrollPhysics(),
-                                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                                        itemCount: bookedQueues.length,
-                                        itemBuilder: (context, index) {
-                                          try {
-                                            final q = bookedQueues[index];
-                                            return AdminPatientCard(
-                                              queue: q,
-                                              showCheckIn: false,
-                                              onTap: () => _goToDetail(context, q),
-                                            );
-                                          } catch (e, stack) {
-                                            return _renderErrorCard(e, stack);
-                                          }
-                                        },
-                                      ),
-                              ],
-                            ),
-                    ),
-
-                    // Tab 2: Waiting/Menunggu (Checked-In) Queues List
-                    RefreshIndicator(
-                      onRefresh: provider.fetchQueues,
-                      child: provider.isLoading && provider.queues.isEmpty
-                          ? const Center(child: CircularProgressIndicator())
-                          : ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                if (provider.error != null) _errorCard(provider.error!),
-                                const SizedBox(height: 12),
-                                waitingQueues.isEmpty
-                                    ? _emptyState(
-                                        title: 'Belum Ada Pasien Check-In',
-                                        description: _searchQuery.isNotEmpty
-                                            ? 'Tidak ada pasien yang cocok dengan pencarian Anda.'
-                                            : 'Belum ada pasien yang melakukan absensi / check-in saat ini.',
-                                      )
-                                    : StaggeredListAnimator(
-                                        shrinkWrap: true,
-                                        physics: const NeverScrollableScrollPhysics(),
-                                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                                        itemCount: waitingQueues.length,
-                                        itemBuilder: (context, index) {
-                                          try {
-                                            final q = waitingQueues[index];
-                                            return AdminPatientCard(
-                                              queue: q,
-                                              showCheckIn: false,
-                                              onTap: () => _goToDetail(context, q),
-                                            );
-                                          } catch (e, stack) {
-                                            return _renderErrorCard(e, stack);
-                                          }
-                                        },
-                                      ),
-                              ],
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => AdminPatientFormSheet.show(context),
+          backgroundColor: AppTheme.primaryColor,
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.person_add_alt_1_rounded),
+          label: Text(
+            'TAMBAH PASIEN',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, letterSpacing: 0.5),
           ),
         ),
       ),
     );
   }
 
-  void _openScanner(BuildContext context) {
-    final provider = context.read<AdminProvider>();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const QRScannerPage()),
-    ).then((_) {
-      if (!context.mounted) return;
-      provider.fetchQueues();
-    });
-  }
+  Widget _buildPatientCard(PatientModel patient) {
+    final initials = patient.name.isNotEmpty
+        ? patient.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
+        : 'P';
 
-  void _goToDetail(BuildContext context, dynamic q) {
-    final provider = context.read<AdminProvider>();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AdminBookingDetailScreen(queue: q),
+    final birthDateStr = patient.birthDate != null
+        ? DateFormat('dd MMMM yyyy', 'id_ID').format(patient.birthDate!)
+        : 'Tidak diketahui';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade100,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-    ).then((_) {
-      if (mounted) {
-        provider.fetchQueues();
-      }
-    });
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => _showPatientDetails(patient),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Avatar
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  child: Text(
+                    initials,
+                    style: GoogleFonts.plusJakartaSans(
+                      color: AppTheme.primaryColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Main info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              patient.name,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          if (patient.isElderly) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.warningColor.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'LANSIA',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: AppTheme.warningColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Details
+                      _infoRow(Icons.credit_card_rounded, 'NIK: ${patient.nationalId ?? "-"}'),
+                      const SizedBox(height: 4),
+                      _infoRow(Icons.phone_iphone_rounded, patient.phone ?? 'Tidak ada nomor telepon'),
+                      const SizedBox(height: 4),
+                      _infoRow(
+                        patient.gender == 'Perempuan' ? Icons.female_rounded : Icons.male_rounded,
+                        '${patient.gender ?? "Tidak diketahui"} | lahir $birthDateStr',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
+  Widget _infoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey.shade400),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.plusJakartaSans(
+              color: Colors.grey.shade600,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
+  void _showPatientDetails(PatientModel patient) {
+    final birthDateStr = patient.birthDate != null
+        ? DateFormat('dd MMMM yyyy', 'id_ID').format(patient.birthDate!)
+        : 'Tidak diketahui';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Pull bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Detail Profil Pasien',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (patient.isElderly)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.warningColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'PASIEN LANSIA',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: AppTheme.warningColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const Divider(height: 32),
+              
+              _detailItem(Icons.person_outline_rounded, 'Nama Lengkap', patient.name),
+              _detailItem(Icons.credit_card_rounded, 'Nomor Induk Kependudukan (NIK)', patient.nationalId ?? '-'),
+              _detailItem(Icons.badge_outlined, 'No Rekam Medis', patient.medicalRecordNumber ?? '-'),
+              _detailItem(
+                patient.gender == 'Perempuan' ? Icons.female_rounded : Icons.male_rounded,
+                'Jenis Kelamin',
+                patient.gender ?? 'Tidak diketahui',
+              ),
+              _detailItem(Icons.calendar_month_rounded, 'Tanggal Lahir', birthDateStr),
+              _detailItem(Icons.phone_rounded, 'Nomor Telepon', patient.phone ?? 'Tidak tersedia'),
+              _detailItem(Icons.home_outlined, 'Alamat', patient.address ?? 'Tidak tersedia'),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  AdminQueueBookingSheet.show(context, patient);
+                },
+                icon: const Icon(Icons.bookmark_add_outlined, color: Colors.white),
+                label: Text(
+                  'DAFTAR ANTREAN MANUAL',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF10B981), // Premium emerald green
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _confirmDelete(patient);
+                      },
+                      icon: const Icon(Icons.delete_outline_rounded, color: AppTheme.cancelColor),
+                      label: Text(
+                        'HAPUS',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.cancelColor,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.cancelColor),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _showEditPatientForm(patient);
+                      },
+                      icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                      label: Text(
+                        'EDIT PROFIL',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmDelete(PatientModel patient) async {
+    final confirm = await AppDialogs.showConfirmationDialog(
+      context,
+      'Hapus Akun Pasien?',
+      'Apakah Anda yakin ingin menghapus akun ${patient.name}? Tindakan ini akan menghapus seluruh data pendaftaran dan antrean pasien ini secara permanen dari sistem.',
+      confirmText: 'HAPUS',
+      cancelText: 'BATAL',
+      isDestructive: true,
+    );
+
+    if (confirm == true && mounted) {
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      final provider = context.read<AdminProvider>();
+      await provider.deleteUser(patient.userId);
+      await provider.fetchPatients();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            'Pasien ${patient.name} berhasil dihapus.',
+            style: GoogleFonts.plusJakartaSans(),
+          ),
+          backgroundColor: AppTheme.successColor,
+        ),
+      );
+    }
+  }
+
+  void _showEditPatientForm(PatientModel patient) {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController(text: patient.name);
+    final emailController = TextEditingController(text: patient.user?.email ?? '');
+    final phoneController = TextEditingController(text: patient.phone ?? '');
+    final addressController = TextEditingController(text: patient.address ?? '');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          padding: EdgeInsets.fromLTRB(
+            24,
+            16,
+            24,
+            MediaQuery.of(context).viewInsets.bottom + 40,
+          ),
+          child: SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Pull bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 24),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'Edit Profil Pasien',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Divider(height: 32),
+                  TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nama Lengkap',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) => v == null || v.isEmpty ? 'Nama tidak boleh kosong' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) => v == null || v.isEmpty ? 'Email tidak boleh kosong' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: phoneController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nomor Telepon (Opsional)',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: addressController,
+                    decoration: const InputDecoration(
+                      labelText: 'Alamat (Opsional)',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            final confirm = await AppDialogs.showConfirmationDialog(
+                              context,
+                              'Batalkan Perubahan?',
+                              'Apakah Anda yakin ingin membatalkan perubahan? Data yang sudah diubah tidak akan disimpan.',
+                              confirmText: 'YA, BATALKAN',
+                              cancelText: 'TETAP EDIT',
+                              isDestructive: true,
+                            );
+                            if (confirm == true && context.mounted) {
+                              Navigator.pop(context); // Close edit bottom sheet
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.grey),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'BATAL',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (!formKey.currentState!.validate()) return;
+                            final provider = context.read<AdminProvider>();
+                            
+                            final confirm = await AppDialogs.showConfirmationDialog(
+                              context,
+                              'Simpan Perubahan?',
+                              'Apakah Anda yakin ingin menyimpan perubahan data profil pasien ini?',
+                              confirmText: 'YA, SIMPAN',
+                              cancelText: 'BATAL',
+                            );
+                            
+                            if (confirm != true) return;
+                            
+                            final data = {
+                              'name': nameController.text.trim(),
+                              'email': emailController.text.trim(),
+                              'phone': phoneController.text.trim(),
+                              'address': addressController.text.trim(),
+                              'role': 'patient',
+                            };
+                            
+                            await provider.updateUser(patient.userId, data);
+                            await provider.fetchPatients();
+                            
+                            if (context.mounted) {
+                              Navigator.pop(context); // Close edit bottom sheet
+                              AppDialogs.showSuccessDialog(
+                                context,
+                                'Berhasil Diperbarui',
+                                'Profil ${nameController.text} telah berhasil diperbarui di database Puskesmas.',
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'SIMPAN',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _detailItem(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: AppTheme.primaryColor, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.grey.shade500,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _errorCard(String error) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -405,45 +775,29 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
   }
 
-  Widget _renderErrorCard(dynamic e, dynamic stack) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.shade200),
-      ),
-      child: Text(
-        'Error rendering item: $e\n$stack',
-        style: const TextStyle(color: Colors.red, fontSize: 11),
-      ),
-    );
-  }
-
-  Widget _emptyState({required String title, required String description}) {
+  Widget _emptyState() {
     return FadeIn(
       duration: const Duration(milliseconds: 600),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.check_circle_outline_rounded,
+                Icons.people_outline_rounded,
                 size: 72,
-                color: Colors.green.shade400,
+                color: AppTheme.primaryColor.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 24),
             Text(
-              title,
+              'Pasien Tidak Ditemukan',
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
@@ -453,7 +807,9 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              description,
+              _searchQuery.isNotEmpty
+                  ? 'Tidak ada akun pasien terdaftar yang cocok dengan kata kunci pencarian Anda.'
+                  : 'Belum ada data pasien terdaftar yang tersedia di sistem saat ini.',
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,

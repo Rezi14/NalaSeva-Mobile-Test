@@ -6,6 +6,7 @@ import '../../auth/logic/auth_provider.dart';
 import '../../../shared/models/user_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/utils/app_dialogs.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -173,29 +174,104 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 onChanged: (v) => role = v!,
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () async {
-                  if (!formKey.currentState!.validate()) return;
-                  
-                  final provider = context.read<AdminProvider>();
-                  final data = {
-                    'name': nameController.text.trim(),
-                    'email': emailController.text.trim(),
-                    'role': role,
-                    'phone': phoneController.text.trim(),
-                    'address': addressController.text.trim(),
-                  };
-                  if (!isEdit) data['password'] = passwordController.text;
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        if (isEdit) {
+                          final confirm = await AppDialogs.showConfirmationDialog(
+                            context,
+                            'Batalkan Perubahan?',
+                            'Apakah Anda yakin ingin membatalkan pengisian/perubahan data user ini?',
+                            confirmText: 'YA, BATALKAN',
+                            cancelText: 'TETAP EDIT',
+                            isDestructive: true,
+                          );
+                          if (confirm == true && context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.grey),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'BATAL',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (!formKey.currentState!.validate()) return;
+                        final provider = context.read<AdminProvider>();
+                        
+                        final confirm = await AppDialogs.showConfirmationDialog(
+                          context,
+                          isEdit ? 'Update Data User?' : 'Simpan User Baru?',
+                          isEdit 
+                              ? 'Apakah Anda yakin ingin menyimpan perubahan data user ini?'
+                              : 'Apakah Anda yakin ingin menambahkan user baru ini?',
+                          confirmText: isEdit ? 'YA, UPDATE' : 'YA, SIMPAN',
+                          cancelText: 'BATAL',
+                        );
+                        if (confirm != true) return;
+                        
+                        final data = {
+                          'name': nameController.text.trim(),
+                          'email': emailController.text.trim(),
+                          'role': role,
+                          'phone': phoneController.text.trim(),
+                          'address': addressController.text.trim(),
+                        };
+                        if (!isEdit) data['password'] = passwordController.text;
 
-                  if (isEdit) {
-                    await provider.updateUser(user.id, data);
-                  } else {
-                    await provider.createUser(data);
-                  }
+                        if (isEdit) {
+                          await provider.updateUser(user.id, data);
+                        } else {
+                          await provider.createUser(data);
+                        }
 
-                  if (context.mounted) Navigator.pop(context);
-                },
-                child: Text(isEdit ? 'UPDATE' : 'SIMPAN'),
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          AppDialogs.showSuccessDialog(
+                            context,
+                            'Berhasil Disimpan',
+                            isEdit 
+                                ? 'Data user ${nameController.text} telah berhasil diperbarui.'
+                                : 'User baru ${nameController.text} telah berhasil ditambahkan.',
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        isEdit ? 'UPDATE' : 'SIMPAN',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

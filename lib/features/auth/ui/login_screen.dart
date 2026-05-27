@@ -105,23 +105,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  FadeInLeft(
-                    delay: const Duration(milliseconds: 200),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Selamat Datang',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.displayLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Silakan masuk untuk melanjutkan layanan kesehatan Anda.',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
+                  Center(
+                    child: FadeInLeft(
+                      delay: const Duration(milliseconds: 200),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Selamat Datang',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.displayLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Silakan masuk untuk melanjutkan layanan kesehatan Anda.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 50),
@@ -131,17 +133,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         AuthTextField(
                           controller: _emailController,
-                          hintText: 'Email',
+                          label: 'Email',
                           icon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
+                          hasBorder: true,
                           validator: Validators.validateEmail,
                         ),
                         const SizedBox(height: 20),
                         AuthTextField(
                           controller: _passwordController,
-                          hintText: 'Password',
+                          label: 'Password',
                           icon: Icons.lock_outline_rounded,
                           isPassword: true,
+                          hasBorder: true,
                           validator: (v) => v == null || v.isEmpty
                               ? 'Password tidak boleh kosong'
                               : null,

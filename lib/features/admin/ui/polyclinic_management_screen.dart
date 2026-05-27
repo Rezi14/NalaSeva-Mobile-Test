@@ -369,47 +369,102 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                   maxLines: 3,
                 ),
                 const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: provider.isLoading ? null : () async {
-                  if (!formKey.currentState!.validate()) return;
-                  
-                  final data = {
-                    'name': nameController.text.trim(),
-                    'code': codeController.text.trim(),
-                    'description': descController.text.trim(),
-                  };
-                  if (isEdit) {
-                    await provider.updatePolyclinic(poly.id, data);
-                  } else {
-                    await provider.createPolyclinic(data);
-                  }
-                  
-                  if (context.mounted) {
-                    if (provider.error != null) {
-                      AppDialogs.showNotificationDialog(
-                        context,
-                        'Gagal',
-                        provider.error!,
-                        isError: true,
-                      );
-                    } else {
-                      Navigator.pop(context);
-                      AppDialogs.showNotificationDialog(
-                        context,
-                        'Berhasil',
-                        isEdit ? 'Data poliklinik berhasil diperbarui' : 'Poliklinik berhasil ditambahkan',
-                      );
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: provider.isLoading 
-                    ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text(isEdit ? 'Perbarui Poliklinik' : 'Simpan Poliklinik', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        if (isEdit) {
+                          final confirm = await AppDialogs.showConfirmationDialog(
+                            context,
+                            'Batalkan Perubahan?',
+                            'Apakah Anda yakin ingin membatalkan perubahan data poliklinik ini?',
+                            confirmText: 'YA, BATALKAN',
+                            cancelText: 'TETAP EDIT',
+                            isDestructive: true,
+                          );
+                          if (confirm == true && context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.grey),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'BATAL',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: provider.isLoading ? null : () async {
+                        if (!formKey.currentState!.validate()) return;
+                        
+                        final confirm = await AppDialogs.showConfirmationDialog(
+                          context,
+                          isEdit ? 'Perbarui Poliklinik?' : 'Simpan Poliklinik Baru?',
+                          isEdit 
+                              ? 'Apakah Anda yakin ingin menyimpan perubahan data poliklinik ini?'
+                              : 'Apakah Anda yakin ingin menambahkan poliklinik baru ini?',
+                          confirmText: isEdit ? 'YA, UPDATE' : 'YA, SIMPAN',
+                          cancelText: 'BATAL',
+                        );
+                        if (confirm != true) return;
+
+                        final data = {
+                          'name': nameController.text.trim(),
+                          'code': codeController.text.trim(),
+                          'description': descController.text.trim(),
+                        };
+                        if (isEdit) {
+                          await provider.updatePolyclinic(poly.id, data);
+                        } else {
+                          await provider.createPolyclinic(data);
+                        }
+                        
+                        if (context.mounted) {
+                          if (provider.error != null) {
+                            AppDialogs.showNotificationDialog(
+                              context,
+                              'Gagal',
+                              provider.error!,
+                              isError: true,
+                            );
+                          } else {
+                            Navigator.pop(context);
+                            AppDialogs.showSuccessDialog(
+                              context,
+                              'Berhasil Disimpan',
+                              isEdit 
+                                  ? 'Data poliklinik ${nameController.text} telah berhasil diperbarui.'
+                                  : 'Poliklinik baru ${nameController.text} telah berhasil ditambahkan.',
+                            );
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: provider.isLoading 
+                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : Text(isEdit ? 'UPDATE' : 'SIMPAN', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

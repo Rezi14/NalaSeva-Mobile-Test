@@ -283,4 +283,12 @@ class AdminRepository {
       throw ErrorParser.parse(e, 'Gagal mengajukan cuti dokter');
     }
   }
+
+  Future<void> bookQueue(Map<String, dynamic> data) async {
+    try {
+      await _apiClient.dio.post('queues', data: data);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mendaftarkan antrean pasien');
+    }
+  }
 }

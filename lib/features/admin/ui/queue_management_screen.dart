@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import 'admin_booking_detail_screen.dart';
 import '../widgets/admin_mini_stat_card.dart';
 import '../widgets/admin_patient_card.dart';
+import '../widgets/qr_scanner_page.dart';
 
 class QueueManagementScreen extends StatefulWidget {
   const QueueManagementScreen({super.key});
@@ -59,6 +60,23 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _openScanner(context),
+          backgroundColor: AppTheme.primaryColor,
+          elevation: 4,
+          icon: const Icon(
+            Icons.qr_code_scanner_rounded,
+            color: Colors.white,
+          ),
+          label: Text(
+            'SCAN ABSENSI',
+            style: GoogleFonts.plusJakartaSans(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
         body: Column(
           children: [
             // Header - static fade container with staggered slides
@@ -513,5 +531,16 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
       ),
       onSelected: onSelected,
     );
+  }
+
+  void _openScanner(BuildContext context) {
+    final provider = context.read<AdminProvider>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const QRScannerPage()),
+    ).then((_) {
+      if (!context.mounted) return;
+      provider.fetchQueues();
+    });
   }
 }

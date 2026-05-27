@@ -329,64 +329,119 @@ class AdminDoctorFormSheet {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: provider.isLoading ? null : () async {
-                      if (!formKey.currentState!.validate()) return;
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            if (isEdit) {
+                              final confirm = await AppDialogs.showConfirmationDialog(
+                                context,
+                                'Batalkan Perubahan?',
+                                'Apakah Anda yakin ingin membatalkan pengisian/perubahan data dokter ini?',
+                                confirmText: 'YA, BATALKAN',
+                                cancelText: 'TETAP EDIT',
+                                isDestructive: true,
+                              );
+                              if (confirm == true && context.mounted) {
+                                Navigator.pop(context);
+                              }
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.grey),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'BATAL',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: provider.isLoading ? null : () async {
+                            if (!formKey.currentState!.validate()) return;
+                            
+                            final confirm = await AppDialogs.showConfirmationDialog(
+                              context,
+                              isEdit ? 'Perbarui Data Dokter?' : 'Simpan Dokter Baru?',
+                              isEdit 
+                                  ? 'Apakah Anda yakin ingin menyimpan perubahan data dokter ini?'
+                                  : 'Apakah Anda yakin ingin menambahkan dokter baru ini?',
+                              confirmText: isEdit ? 'YA, UPDATE' : 'YA, SIMPAN',
+                              cancelText: 'BATAL',
+                            );
+                            if (confirm != true) return;
 
-                      final data = {
-                        'name': nameController.text.trim(),
-                        'specialization': specController.text.trim(),
-                        'license_number': licenseController.text.trim(),
-                        'phone': phoneController.text.trim(),
-                        'address': addressController.text.trim(),
-                        'polyclinic_id': selectedPolyclinicId,
-                        'national_id': nikController.text.trim(),
-                        'gender': selectedGender,
-                        'birth_date': selectedBirthDate != null 
-                            ? DateFormat('yyyy-MM-dd').format(selectedBirthDate!) 
-                            : null,
-                      };
-                      if (!isEdit) {
-                        data['email'] = emailController.text.trim();
-                        data['password'] = passwordController.text;
-                      }
-                      
-                      if (isEdit) {
-                        await provider.updateDoctor(doctor.id, data);
-                      } else {
-                        await provider.createDoctor(data);
-                      }
-                      
-                      if (context.mounted) {
-                        if (provider.error != null) {
-                          AppDialogs.showNotificationDialog(
-                            context,
-                            'Gagal',
-                            provider.error!,
-                            isError: true,
-                          );
-                        } else {
-                          Navigator.pop(context);
-                          AppDialogs.showNotificationDialog(
-                            context,
-                            'Berhasil',
-                            isEdit ? 'Data dokter berhasil diperbarui' : 'Dokter berhasil ditambahkan',
-                          );
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: provider.isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                          )
-                        : Text(isEdit ? 'PERBARUI' : 'SIMPAN', style: const TextStyle(color: Colors.white)),
+                            final data = {
+                              'name': nameController.text.trim(),
+                              'specialization': specController.text.trim(),
+                              'license_number': licenseController.text.trim(),
+                              'phone': phoneController.text.trim(),
+                              'address': addressController.text.trim(),
+                              'polyclinic_id': selectedPolyclinicId,
+                              'national_id': nikController.text.trim(),
+                              'gender': selectedGender,
+                              'birth_date': selectedBirthDate != null 
+                                  ? DateFormat('yyyy-MM-dd').format(selectedBirthDate!) 
+                                  : null,
+                            };
+                            if (!isEdit) {
+                              data['email'] = emailController.text.trim();
+                              data['password'] = passwordController.text;
+                            }
+                            
+                            if (isEdit) {
+                              await provider.updateDoctor(doctor.id, data);
+                            } else {
+                              await provider.createDoctor(data);
+                            }
+                            
+                            if (context.mounted) {
+                              if (provider.error != null) {
+                                AppDialogs.showNotificationDialog(
+                                  context,
+                                  'Gagal',
+                                  provider.error!,
+                                  isError: true,
+                                );
+                              } else {
+                                Navigator.pop(context);
+                                AppDialogs.showSuccessDialog(
+                                  context,
+                                  'Berhasil Disimpan',
+                                  isEdit 
+                                      ? 'Data dokter ${nameController.text} telah berhasil diperbarui.'
+                                      : 'Dokter baru ${nameController.text} telah berhasil ditambahkan.',
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: provider.isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                )
+                              : Text(isEdit ? 'PERBARUI' : 'SIMPAN', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

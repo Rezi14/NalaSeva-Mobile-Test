@@ -183,63 +183,98 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                         },
                       ),
                       const SizedBox(height: 32),
-                      ElevatedButton(
-                        onPressed: isSaving
-                            ? null
-                            : () async {
-                                if (!formKey.currentState!.validate()) return;
-                                
-                                setModalState(() => isSaving = true);
-                                try {
-                                  final formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-                                  await context.read<AdminProvider>().addClinicHoliday(
-                                    formattedDate,
-                                    descriptionController.text.trim(),
-                                  );
-                                  if (context.mounted) {
-                                    Navigator.pop(context);
-                                    AppDialogs.showNotificationDialog(
-                                      context,
-                                      'Berhasil',
-                                      'Hari libur operasional klinik berhasil ditambahkan.',
-                                      isError: false,
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    AppDialogs.showNotificationDialog(
-                                      context,
-                                      'Gagal',
-                                      e.toString(),
-                                      isError: true,
-                                    );
-                                  }
-                                } finally {
-                                  if (context.mounted) {
-                                    setModalState(() => isSaving = false);
-                                  }
-                                }
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
                               },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryColor,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(double.infinity, 56),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          elevation: 0,
-                        ),
-                        child: isSaving
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                              )
-                            : Text(
-                                'SIMPAN HARI LIBUR',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Colors.grey),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
+                              child: Text(
+                                'BATAL',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: isSaving
+                                  ? null
+                                  : () async {
+                                      if (!formKey.currentState!.validate()) return;
+                                      
+                                      final provider = context.read<AdminProvider>();
+                                      final confirm = await AppDialogs.showConfirmationDialog(
+                                        context,
+                                        'Tambah Hari Libur?',
+                                        'Apakah Anda yakin ingin menyimpan hari libur operasional klinik ini?',
+                                        confirmText: 'YA, SIMPAN',
+                                        cancelText: 'BATAL',
+                                      );
+                                      if (confirm != true) return;
+
+                                      setModalState(() => isSaving = true);
+                                      try {
+                                        final formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+                                        await provider.addClinicHoliday(
+                                          formattedDate,
+                                          descriptionController.text.trim(),
+                                        );
+                                        if (context.mounted) {
+                                          Navigator.pop(context);
+                                          AppDialogs.showSuccessDialog(
+                                            context,
+                                            'Berhasil Disimpan',
+                                            'Hari libur operasional klinik telah berhasil ditambahkan.',
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          AppDialogs.showNotificationDialog(
+                                            context,
+                                            'Gagal',
+                                            e.toString(),
+                                            isError: true,
+                                          );
+                                        }
+                                      } finally {
+                                        if (context.mounted) {
+                                          setModalState(() => isSaving = false);
+                                        }
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryColor,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: isSaving
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    )
+                                  : const Text(
+                                      'SIMPAN',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 24),
                     ],

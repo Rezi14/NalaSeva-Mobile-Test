@@ -125,33 +125,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                                     ),
                                     child: IconButton(
                                       onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (ctx) => AlertDialog(
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                            title: Text(
-                                              'Bantuan NalaSeva',
-                                              style: GoogleFonts.plusJakartaSans(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            content: Text(
-                                              'Silakan hubungi tim IT Support untuk bantuan teknis dan administrasi sistem.',
-                                              style: GoogleFonts.plusJakartaSans(fontSize: 14),
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(ctx),
-                                                child: Text(
-                                                  'OK',
-                                                  style: GoogleFonts.plusJakartaSans(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: AppTheme.primaryColor,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                        AppDialogs.showNotificationDialog(
+                                          context,
+                                          'Bantuan NalaSeva',
+                                          'Silakan hubungi tim IT Support untuk bantuan teknis dan administrasi sistem.',
                                         );
                                       },
                                       icon: const Icon(Icons.help_outline_rounded, color: Colors.grey),
@@ -618,31 +595,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
           if (!mounted) return;
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
-            showDialog(
-              context: context,
-              builder: (dialogCtx) => AlertDialog(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                title: Text(
-                  'Sistem Diperbarui',
-                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                ),
-                content: Text(
-                  'NalaSeva Admin menggunakan versi terbaru (v2.4.0). Tidak ada pembaruan tambahan yang tersedia.',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 14),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(dialogCtx),
-                    child: Text(
-                      'OK',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            AppDialogs.showNotificationDialog(
+              context,
+              'Sistem Diperbarui',
+              'NalaSeva Admin menggunakan versi terbaru (v2.4.0). Tidak ada pembaruan tambahan yang tersedia.',
             );
           }
         });
