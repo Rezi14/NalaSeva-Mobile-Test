@@ -16,6 +16,7 @@ import '../widgets/admin_weekly_chart.dart';
 import '../widgets/admin_bottom_nav.dart';
 import '../widgets/admin_voice_call_dialog.dart';
 import '../widgets/qr_scanner_page.dart';
+import '../../../core/utils/date_time_parser.dart';
 
 extension ListDivide on List<Widget> {
   List<Widget> divide(Widget separator) {
@@ -64,11 +65,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     for (var q in provider.queues) {
       if (q.status == QueueStatus.completed) {
-        final parsedDate = DateTime.tryParse(q.date);
+        final parsedDate = DateTimeParser.parseDateOnly(q.date);
         if (parsedDate != null) {
-          final dateOnly = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
-          if (dateOnly.isAtSameMomentAs(startOfWeekOnly) || 
-              (dateOnly.isAfter(startOfWeekOnly) && dateOnly.isBefore(endOfWeekOnly))) {
+          if (parsedDate.isAtSameMomentAs(startOfWeekOnly) || 
+              (parsedDate.isAfter(startOfWeekOnly) && parsedDate.isBefore(endOfWeekOnly))) {
             final weekdayIndex = parsedDate.weekday - 1;
             if (weekdayIndex >= 0 && weekdayIndex < 7) {
               weeklyCounts[weekdayIndex] += 1.0;
@@ -169,11 +169,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                         Expanded(
                                           child: AdminStatCard(
                                             label: 'Total Pasien',
-                                            value: provider.queues.where((q) => 
-                                              q.status == QueueStatus.booked || 
-                                              q.status == QueueStatus.waiting || 
-                                              q.status == QueueStatus.examining
-                                            ).length.toString(),
+                                            value: provider.patients.length.toString(),
                                             icon: Icons.people_alt_rounded,
                                             onTap: () => Navigator.pushNamed(context, '/admin/patients'),
                                           ),

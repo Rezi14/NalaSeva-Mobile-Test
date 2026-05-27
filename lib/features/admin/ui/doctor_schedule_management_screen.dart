@@ -7,6 +7,7 @@ import '../logic/admin_provider.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/date_time_parser.dart';
 
 import '../../../shared/models/doctor_model.dart';
 import '../../../shared/models/polyclinic_model.dart';
@@ -246,12 +247,8 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
     final isEdit = schedule != null;
     int? doctorId = schedule?.doctorId;
     List<String> selectedDays = schedule != null ? [schedule.dayOfWeek] : [];
-    TimeOfDay? startTime = schedule != null 
-      ? TimeOfDay(hour: int.parse(schedule.startTime.split(':')[0]), minute: int.parse(schedule.startTime.split(':')[1])) 
-      : null;
-    TimeOfDay? endTime = schedule != null 
-      ? TimeOfDay(hour: int.parse(schedule.endTime.split(':')[0]), minute: int.parse(schedule.endTime.split(':')[1])) 
-      : null;
+    TimeOfDay? startTime = schedule != null ? DateTimeParser.parseTimeOfDay(schedule.startTime) : null;
+    TimeOfDay? endTime = schedule != null ? DateTimeParser.parseTimeOfDay(schedule.endTime) : null;
     bool isSaving = false;
     final formKey = GlobalKey<FormState>();
 
@@ -479,19 +476,18 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                           if (excludeId != null && s.id == excludeId) continue;
                           if (s.dayOfWeek.toLowerCase() == day.toLowerCase()) {
                             try {
-                              final sStartParts = s.startTime.split(':');
-                              final sEndParts = s.endTime.split(':');
-                              if (sStartParts.length >= 2 && sEndParts.length >= 2) {
-                                final sStartMin = int.parse(sStartParts[0]) * 60 + int.parse(sStartParts[1]);
-                                final sEndMin = int.parse(sEndParts[0]) * 60 + int.parse(sEndParts[1]);
-                                
+                              final sStartMin = DateTimeParser.parseMinutesOfDay(s.startTime);
+                              final sEndMin = DateTimeParser.parseMinutesOfDay(s.endTime);
+                              if (sStartMin != null && sEndMin != null) {
                                 final maxStart = startMin > sStartMin ? startMin : sStartMin;
                                 final minEnd = endMin < sEndMin ? endMin : sEndMin;
                                 if (maxStart < minEnd) {
                                   return true;
                                 }
                               }
-                            } catch (_) {}
+                            } catch (e) {
+                              debugPrint('DoctorScheduleManagementScreen: gagal cek overlap jadwal dokter: $e');
+                            }
                           }
                         }
                         return false;

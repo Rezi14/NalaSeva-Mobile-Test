@@ -29,7 +29,7 @@ class QueueModel {
 
   factory QueueModel.fromJson(Map<String, dynamic> json) {
     return QueueModel(
-      id: json['id'] ?? 0,
+      id: json['id'] is String ? int.tryParse(json['id']) ?? 0 : (json['id'] ?? 0),
       queueNumber: json['queue_number'] ?? '',
       status: QueueStatus.fromString(json['status'] ?? 'waiting'),
       date: json['date'] ?? '',
@@ -42,7 +42,7 @@ class QueueModel {
       estimatedServiceTime: json['estimated_service_time'],
       avgWaitingTime: json['avg_waiting_time'],
       positionWaiting: json['position_waiting'],
-      doctorId: json['doctor_id'] is String ? int.parse(json['doctor_id']) : json['doctor_id'],
+      doctorId: json['doctor_id'] is String ? int.tryParse(json['doctor_id']) : json['doctor_id'],
     );
   }
 

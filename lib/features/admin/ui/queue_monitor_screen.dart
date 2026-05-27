@@ -12,6 +12,7 @@ import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:animate_do/animate_do.dart';
 import '../widgets/admin_polyclinic_card.dart';
+import '../../../core/utils/app_logger.dart';
 
 class QueueMonitorScreen extends StatefulWidget {
   const QueueMonitorScreen({super.key});
@@ -114,8 +115,8 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
     String dateStr;
     try {
       dateStr = DateFormat('EEEE, dd MMMM yyyy', 'id_ID').format(now);
-    } catch (_) {
-      // Manual Indonesian Date Fallback jika data locale intl tidak terinisialisasi
+    } catch (e) {
+      AppLogger.warning('Locale intl id_ID belum siap. Menggunakan fallback tanggal manual.', tag: 'QueueMonitorScreen');
       final days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
       final months = [
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',

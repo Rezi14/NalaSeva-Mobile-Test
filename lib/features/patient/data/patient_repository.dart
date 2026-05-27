@@ -20,7 +20,20 @@ class PatientRepository {
   void _checkResponse(Response response, String defaultError) {
     final data = response.data;
     if (data is Map) {
-      if (data['status'] == 'error') {
+      final isErrorStatus = data['status'] == 'error';
+      final isHttpError = response.statusCode != null && response.statusCode! >= 400;
+
+      if (isErrorStatus || isHttpError) {
+        // Parse field-level validation errors (HTTP 422) dari backend
+        // agar pesan error spesifik (duplikat booking, kuota penuh, dll)
+        // ditampilkan dengan jelas ke user
+        if (data['errors'] is Map) {
+          final errors = data['errors'] as Map;
+          final messages = errors.values
+              .expand((v) => v is List ? v.map((e) => e.toString()) : [v.toString()])
+              .join('\n');
+          if (messages.isNotEmpty) throw messages;
+        }
         throw data['message'] ?? defaultError;
       }
     }

@@ -9,11 +9,13 @@ import '../../../shared/models/queue_model.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/date_time_parser.dart';
 import '../logic/patient_provider.dart';
 import '../widgets/status_badge.dart';
 import '../widgets/info_row_item.dart';
 import '../widgets/ticket_cutout.dart';
 import '../widgets/ticket_stat_item.dart';
+import '../../../core/utils/app_logger.dart';
 
 class BookingDetailScreen extends StatelessWidget {
   final QueueModel queue;
@@ -44,7 +46,7 @@ class BookingDetailScreen extends StatelessWidget {
         if (match != null) {
           final numVal = int.tryParse(match.group(0) ?? '');
           if (numVal != null) {
-            queuePosition = (numVal - 1).clamp(0, numVal);
+              queuePosition = numVal > 0 ? numVal - 1 : 0;
           }
         }
       }
@@ -505,20 +507,17 @@ class BookingDetailScreen extends StatelessWidget {
     }
     
     try {
-      final dateStr = queue.date;
-      final timeStr = queue.estimatedServiceTime ?? '23:59';
-      
-      final dateParts = dateStr.split('-');
-      final timeParts = timeStr.split(':');
-      
-      if (dateParts.length >= 3 && timeParts.length >= 2) {
-        final year = int.parse(dateParts[0]);
-        final month = int.parse(dateParts[1]);
-        final day = int.parse(dateParts[2]);
-        final hour = int.parse(timeParts[0]);
-        final minute = int.parse(timeParts[1]);
-        
-        final estimatedTime = DateTime(year, month, day, hour, minute);
+      final dateOnly = DateTimeParser.parseDateOnly(queue.date);
+      final minutesOfDay = DateTimeParser.parseMinutesOfDay(queue.estimatedServiceTime ?? '23:59');
+
+      if (dateOnly != null && minutesOfDay != null) {
+        final estimatedTime = DateTime(
+          dateOnly.year,
+          dateOnly.month,
+          dateOnly.day,
+          minutesOfDay ~/ 60,
+          minutesOfDay % 60,
+        );
         final now = DateTime.now();
         
         final difference = estimatedTime.difference(now);
@@ -526,7 +525,10 @@ class BookingDetailScreen extends StatelessWidget {
           return true;
         }
       }
-    } catch (_) {}
+    } catch (e, stack) {
+      AppLogger.error('Gagal memeriksa status kunci pembatalan tiket antrean', error: e, stackTrace: stack, tag: 'BookingDetailScreen');
+      return true;
+    }
     
     return false;
   }

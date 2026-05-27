@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../logic/admin_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/date_time_parser.dart';
 import '../../../shared/models/doctor_model.dart';
 
 class AdminDoctorLeavesScreen extends StatefulWidget {
@@ -440,15 +441,14 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                               DoctorModel? matchedDoctor;
                               try {
                                 matchedDoctor = provider.doctors.firstWhere((d) => d.id == doctorId);
-                              } catch (_) {}
+                              } catch (e) {
+                                debugPrint('AdminDoctorLeavesScreen: doctor dengan id $doctorId tidak ditemukan: $e');
+                              }
 
                               final doctorName = matchedDoctor?.name ?? 'Dokter ID: $doctorId';
                               final polyclinicName = matchedDoctor?.polyclinic?.name ?? 'Poliklinik';
 
-                              DateTime? parsedDate;
-                              try {
-                                parsedDate = DateTime.parse(dateStr);
-                              } catch (_) {}
+                              final parsedDate = DateTimeParser.parseDateOnly(dateStr);
 
                               final formattedDate = parsedDate != null
                                   ? DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(parsedDate)

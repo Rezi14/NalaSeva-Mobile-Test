@@ -13,10 +13,10 @@ class PolyclinicStat {
 
   factory PolyclinicStat.fromJson(Map<String, dynamic> json) {
     return PolyclinicStat(
-      polyclinicId: json['polyclinic_id'] ?? 0,
+      polyclinicId: _parseInt(json['polyclinic_id']),
       name: json['name'] ?? 'Unknown',
-      activeQueueCount: json['active_queue_count'] ?? 0,
-      waitingQueueCount: json['waiting_queue_count'] ?? 0,
+      activeQueueCount: _parseInt(json['active_queue_count']),
+      waitingQueueCount: _parseInt(json['waiting_queue_count']),
     );
   }
 
@@ -28,6 +28,15 @@ class PolyclinicStat {
       'waiting_queue_count': waitingQueueCount,
     };
   }
+}
+
+int _parseInt(dynamic value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) {
+    return int.tryParse(value.trim()) ?? 0;
+  }
+  return 0;
 }
 
 class DashboardStatsModel {
@@ -50,11 +59,11 @@ class DashboardStatsModel {
   factory DashboardStatsModel.fromJson(Map<String, dynamic> json) {
     var polyList = json['polyclinic_stats'] as List? ?? [];
     return DashboardStatsModel(
-      totalPatients: json['total_patients'] ?? 0,
-      totalDoctors: json['total_doctors'] ?? 0,
-      activeQueuesToday: json['active_queues_today'] ?? 0,
-      completedQueuesToday: json['completed_queues_today'] ?? 0,
-      cancelledQueuesToday: json['cancelled_queues_today'] ?? 0,
+      totalPatients: _parseInt(json['total_patients']),
+      totalDoctors: _parseInt(json['total_doctors']),
+      activeQueuesToday: _parseInt(json['active_queues_today']),
+      completedQueuesToday: _parseInt(json['completed_queues_today']),
+      cancelledQueuesToday: _parseInt(json['cancelled_queues_today']),
       polyclinicStats: polyList.map((e) => PolyclinicStat.fromJson(e)).toList(),
     );
   }

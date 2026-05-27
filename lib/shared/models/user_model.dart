@@ -1,3 +1,5 @@
+import '../../core/utils/date_time_parser.dart';
+
 class UserModel {
   final int id;
   final int? patientId;
@@ -134,7 +136,7 @@ class UserModel {
       address: addressVal?.toString(),
       nationalId: nationalIdVal?.toString(),
       gender: genderNormalized,
-      birthDate: birthDateStr != null ? DateTime.tryParse(birthDateStr.toString()) : null,
+      birthDate: DateTimeParser.parseDateOnly(birthDateStr?.toString()),
       licenseNumber: licenseNumberVal?.toString(),
       specialization: specializationVal?.toString(),
     );

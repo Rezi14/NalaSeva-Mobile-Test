@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../logic/admin_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/date_time_parser.dart';
 
 class AdminClinicHolidaysScreen extends StatefulWidget {
   const AdminClinicHolidaysScreen({super.key});
@@ -374,10 +375,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                               final dateStr = holiday['holiday_date']?.toString() ?? '';
                               final description = holiday['description']?.toString() ?? 'Hari Libur';
                               
-                              DateTime? parsedDate;
-                              try {
-                                parsedDate = DateTime.parse(dateStr);
-                              } catch (_) {}
+                              final parsedDate = DateTimeParser.parseDateOnly(dateStr);
 
                               final formattedDate = parsedDate != null
                                   ? DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(parsedDate)

@@ -36,7 +36,7 @@ class TurnIsNearAlertCard extends StatelessWidget {
       if (match != null) {
         final numVal = int.tryParse(match.group(0) ?? '');
         if (numVal != null) {
-          queuePosition = (numVal - 1).clamp(0, numVal);
+          queuePosition = numVal > 0 ? numVal - 1 : 0;
         }
       }
     }

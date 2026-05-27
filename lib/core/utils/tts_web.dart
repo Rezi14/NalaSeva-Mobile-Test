@@ -1,7 +1,12 @@
 // ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use, avoid_print
 import 'dart:html' as html;
+import 'app_logger.dart';
 
 Future<void> speakText(String text) async {
+  if (text.trim().isEmpty) {
+    AppLogger.warning('Web TTS speak dibatalkan karena teks kosong', tag: 'TTS');
+    return;
+  }
   try {
     final synth = html.window.speechSynthesis;
     if (synth != null) {
@@ -34,15 +39,25 @@ Future<void> speakText(String text) async {
       utterance.pitch = 1.0;
       synth.speak(utterance);
     }
-  } catch (e) {
-    print("Web SpeechSynthesis error: $e");
+  } catch (e, stackTrace) {
+    AppLogger.error(
+      'Web SpeechSynthesis error',
+      error: e,
+      stackTrace: stackTrace,
+      tag: 'TTS',
+    );
   }
 }
 
 Future<void> stopText() async {
   try {
     html.window.speechSynthesis?.cancel();
-  } catch (e) {
-    print("Web SpeechSynthesis cancel error: $e");
+  } catch (e, stackTrace) {
+    AppLogger.error(
+      'Web SpeechSynthesis cancel error',
+      error: e,
+      stackTrace: stackTrace,
+      tag: 'TTS',
+    );
   }
 }

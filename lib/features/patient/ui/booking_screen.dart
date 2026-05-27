@@ -8,8 +8,11 @@ import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../shared/models/doctor_model.dart';
+import '../../../shared/models/schedule_model.dart';
 import '../widgets/booking_dropdown_card.dart';
 import '../widgets/booking_result_dialog.dart';
+import '../../../core/utils/app_logger.dart';
+import '../../../core/utils/date_time_parser.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -160,24 +163,18 @@ class _BookingScreenState extends State<BookingScreen> {
                           value: selectedDoctorId,
                           enabled: selectedPolyId != null && provider.availableSchedules.isNotEmpty,
                            items: provider.availableSchedules.where((s) {
-                             final doc = provider.doctors.firstWhere(
-                               (d) => d.id == s.doctorId,
-                               orElse: () => s.doctor ?? DoctorModel(id: s.doctorId, userId: 0),
-                             );
+                             final doc = _resolveDoctor(provider, s);
                              return doc.isOnline;
                            }).map((s) {
                              final startStr = s.startTime.length >= 5 ? s.startTime.substring(0, 5) : s.startTime;
                              final endStr = s.endTime.length >= 5 ? s.endTime.substring(0, 5) : s.endTime;
                              final quota = _calculateQuota(s.startTime, s.endTime);
-                             final doc = provider.doctors.firstWhere(
-                               (d) => d.id == s.doctorId,
-                               orElse: () => s.doctor ?? DoctorModel(id: s.doctorId, userId: 0),
-                             );
+                             final doc = _resolveDoctor(provider, s);
                              final doctorName = doc.user?.name ?? doc.name;
                              return DropdownMenuItem<int>(
                                value: s.id, // Using schedule ID for more precision
                                child: Text(
-                                 "$doctorName (${s.dayOfWeek}, $startStr - $endStr | Kuota: $quota Pasien)",
+                                 "$doctorName (${s.dayOfWeek}, $startStr - $endStr | Kuota: ${quota != null ? '$quota Pasien' : 'tidak tersedia'})",
                                  style: GoogleFonts.inter(fontSize: 12),
                                ),
                              );
@@ -194,9 +191,15 @@ class _BookingScreenState extends State<BookingScreen> {
                               
                               // Ambil data libur & cuti dokter asinkron
                               await provider.fetchHolidaysAndLeaves(selectedSchedule.doctorId);
+                              final nearestDate = _getNearestDateForWeekday(targetDayOfWeek, provider);
+                              if (nearestDate == null) {
+                                if (!mounted) return;
+                                _showResultDialog(false, 'Tidak ada tanggal kunjungan yang tersedia dalam 90 hari ke depan untuk jadwal ini.');
+                                return;
+                              }
                               
                               setState(() {
-                                selectedDate = _getNearestDateForWeekday(targetDayOfWeek, provider);
+                                selectedDate = nearestDate;
                               });
                             }
                           },
@@ -225,6 +228,10 @@ class _BookingScreenState extends State<BookingScreen> {
                             final initialDate = (selectedDate.weekday == targetDayOfWeek && !isSelHoliday && !isSelLeave)
                                 ? selectedDate
                                 : _getNearestDateForWeekday(targetDayOfWeek, provider);
+                            if (initialDate == null) {
+                              _showResultDialog(false, 'Tidak ada tanggal kunjungan yang valid dalam 90 hari ke depan.');
+                              return;
+                            }
                             final limitDate = DateTime.now().add(const Duration(days: 30));
                             final adjustedLastDate = initialDate.isAfter(limitDate) ? initialDate.add(const Duration(days: 7)) : limitDate;
                             final picked = await showDatePicker(
@@ -431,6 +438,26 @@ class _BookingScreenState extends State<BookingScreen> {
     final selectedSchedule = schedules.first;
     final doctorId = selectedSchedule.doctorId;
 
+    // Validasi kuota maksimal per jadwal sebelum booking
+    final quota = _calculateQuota(selectedSchedule.startTime, selectedSchedule.endTime);
+    if (quota != null && quota > 0) {
+      // Hitung jumlah antrean aktif yang sudah ada pada dokter+tanggal yang sama
+      final existingBookingsForSchedule = provider.myQueues.where((q) =>
+          q.doctorId == doctorId &&
+          q.date == selectedDateStr &&
+          q.status != QueueStatus.completed &&
+          q.status != QueueStatus.cancelled
+      ).length;
+
+      if (existingBookingsForSchedule >= quota) {
+        _showResultDialog(
+          false,
+          'Kuota jadwal dokter ini sudah penuh ($quota pasien). Silakan pilih jadwal atau tanggal lain.',
+        );
+        return;
+      }
+    }
+
     // Proteksi tanggal di masa lalu atau jam praktik hari ini yang sudah terlewat (Tugas 2)
     final now = DateTime.now();
     final todayStr = now.toIso8601String().split('T')[0];
@@ -444,27 +471,35 @@ class _BookingScreenState extends State<BookingScreen> {
 
     if (selectedDateStr == todayStr) {
       try {
-        final endParts = selectedSchedule.endTime.split(':');
-        if (endParts.length >= 2) {
-          final endHour = int.parse(endParts[0]);
-          final endMin = int.parse(endParts[1]);
-          final limitTime = DateTime(now.year, now.month, now.day, endHour, endMin);
-          if (now.isAfter(limitTime)) {
-            _showResultDialog(
-              false, 
-              'Jam praktik dokter untuk hari ini sudah selesai. Silakan pilih tanggal lain.'
-            );
-            return;
-          }
+        final endMinutes = DateTimeParser.parseMinutesOfDay(selectedSchedule.endTime);
+        if (endMinutes == null) {
+          _showResultDialog(false, 'Format jam praktik dokter tidak valid. Silakan pilih jadwal lain.');
+          return;
         }
-      } catch (_) {}
+        final limitTime = DateTime(now.year, now.month, now.day, endMinutes ~/ 60, endMinutes % 60);
+        if (now.isAfter(limitTime)) {
+          _showResultDialog(
+            false,
+            'Jam praktik dokter untuk hari ini sudah selesai. Silakan pilih tanggal lain.'
+          );
+          return;
+        }
+      } catch (e, stack) {
+        AppLogger.error('Gagal memvalidasi jam selesai praktik dokter', error: e, stackTrace: stack, tag: 'BookingScreen');
+        _showResultDialog(false, 'Format jam praktik dokter tidak valid. Silakan pilih jadwal lain.');
+        return;
+      }
     }
 
+    // Kirim schedule_id dan max_quota agar backend dapat memvalidasi ulang
+    // (pertahanan berlapis: client + server)
     await provider.createBooking({
       'patient_id': patientId,
       'polyclinic_id': selectedPolyId,
       'doctor_id': doctorId,
+      'doctor_schedule_id': selectedSchedule.id,
       'date': selectedDateStr,
+      if (quota != null) 'max_quota': quota,
     });
     
     if (mounted) {
@@ -493,7 +528,14 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  DateTime _getNearestDateForWeekday(int targetWeekday, PatientProvider provider) {
+  DoctorModel _resolveDoctor(PatientProvider provider, ScheduleModel schedule) {
+    return provider.doctors.firstWhere(
+      (d) => d.id == schedule.doctorId,
+      orElse: () => schedule.doctor ?? DoctorModel(id: schedule.doctorId, userId: 0, isOnline: false),
+    );
+  }
+
+  DateTime? _getNearestDateForWeekday(int targetWeekday, PatientProvider provider) {
     DateTime date = DateTime.now().add(const Duration(days: 1));
     final maxDate = DateTime.now().add(const Duration(days: 90)); // Batas pencarian 90 hari
     while (date.isBefore(maxDate)) {
@@ -507,12 +549,7 @@ class _BookingScreenState extends State<BookingScreen> {
       }
       date = date.add(const Duration(days: 1));
     }
-    // Fallback: kembalikan tanggal pertama yang sesuai hari tanpa cek libur
-    date = DateTime.now().add(const Duration(days: 1));
-    while (date.weekday != targetWeekday) {
-      date = date.add(const Duration(days: 1));
-    }
-    return date;
+    return null;
   }
 
   String _formatIndonesianDate(DateTime date) {
@@ -528,25 +565,20 @@ class _BookingScreenState extends State<BookingScreen> {
     return '$dayName, ${date.day} $monthName ${date.year}';
   }
 
-  int _calculateQuota(String startTime, String endTime) {
+  int? _calculateQuota(String startTime, String endTime) {
     try {
-      final startParts = startTime.split(':');
-      final endParts = endTime.split(':');
-      if (startParts.length >= 2 && endParts.length >= 2) {
-        final startHour = int.parse(startParts[0]);
-        final startMin = int.parse(startParts[1]);
-        final endHour = int.parse(endParts[0]);
-        final endMin = int.parse(endParts[1]);
-        
-        final startTotal = startHour * 60 + startMin;
-        final endTotal = endHour * 60 + endMin;
+      final startTotal = DateTimeParser.parseMinutesOfDay(startTime);
+      final endTotal = DateTimeParser.parseMinutesOfDay(endTime);
+      if (startTotal != null && endTotal != null) {
         final duration = endTotal - startTotal;
         if (duration > 0) {
           return (duration / 15).floor();
         }
       }
-    } catch (_) {}
-    return 0; // default fallback quota (0 is safer when parse fails)
+    } catch (e, stack) {
+      AppLogger.error('Gagal menghitung kuota dari jam kerja', error: e, stackTrace: stack, tag: 'BookingScreen');
+    }
+    return null;
   }
 }
 

@@ -19,7 +19,7 @@ class DoctorModel {
     this.specialization,
     this.user,
     this.polyclinic,
-    this.isOnline = true,
+    this.isOnline = false,
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) {
@@ -31,8 +31,18 @@ class DoctorModel {
       specialization: json['specialization'],
       user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
       polyclinic: json['polyclinic'] != null ? PolyclinicModel.fromJson(json['polyclinic']) : null,
-      isOnline: json['is_online'] == true || json['is_online'] == 1 || json['is_online'] == '1' || json['is_online'] == null,
+      isOnline: _parseIsOnline(json['is_online']),
     );
+  }
+
+  static bool _parseIsOnline(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value == 1;
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      return normalized == 'true' || normalized == '1' || normalized == 'online' || normalized == 'yes';
+    }
+    return false;
   }
 
   Map<String, dynamic> toJson() {

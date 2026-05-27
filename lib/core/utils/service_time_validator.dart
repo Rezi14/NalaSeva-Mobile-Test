@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import '../../shared/models/queue_model.dart';
+import 'date_time_parser.dart';
 
 class ServiceTimeValidator {
   /// Validates if the admin can perform status changes based on queue date and estimated service time.
@@ -23,18 +25,24 @@ class ServiceTimeValidator {
     }
 
     try {
-      final timeParts = queue.estimatedServiceTime!.split(':');
-      final startHour = int.parse(timeParts[0]);
-      final startMinute = int.parse(timeParts[1]);
-
-      final startMinutes = startHour * 60 + startMinute;
+      final startMinutes = DateTimeParser.parseMinutesOfDay(queue.estimatedServiceTime);
+      if (startMinutes == null) {
+        return 'Format estimasi jam pelayanan tidak valid.';
+      }
 
       final nowMinutes = now.hour * 60 + now.minute;
 
       if (nowMinutes < (startMinutes - 30)) {
         return 'Antrean ini dijadwalkan pada jam ${queue.estimatedServiceTime}. Absensi & perubahan status hanya diijinkan maksimal 30 menit sebelum jam pelayanan.';
       }
-    } catch (_) {}
+
+      if (nowMinutes > (startMinutes + 120)) {
+        return 'Antrean ini sudah melewati batas 2 jam setelah jam pelayanan. Perubahan status tidak diizinkan lagi.';
+      }
+    } catch (_) {
+      debugPrint('ServiceTimeValidator gagal memvalidasi antrean ${queue.id}');
+      return 'Format estimasi jam pelayanan tidak valid.';
+    }
 
     return null;
   }

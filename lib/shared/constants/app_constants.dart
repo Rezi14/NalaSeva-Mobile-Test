@@ -28,7 +28,7 @@ enum QueueStatus {
   static QueueStatus fromString(String status) {
     return QueueStatus.values.firstWhere(
       (e) => e.value == status,
-      orElse: () => QueueStatus.booked,
+      orElse: () => QueueStatus.cancelled,
     );
   }
 }

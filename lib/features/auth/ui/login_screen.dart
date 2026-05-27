@@ -108,15 +108,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   FadeInLeft(
                     delay: const Duration(milliseconds: 200),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           'Selamat Datang',
+                          textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.displayLarge,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Silakan masuk untuk melanjutkan layanan kesehatan Anda.',
+                          textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],

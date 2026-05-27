@@ -6,6 +6,7 @@ import '../../../shared/models/polyclinic_model.dart';
 import '../../../shared/models/examination_model.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../../../shared/models/doctor_model.dart';
+import '../../../core/utils/app_logger.dart';
 
 class PatientProvider extends ChangeNotifier {
   final PatientRepository _repository;
@@ -61,7 +62,9 @@ class PatientProvider extends ChangeNotifier {
               await _repository.cancelQueue(q.id);
               q = q.copyWith(status: QueueStatus.cancelled);
               _error = "Antrean Anda pada tanggal ${q.date} dibatalkan otomatis karena Puskesmas menetapkan hari libur pada tanggal tersebut.";
-            } catch (_) {}
+            } catch (e, stack) {
+              AppLogger.error('Gagal membatalkan otomatis antrean saat hari libur puskesmas', error: e, stackTrace: stack, tag: 'PatientProvider');
+            }
           }
         }
         validatedQueues.add(q);

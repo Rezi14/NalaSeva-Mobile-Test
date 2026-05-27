@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../logic/admin_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/date_time_parser.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../shared/models/polyclinic_model.dart';
 import '../../../shared/models/schedule_model.dart';
@@ -422,30 +423,28 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
     int totalQuota = 0;
     final polySchedules = schedules.where((s) => s.doctor?.polyclinicId == poly.id).toList();
     for (var s in polySchedules) {
-      totalQuota += _calculateScheduleQuota(s.startTime, s.endTime);
+      final quota = _calculateScheduleQuota(s.startTime, s.endTime);
+      if (quota != null) {
+        totalQuota += quota;
+      }
     }
     return totalQuota;
   }
 
-  int _calculateScheduleQuota(String startTime, String endTime) {
+  int? _calculateScheduleQuota(String startTime, String endTime) {
     try {
-      final startParts = startTime.split(':');
-      final endParts = endTime.split(':');
-      if (startParts.length >= 2 && endParts.length >= 2) {
-        final startHour = int.parse(startParts[0]);
-        final startMin = int.parse(startParts[1]);
-        final endHour = int.parse(endParts[0]);
-        final endMin = int.parse(endParts[1]);
-        
-        final startTotal = startHour * 60 + startMin;
-        final endTotal = endHour * 60 + endMin;
+      final startTotal = DateTimeParser.parseMinutesOfDay(startTime);
+      final endTotal = DateTimeParser.parseMinutesOfDay(endTime);
+      if (startTotal != null && endTotal != null) {
         final duration = endTotal - startTotal;
         if (duration > 0) {
           return (duration / 15).floor();
         }
       }
-    } catch (_) {}
-    return 10; // fallback
+    } catch (e) {
+      debugPrint('PolyclinicManagementScreen: gagal menghitung kuota jadwal "$startTime - $endTime": $e');
+    }
+    return null;
   }
 
   String _getPolyclinicOperatingHours(PolyclinicModel poly, List<ScheduleModel> schedules) {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'app_logger.dart';
 
 class ErrorParser {
   /// Mengambil pesan error dari [DioException] secara aman terlepas dari format respons.
@@ -15,7 +16,18 @@ class ErrorParser {
             if (decoded is Map) {
               return decoded['message']?.toString() ?? defaultMsg;
             }
-          } catch (_) {}
+          } catch (error, stackTrace) {
+            AppLogger.debug(
+              'Gagal decode body error JSON, fallback ke message default',
+              tag: 'ErrorParser',
+            );
+            AppLogger.error(
+              'Body error JSON tidak valid',
+              error: error,
+              stackTrace: stackTrace,
+              tag: 'ErrorParser',
+            );
+          }
           // Hindari melempar string HTML raksasa jika itu halaman stack trace 500
           if (data.trim().startsWith('<!DOCTYPE') || data.trim().startsWith('<html')) {
             return defaultMsg;
@@ -23,7 +35,14 @@ class ErrorParser {
           return data.length > 100 ? data.substring(0, 100) : data;
         }
       }
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'ErrorParser gagal mengekstrak pesan error',
+        error: error,
+        stackTrace: stackTrace,
+        tag: 'ErrorParser',
+      );
+    }
     return e.message ?? defaultMsg;
   }
 }

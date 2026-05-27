@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_logger.dart';
+import '../../../core/utils/date_time_parser.dart';
 
 class AdminScheduleCard extends StatelessWidget {
   final String doctorName;
@@ -90,6 +92,7 @@ class AdminScheduleCard extends StatelessWidget {
           ...schedules.map((schedule) {
             final startStr = schedule.startTime.length >= 5 ? schedule.startTime.substring(0, 5) : schedule.startTime;
             final endStr = schedule.endTime.length >= 5 ? schedule.endTime.substring(0, 5) : schedule.endTime;
+            final quota = _calculateQuota(schedule.startTime, schedule.endTime);
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
@@ -117,7 +120,7 @@ class AdminScheduleCard extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '$startStr - $endStr (Kuota: ${_calculateQuota(schedule.startTime, schedule.endTime)} Pasien)',
+                        '$startStr - $endStr (Kuota: ${quota != null ? '$quota Pasien' : 'tidak tersedia'})',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           color: Colors.black87,
@@ -149,24 +152,19 @@ class AdminScheduleCard extends StatelessWidget {
     );
   }
 
-  int _calculateQuota(String startTime, String endTime) {
+  int? _calculateQuota(String startTime, String endTime) {
     try {
-      final startParts = startTime.split(':');
-      final endParts = endTime.split(':');
-      if (startParts.length >= 2 && endParts.length >= 2) {
-        final startHour = int.parse(startParts[0]);
-        final startMin = int.parse(startParts[1]);
-        final endHour = int.parse(endParts[0]);
-        final endMin = int.parse(endParts[1]);
-        
-        final startTotal = startHour * 60 + startMin;
-        final endTotal = endHour * 60 + endMin;
+      final startTotal = DateTimeParser.parseMinutesOfDay(startTime);
+      final endTotal = DateTimeParser.parseMinutesOfDay(endTime);
+      if (startTotal != null && endTotal != null) {
         final duration = endTotal - startTotal;
         if (duration > 0) {
           return (duration / 15).floor();
         }
       }
-    } catch (_) {}
-    return 0; // default fallback quota (0 is safer when parse fails)
+    } catch (e, stack) {
+      AppLogger.error('Gagal menghitung kuota jadwal praktek admin', error: e, stackTrace: stack, tag: 'AdminScheduleCard');
+    }
+    return null;
   }
 }

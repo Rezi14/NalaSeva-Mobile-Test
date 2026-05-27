@@ -1,4 +1,5 @@
 import 'user_model.dart';
+import '../../core/utils/date_time_parser.dart';
 
 class PatientModel {
   final int id;
@@ -43,9 +44,9 @@ class PatientModel {
       medicalRecordNumber: json['medical_record_number'] ?? json['mrn'] ?? userMap?['medical_record_number'],
       nationalId: json['national_id'] ?? userMap?['national_id'],
       gender: genderNormalized,
-      birthDate: json['birth_date'] != null 
-          ? DateTime.tryParse(json['birth_date'].toString()) 
-          : (userMap?['birth_date'] != null ? DateTime.tryParse(userMap!['birth_date'].toString()) : null),
+      birthDate: DateTimeParser.parseDateOnly(
+        json['birth_date']?.toString() ?? userMap?['birth_date']?.toString(),
+      ),
       // If user data is nested in 'user', parse it. 
       // If it's flattened, parse the json itself as UserModel.
       user: userMap != null 

@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/service_time_validator.dart';
+import '../../../core/utils/app_logger.dart';
 
 class QRScannerPage extends StatefulWidget {
   const QRScannerPage({super.key});
@@ -68,19 +69,24 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
                     if (parsedId != null) {
                       try {
                         matchedQueue = provider.queues.firstWhere((q) => q.id == parsedId);
-                      } catch (_) {}
+                      } catch (e, stack) {
+                        AppLogger.error('Gagal mencocokkan ID Antrean QR', error: e, stackTrace: stack, tag: 'QRScannerPage');
+                      }
                     }
                   } else {
                     try {
                       matchedQueue = provider.queues.firstWhere(
                         (q) => q.queueNumber.trim().toLowerCase() == code.trim().toLowerCase() && q.status == QueueStatus.booked,
                       );
-                    } catch (_) {
+                    } catch (e) {
+                      AppLogger.debug('Antrean dengan nomor $code dan status booked tidak ditemukan: $e', tag: 'QRScannerPage');
                       try {
                         matchedQueue = provider.queues.firstWhere(
                           (q) => q.queueNumber.trim().toLowerCase() == code.trim().toLowerCase(),
                         );
-                      } catch (_) {}
+                      } catch (err, st) {
+                        AppLogger.error('Gagal mencocokkan nomor antrean QR di database lokal', error: err, stackTrace: st, tag: 'QRScannerPage');
+                      }
                     }
                   }
                   

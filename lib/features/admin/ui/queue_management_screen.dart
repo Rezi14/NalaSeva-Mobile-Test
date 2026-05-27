@@ -6,7 +6,6 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../logic/admin_provider.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/app_dialogs.dart';
 import 'admin_booking_detail_screen.dart';
 import '../widgets/admin_mini_stat_card.dart';
 import '../widgets/admin_patient_card.dart';
@@ -302,31 +301,6 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
               ),
             ),
 
-            // Export Button
-            FadeInUp(
-              duration: const Duration(milliseconds: 500),
-              delay: const Duration(milliseconds: 500),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    AppDialogs.showNotificationDialog(
-                      context,
-                      'Berhasil',
-                      'Laporan pasien hari ini berhasil diekspor (PDF/CSV)',
-                    );
-                  },
-                  icon: const Icon(Icons.description_rounded, size: 18),
-                  label: const Text('Ekspor Laporan Pasien'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
