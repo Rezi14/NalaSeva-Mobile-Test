@@ -50,7 +50,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _handleUpdate() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
     try {
       await context.read<AuthProvider>().updateProfile(

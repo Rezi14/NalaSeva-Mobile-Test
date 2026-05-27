@@ -499,7 +499,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
       isDestructive: true,
     );
 
-    if (confirm == true && mounted) {
+    if ((confirm ?? false) && mounted) {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
       final provider = context.read<AdminProvider>();
       await provider.deleteUser(patient.userId);
@@ -617,7 +617,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                               cancelText: 'TETAP EDIT',
                               isDestructive: true,
                             );
-                            if (confirm == true && context.mounted) {
+                            if ((confirm ?? false) && context.mounted) {
                               Navigator.pop(context); // Close edit bottom sheet
                             }
                           },

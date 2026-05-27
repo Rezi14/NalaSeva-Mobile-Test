@@ -552,7 +552,7 @@ class BookingDetailScreen extends StatelessWidget {
       isDestructive: true,
     );
 
-    if (confirm == true && context.mounted) {
+    if ((confirm ?? false) && context.mounted) {
       final provider = context.read<PatientProvider>();
       await provider.cancelQueue(queue.id);
       

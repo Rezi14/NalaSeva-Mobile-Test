@@ -57,7 +57,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
   }
 
   Future<void> _handleUpdate() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
     try {
       await context.read<AuthProvider>().updateProfile(

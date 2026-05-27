@@ -464,7 +464,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       confirmText: 'PINDAHKAN',
     );
 
-    if (confirm == true && context.mounted) {
+    if ((confirm ?? false) && context.mounted) {
       final provider = context.read<AdminProvider>();
       await provider.moveQueueToBack(queue);
       if (context.mounted) {

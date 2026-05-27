@@ -234,7 +234,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       cancelText: 'Batal',
     );
 
-    if (confirm == true) {
+    if (confirm ?? false) {
       await provider.moveQueueToBack(_currentQueue);
       if (mounted) {
         if (provider.error != null) {
@@ -272,7 +272,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       isDestructive: true,
     );
 
-    if (confirm == true && mounted) {
+    if ((confirm ?? false) && mounted) {
       final provider = context.read<AdminProvider>();
       await provider.updateQueueStatus(_currentQueue.id, QueueStatus.cancelled);
       if (mounted) {

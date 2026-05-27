@@ -91,7 +91,7 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
         return;
       }
 
-      if (!_formKey.currentState!.validate()) {
+      if (!(_formKey.currentState?.validate() ?? false)) {
         return;
       }
 

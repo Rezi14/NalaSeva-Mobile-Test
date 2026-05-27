@@ -33,7 +33,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _submit() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState?.validate() ?? false) {
       try {
         await context.read<AuthProvider>().forgotPassword(
               _emailController.text,

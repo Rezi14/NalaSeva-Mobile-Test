@@ -305,7 +305,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
       isDestructive: true,
     );
 
-    if (confirm == true && context.mounted) {
+    if ((confirm ?? false) && context.mounted) {
       await context.read<AdminProvider>().deleteDoctor(doc.id);
     }
   }

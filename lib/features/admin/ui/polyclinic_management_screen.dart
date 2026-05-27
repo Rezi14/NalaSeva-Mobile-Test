@@ -311,7 +311,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
       isDestructive: true,
     );
 
-    if (confirm == true && context.mounted) {
+    if ((confirm ?? false) && context.mounted) {
       await context.read<AdminProvider>().deletePolyclinic(poly.id);
     }
   }
@@ -383,7 +383,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                             cancelText: 'TETAP EDIT',
                             isDestructive: true,
                           );
-                          if (confirm == true && context.mounted) {
+                          if ((confirm ?? false) && context.mounted) {
                             Navigator.pop(context);
                           }
                         } else {

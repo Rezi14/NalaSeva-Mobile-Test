@@ -57,9 +57,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
     final provider = context.watch<DoctorProvider>();
-    final initials = user?.name.isNotEmpty == true 
-        ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase() 
-        : 'DR';
+    final initials = (user?.name ?? '').isNotEmpty
+      ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
+      : 'DR';
 
     final myQueues = provider.queues.where((q) => q.doctorId == user?.doctorId).toList();
 

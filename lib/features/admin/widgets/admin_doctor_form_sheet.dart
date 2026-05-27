@@ -343,7 +343,7 @@ class AdminDoctorFormSheet {
                                 cancelText: 'TETAP EDIT',
                                 isDestructive: true,
                               );
-                              if (confirm == true && context.mounted) {
+                              if ((confirm ?? false) && context.mounted) {
                                 Navigator.pop(context);
                               }
                             } else {

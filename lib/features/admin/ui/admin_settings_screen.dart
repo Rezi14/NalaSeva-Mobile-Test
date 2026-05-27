@@ -367,7 +367,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                                 confirmText: 'KELUAR',
                                 isDestructive: true,
                               );
-                              if (confirm == true && context.mounted) {
+                              if ((confirm ?? false) && context.mounted) {
                                 context.read<AuthProvider>().logout();
                                 Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                               }

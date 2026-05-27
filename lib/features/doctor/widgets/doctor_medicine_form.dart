@@ -32,7 +32,7 @@ class _DoctorMedicineFormState extends State<DoctorMedicineForm> {
   }
 
   void _addMedicine() {
-    if (!_formKey.currentState!.validate()) {
+    if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 

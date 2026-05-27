@@ -53,9 +53,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
     final provider = context.watch<PatientProvider>();
-    final initials = user?.name.isNotEmpty == true 
-        ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase() 
-        : 'PS';
+    final initials = (user?.name ?? '').isNotEmpty
+      ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
+      : 'PS';
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -233,7 +233,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                             isDestructive: true,
                           );
  
-                          if (confirm == true && context.mounted) {
+                          if ((confirm ?? false) && context.mounted) {
                             AppDialogs.showNotificationDialog(
                               context,
                               'Memanggil Darurat',
@@ -266,7 +266,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                             confirmText: 'KELUAR',
                             isDestructive: true,
                           );
-                          if (confirm == true && context.mounted) {
+                          if ((confirm ?? false) && context.mounted) {
                             context.read<AuthProvider>().logout();
                             Navigator.pushReplacementNamed(context, '/');
                           }

@@ -250,7 +250,7 @@ class ProfileScreen extends StatelessWidget {
       isDestructive: true,
     );
 
-    if (confirm == true && context.mounted) {
+    if ((confirm ?? false) && context.mounted) {
       context.read<AuthProvider>().logout();
       Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
     }

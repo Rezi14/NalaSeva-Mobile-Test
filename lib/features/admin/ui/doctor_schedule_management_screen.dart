@@ -235,8 +235,9 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
       confirmText: 'HAPUS',
       isDestructive: true,
     );
+    if (!context.mounted) return;
 
-    if (confirm == true && context.mounted) {
+    if ((confirm ?? false) && context.mounted) {
       await context.read<AdminProvider>().deleteSchedule(schedule.id);
     }
   }
@@ -464,7 +465,8 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                                 cancelText: 'TETAP EDIT',
                                 isDestructive: true,
                               );
-                              if (confirm == true && context.mounted) {
+                              if (!context.mounted) return;
+                              if ((confirm ?? false) && context.mounted) {
                                 Navigator.pop(context);
                               }
                             } else {
@@ -491,13 +493,25 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                       Expanded(
                         child: ElevatedButton(
                           onPressed: isSaving ? null : () async {
-                            if (!formKey.currentState!.validate()) return;
+                            if (!(formKey.currentState?.validate() ?? false)) return;
 
                             final adminProvider = context.read<AdminProvider>();
                             
                             // 1. Validasi Durasi Positif (Tugas 4)
-                            final startMinutes = startTime!.hour * 60 + startTime!.minute;
-                            final endMinutes = endTime!.hour * 60 + endTime!.minute;
+                            if (startTime == null || endTime == null) {
+                              AppDialogs.showNotificationDialog(
+                                context,
+                                'Waktu Tidak Lengkap',
+                                'Harap pilih waktu mulai dan selesai jadwal.',
+                                isError: true,
+                              );
+                              return;
+                            }
+
+                            final sTime = startTime!;
+                            final eTime = endTime!;
+                            final startMinutes = sTime.hour * 60 + sTime.minute;
+                            final endMinutes = eTime.hour * 60 + eTime.minute;
                             if (startMinutes >= endMinutes) {
                               AppDialogs.showNotificationDialog(
                                 context,
@@ -553,14 +567,37 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                               confirmText: isEdit ? 'YA, UPDATE' : 'YA, SIMPAN',
                               cancelText: 'BATAL',
                             );
+                            if (!context.mounted) return;
                             if (confirm != true) return;
 
                             setModalState(() => isSaving = true);
                             try {
-                              final startTimeStr = '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}';
-                              final endTimeStr = '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}';
+                              if (startTime == null || endTime == null) {
+                                if (context.mounted) {
+                                  AppDialogs.showNotificationDialog(
+                                    context,
+                                    'Waktu Tidak Lengkap',
+                                    'Waktu jadwal tidak tersedia. Silakan pilih kembali.',
+                                    isError: true,
+                                  );
+                                }
+                                return;
+                              }
+
+                              final startTimeStr = '${sTime.hour.toString().padLeft(2, '0')}:${sTime.minute.toString().padLeft(2, '0')}';
+                              final endTimeStr = '${eTime.hour.toString().padLeft(2, '0')}:${eTime.minute.toString().padLeft(2, '0')}';
 
                               if (isEdit) {
+                                if (selectedDays.isEmpty) {
+                                  AppDialogs.showNotificationDialog(
+                                    context,
+                                    'Hari Tidak Dipilih',
+                                    'Harap pilih setidaknya satu hari untuk jadwal.',
+                                    isError: true,
+                                  );
+                                  return;
+                                }
+
                                 // Update the original schedule with the first selected day
                                 final firstDay = selectedDays.first;
                                 final data = {
@@ -595,14 +632,13 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                                 }
                               }
 
-                              if (context.mounted) {
-                                Navigator.pop(context);
-                                AppDialogs.showSuccessDialog(
-                                  context,
-                                  'Berhasil Disimpan',
-                                  isEdit ? 'Jadwal dokter telah berhasil diperbarui.' : 'Jadwal dokter telah berhasil dibuat.',
-                                );
-                              }
+                              if (!context.mounted) return;
+                              Navigator.pop(context);
+                              AppDialogs.showSuccessDialog(
+                                context,
+                                'Berhasil Disimpan',
+                                isEdit ? 'Jadwal dokter telah berhasil diperbarui.' : 'Jadwal dokter telah berhasil dibuat.',
+                              );
                             } catch (e) {
                               if (context.mounted) {
                                 AppDialogs.showNotificationDialog(

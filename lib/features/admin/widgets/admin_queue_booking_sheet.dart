@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../logic/admin_provider.dart';
 import '../../../shared/models/patient_model.dart';
 import '../../../shared/models/schedule_model.dart';
+import '../../../shared/models/doctor_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 
@@ -71,7 +72,7 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
         // Find doctor to check polyclinic
         final doc = provider.doctors.firstWhere(
           (d) => d.id == s.doctorId,
-          orElse: () => s.doctor!,
+          orElse: () => s.doctor ?? DoctorModel(id: s.doctorId, userId: 0),
         );
         return doc.polyclinicId == _selectedPolyId && s.dayOfWeek == dayStr;
       }).toList();
@@ -252,9 +253,11 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                     ),
                     items: availableSchedules.map((s) {
                       final doc = provider.doctors.firstWhere((d) => d.id == s.doctorId, orElse: () => s.doctor!);
+                      final startLabel = s.startTime.length >= 5 ? s.startTime.substring(0,5) : s.startTime;
+                      final endLabel = s.endTime.length >= 5 ? s.endTime.substring(0,5) : s.endTime;
                       return DropdownMenuItem(
                         value: s,
-                        child: Text('${doc.name} (${s.startTime.substring(0,5)} - ${s.endTime.substring(0,5)})'),
+                        child: Text('${doc.name} ($startLabel - $endLabel)'),
                       );
                     }).toList(),
                     onChanged: availableSchedules.isEmpty ? null : (v) {
@@ -294,7 +297,7 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: provider.isLoading || _selectedSchedule == null ? null : () async {
-                          if (!_formKey.currentState!.validate()) return;
+                          if (!(_formKey.currentState?.validate() ?? false)) return;
 
                           final confirm = await AppDialogs.showConfirmationDialog(
                             context,
@@ -303,10 +306,13 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                             confirmText: 'YA, DAFTAR',
                             cancelText: 'BATAL',
                           );
-                          if (confirm != true) return;
+                                  if (confirm != true) return;
 
-                          final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-                          final doc = provider.doctors.firstWhere((d) => d.id == _selectedSchedule!.doctorId, orElse: () => _selectedSchedule!.doctor!);
+                                  final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+                                  final doc = provider.doctors.firstWhere(
+                                    (d) => d.id == _selectedSchedule!.doctorId,
+                                    orElse: () => _selectedSchedule?.doctor ?? DoctorModel(id: _selectedSchedule?.doctorId ?? 0, userId: 0),
+                                  );
 
                           final data = {
                             'patient_id': widget.patient.id,
