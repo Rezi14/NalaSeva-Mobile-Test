@@ -95,16 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 40),
                 FadeInDown(
                   child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.medical_services_rounded,
-                        size: 60,
-                        color: AppTheme.primaryColor,
+                    child: SizedBox(
+                      width: 240,
+                      child: Image.asset(
+                        'assets/logo.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
