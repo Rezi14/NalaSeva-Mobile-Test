@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text,
         _passwordController.text,
       );
-      
+
       if (mounted) {
         final provider = context.read<AuthProvider>();
         if (provider.user != null) {
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
             end: Alignment.bottomCenter,
             colors: [
               AppTheme.primaryColor.withValues(alpha: 0.05),
-              Colors.white,
+              AppTheme.backgroundColor,
             ],
           ),
         ),
@@ -92,113 +92,119 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                const SizedBox(height: 40),
-                FadeInDown(
-                  child: Center(
-                    child: SizedBox(
-                      width: 240,
-                      child: Image.asset(
-                        'assets/logo.png',
-                        fit: BoxFit.contain,
+                  const SizedBox(height: 40),
+                  FadeInDown(
+                    child: Center(
+                      child: SizedBox(
+                        width: 150,
+                        child: Image.asset(
+                          'assets/logo.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 30),
-                FadeInLeft(
-                  delay: const Duration(milliseconds: 200),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Selamat Datang',
-                        style: Theme.of(context).textTheme.displayLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Silakan masuk untuk melanjutkan layanan kesehatan Anda.',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 50),
-                FadeInUp(
-                  delay: const Duration(milliseconds: 400),
-                  child: Column(
-                    children: [
-                      AuthTextField(
-                        controller: _emailController,
-                        hintText: 'Email',
-                        icon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: Validators.validateEmail,
-                      ),
-                      const SizedBox(height: 20),
-                      AuthTextField(
-                        controller: _passwordController,
-                        hintText: 'Password',
-                        icon: Icons.lock_outline_rounded,
-                        isPassword: true,
-                        validator: (v) => v == null || v.isEmpty ? 'Password tidak boleh kosong' : null,
-                      ),
-                      const SizedBox(height: 12),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed(AppRouter.forgotPassword);
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppTheme.secondaryColor,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: const Text(
-                            'Lupa Password?',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
+                  const SizedBox(height: 30),
+                  FadeInLeft(
+                    delay: const Duration(milliseconds: 200),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Selamat Datang',
+                          style: Theme.of(context).textTheme.displayLarge,
                         ),
-                      ),
-                      const SizedBox(height: 40),
-                      Consumer<AuthProvider>(
-                        builder: (context, auth, child) {
-                          return AuthSubmitButton(
-                            label: 'MASUK',
-                            isLoading: auth.isLoading,
-                            onPressed: _handleLogin,
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          const Text('Belum punya akun?'),
-                          TextButton(
+                        const SizedBox(height: 8),
+                        Text(
+                          'Silakan masuk untuk melanjutkan layanan kesehatan Anda.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 50),
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 400),
+                    child: Column(
+                      children: [
+                        AuthTextField(
+                          controller: _emailController,
+                          hintText: 'Email',
+                          icon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: Validators.validateEmail,
+                        ),
+                        const SizedBox(height: 20),
+                        AuthTextField(
+                          controller: _passwordController,
+                          hintText: 'Password',
+                          icon: Icons.lock_outline_rounded,
+                          isPassword: true,
+                          validator: (v) => v == null || v.isEmpty
+                              ? 'Password tidak boleh kosong'
+                              : null,
+                        ),
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/register');
+                              Navigator.of(
+                                context,
+                              ).pushNamed(AppRouter.forgotPassword);
                             },
                             style: TextButton.styleFrom(
                               foregroundColor: AppTheme.secondaryColor,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: const Text(
-                              'Daftar Sekarang',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              'Lupa Password?',
+                              style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: 40),
+                        Consumer<AuthProvider>(
+                          builder: (context, auth, child) {
+                            return AuthSubmitButton(
+                              label: 'MASUK',
+                              isLoading: auth.isLoading,
+                              onPressed: _handleLogin,
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            const Text('Belum punya akun?'),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/register');
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppTheme.secondaryColor,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                              ),
+                              child: const Text(
+                                'Daftar Sekarang',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

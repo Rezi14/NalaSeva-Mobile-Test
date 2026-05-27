@@ -16,6 +16,8 @@ import '../../features/admin/ui/queue_management_screen.dart';
 import '../../features/admin/ui/patient_management_screen.dart';
 import '../../features/admin/ui/examination_history_screen.dart';
 import '../../features/admin/ui/queue_monitor_screen.dart';
+import '../../features/admin/ui/admin_clinic_holidays_screen.dart';
+import '../../features/admin/ui/admin_doctor_leaves_screen.dart';
 
 // Doctor
 import '../../features/doctor/ui/doctor_dashboard.dart';
@@ -48,6 +50,8 @@ class AppRouter {
   static const String adminPatients = '/admin/patients';
   static const String adminHistory = '/admin/history';
   static const String adminSettings = '/admin/settings';
+  static const String adminHolidays = '/admin/holidays';
+  static const String adminLeaves = '/admin/leaves';
 
   // Doctor routes
   static const String doctorHome = '/doctor/home';
@@ -79,6 +83,8 @@ class AppRouter {
     adminPatients: (context) => const PatientManagementScreen(),
     adminHistory: (context) => const ExaminationHistoryScreen(),
     adminSettings: (context) => const AdminSettingsScreen(),
+    adminHolidays: (context) => const AdminClinicHolidaysScreen(),
+    adminLeaves: (context) => const AdminDoctorLeavesScreen(),
     doctorHome: (context) => const DoctorDashboard(),
     doctorExamination: (context) => const ExaminationFormScreen(),
     doctorProfile: (context) => const DoctorProfileScreen(),

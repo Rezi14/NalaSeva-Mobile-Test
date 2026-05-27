@@ -237,4 +237,50 @@ class AdminRepository {
       throw ErrorParser.parse(e, 'Gagal mengambil statistik dashboard');
     }
   }
+
+  // Clinic Holidays Management
+  Future<List<Map<String, dynamic>>> getClinicHolidays() async {
+    try {
+      final response = await _apiClient.dio.get('clinic-holidays');
+      final List data = response.data['data'];
+      return List<Map<String, dynamic>>.from(data);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil data hari libur');
+    }
+  }
+
+  Future<void> addClinicHoliday(String date, String description) async {
+    try {
+      await _apiClient.dio.post('clinic-holidays', data: {
+        'holiday_date': date,
+        'description': description,
+      });
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal menambahkan hari libur');
+    }
+  }
+
+  // Doctor Leaves Management
+  Future<List<Map<String, dynamic>>> getDoctorLeaves({int? doctorId}) async {
+    try {
+      final url = doctorId != null ? 'doctor-leaves?doctor_id=$doctorId' : 'doctor-leaves';
+      final response = await _apiClient.dio.get(url);
+      final List data = response.data['data'];
+      return List<Map<String, dynamic>>.from(data);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil data cuti dokter');
+    }
+  }
+
+  Future<void> addDoctorLeave(int doctorId, String date, String reason) async {
+    try {
+      await _apiClient.dio.post('doctor-leaves', data: {
+        'doctor_id': doctorId,
+        'leave_date': date,
+        'reason': reason,
+      });
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengajukan cuti dokter');
+    }
+  }
 }

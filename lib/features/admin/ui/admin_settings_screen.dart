@@ -292,6 +292,24 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                       ),
                       const SizedBox(height: 24),
                       _settingsGroup(
+                        'Kalender Operasional',
+                        [
+                          AdminSettingsItem(
+                            icon: Icons.event_busy_rounded,
+                            title: 'Hari Libur Puskesmas',
+                            value: 'Kelola libur operasional',
+                            onTap: () => Navigator.pushNamed(context, '/admin/holidays'),
+                          ),
+                          AdminSettingsItem(
+                            icon: Icons.time_to_leave_rounded,
+                            title: 'Cuti Dokter',
+                            value: 'Kelola cuti pelayanan',
+                            onTap: () => Navigator.pushNamed(context, '/admin/leaves'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      _settingsGroup(
                         'Notifikasi & Peringatan',
                         [
                           AdminSettingsItem(

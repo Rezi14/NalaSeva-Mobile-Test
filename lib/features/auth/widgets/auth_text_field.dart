@@ -60,10 +60,10 @@ class _AuthTextFieldState extends State<AuthTextField> {
             prefixIcon: Icon(widget.icon),
             suffixIcon: suffix,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: Colors.grey[300]!),
             ),
           )

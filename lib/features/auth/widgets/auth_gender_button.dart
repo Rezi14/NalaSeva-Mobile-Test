@@ -21,15 +21,15 @@ class AuthGenderButton extends StatelessWidget {
     final activeColor = AppTheme.primaryColor;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: isSelected ? activeColor.withValues(alpha: 0.08) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? activeColor : Colors.grey[300]!,
-            width: isSelected ? 2 : 1,
+            width: 1.5,
           ),
         ),
         child: Row(
@@ -40,12 +40,12 @@ class AuthGenderButton extends StatelessWidget {
               size: 18,
               color: isSelected ? activeColor : Colors.grey[600],
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 6),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 color: isSelected ? activeColor : Colors.black87,
               ),
             ),
@@ -53,5 +53,6 @@ class AuthGenderButton extends StatelessWidget {
         ),
       ),
     );
+
   }
 }

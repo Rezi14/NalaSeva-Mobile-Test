@@ -24,6 +24,8 @@ class AdminProvider extends ChangeNotifier {
   List<ScheduleModel> _schedules = [];
   List<ExaminationModel> _examinations = [];
   DashboardStatsModel? _dashboardStats;
+  List<Map<String, dynamic>> _clinicHolidays = [];
+  List<Map<String, dynamic>> _doctorLeaves = [];
   bool _isLoading = false;
   String? _error;
 
@@ -35,6 +37,8 @@ class AdminProvider extends ChangeNotifier {
   List<ScheduleModel> get schedules => _schedules;
   List<ExaminationModel> get examinations => _examinations;
   DashboardStatsModel? get dashboardStats => _dashboardStats;
+  List<Map<String, dynamic>> get clinicHolidays => _clinicHolidays;
+  List<Map<String, dynamic>> get doctorLeaves => _doctorLeaves;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -270,6 +274,34 @@ class AdminProvider extends ChangeNotifier {
   Future<void> fetchDashboardStats() async {
     await _performAction(() async {
       _dashboardStats = await _repository.getDashboardStats();
+    });
+  }
+
+  // Clinic Holidays Management
+  Future<void> fetchClinicHolidays() async {
+    await _performAction(() async {
+      _clinicHolidays = await _repository.getClinicHolidays();
+    });
+  }
+
+  Future<void> addClinicHoliday(String date, String description) async {
+    await _performAction(() async {
+      await _repository.addClinicHoliday(date, description);
+      _clinicHolidays = await _repository.getClinicHolidays();
+    });
+  }
+
+  // Doctor Leaves Management
+  Future<void> fetchDoctorLeaves({int? doctorId}) async {
+    await _performAction(() async {
+      _doctorLeaves = await _repository.getDoctorLeaves(doctorId: doctorId);
+    });
+  }
+
+  Future<void> addDoctorLeave(int doctorId, String date, String reason) async {
+    await _performAction(() async {
+      await _repository.addDoctorLeave(doctorId, date, reason);
+      _doctorLeaves = await _repository.getDoctorLeaves();
     });
   }
 }
