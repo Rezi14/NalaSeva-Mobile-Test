@@ -42,9 +42,9 @@ class BookingDetailScreen extends StatelessWidget {
       if (queue.positionWaiting != null) {
         queuePosition = queue.positionWaiting!;
       } else {
-        final match = RegExp(r'\d+').firstMatch(queue.queueNumber);
+        final match = RegExp(r'(\d+)\u0000?\$').firstMatch(queue.queueNumber);
         if (match != null) {
-          final numVal = int.tryParse(match.group(0) ?? '');
+          final numVal = int.tryParse(match.group(1) ?? '');
           if (numVal != null) {
               queuePosition = numVal > 0 ? numVal - 1 : 0;
           }

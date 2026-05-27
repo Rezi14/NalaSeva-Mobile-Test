@@ -13,6 +13,7 @@ import '../widgets/booking_dropdown_card.dart';
 import '../widgets/booking_result_dialog.dart';
 import '../../../core/utils/app_logger.dart';
 import '../../../core/utils/date_time_parser.dart';
+import 'package:intl/intl.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -222,7 +223,7 @@ class _BookingScreenState extends State<BookingScreen> {
                              if (schedules.isEmpty) return;
                              final selectedSchedule = schedules.first;
                              final targetDayOfWeek = _getDayOfWeekInt(selectedSchedule.dayOfWeek);
-                            final selDateStr = selectedDate.toIso8601String().split('T')[0];
+                            final selDateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
                             final isSelHoliday = provider.clinicHolidays.contains(selDateStr);
                             final isSelLeave = provider.doctorLeaves.contains(selDateStr);
                             final initialDate = (selectedDate.weekday == targetDayOfWeek && !isSelHoliday && !isSelLeave)
@@ -240,7 +241,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               firstDate: DateTime.now().add(const Duration(days: 1)),
                               lastDate: adjustedLastDate,
                               selectableDayPredicate: (date) {
-                                final dateStr = date.toIso8601String().split('T')[0];
+                                final dateStr = DateFormat('yyyy-MM-dd').format(date);
                                 final isHoliday = provider.clinicHolidays.contains(dateStr);
                                 final isLeave = provider.doctorLeaves.contains(dateStr);
                                 return date.weekday == targetDayOfWeek && !isHoliday && !isLeave;
@@ -415,7 +416,7 @@ class _BookingScreenState extends State<BookingScreen> {
     }
 
     // Cek apakah pasien sudah memiliki antrean aktif pada tanggal kunjungan yang sama lintas poliklinik (Tugas 1)
-    final selectedDateStr = selectedDate.toIso8601String().split('T')[0];
+    final selectedDateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
     final hasActiveBookingOnSameDate = provider.myQueues.any((q) => 
         q.date == selectedDateStr &&
         q.status != QueueStatus.completed &&
@@ -460,7 +461,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
     // Proteksi tanggal di masa lalu atau jam praktik hari ini yang sudah terlewat (Tugas 2)
     final now = DateTime.now();
-    final todayStr = now.toIso8601String().split('T')[0];
+    final todayStr = DateFormat('yyyy-MM-dd').format(now);
     final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
     final todayOnly = DateTime(now.year, now.month, now.day);
     
@@ -540,7 +541,7 @@ class _BookingScreenState extends State<BookingScreen> {
     final maxDate = DateTime.now().add(const Duration(days: 90)); // Batas pencarian 90 hari
     while (date.isBefore(maxDate)) {
       if (date.weekday == targetWeekday) {
-        final dateStr = date.toIso8601String().split('T')[0];
+        final dateStr = DateFormat('yyyy-MM-dd').format(date);
         final isHoliday = provider.clinicHolidays.contains(dateStr);
         final isLeave = provider.doctorLeaves.contains(dateStr);
         if (!isHoliday && !isLeave) {

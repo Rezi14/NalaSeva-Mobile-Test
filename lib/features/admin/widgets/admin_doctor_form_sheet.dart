@@ -381,7 +381,7 @@ class AdminDoctorFormSheet {
                               confirmText: isEdit ? 'YA, UPDATE' : 'YA, SIMPAN',
                               cancelText: 'BATAL',
                             );
-                            if (confirm != true) return;
+                            if (!(confirm ?? false)) return;
 
                             final data = {
                               'name': nameController.text.trim(),

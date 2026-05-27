@@ -222,7 +222,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                                         confirmText: 'YA, SIMPAN',
                                         cancelText: 'BATAL',
                                       );
-                                      if (confirm != true) return;
+                                      if (!(confirm ?? false)) return;
 
                                       setModalState(() => isSaving = true);
                                       try {

@@ -568,7 +568,7 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                               cancelText: 'BATAL',
                             );
                             if (!context.mounted) return;
-                            if (confirm != true) return;
+                            if (!(confirm ?? false)) return;
 
                             setModalState(() => isSaving = true);
                             try {

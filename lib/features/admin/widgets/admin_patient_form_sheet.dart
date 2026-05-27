@@ -305,7 +305,7 @@ class AdminPatientFormSheet {
                                     confirmText: 'YA, DAFTAR',
                                     cancelText: 'BATAL',
                                   );
-                                  if (confirm != true) return;
+                                  if (!(confirm ?? false)) return;
 
                                   final birthStr = DateFormat('yyyy-MM-dd').format(selectedBirthDate!);
                                   final nik = nikController.text.trim();

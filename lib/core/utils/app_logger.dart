@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 class AppLogger {
   static void info(String message, {String? tag}) {
@@ -25,7 +26,7 @@ class AppLogger {
 
   static void _log(String level, String message, String? tag) {
     final prefix = tag != null ? '[$level][$tag]' : '[$level]';
-    final timestamp = DateTime.now().toIso8601String().substring(11, 19);
+    final timestamp = DateFormat('HH:mm:ss').format(DateTime.now());
     debugPrint('$timestamp $prefix: $message');
   }
 }

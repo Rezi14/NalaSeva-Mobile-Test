@@ -652,7 +652,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                               cancelText: 'BATAL',
                             );
                             
-                            if (confirm != true) return;
+                            if (!(confirm ?? false)) return;
                             
                             final data = {
                               'name': nameController.text.trim(),

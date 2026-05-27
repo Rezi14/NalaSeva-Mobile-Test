@@ -421,7 +421,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                           confirmText: isEdit ? 'YA, UPDATE' : 'YA, SIMPAN',
                           cancelText: 'BATAL',
                         );
-                        if (confirm != true) return;
+                        if (!(confirm ?? false)) return;
 
                         final data = {
                           'name': nameController.text.trim(),
@@ -512,8 +512,8 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
     String latestEnd = '00:00';
     
     for (var s in polySchedules) {
-      final sStart = s.startTime.substring(0, 5);
-      final sEnd = s.endTime.substring(0, 5);
+      final sStart = s.startTime.length >= 5 ? s.startTime.substring(0, 5) : s.startTime;
+      final sEnd = s.endTime.length >= 5 ? s.endTime.substring(0, 5) : s.endTime;
       
       if (sStart.compareTo(earliestStart) < 0) {
         earliestStart = sStart;

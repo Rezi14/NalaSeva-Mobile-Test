@@ -282,7 +282,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                                         confirmText: 'YA, DAFTARKAN',
                                         cancelText: 'BATAL',
                                       );
-                                      if (confirm != true) return;
+                                      if (!(confirm ?? false)) return;
 
                                       setModalState(() => isSaving = true);
                                       try {

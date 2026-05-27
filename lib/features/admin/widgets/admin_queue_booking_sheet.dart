@@ -306,13 +306,13 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                             confirmText: 'YA, DAFTAR',
                             cancelText: 'BATAL',
                           );
-                                  if (confirm != true) return;
+                          if (!(confirm ?? false)) return;
 
-                                  final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-                                  final doc = provider.doctors.firstWhere(
-                                    (d) => d.id == _selectedSchedule!.doctorId,
-                                    orElse: () => _selectedSchedule?.doctor ?? DoctorModel(id: _selectedSchedule?.doctorId ?? 0, userId: 0),
-                                  );
+                          final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+                          final doc = provider.doctors.firstWhere(
+                            (d) => d.id == _selectedSchedule!.doctorId,
+                            orElse: () => _selectedSchedule?.doctor ?? DoctorModel(id: _selectedSchedule?.doctorId ?? 0, userId: 0),
+                          );
 
                           final data = {
                             'patient_id': widget.patient.id,

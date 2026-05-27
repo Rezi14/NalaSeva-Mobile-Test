@@ -7,6 +7,7 @@ import '../../../shared/models/schedule_model.dart';
 import '../../../shared/models/doctor_model.dart';
 
 import '../../../core/utils/error_parser.dart';
+import 'package:intl/intl.dart';
 
 class PatientRepository {
   final ApiClient _apiClient;
@@ -120,7 +121,11 @@ class PatientRepository {
       final List data = response.data['data'];
       return data.map((e) {
         final rawDate = e['holiday_date']?.toString() ?? '';
-        return rawDate.split(' ')[0].split('T')[0];
+        final normalized = DateTime.tryParse(rawDate.replaceAll(' ', 'T'));
+        if (normalized != null) return DateFormat('yyyy-MM-dd').format(normalized);
+        final parts = rawDate.split(' ');
+        final datePart = parts.isNotEmpty ? parts[0] : rawDate;
+        return datePart.split('T')[0];
       }).where((d) => d.isNotEmpty).toList();
     } on DioException catch (e) {
       throw _errorMessage(e, 'Gagal mengambil hari libur');
@@ -134,7 +139,11 @@ class PatientRepository {
       final List data = response.data['data'];
       return data.map((e) {
         final rawDate = e['leave_date']?.toString() ?? '';
-        return rawDate.split(' ')[0].split('T')[0];
+        final normalized = DateTime.tryParse(rawDate.replaceAll(' ', 'T'));
+        if (normalized != null) return DateFormat('yyyy-MM-dd').format(normalized);
+        final parts = rawDate.split(' ');
+        final datePart = parts.isNotEmpty ? parts[0] : rawDate;
+        return datePart.split('T')[0];
       }).where((d) => d.isNotEmpty).toList();
     } on DioException catch (e) {
       throw _errorMessage(e, 'Gagal mengambil cuti dokter');
