@@ -55,7 +55,7 @@ class PatientProvider extends ChangeNotifier {
       
       List<QueueModel> validatedQueues = [];
       for (var q in queues) {
-        if (q.status != QueueStatus.completed && q.status != QueueStatus.cancelled) {
+        if (q.status.isActive) {
           final isHoliday = holidays.contains(q.date);
           if (isHoliday) {
             try {

@@ -60,6 +60,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
+        resizeToAvoidBottomInset: false,
         body: Column(
           children: [
             // Premium Header with smooth bottom-up stagger
@@ -290,7 +291,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
     final activeQueues = provider.queues.where((q) =>
       doctorsInPoly.contains(q.doctorId) &&
       q.status != QueueStatus.completed &&
-      q.status != QueueStatus.cancelled
+      q.status.isActive
     ).toList();
 
     if (activeQueues.isNotEmpty) {

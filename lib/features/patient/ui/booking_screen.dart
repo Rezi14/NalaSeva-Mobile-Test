@@ -6,7 +6,6 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../logic/patient_provider.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../shared/constants/app_constants.dart';
 import '../../../shared/models/doctor_model.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../widgets/booking_dropdown_card.dart';
@@ -238,7 +237,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             final picked = await showDatePicker(
                               context: context,
                               initialDate: initialDate,
-                              firstDate: DateTime.now().add(const Duration(days: 1)),
+                              firstDate: DateTime.now(),
                               lastDate: adjustedLastDate,
                               selectableDayPredicate: (date) {
                                 final dateStr = DateFormat('yyyy-MM-dd').format(date);
@@ -403,8 +402,7 @@ class _BookingScreenState extends State<BookingScreen> {
     // Cek apakah pasien sudah memiliki booking aktif di poliklinik yang sama
     final hasActiveBookingInSamePoly = provider.myQueues.any((q) => 
         q.polyclinic.id == selectedPolyId &&
-        q.status != QueueStatus.completed &&
-        q.status != QueueStatus.cancelled
+        q.status.isActive
     );
 
     if (hasActiveBookingInSamePoly) {
@@ -419,8 +417,7 @@ class _BookingScreenState extends State<BookingScreen> {
     final selectedDateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
     final hasActiveBookingOnSameDate = provider.myQueues.any((q) => 
         q.date == selectedDateStr &&
-        q.status != QueueStatus.completed &&
-        q.status != QueueStatus.cancelled
+        q.status.isActive
     );
 
     if (hasActiveBookingOnSameDate) {
@@ -439,25 +436,8 @@ class _BookingScreenState extends State<BookingScreen> {
     final selectedSchedule = schedules.first;
     final doctorId = selectedSchedule.doctorId;
 
-    // Validasi kuota maksimal per jadwal sebelum booking
+    // Kuota maksimal dihitung di client dan dikirim ke backend untuk divalidasi (pertahanan di server)
     final quota = _calculateQuota(selectedSchedule.startTime, selectedSchedule.endTime);
-    if (quota != null && quota > 0) {
-      // Hitung jumlah antrean aktif yang sudah ada pada dokter+tanggal yang sama
-      final existingBookingsForSchedule = provider.myQueues.where((q) =>
-          q.doctorId == doctorId &&
-          q.date == selectedDateStr &&
-          q.status != QueueStatus.completed &&
-          q.status != QueueStatus.cancelled
-      ).length;
-
-      if (existingBookingsForSchedule >= quota) {
-        _showResultDialog(
-          false,
-          'Kuota jadwal dokter ini sudah penuh ($quota pasien). Silakan pilih jadwal atau tanggal lain.',
-        );
-        return;
-      }
-    }
 
     // Proteksi tanggal di masa lalu atau jam praktik hari ini yang sudah terlewat (Tugas 2)
     final now = DateTime.now();
@@ -516,6 +496,7 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
+
   int _getDayOfWeekInt(String indonesianDay) {
     switch (indonesianDay.toLowerCase()) {
       case 'senin': return DateTime.monday;
@@ -537,7 +518,7 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   DateTime? _getNearestDateForWeekday(int targetWeekday, PatientProvider provider) {
-    DateTime date = DateTime.now().add(const Duration(days: 1));
+    DateTime date = DateTime.now();
     final maxDate = DateTime.now().add(const Duration(days: 90)); // Batas pencarian 90 hari
     while (date.isBefore(maxDate)) {
       if (date.weekday == targetWeekday) {

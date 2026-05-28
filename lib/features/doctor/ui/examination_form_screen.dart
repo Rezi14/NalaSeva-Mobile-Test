@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../logic/doctor_provider.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../shared/models/queue_model.dart';
-import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../widgets/doctor_history_row.dart';
@@ -77,9 +76,7 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
       await provider.fetchMyQueues();
       final freshQueue = provider.queues.where((q) => q.id == queue.id).firstOrNull;
 
-      if (freshQueue == null || 
-          freshQueue.status == QueueStatus.completed || 
-          freshQueue.status == QueueStatus.cancelled) {
+        if (freshQueue == null || freshQueue.status.isTerminal) {
         if (mounted) {
           AppDialogs.showNotificationDialog(
             context,

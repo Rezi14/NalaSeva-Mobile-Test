@@ -55,8 +55,9 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-        body: Column(
-          children: [
+      resizeToAvoidBottomInset: false,
+      body: Column(
+        children: [
             // Premium Header with smooth bottom-up stagger
             FadeIn(
               duration: const Duration(milliseconds: 400),

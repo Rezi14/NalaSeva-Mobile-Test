@@ -57,6 +57,8 @@ class _PatientDashboardState extends State<PatientDashboard> {
       ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
       : 'PS';
 
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -192,10 +194,10 @@ class _PatientDashboardState extends State<PatientDashboard> {
                           GridView.count(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            crossAxisCount: 2,
+                            crossAxisCount: screenWidth >= 600 ? 4 : 2,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 1.5,
+                            childAspectRatio: screenWidth >= 600 ? 1.8 : 1.5,
                             children: [
                               ServiceCard(
                                 label: 'Ambil Antrean',
@@ -252,31 +254,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                         ),
                       ),
                     ),
-                    
-                    const SizedBox(height: 40),
-                    
-                    // Logout Option
-                    Center(
-                      child: TextButton(
-                        onPressed: () async {
-                          final confirm = await AppDialogs.showConfirmationDialog(
-                            context,
-                            'Konfirmasi Keluar',
-                            'Apakah Anda yakin ingin keluar dari akun Anda?',
-                            confirmText: 'KELUAR',
-                            isDestructive: true,
-                          );
-                          if ((confirm ?? false) && context.mounted) {
-                            context.read<AuthProvider>().logout();
-                            Navigator.pushReplacementNamed(context, '/');
-                          }
-                        },
-                        child: Text(
-                          'Keluar dari Aplikasi',
-                          style: TextStyle(color: Colors.grey.shade400),
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),

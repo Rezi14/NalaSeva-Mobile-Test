@@ -23,6 +23,8 @@ class DoctorDashboard extends StatefulWidget {
 }
 
 class _DoctorDashboardState extends State<DoctorDashboard> {
+  bool _statusSynced = false;
+
   @override
   void initState() {
     super.initState();
@@ -31,7 +33,17 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       provider.fetchMyQueues();
       provider.fetchMedicalRecords();
       provider.addListener(_onProviderError);
-      context.read<AuthProvider>().checkAuth();
+      
+      final authProvider = context.read<AuthProvider>();
+      authProvider.checkAuth().then((_) {
+        if (mounted) {
+          final user = authProvider.user;
+          if (user != null && user.role == 'doctor' && user.isOnline != null) {
+            provider.setOnlineStatus(user.isOnline!);
+            _statusSynced = true;
+          }
+        }
+      });
     });
   }
 
@@ -57,6 +69,17 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
     final provider = context.watch<DoctorProvider>();
+
+    if (user != null && user.role == 'doctor' && user.isOnline != null && !_statusSynced) {
+      _statusSynced = true;
+      final doctorProvider = context.read<DoctorProvider>();
+      Future.microtask(() {
+        if (mounted) {
+          doctorProvider.setOnlineStatus(user.isOnline!);
+        }
+      });
+    }
+
     final initials = (user?.name ?? '').isNotEmpty
       ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
       : 'DR';
@@ -161,10 +184,16 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
+                final authProvider = context.read<AuthProvider>();
                 await Future.wait([
                   provider.fetchMyQueues(),
                   provider.fetchMedicalRecords(),
+                  authProvider.checkAuth(),
                 ]);
+                final user = authProvider.user;
+                if (user != null && user.role == 'doctor' && user.isOnline != null) {
+                  provider.setOnlineStatus(user.isOnline!);
+                }
               },
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),

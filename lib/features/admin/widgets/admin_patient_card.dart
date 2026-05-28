@@ -46,6 +46,10 @@ class AdminPatientCard extends StatelessWidget {
         statusColor = AppTheme.cancelColor;
         statusBg = AppTheme.cancelColor.withValues(alpha: 0.1);
         break;
+      case QueueStatus.unknown:
+        statusColor = Colors.grey;
+        statusBg = Colors.grey.withValues(alpha: 0.1);
+        break;
     }
 
     return InkWell(

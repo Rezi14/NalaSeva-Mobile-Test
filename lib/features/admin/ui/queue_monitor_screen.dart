@@ -186,9 +186,37 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
     final provider = context.watch<AdminProvider>();
     final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
     
-    // Tampilan responsive grid (3 kolom jika landscape TV, 1 kolom jika mobile/portrait)
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    final crossAxisCount = isLandscape ? 3 : 1;
+    final mediaQuery = MediaQuery.of(context);
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final screenWidth = mediaQuery.size.width;
+    
+    // Dynamic column counting based on screen width
+    int crossAxisCount = 1;
+    if (screenWidth >= 1200) {
+      crossAxisCount = 3;
+    } else if (screenWidth >= 768) {
+      crossAxisCount = 2;
+    } else {
+      crossAxisCount = 1;
+    }
+
+    // Dynamic aspect ratio calculation to prevent vertical/horizontal overlaps
+    double childAspectRatio = 1.25;
+    if (isLandscape) {
+      if (screenWidth >= 1200) {
+        childAspectRatio = 1.3;
+      } else {
+        childAspectRatio = 1.4;
+      }
+    } else {
+      if (screenWidth >= 600) {
+        childAspectRatio = 1.6;
+      } else {
+        childAspectRatio = 1.3;
+      }
+    }
+
+    final isCompactHeader = screenWidth < 680;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A), // Premium Dark Theme (Deep Slate)
@@ -198,7 +226,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
             // Main content
             Column(
               children: [
-                // Header TV
+                // Header TV - Highly responsive layout
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   decoration: BoxDecoration(
@@ -211,73 +239,157 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                       ),
                     ],
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Logo & Title
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.tv_rounded,
-                              color: AppTheme.primaryColor,
-                              size: 28,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'NALASEVA MONITOR ANTREAN',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: isLandscape ? 20 : 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  letterSpacing: 0.5,
+                  child: isCompactHeader
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.tv_rounded,
+                                    color: AppTheme.primaryColor,
+                                    size: 24,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'Monitoring antrean real-time & otomatis',
-                                style: GoogleFonts.inter(
-                                  fontSize: isLandscape ? 12 : 10,
-                                  color: Colors.grey.shade400,
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'NALASEVA MONITOR ANTREAN',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Monitoring antrean real-time & otomatis',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 10,
+                                          color: Colors.grey.shade400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '$_currentDate WIB',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 11,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  _currentTime,
+                                  style: GoogleFonts.shareTechMono(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Logo & Title
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      Icons.tv_rounded,
+                                      color: AppTheme.primaryColor,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'NALASEVA MONITOR ANTREAN',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Monitoring antrean real-time & otomatis',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      // Clock & Date
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            _currentTime,
-                            style: GoogleFonts.shareTechMono(
-                              fontSize: isLandscape ? 26 : 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryColor,
                             ),
-                          ),
-                          Text(
-                            '$_currentDate WIB',
-                            style: GoogleFonts.inter(
-                              fontSize: isLandscape ? 12 : 10,
-                              color: Colors.grey.shade400,
+                            const SizedBox(width: 24),
+                            // Clock & Date
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  _currentTime,
+                                  style: GoogleFonts.shareTechMono(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                ),
+                                Text(
+                                  '$_currentDate WIB',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          ],
+                        ),
                 ),
-
+ 
                 // Grid Poliklinik
                 Expanded(
                   child: provider.isLoading && provider.polyclinics.isEmpty
@@ -288,7 +400,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                             crossAxisCount: crossAxisCount,
                             crossAxisSpacing: 20,
                             mainAxisSpacing: 20,
-                            childAspectRatio: isLandscape ? 1.15 : 1.25,
+                            childAspectRatio: childAspectRatio,
                           ),
                           itemCount: provider.polyclinics.length,
                           itemBuilder: (context, index) {
@@ -298,7 +410,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                             final polyQueues = provider.queues.where((q) => 
                               q.polyclinic.id == poly.id && q.date == todayStr
                             ).toList();
-
+ 
                             // Cari antrean yang SEDANG DIPERIKSA (Examining)
                             final examiningQueue = polyQueues.firstWhere(
                               (q) => q.status == QueueStatus.examining,
@@ -311,12 +423,12 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                                 polyclinic: poly,
                               ),
                             );
-
+ 
                             // Ambil daftar antrean yang SEDANG MENUNGGU (Waiting)
                             final waitingQueues = polyQueues.where((q) => 
                               q.status == QueueStatus.waiting
                             ).toList();
-
+ 
                             return FadeInUp(
                               duration: Duration(milliseconds: 300 + (index * 100)),
                               child: AdminPolyclinicCard(
@@ -347,14 +459,19 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
 
 
   Widget _buildCallOverlay(QueueModel q) {
+    final mediaQuery = MediaQuery.of(context);
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final screenHeight = mediaQuery.size.height;
+    
     return Container(
       color: Colors.black.withValues(alpha: 0.95), // Gelap total agar pop-up sangat stand out
       child: Center(
         child: ZoomIn(
           duration: const Duration(milliseconds: 500),
           child: Container(
-            width: 600,
-            padding: const EdgeInsets.all(48),
+            width: isLandscape ? 600 : double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: EdgeInsets.all(isLandscape ? 32 : 24),
             decoration: BoxDecoration(
               color: const Color(0xFF1E293B),
               borderRadius: BorderRadius.circular(36),
@@ -367,59 +484,65 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                 ),
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _PulseSpeaker(),
-                const SizedBox(height: 36),
-                Text(
-                  'PANGGILAN PASIEN',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor,
-                    letterSpacing: 4.0,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Pulse Speaker
+                  SizedBox(
+                    height: (screenHeight * 0.2).clamp(60.0, 120.0),
+                    child: FittedBox(child: _PulseSpeaker()),
                   ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  q.queueNumber,
-                  style: GoogleFonts.orbitron(
-                    fontSize: 84,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  q.patient.fullName.toUpperCase(),
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.3), width: 1.5),
-                  ),
-                  child: Text(
-                    q.polyclinic.name.toUpperCase(),
-                    textAlign: TextAlign.center,
+                  SizedBox(height: (screenHeight * 0.05).clamp(12.0, 36.0)),
+                  Text(
+                    'PANGGILAN PASIEN',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 20,
+                      fontSize: (screenHeight * 0.035).clamp(12.0, 18.0),
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primaryColor,
+                      letterSpacing: 4.0,
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: (screenHeight * 0.03).clamp(8.0, 24.0)),
+                  Text(
+                    q.queueNumber,
+                    style: GoogleFonts.orbitron(
+                      fontSize: (screenHeight * 0.15).clamp(48.0, 84.0),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                  SizedBox(height: (screenHeight * 0.02).clamp(6.0, 16.0)),
+                  Text(
+                    q.patient.fullName.toUpperCase(),
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: (screenHeight * 0.05).clamp(18.0, 28.0),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: (screenHeight * 0.04).clamp(12.0, 32.0)),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.3), width: 1.5),
+                    ),
+                    child: Text(
+                      q.polyclinic.name.toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: (screenHeight * 0.035).clamp(14.0, 20.0),
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -428,14 +551,17 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
   }
 
   Widget _buildErrorOverlay() {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final mediaQuery = MediaQuery.of(context);
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final screenHeight = mediaQuery.size.height;
+    
     return Container(
       color: Colors.black.withValues(alpha: 0.85),
       child: Center(
         child: Container(
           width: isLandscape ? 500 : double.infinity,
-          margin: const EdgeInsets.symmetric(horizontal: 32),
-          padding: const EdgeInsets.all(32),
+          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: EdgeInsets.all(isLandscape ? 32 : 24),
           decoration: BoxDecoration(
             color: const Color(0xFF1E293B),
             borderRadius: BorderRadius.circular(28),
@@ -448,78 +574,80 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
               ),
             ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.lock_person_rounded,
-                  color: Colors.redAccent,
-                  size: 56,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'AUTENTIKASI DIPERLUKAN',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _errorMessage ?? '',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  color: Colors.white70,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => _loadData(),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white24, width: 1.5),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text('COBA LAGI'),
-                    ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text('MASUK ADMIN'),
-                    ),
+                  child: Icon(
+                    Icons.lock_person_rounded,
+                    color: Colors.redAccent,
+                    size: (screenHeight * 0.08).clamp(36.0, 56.0),
                   ),
-                ],
-              ),
-            ],
+                ),
+                SizedBox(height: (screenHeight * 0.03).clamp(12.0, 24.0)),
+                Text(
+                  'AUTENTIKASI DIPERLUKAN',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: (screenHeight * 0.035).clamp(16.0, 20.0),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                SizedBox(height: (screenHeight * 0.025).clamp(8.0, 16.0)),
+                Text(
+                  _errorMessage ?? '',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: (screenHeight * 0.024).clamp(12.0, 14.0),
+                    color: Colors.white70,
+                    height: 1.5,
+                  ),
+                ),
+                SizedBox(height: (screenHeight * 0.04).clamp(16.0, 32.0)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => _loadData(),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.white24, width: 1.5),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text('COBA LAGI'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text('MASUK ADMIN'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

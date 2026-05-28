@@ -104,7 +104,7 @@ class MedicalRecordDetailScreen extends StatelessWidget {
                           const SizedBox(height: 16),
                           _detailCard('Tindakan', examination!.treatment, AppTheme.accentColor),
                           const SizedBox(height: 16),
-                          _detailCard('Catatan Tambahan', examination!.complaint, AppTheme.primaryColor),
+                          _detailCard('Catatan Tambahan', examination!.complaint, AppTheme.secondaryColor),
                         ],
                       ),
                     ),

@@ -45,6 +45,10 @@ class AdminQueueTile extends StatelessWidget {
         badgeColor = AppTheme.cancelColor.withValues(alpha: 0.1);
         textColor = AppTheme.cancelColor;
         break;
+      case QueueStatus.unknown:
+        badgeColor = Colors.grey.withValues(alpha: 0.1);
+        textColor = Colors.grey;
+        break;
     }
 
     return InkWell(

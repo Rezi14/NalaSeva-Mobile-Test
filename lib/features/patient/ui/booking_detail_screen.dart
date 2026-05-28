@@ -35,14 +35,14 @@ class BookingDetailScreen extends StatelessWidget {
     if (queue.status == QueueStatus.examining) {
       queuePosition = 0;
       estimatedTime = 0;
-    } else if (queue.status == QueueStatus.completed || queue.status == QueueStatus.cancelled) {
+    } else if (queue.status.isTerminal) {
       queuePosition = 0;
       estimatedTime = 0;
     } else {
       if (queue.positionWaiting != null) {
         queuePosition = queue.positionWaiting!;
       } else {
-        final match = RegExp(r'(\d+)\u0000?\$').firstMatch(queue.queueNumber);
+        final match = RegExp(r'(\d+)\u0000?$').firstMatch(queue.queueNumber);
         if (match != null) {
           final numVal = int.tryParse(match.group(1) ?? '');
           if (numVal != null) {
@@ -502,7 +502,7 @@ class BookingDetailScreen extends StatelessWidget {
   }
 
   bool _isCancellationLocked(QueueModel queue) {
-    if (queue.status == QueueStatus.completed || queue.status == QueueStatus.cancelled) {
+    if (queue.status.isTerminal) {
       return true;
     }
     

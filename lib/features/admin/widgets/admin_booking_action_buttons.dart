@@ -112,6 +112,12 @@ class AdminBookingActionButtons extends StatelessWidget {
         label: 'ANTREAN TELAH DIBATALKAN',
         color: Colors.grey,
       );
+    } else if (queue.status == QueueStatus.unknown) {
+      return _statusBanner(
+        icon: Icons.help_outline_rounded,
+        label: 'STATUS ANTREAN TIDAK DIKENAL',
+        color: Colors.grey,
+      );
     }
     return const SizedBox.shrink();
   }

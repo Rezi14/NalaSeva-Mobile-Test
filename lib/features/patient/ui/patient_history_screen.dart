@@ -390,70 +390,103 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
         ? DateFormat('dd MMM yyyy').format(exam.createdAt!.toLocal())
         : '-';
 
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MedicalRecordDetailScreen(
-              queue: queue,
-              examination: exam,
+    // Format doctor name cleanly to avoid double "Dr." prefix
+    final rawDocName = exam.doctorName.trim();
+    final formattedDocName = (rawDocName.toLowerCase().startsWith('dr.') || rawDocName.toLowerCase().startsWith('dr. '))
+        ? rawDocName
+        : 'Dr. $rawDocName';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppTheme.secondaryColor.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.secondaryColor.withValues(alpha: 0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.secondaryColor.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MedicalRecordDetailScreen(
+                  queue: queue,
+                  examination: exam,
+                ),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.secondaryColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.medical_information_rounded,
+                    color: AppTheme.primaryColor,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        dateStr,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        exam.diagnosis,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        formattedDocName,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppTheme.secondaryColor,
+                  size: 22,
+                ),
+              ],
             ),
           ),
-        );
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade100),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(Icons.medical_information_rounded, color: AppTheme.primaryColor, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    dateStr,
-                    style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    exam.diagnosis,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Dr. ${exam.doctorName}',
-                    style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
-          ],
         ),
       ),
     );

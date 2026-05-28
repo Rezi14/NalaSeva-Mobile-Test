@@ -23,6 +23,13 @@ class DoctorProvider extends ChangeNotifier {
   List<ExaminationModel> get patientHistory => _patientHistory;
   List<ExaminationModel> get medicalRecords => _medicalRecords;
 
+  void setOnlineStatus(bool value) {
+    if (_isOnline != value) {
+      _isOnline = value;
+      notifyListeners();
+    }
+  }
+
   Future<void> toggleOnlineStatus() async {
     final newStatus = !_isOnline;
     await _performAction(() async {

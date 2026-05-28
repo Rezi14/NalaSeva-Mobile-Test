@@ -28,10 +28,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     final provider = context.watch<PatientProvider>();
 
     final activeQueues = provider.myQueues
-        .where((q) =>
-            q.status != QueueStatus.completed &&
-            q.status != QueueStatus.cancelled)
-        .toList();
+      .where((q) => q.status.isActive)
+      .toList();
     final completedQueues = provider.myQueues
         .where((q) => q.status == QueueStatus.completed)
         .toList();

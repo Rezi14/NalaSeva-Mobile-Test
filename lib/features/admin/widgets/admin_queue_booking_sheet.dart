@@ -43,6 +43,8 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
       provider.fetchPolyclinics();
       provider.fetchSchedules();
       provider.fetchDoctors();
+      provider.fetchClinicHolidays();
+      provider.fetchDoctorLeaves();
     });
   }
 
@@ -57,6 +59,28 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
       case DateTime.sunday: return 'Minggu';
       default: return '';
     }
+  }
+
+  String _dateKey(DateTime date) {
+    return DateFormat('yyyy-MM-dd').format(date);
+  }
+
+  bool _isBlockedByClinicHoliday(List<Map<String, dynamic>> holidays, DateTime date) {
+    final targetDate = _dateKey(date);
+    return holidays.any((holiday) => _dateKey(DateTime.parse(holiday['holiday_date'].toString())).compareTo(targetDate) == 0);
+  }
+
+  bool _isBlockedByDoctorLeave(List<Map<String, dynamic>> leaves, int doctorId, DateTime date) {
+    final targetDate = _dateKey(date);
+    return leaves.any((leave) {
+      final leaveDoctorId = int.tryParse(leave['doctor_id']?.toString() ?? '') ?? 0;
+      if (leaveDoctorId != doctorId) return false;
+      final leaveDateRaw = leave['leave_date']?.toString() ?? '';
+      if (leaveDateRaw.isEmpty) return false;
+      final leaveDate = DateTime.tryParse(leaveDateRaw.replaceAll(' ', 'T'));
+      final normalized = leaveDate != null ? _dateKey(leaveDate) : leaveDateRaw.split('T').first.split(' ').first;
+      return normalized == targetDate;
+    });
   }
 
   @override
@@ -307,12 +331,37 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                             cancelText: 'BATAL',
                           );
                           if (!(confirm ?? false)) return;
+                          if (!context.mounted) return;
 
                           final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
                           final doc = provider.doctors.firstWhere(
                             (d) => d.id == _selectedSchedule!.doctorId,
                             orElse: () => _selectedSchedule?.doctor ?? DoctorModel(id: _selectedSchedule?.doctorId ?? 0, userId: 0),
                           );
+
+                          if (_isBlockedByClinicHoliday(provider.clinicHolidays, _selectedDate!)) {
+                            if (context.mounted) {
+                              AppDialogs.showNotificationDialog(
+                                context,
+                                'Tanggal Tidak Tersedia',
+                                'Tanggal kunjungan tersebut merupakan hari libur puskesmas.',
+                                isError: true,
+                              );
+                            }
+                            return;
+                          }
+
+                          if (_isBlockedByDoctorLeave(provider.doctorLeaves, doc.id, _selectedDate!)) {
+                            if (context.mounted) {
+                              AppDialogs.showNotificationDialog(
+                                context,
+                                'Tanggal Tidak Tersedia',
+                                'Dokter yang dipilih sedang cuti pada tanggal tersebut.',
+                                isError: true,
+                              );
+                            }
+                            return;
+                          }
 
                           final data = {
                             'patient_id': widget.patient.id,

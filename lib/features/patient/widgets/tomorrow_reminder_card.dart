@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
-import '../../../shared/constants/app_constants.dart';
 import '../logic/patient_provider.dart';
 
 class TomorrowReminderCard extends StatelessWidget {
@@ -16,8 +15,7 @@ class TomorrowReminderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tomorrowStr = DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 1)));
-    final activeQueues = provider.myQueues.where((q) => 
-        q.status != QueueStatus.completed && q.status != QueueStatus.cancelled).toList();
+    final activeQueues = provider.myQueues.where((q) => q.status.isActive).toList();
         
     final tomorrowQueues = activeQueues.where((q) => q.date == tomorrowStr).toList();
     if (tomorrowQueues.isEmpty) {

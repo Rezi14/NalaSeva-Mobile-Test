@@ -28,9 +28,12 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AdminProvider>().fetchDoctors();
-      context.read<AdminProvider>().fetchPolyclinics();
-      context.read<AdminProvider>().fetchQueues();
+      final provider = context.read<AdminProvider>();
+      provider.fetchDoctors();
+      provider.fetchPolyclinics();
+      provider.fetchQueues();
+      provider.fetchSchedules();
+      provider.fetchDoctorLeaves();
     });
   }
 
@@ -48,6 +51,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
+        resizeToAvoidBottomInset: false,
         body: Column(
           children: [
             // Premium Header with smooth bottom-up stagger
@@ -188,11 +192,15 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
             ),
             
             const Divider(height: 1),
-
+ 
             // Doctor List
             Expanded(
               child: RefreshIndicator(
-                onRefresh: provider.fetchDoctors,
+                onRefresh: () async {
+                  await provider.fetchDoctors();
+                  await provider.fetchSchedules();
+                  await provider.fetchDoctorLeaves();
+                },
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
                   child: Column(
@@ -224,6 +232,8 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                               delay: Duration(milliseconds: 250 + (index * 80)),
                               child: AdminDoctorCard(
                                 doctor: doc,
+                                schedules: provider.schedules,
+                                doctorLeaves: provider.doctorLeaves,
                                 onEdit: () => AdminDoctorFormSheet.show(context, doctor: doc),
                                 onDelete: () => _confirmDeleteDoctor(context, doc),
                               ),
@@ -284,7 +294,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
     final activeQueues = provider.queues.where((q) =>
       q.doctorId == doc.id &&
       q.status != QueueStatus.completed &&
-      q.status != QueueStatus.cancelled
+      q.status.isActive
     ).toList();
 
     if (activeQueues.isNotEmpty) {

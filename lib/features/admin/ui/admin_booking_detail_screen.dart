@@ -258,7 +258,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       return;
     }
     
-    if (_currentQueue.status == QueueStatus.completed || _currentQueue.status == QueueStatus.cancelled) {
+    if (_currentQueue.status.isTerminal) {
       _onErrorMessage('Antrean yang sudah selesai atau dibatalkan tidak dapat dibatalkan lagi.');
       return;
     }
@@ -454,6 +454,10 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       case QueueStatus.cancelled:
         badgeColor = AppTheme.cancelColor.withValues(alpha: 0.1);
         textColor = AppTheme.cancelColor;
+        break;
+      case QueueStatus.unknown:
+        badgeColor = Colors.grey.withValues(alpha: 0.1);
+        textColor = Colors.grey;
         break;
     }
 

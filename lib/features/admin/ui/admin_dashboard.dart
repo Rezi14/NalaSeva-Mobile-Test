@@ -54,6 +54,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
+    final screenWidth = MediaQuery.of(context).size.width;
 
     final List<double> weeklyCounts = List.filled(7, 0.0);
     final now = DateTime.now();
@@ -281,11 +282,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: screenWidth >= 1024 ? 4 : (screenWidth >= 600 ? 3 : 2),
                               crossAxisSpacing: 16,
                               mainAxisSpacing: 16,
-                              childAspectRatio: 1.5,
+                              childAspectRatio: screenWidth >= 1024 ? 1.7 : 1.5,
                             ),
                             itemCount: provider.polyclinics.take(4).length,
                             itemBuilder: (context, index) {
@@ -433,21 +434,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 76),
-          child: FadeInRight(
-            duration: const Duration(milliseconds: 500),
-            delay: const Duration(milliseconds: 400),
-            child: FloatingActionButton.extended(
-              onPressed: () => _openScanner(context),
-              backgroundColor: AppTheme.primaryColor,
-              elevation: 4,
-              icon: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white),
-              label: Text(
-                'SCAN ABSENSI',
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 0.5,
-                ),
+          child: FloatingActionButton.extended(
+            onPressed: () => _openScanner(context),
+            backgroundColor: AppTheme.primaryColor,
+            elevation: 4,
+            icon: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white),
+            label: Text(
+              'SCAN ABSENSI',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 0.5,
               ),
             ),
           ),

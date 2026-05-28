@@ -14,6 +14,7 @@ class UserModel {
   final DateTime? birthDate;
   final String? licenseNumber;
   final String? specialization;
+  final bool? isOnline;
 
   UserModel({
     required this.id,
@@ -29,6 +30,7 @@ class UserModel {
     this.birthDate,
     this.licenseNumber,
     this.specialization,
+    this.isOnline,
   });
 
   // Getter to support UI that uses fullName
@@ -125,6 +127,19 @@ class UserModel {
         doctor?['specialization'] ?? 
         doctor?['spesialisasi'];
 
+    final isOnlineVal = json['is_online'] ?? doctor?['is_online'];
+    bool? parsedIsOnline;
+    if (isOnlineVal != null) {
+      if (isOnlineVal is bool) {
+        parsedIsOnline = isOnlineVal;
+      } else if (isOnlineVal is num) {
+        parsedIsOnline = isOnlineVal == 1;
+      } else {
+        final clean = isOnlineVal.toString().trim().toLowerCase();
+        parsedIsOnline = clean == 'true' || clean == '1' || clean == 'online' || clean == 'yes';
+      }
+    }
+
     return UserModel(
       id: json['id'] ?? 0,
       patientId: patient?['id'],
@@ -139,6 +154,7 @@ class UserModel {
       birthDate: DateTimeParser.parseDateOnly(birthDateStr?.toString()),
       licenseNumber: licenseNumberVal?.toString(),
       specialization: specializationVal?.toString(),
+      isOnline: parsedIsOnline,
     );
   }
 
@@ -157,6 +173,7 @@ class UserModel {
       'birth_date': birthDate?.toIso8601String(),
       'license_number': licenseNumber,
       'specialization': specialization,
+      'is_online': isOnline,
     };
   }
 }

@@ -35,203 +35,238 @@ class AdminPolyclinicCard extends StatelessWidget {
     final accentColor = colorSet[1];
     final cardBg = colorSet[2];
 
-    return Container(
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: hasPatient ? primaryColor.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.05),
-          width: 2.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(21.5),
-        child: Column(
-          children: [
-            // Header Card Poliklinik - Elegant Solid BG
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: BoxDecoration(
-                color: primaryColor,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Dynamic adaptive metrics based on constraints
+        final double cardHeight = constraints.maxHeight;
+        final double cardWidth = constraints.maxWidth;
+
+        final double headerPaddingH = (cardWidth * 0.05).clamp(12.0, 20.0);
+        final double headerPaddingV = (cardHeight * 0.06).clamp(8.0, 16.0);
+        final double polyFontSize = (cardHeight * 0.07).clamp(12.0, 18.0);
+        final double iconPadding = (cardHeight * 0.025).clamp(4.0, 8.0);
+        final double iconSize = (cardHeight * 0.08).clamp(14.0, 20.0);
+
+        final double bodyPadding = (cardHeight * 0.07).clamp(10.0, 20.0);
+        final double badgeFontSize = (cardHeight * 0.048).clamp(9.0, 12.0);
+        final double badgePaddingH = (cardWidth * 0.04).clamp(8.0, 14.0);
+        final double badgePaddingV = (cardHeight * 0.02).clamp(3.0, 6.0);
+        
+        final double spaceAfterBadge = (cardHeight * 0.04).clamp(6.0, 12.0);
+        final double spaceAfterNumber = (cardHeight * 0.03).clamp(4.0, 10.0);
+        
+        final double queueNumberFontSize = (cardHeight * 0.22).clamp(32.0, 56.0);
+        final double nameFontSize = (cardHeight * 0.07).clamp(12.0, 16.0);
+
+        final double footerPaddingH = (cardWidth * 0.04).clamp(10.0, 16.0);
+        final double footerPaddingV = (cardHeight * 0.05).clamp(8.0, 14.0);
+        final double footerLabelFontSize = (cardHeight * 0.048).clamp(9.0, 12.0);
+        final double footerNumberFontSize = (cardHeight * 0.052).clamp(10.0, 13.0);
+
+        return Container(
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: hasPatient ? primaryColor.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.05),
+              width: 2.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Icon + Name
-                  Expanded(
-                    child: Row(
-                      children: [
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(21.5),
+            child: Column(
+              children: [
+                // Header Card Poliklinik - Elegant Solid BG
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: headerPaddingH, vertical: headerPaddingV),
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Icon + Name
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(iconPadding),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                _getPolyIcon(polyclinic.name),
+                                color: Colors.white,
+                                size: iconSize,
+                              ),
+                            ),
+                            SizedBox(width: (cardWidth * 0.03).clamp(6.0, 12.0)),
+                            Expanded(
+                              child: Text(
+                                polyclinic.name.toUpperCase(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: polyFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Pulse Status Dot
+                      if (hasPatient)
+                        _PulseDot(color: accentColor)
+                      else
                         Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Colors.white30,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(
-                            _getPolyIcon(polyclinic.name),
-                            color: Colors.white,
-                            size: 18,
-                          ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            polyclinic.name.toUpperCase(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 1.0,
+                    ],
+                  ),
+                ),
+
+                // Body Card - Antrean Sekarang
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.transparent,
+                    ),
+                    padding: EdgeInsets.all(bodyPadding),
+                    child: Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: badgePaddingH, vertical: badgePaddingV),
+                              decoration: BoxDecoration(
+                                color: hasPatient ? primaryColor.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.02),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: hasPatient ? primaryColor.withValues(alpha: 0.25) : Colors.white12,
+                                ),
+                              ),
+                              child: Text(
+                                'ANTREAN SEKARANG',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: badgeFontSize,
+                                  fontWeight: FontWeight.w700,
+                                  color: hasPatient ? accentColor : Colors.grey.shade500,
+                                  letterSpacing: 2.0,
+                                ),
+                              ),
                             ),
-                          ),
+                            SizedBox(height: spaceAfterBadge),
+                            Text(
+                              examiningQueue.queueNumber,
+                              style: GoogleFonts.orbitron(
+                                fontSize: queueNumberFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: hasPatient ? Colors.white : Colors.grey.shade700,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            SizedBox(height: spaceAfterNumber),
+                            Text(
+                              hasPatient ? examiningQueue.patient.fullName.toUpperCase() : 'BELUM ADA PASIEN',
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: nameFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: hasPatient ? Colors.white.withValues(alpha: 0.9) : Colors.grey.shade600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  
-                  // Pulse Status Dot
-                  if (hasPatient)
-                    _PulseDot(color: accentColor)
-                  else
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        color: Colors.white30,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            // Body Card - Antrean Sekarang
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.transparent,
                 ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: hasPatient ? primaryColor.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.02),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: hasPatient ? primaryColor.withValues(alpha: 0.25) : Colors.white12,
-                        ),
-                      ),
-                      child: Text(
-                        'ANTREAN SEKARANG',
+
+                const Divider(height: 1, color: Color(0xFF334155)),
+
+                // Footer Card - Antrean Berikutnya (Waiting List)
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: footerPaddingH, vertical: footerPaddingV),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF0F172A),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Berikutnya: ',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: hasPatient ? accentColor : Colors.grey.shade500,
-                          letterSpacing: 2.0,
+                          fontSize: footerLabelFontSize, 
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade400,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      examiningQueue.queueNumber,
-                      style: GoogleFonts.orbitron(
-                        fontSize: 54,
-                        fontWeight: FontWeight.bold,
-                        color: hasPatient ? Colors.white : Colors.grey.shade700,
-                        letterSpacing: 1.5,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: waitingList.isEmpty
+                            ? Text(
+                                'Tidak ada antrean menunggu',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: footerLabelFontSize,
+                                  color: Colors.grey.shade600,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              )
+                            : SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: waitingList.map((q) => Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: primaryColor.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: primaryColor.withValues(alpha: 0.25),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      q.queueNumber,
+                                      style: GoogleFonts.orbitron(
+                                        fontSize: footerNumberFontSize,
+                                        fontWeight: FontWeight.bold,
+                                        color: accentColor,
+                                      ),
+                                    ),
+                                  )).toList(),
+                                ),
+                              ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      hasPatient ? examiningQueue.patient.fullName.toUpperCase() : 'BELUM ADA PASIEN',
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: hasPatient ? Colors.white.withValues(alpha: 0.9) : Colors.grey.shade600,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
-
-            const Divider(height: 1, color: Color(0xFF334155)),
-
-            // Footer Card - Antrean Berikutnya (Waiting List)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: const BoxDecoration(
-                color: Color(0xFF0F172A),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    'Berikutnya: ',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11, 
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade400,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: waitingList.isEmpty
-                        ? Text(
-                            'Tidak ada antrean menunggu',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          )
-                        : SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: waitingList.map((q) => Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: primaryColor.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: primaryColor.withValues(alpha: 0.25),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  q.queueNumber,
-                                  style: GoogleFonts.orbitron(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: accentColor,
-                                  ),
-                                ),
-                              )).toList(),
-                            ),
-                          ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

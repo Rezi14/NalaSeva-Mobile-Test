@@ -32,6 +32,9 @@ class StatusBadge extends StatelessWidget {
       case QueueStatus.cancelled:
         color = AppTheme.cancelColor;
         break;
+      case QueueStatus.unknown:
+        color = Colors.grey;
+        break;
     }
 
     return Container(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../features/auth/logic/auth_provider.dart';
 
 // Auth
 import '../../features/auth/ui/login_screen.dart';
@@ -97,4 +99,41 @@ class AppRouter {
     patientNotifications: (context) => const NotificationScreen(),
     tvMonitor: (context) => const QueueMonitorScreen(),
   };
+
+  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+    final builder = routes[settings.name];
+    if (builder == null) return null;
+
+    return MaterialPageRoute(
+      builder: (context) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final user = authProvider.user;
+        final name = settings.name ?? '';
+
+        // 1. Halaman Publik
+        if (name == login || name == register || name == forgotPassword || name == tvMonitor) {
+          return builder(context);
+        }
+
+        // 2. Proteksi Autentikasi: Belum Login -> Redirect ke Login
+        if (user == null) {
+          return const LoginScreen();
+        }
+
+        // 3. Proteksi Otorisasi berdasarkan Role
+        if (name.startsWith('/admin') && user.role != 'admin') {
+          return const LoginScreen();
+        }
+        if (name.startsWith('/doctor') && user.role != 'doctor') {
+          return const LoginScreen();
+        }
+        if (name.startsWith('/patient') && user.role != 'patient') {
+          return const LoginScreen();
+        }
+
+        return builder(context);
+      },
+      settings: settings,
+    );
+  }
 }

@@ -5,6 +5,8 @@ import '../logic/admin_provider.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../shared/models/queue_model.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/service_time_validator.dart';
 
 class AdminVoiceCallDialog {
   static void show(BuildContext context, QueueModel queue) {
@@ -93,6 +95,27 @@ class AdminVoiceCallDialog {
                     const SizedBox(height: 32),
                     ElevatedButton(
                       onPressed: () async {
+                        final validationError = ServiceTimeValidator.validateAdminAction(queue);
+                        if (validationError != null) {
+                          AppDialogs.showNotificationDialog(
+                            context,
+                            'Tidak Sesuai Jam Pelayanan',
+                            validationError,
+                            isError: true,
+                          );
+                          return;
+                        }
+
+                        if (queue.status != QueueStatus.waiting) {
+                          AppDialogs.showNotificationDialog(
+                            context,
+                            'Status Tidak Valid',
+                            'Hanya antrean berstatus MENUNGGU yang dapat dipanggil dari dialog ini.',
+                            isError: true,
+                          );
+                          return;
+                        }
+
                         Navigator.pop(context);
                         await context.read<AdminProvider>().updateQueueStatus(queue.id, QueueStatus.examining);
                       },

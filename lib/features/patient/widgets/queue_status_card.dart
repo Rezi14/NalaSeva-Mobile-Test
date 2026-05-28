@@ -29,8 +29,7 @@ class QueueStatusCard extends StatelessWidget {
       );
     }
 
-    final activeQueues = provider.myQueues.where((q) => 
-        q.status != QueueStatus.completed && q.status != QueueStatus.cancelled).toList();
+    final activeQueues = provider.myQueues.where((q) => q.status.isActive).toList();
 
     if (activeQueues.isEmpty) {
       return Container(
@@ -70,7 +69,7 @@ class QueueStatusCard extends StatelessWidget {
     if (q.positionWaiting != null) {
       queuePosition = q.positionWaiting!;
     } else {
-      final match = RegExp(r'(\d+)\u0000?\$').firstMatch(q.queueNumber);
+      final match = RegExp(r'(\d+)\u0000?$').firstMatch(q.queueNumber);
       if (match != null) {
         final numVal = int.tryParse(match.group(1) ?? '');
         if (numVal != null) {
