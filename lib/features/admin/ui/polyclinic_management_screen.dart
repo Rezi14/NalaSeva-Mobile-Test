@@ -227,24 +227,66 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                 },
                 child: provider.isLoading && provider.polyclinics.isEmpty
                     ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(24),
-                        itemCount: polyclinics.length,
-                        itemBuilder: (context, index) {
-                          final poly = polyclinics[index];
-                          return FadeInUp(
-                            duration: const Duration(milliseconds: 500),
-                            delay: Duration(milliseconds: 250 + (index * 80)),
-                            child: AdminServiceCard(
-                              polyclinic: poly,
-                              quota: _calculatePolyclinicQuota(poly, provider.schedules),
-                              operatingHours: _getPolyclinicOperatingHours(poly, provider.schedules),
-                              onEdit: () => _showPolyclinicForm(context, poly: poly),
-                              onDelete: () => _confirmDeletePolyclinic(context, poly),
+                    : polyclinics.isEmpty
+                        ? SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height * 0.5,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.symmetric(horizontal: 32),
+                              child: FadeInUp(
+                                duration: const Duration(milliseconds: 500),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.medical_services_outlined,
+                                      size: 72,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'Tidak Ada Poliklinik',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _searchQuery.isNotEmpty
+                                          ? 'Tidak ada hasil pencarian untuk "$_searchQuery". Coba kata kunci lain.'
+                                          : 'Belum ada data layanan poliklinik terdaftar.',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 13,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          );
-                        },
-                      ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(24),
+                            itemCount: polyclinics.length,
+                            itemBuilder: (context, index) {
+                              final poly = polyclinics[index];
+                              return FadeInUp(
+                                duration: const Duration(milliseconds: 500),
+                                delay: Duration(milliseconds: 250 + (index * 80)),
+                                child: AdminServiceCard(
+                                  polyclinic: poly,
+                                  quota: _calculatePolyclinicQuota(poly, provider.schedules),
+                                  operatingHours: _getPolyclinicOperatingHours(poly, provider.schedules),
+                                  onEdit: () => _showPolyclinicForm(context, poly: poly),
+                                  onDelete: () => _confirmDeletePolyclinic(context, poly),
+                                ),
+                              );
+                            },
+                          ),
               ),
             ),
 

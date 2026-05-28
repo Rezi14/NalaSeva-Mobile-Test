@@ -202,6 +202,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                   await provider.fetchDoctorLeaves();
                 },
                 child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,10 +216,44 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                       if (provider.isLoading && provider.doctors.isEmpty)
                         const Center(child: CircularProgressIndicator())
                       else if (doctors.isEmpty)
-                        const Center(child: Padding(
-                          padding: EdgeInsets.only(top: 50),
-                          child: Text('Tidak ada staf yang cocok dengan pencarian'),
-                        ))
+                        FadeInUp(
+                          duration: const Duration(milliseconds: 500),
+                          child: Container(
+                            height: MediaQuery.of(context).size.height * 0.4,
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.people_outline_rounded,
+                                  size: 72,
+                                  color: Colors.grey.shade400,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Tidak Ada Staf Medis',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  _searchQuery.isNotEmpty
+                                      ? 'Tidak ada staf medis dengan nama atau spesialisasi "$_searchQuery".'
+                                      : 'Belum ada staf medis terdaftar untuk filter poliklinik terpilih.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
                       else
                         ListView.separated(
                           shrinkWrap: true,

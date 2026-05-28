@@ -149,7 +149,47 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                 child: provider.isLoading && provider.schedules.isEmpty
                     ? const Center(child: CircularProgressIndicator())
                     : groupedKeys.isEmpty
-                        ? const Center(child: Text('Tidak ada jadwal untuk filter ini'))
+                        ? SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height * 0.5,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.symmetric(horizontal: 32),
+                              child: FadeInUp(
+                                duration: const Duration(milliseconds: 500),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_month_outlined,
+                                      size: 72,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'Tidak Ada Jadwal Dokter',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _selectedDay != null
+                                          ? 'Belum ada jadwal dokter rutin yang terdaftar pada hari $_selectedDay.'
+                                          : 'Belum ada jadwal dokter rutin yang terdaftar pada sistem.',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 13,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
                         : ListView.builder(
                             padding: const EdgeInsets.all(24),
                             itemCount: groupedKeys.length,
