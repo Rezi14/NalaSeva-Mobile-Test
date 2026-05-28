@@ -85,7 +85,15 @@ class ProfileScreen extends StatelessWidget {
                                       shape: BoxShape.circle,
                                     ),
                                     child: IconButton(
-                                      onPressed: () => Navigator.pushNamed(context, '/patient/edit-profile'),
+                                      onPressed: () {
+                                        if (user?.role == 'admin') {
+                                          Navigator.pushNamed(context, '/admin/edit-profile');
+                                        } else if (user?.role == 'doctor') {
+                                          Navigator.pushNamed(context, '/doctor/edit-profile');
+                                        } else {
+                                          Navigator.pushNamed(context, '/patient/edit-profile');
+                                        }
+                                      },
                                       icon: const Icon(Icons.edit_outlined, color: AppTheme.editColor),
                                       tooltip: 'Edit Profil',
                                     ),

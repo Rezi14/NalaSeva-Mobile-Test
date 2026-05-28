@@ -249,15 +249,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
-                                color: isSelected ? Colors.blue.withValues(alpha: 0.1) : Colors.transparent,
-                                border: Border.all(color: isSelected ? Colors.blue : Colors.grey.shade400),
+                                color: isSelected ? AppTheme.primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+                                border: Border.all(color: isSelected ? AppTheme.primaryColor : Colors.grey.shade400),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               alignment: Alignment.center,
                               child: Text(
                                 v,
                                 style: TextStyle(
-                                  color: isSelected ? Colors.blue : Colors.black87,
+                                  color: isSelected ? AppTheme.primaryColor : Colors.black87,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                 ),
                               ),

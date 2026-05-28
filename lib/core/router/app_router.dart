@@ -52,6 +52,8 @@ class AppRouter {
   static const String adminPatients = '/admin/patients';
   static const String adminHistory = '/admin/history';
   static const String adminSettings = '/admin/settings';
+  static const String adminProfile = '/admin/profile';
+  static const String adminEditProfile = '/admin/edit-profile';
   static const String adminHolidays = '/admin/holidays';
   static const String adminLeaves = '/admin/leaves';
 
@@ -85,6 +87,8 @@ class AppRouter {
     adminPatients: (context) => const PatientManagementScreen(),
     adminHistory: (context) => const ExaminationHistoryScreen(),
     adminSettings: (context) => const AdminSettingsScreen(),
+    adminProfile: (context) => const ProfileScreen(),
+    adminEditProfile: (context) => const EditProfileScreen(),
     adminHolidays: (context) => const AdminClinicHolidaysScreen(),
     adminLeaves: (context) => const AdminDoctorLeavesScreen(),
     doctorHome: (context) => const DoctorDashboard(),
