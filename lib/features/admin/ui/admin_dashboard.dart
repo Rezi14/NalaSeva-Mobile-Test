@@ -143,7 +143,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                       child: IconButton(
                                         onPressed: () => Navigator.pushNamed(
                                           context,
-                                          '/patient/profile',
+                                          '/admin/settings',
                                         ),
                                         icon: const Icon(
                                           Icons.person_rounded,
