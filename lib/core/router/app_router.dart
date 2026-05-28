@@ -104,6 +104,42 @@ class AppRouter {
     tvMonitor: (context) => const QueueMonitorScreen(),
   };
 
+  static final Map<String, List<String>> _routePermissions = {
+    login: [],
+    register: [],
+    forgotPassword: [],
+    tvMonitor: ['admin'], // Khusus Admin
+
+    // Admin routes
+    adminHome: ['admin'],
+    adminUsers: ['admin'],
+    adminDoctors: ['admin'],
+    adminPolyclinics: ['admin'],
+    adminSchedules: ['admin'],
+    adminQueues: ['admin'],
+    adminPatients: ['admin'],
+    adminHistory: ['admin'],
+    adminSettings: ['admin'],
+    adminProfile: ['admin'],
+    adminEditProfile: ['admin'],
+    adminHolidays: ['admin'],
+    adminLeaves: ['admin'],
+
+    // Doctor routes
+    doctorHome: ['doctor'],
+    doctorExamination: ['doctor'],
+    doctorProfile: ['doctor'],
+    doctorEditProfile: ['doctor'],
+
+    // Patient routes
+    patientHome: ['patient'],
+    patientBooking: ['patient'],
+    patientProfile: ['patient'],
+    patientEditProfile: ['patient'],
+    patientHistory: ['patient'],
+    patientNotifications: ['patient'],
+  };
+
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     final builder = routes[settings.name];
     if (builder == null) return null;
@@ -114,25 +150,17 @@ class AppRouter {
         final user = authProvider.user;
         final name = settings.name ?? '';
 
-        // 1. Halaman Publik
-        if (name == login || name == register || name == forgotPassword || name == tvMonitor) {
-          return builder(context);
-        }
+        final allowedRoles = _routePermissions[name];
 
-        // 2. Proteksi Autentikasi: Belum Login -> Redirect ke Login
-        if (user == null) {
-          return const LoginScreen();
-        }
-
-        // 3. Proteksi Otorisasi berdasarkan Role
-        if (name.startsWith('/admin') && user.role != 'admin') {
-          return const LoginScreen();
-        }
-        if (name.startsWith('/doctor') && user.role != 'doctor') {
-          return const LoginScreen();
-        }
-        if (name.startsWith('/patient') && user.role != 'patient') {
-          return const LoginScreen();
+        if (allowedRoles != null && allowedRoles.isNotEmpty) {
+          // Proteksi Autentikasi: Belum Login -> Redirect ke Login
+          if (user == null) {
+            return const LoginScreen();
+          }
+          // Proteksi Otorisasi: Peran tidak sesuai -> Redirect ke Login
+          if (!allowedRoles.contains(user.role)) {
+            return const LoginScreen();
+          }
         }
 
         return builder(context);
