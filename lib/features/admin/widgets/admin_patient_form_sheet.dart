@@ -316,7 +316,7 @@ class AdminPatientFormSheet {
                                     'password': 'password123',
                                     'password_confirmation': 'password123',
                                     'national_id': nik,
-                                    'phone_number': phoneController.text.trim(),
+                                    'phone': phoneController.text.trim(),
                                     'gender': selectedGender,
                                     'birth_date': birthStr,
                                     'address': addressController.text.trim(),
