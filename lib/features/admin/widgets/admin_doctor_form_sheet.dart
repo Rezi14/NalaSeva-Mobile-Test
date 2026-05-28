@@ -92,7 +92,6 @@ class AdminDoctorFormSheet {
                     controller: nameController, 
                     decoration: const InputDecoration(
                       labelText: 'Nama Lengkap', 
-                      border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person_outline_rounded),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Nama lengkap tidak boleh kosong' : null,
@@ -104,7 +103,6 @@ class AdminDoctorFormSheet {
                     maxLength: 16,
                     decoration: const InputDecoration(
                       labelText: 'NIK (Nomor Induk Kependudukan)', 
-                      border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.badge_outlined),
                       counterText: '',
                     ),
@@ -120,7 +118,6 @@ class AdminDoctorFormSheet {
                       controller: emailController, 
                       decoration: const InputDecoration(
                         labelText: 'Email', 
-                        border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: Validators.validateEmail,
@@ -130,7 +127,6 @@ class AdminDoctorFormSheet {
                       controller: passwordController, 
                       decoration: const InputDecoration(
                         labelText: 'Kata Sandi', 
-                        border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.lock_outline_rounded),
                       ), 
                       obscureText: true,
@@ -147,7 +143,6 @@ class AdminDoctorFormSheet {
                     initialValue: selectedPolyclinicId,
                     decoration: const InputDecoration(
                       labelText: 'Layanan Poliklinik',
-                      border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.local_hospital_outlined),
                     ),
                     hint: const Text('Pilih Poliklinik'),
@@ -169,7 +164,6 @@ class AdminDoctorFormSheet {
                     controller: specController, 
                     decoration: const InputDecoration(
                       labelText: 'Spesialisasi', 
-                      border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.star_outline_rounded),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Spesialisasi tidak boleh kosong' : null,
@@ -179,7 +173,6 @@ class AdminDoctorFormSheet {
                     controller: licenseController, 
                     decoration: const InputDecoration(
                       labelText: 'Nomor SIP/Lisensi', 
-                      border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.card_membership_outlined),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Nomor SIP / Lisensi tidak boleh kosong' : null,
@@ -315,7 +308,6 @@ class AdminDoctorFormSheet {
                     controller: phoneController, 
                     decoration: const InputDecoration(
                       labelText: 'Nomor HP (Opsional)', 
-                      border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.phone_outlined),
                     ),
                   ),
@@ -324,7 +316,6 @@ class AdminDoctorFormSheet {
                     controller: addressController, 
                     decoration: const InputDecoration(
                       labelText: 'Alamat (Opsional)', 
-                      border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.location_on_outlined),
                     ),
                   ),

@@ -91,7 +91,6 @@ class AdminPatientFormSheet {
                           controller: nameController,
                           decoration: const InputDecoration(
                             labelText: 'Nama Lengkap Pasien',
-                            border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.person_outline_rounded),
                           ),
                           validator: (v) => v == null || v.trim().isEmpty ? 'Nama lengkap tidak boleh kosong' : null,
@@ -103,7 +102,6 @@ class AdminPatientFormSheet {
                           maxLength: 16,
                           decoration: const InputDecoration(
                             labelText: 'NIK (Nomor Induk Kependudukan)',
-                            border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.badge_outlined),
                             counterText: '',
                           ),
@@ -243,7 +241,6 @@ class AdminPatientFormSheet {
                           keyboardType: TextInputType.phone,
                           decoration: const InputDecoration(
                             labelText: 'Nomor HP',
-                            border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.phone_outlined),
                           ),
                           validator: (v) => v == null || v.trim().isEmpty ? 'Nomor HP tidak boleh kosong' : null,
@@ -254,7 +251,6 @@ class AdminPatientFormSheet {
                           maxLines: 2,
                           decoration: const InputDecoration(
                             labelText: 'Alamat Pasien',
-                            border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.location_on_outlined),
                           ),
                           validator: (v) => v == null || v.trim().isEmpty ? 'Alamat tidak boleh kosong' : null,
