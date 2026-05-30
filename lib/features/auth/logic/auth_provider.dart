@@ -27,6 +27,24 @@ class AuthProvider extends ChangeNotifier {
       _user = result['user'];
       await _storage.write(key: 'access_token', value: result['token']);
       
+      // Fetch full profile with full relationship properties (patient, doctor, etc.)
+      try {
+        final fullProfile = await _repository.getProfile();
+        _user = fullProfile;
+      } catch (e) {
+        debugPrint('Profile fetch failed during login: $e');
+      }
+
+      if (_user != null) {
+        await _storage.write(key: 'user_role', value: _user!.role);
+        if (_user!.patientId != null) {
+          await _storage.write(key: 'patient_id', value: _user!.patientId.toString());
+        }
+        if (_user!.doctorId != null) {
+          await _storage.write(key: 'doctor_id', value: _user!.doctorId.toString());
+        }
+      }
+      
       if (!kIsWeb) {
         try {
           final fcmService = FirebaseMessagingService();
@@ -90,6 +108,9 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       _user = null;
       await _storage.delete(key: 'access_token');
+      await _storage.delete(key: 'user_role');
+      await _storage.delete(key: 'patient_id');
+      await _storage.delete(key: 'doctor_id');
       notifyListeners();
     }
   }
@@ -118,6 +139,14 @@ class AuthProvider extends ChangeNotifier {
       );
       // Re-fetch complete profile to get all relationships (doctor, patient, etc.)
       _user = await _repository.getProfile();
+      if (_user != null) {
+        if (_user!.patientId != null) {
+          await _storage.write(key: 'patient_id', value: _user!.patientId.toString());
+        }
+        if (_user!.doctorId != null) {
+          await _storage.write(key: 'doctor_id', value: _user!.doctorId.toString());
+        }
+      }
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -128,12 +157,29 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> forgotPassword(String email, String nationalId, String newPassword) async {
+  Future<String?> requestPasswordResetOtp(String email, String nationalId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
     try {
-      await _repository.forgotPassword(email, nationalId, newPassword);
+      final otp = await _repository.requestPasswordResetOtp(email, nationalId);
+      _isLoading = false;
+      notifyListeners();
+      return otp;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> forgotPassword(String email, String nationalId, String otpCode, String newPassword) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _repository.forgotPassword(email, nationalId, otpCode, newPassword);
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -149,9 +195,47 @@ class AuthProvider extends ChangeNotifier {
     if (token != null) {
       try {
         _user = await _repository.getProfile();
+        if (_user != null) {
+          await _storage.write(key: 'user_role', value: _user!.role);
+          if (_user!.patientId != null) {
+            await _storage.write(key: 'patient_id', value: _user!.patientId.toString());
+          } else {
+            await _storage.delete(key: 'patient_id');
+          }
+          if (_user!.doctorId != null) {
+            await _storage.write(key: 'doctor_id', value: _user!.doctorId.toString());
+          } else {
+            await _storage.delete(key: 'doctor_id');
+          }
+        }
       } catch (e) {
-        _user = null;
-        await _storage.delete(key: 'access_token');
+        final errStr = e.toString().toLowerCase();
+        if (errStr.contains('401') || errStr.contains('unauthorized') || errStr.contains('403') || errStr.contains('forbidden')) {
+          _user = null;
+          await _storage.delete(key: 'access_token');
+          await _storage.delete(key: 'user_role');
+          await _storage.delete(key: 'patient_id');
+          await _storage.delete(key: 'doctor_id');
+        } else {
+          // Kesalahan jaringan / server down sementara: pertahankan token lokal
+          // Dan pulihkan dengan UserModel sentinel offline berdasarkan role terakhir beserta ID yang tercache
+          final savedRole = await _storage.read(key: 'user_role');
+          final savedPatientIdStr = await _storage.read(key: 'patient_id');
+          final savedDoctorIdStr = await _storage.read(key: 'doctor_id');
+          
+          if (savedRole != null) {
+            _user = UserModel(
+              id: 0,
+              name: 'Offline User',
+              email: '',
+              role: savedRole,
+              patientId: savedPatientIdStr != null ? int.tryParse(savedPatientIdStr) : null,
+              doctorId: savedDoctorIdStr != null ? int.tryParse(savedDoctorIdStr) : null,
+            );
+          } else {
+            _user = null;
+          }
+        }
       }
     } else {
       _user = null;

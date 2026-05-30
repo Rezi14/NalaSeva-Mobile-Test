@@ -22,7 +22,6 @@ class AdminBookingDetailScreen extends StatefulWidget {
 
 class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
   late QueueModel _currentQueue;
-  final Map<int, int> _recallCounts = {};
 
   @override
   void initState() {
@@ -195,7 +194,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
     if (reason == null || !mounted) return; // Cancel check-in or if unmounted
     
     final provider = context.read<AdminProvider>();
-    await provider.checkInQueue(_currentQueue.id);
+    await provider.checkInQueue(_currentQueue.id, reason: reason);
     if (mounted) {
       if (provider.error != null) {
         _onErrorMessage(provider.error!);
@@ -214,12 +213,6 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
   }
 
   Future<void> _moveQueueToBack() async {
-    final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
-    if (validationError != null) {
-      _onErrorMessage(validationError);
-      return;
-    }
-    
     if (_currentQueue.status != QueueStatus.booked) {
       _onErrorMessage('Hanya antrean berstatus DIPESAN yang dapat dipindahkan ke belakang.');
       return;
@@ -252,12 +245,6 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
   }
 
   Future<void> _cancelQueue() async {
-    final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
-    if (validationError != null) {
-      _onErrorMessage(validationError);
-      return;
-    }
-    
     if (_currentQueue.status.isTerminal) {
       _onErrorMessage('Antrean yang sudah selesai atau dibatalkan tidak dapat dibatalkan lagi.');
       return;
@@ -381,14 +368,18 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                     const SizedBox(height: 32),
                     ElevatedButton(
                       onPressed: () async {
-                        Navigator.pop(context);
-                        if (isRecall) return;
+                        if (isRecall) {
+                          Navigator.pop(context);
+                          return;
+                        }
                         final provider = context.read<AdminProvider>();
+                        final navigator = Navigator.of(context);
                         await provider.updateQueueStatus(_currentQueue.id, QueueStatus.examining);
                         if (mounted) {
                           if (provider.error != null) {
                             _onErrorMessage(provider.error!);
                           } else {
+                            navigator.pop();
                             _onSuccessMessage('Pasien dipanggil dan dimasukkan ke ruang periksa');
                             setState(() {
                               final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
@@ -691,7 +682,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                 TtsHelper.speak(text);
                 _voiceCallingSimulation(isRecall: false);
               },
-              onRecallPatient: () {
+              onRecallPatient: () async {
                 final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
                 if (validationError != null) {
                   _onErrorMessage(validationError);
@@ -701,17 +692,33 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                   _onErrorMessage('Hanya antrean berstatus SEDANG DIPERIKSA yang dapat dipanggil ulang.');
                   return;
                 }
-                final currentCount = _recallCounts[_currentQueue.id] ?? 0;
+                final currentCount = _currentQueue.recallCount;
                 if (currentCount >= 3) {
                   _onErrorMessage('Batas maksimal panggilan ulang (3 kali) untuk pasien ini telah tercapai.');
                   return;
                 }
-                _recallCounts[_currentQueue.id] = currentCount + 1;
                 
-                final cleanQueueNum = _currentQueue.queueNumber.replaceAll('-', ' ');
-                final text = "Panggilan ulang untuk nomor antrean $cleanQueueNum, atas nama ${_currentQueue.patient.fullName}, silahkan menuju ke ruang ${_currentQueue.polyclinic.name}. (Panggilan ke-${currentCount + 1})";
-                TtsHelper.speak(text);
-                _voiceCallingSimulation(isRecall: true);
+                final provider = context.read<AdminProvider>();
+                await provider.recallQueue(_currentQueue.id);
+                
+                if (mounted) {
+                  if (provider.error != null) {
+                    _onErrorMessage(provider.error!);
+                    return;
+                  }
+                  
+                  setState(() {
+                    final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+                    if (matchingQueues.isNotEmpty) {
+                      _currentQueue = matchingQueues.first;
+                    }
+                  });
+
+                  final cleanQueueNum = _currentQueue.queueNumber.replaceAll('-', ' ');
+                  final text = "Panggilan ulang untuk nomor antrean $cleanQueueNum, atas nama ${_currentQueue.patient.fullName}, silahkan menuju ke ruang ${_currentQueue.polyclinic.name}. (Panggilan ke-${_currentQueue.recallCount})";
+                  TtsHelper.speak(text);
+                  _voiceCallingSimulation(isRecall: true);
+                }
               },
             ),
           ],

@@ -1,5 +1,6 @@
 import 'patient_model.dart';
 import 'polyclinic_model.dart';
+import 'schedule_model.dart';
 import '../constants/app_constants.dart';
 
 class QueueModel {
@@ -13,6 +14,10 @@ class QueueModel {
   final int? avgWaitingTime;
   final int? positionWaiting;
   final int? doctorId;
+  final int? doctorScheduleId;
+  final ScheduleModel? doctorSchedule;
+  final int recallCount;
+  final DateTime? createdAt;
 
   QueueModel({
     required this.id,
@@ -25,6 +30,10 @@ class QueueModel {
     this.avgWaitingTime,
     this.positionWaiting,
     this.doctorId,
+    this.doctorScheduleId,
+    this.doctorSchedule,
+    this.recallCount = 0,
+    this.createdAt,
   });
 
   factory QueueModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +52,10 @@ class QueueModel {
       avgWaitingTime: json['avg_waiting_time'],
       positionWaiting: json['position_waiting'],
       doctorId: json['doctor_id'] is String ? int.tryParse(json['doctor_id']) : json['doctor_id'],
+      doctorScheduleId: json['doctor_schedule_id'] is String ? int.tryParse(json['doctor_schedule_id']) : json['doctor_schedule_id'],
+      doctorSchedule: json['doctor_schedule'] != null ? ScheduleModel.fromJson(json['doctor_schedule']) : null,
+      recallCount: json['recall_count'] is String ? int.tryParse(json['recall_count']) ?? 0 : (json['recall_count'] ?? 0),
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
     );
   }
 
@@ -58,6 +71,10 @@ class QueueModel {
       'avg_waiting_time': avgWaitingTime,
       'position_waiting': positionWaiting,
       'doctor_id': doctorId,
+      'doctor_schedule_id': doctorScheduleId,
+      'doctor_schedule': doctorSchedule?.toJson(),
+      'recall_count': recallCount,
+      'created_at': createdAt?.toIso8601String(),
     };
   }
 
@@ -72,6 +89,10 @@ class QueueModel {
     int? avgWaitingTime,
     int? positionWaiting,
     int? doctorId,
+    int? doctorScheduleId,
+    ScheduleModel? doctorSchedule,
+    int? recallCount,
+    DateTime? createdAt,
   }) {
     return QueueModel(
       id: id ?? this.id,
@@ -84,6 +105,10 @@ class QueueModel {
       avgWaitingTime: avgWaitingTime ?? this.avgWaitingTime,
       positionWaiting: positionWaiting ?? this.positionWaiting,
       doctorId: doctorId ?? this.doctorId,
+      doctorScheduleId: doctorScheduleId ?? this.doctorScheduleId,
+      doctorSchedule: doctorSchedule ?? this.doctorSchedule,
+      recallCount: recallCount ?? this.recallCount,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }

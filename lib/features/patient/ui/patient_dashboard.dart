@@ -19,34 +19,13 @@ class PatientDashboard extends StatefulWidget {
 }
 
 class _PatientDashboardState extends State<PatientDashboard> {
-  late final PatientProvider _patientProvider;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _patientProvider = context.read<PatientProvider>();
-      _patientProvider.fetchMyData();
-      _patientProvider.addListener(_onPatientError);
+      context.read<PatientProvider>().fetchMyData();
     });
-  }
-
-  @override
-  void dispose() {
-    _patientProvider.removeListener(_onPatientError);
-    super.dispose();
-  }
-
-  void _onPatientError() {
-    final error = context.read<PatientProvider>().error;
-    if (error != null && mounted) {
-      AppDialogs.showNotificationDialog(
-        context,
-        'Terjadi Kesalahan',
-        error,
-        isError: true,
-      );
-    }
   }
 
   @override

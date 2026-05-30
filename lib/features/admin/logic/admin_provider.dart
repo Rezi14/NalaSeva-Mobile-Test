@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../data/admin_repository.dart';
 import '../../../shared/models/user_model.dart';
 import '../../../shared/models/polyclinic_model.dart';
@@ -10,7 +9,6 @@ import '../../../shared/models/schedule_model.dart';
 import '../../../shared/models/examination_model.dart';
 import '../../../shared/models/patient_model.dart';
 import '../../../shared/models/dashboard_stats_model.dart';
-import '../../../core/utils/date_time_parser.dart';
 
 class AdminProvider extends ChangeNotifier {
   final AdminRepository _repository;
@@ -154,64 +152,7 @@ class AdminProvider extends ChangeNotifier {
 
   Future<void> fetchQueues() async {
     await _performAction(() async {
-      final rawQueues = await _repository.getQueues();
-      
-      List<String> holidays = [];
-      try {
-        final rawHolidays = await _repository.getClinicHolidays();
-        holidays = rawHolidays.map((e) {
-          final rawDate = e['holiday_date']?.toString() ?? '';
-          final normalized = DateTime.tryParse(rawDate.replaceAll(' ', 'T'));
-          if (normalized != null) return DateFormat('yyyy-MM-dd').format(normalized);
-          final parts = rawDate.split(' ');
-          final datePart = parts.isNotEmpty ? parts[0] : rawDate;
-          return datePart.split('T')[0];
-        }).where((d) => d.isNotEmpty).toList();
-      } catch (e, stack) {
-        debugPrint('AdminProvider: gagal mengambil data hari libur saat fetchQueues: $e\n$stack');
-      }
-      
-      final now = DateTime.now();
-      final todayStr = DateFormat('yyyy-MM-dd').format(now);
-      
-      final processedQueues = <QueueModel>[];
-      for (var q in rawQueues) {
-        // Auto-cancel if it falls on a clinic holiday
-        if (q.status.isActive && holidays.contains(q.date)) {
-          try {
-            await _repository.updateQueueStatus(q.id, QueueStatus.cancelled.value);
-            q = q.copyWith(status: QueueStatus.cancelled);
-          } catch (e, stack) {
-            debugPrint('AdminProvider: gagal auto-cancel antrean hari libur ${q.id}: $e\n$stack');
-          }
-        }
-
-        if (q.status == QueueStatus.booked && q.date == todayStr && q.estimatedServiceTime != null && q.estimatedServiceTime!.isNotEmpty) {
-          try {
-            final startMinutes = DateTimeParser.parseMinutesOfDay(q.estimatedServiceTime);
-            if (startMinutes == null) {
-              processedQueues.add(q);
-              continue;
-            }
-            final nowMinutes = now.hour * 60 + now.minute;
-            
-            if (nowMinutes > (startMinutes + 60)) {
-              try {
-                await _repository.updateQueueStatus(q.id, QueueStatus.cancelled.value);
-                processedQueues.add(q.copyWith(status: QueueStatus.cancelled));
-              } catch (e, stack) {
-                debugPrint('AdminProvider: gagal auto-cancel antrean ${q.id}: $e\n$stack');
-                processedQueues.add(q);
-              }
-              continue;
-            }
-          } catch (e, stack) {
-            debugPrint('AdminProvider: gagal memeriksa auto-cancel antrean ${q.id}: $e\n$stack');
-          }
-        }
-        processedQueues.add(q);
-      }
-      _queues = processedQueues;
+      _queues = await _repository.getQueues();
     });
   }
 
@@ -224,49 +165,14 @@ class AdminProvider extends ChangeNotifier {
 
   Future<void> moveQueueToBack(QueueModel queue) async {
     await _performAction(() async {
-      // Ambil antrean pada poli dan tanggal kunjungan yang sama
-      final polyQueues = _queues.where((q) => q.polyclinic.id == queue.polyclinic.id && q.date == queue.date).toList();
-      
-      int maxNum = 0;
-      String prefix = 'A-';
-      
-      for (var q in polyQueues) {
-        final m = RegExp(r'(\d+)$').firstMatch(q.queueNumber);
-        // fallback: try to find last numeric segment if anchored regex fails (robust for varied formats)
-        if (m != null) {
-          final numVal = int.tryParse(m.group(1) ?? '');
-          if (numVal != null && numVal > maxNum) {
-            maxNum = numVal;
-            prefix = q.queueNumber.substring(0, m.start);
-          }
-        } else {
-          // Fallback to previous behavior: take last numeric run
-          final matches = RegExp(r'\d+').allMatches(q.queueNumber);
-          if (matches.isNotEmpty) {
-            final lastMatch = matches.last;
-            final numVal = int.tryParse(lastMatch.group(0) ?? '');
-            if (numVal != null && numVal > maxNum) {
-              maxNum = numVal;
-              prefix = q.queueNumber.substring(0, lastMatch.start);
-            }
-          }
-        }
-      }
-      
-      final nextNum = maxNum + 1;
-      final newQueueNumber = '$prefix${nextNum.toString().padLeft(2, '0')}';
-      
-      await _repository.updateQueue(queue.id, {
-        'queue_number': newQueueNumber,
-      });
-      
+      await _repository.skipQueue(queue.id);
       _queues = await _repository.getQueues();
     });
   }
 
-  Future<void> checkInQueue(int id) async {
+  Future<void> checkInQueue(int id, {String? reason}) async {
     await _performAction(() async {
-      await _repository.checkInQueue(id);
+      await _repository.checkInQueue(id, reason: reason);
       _queues = await _repository.getQueues();
     });
   }
@@ -349,6 +255,16 @@ class AdminProvider extends ChangeNotifier {
     await _performAction(() async {
       await _repository.bookQueue(data);
       _queues = await _repository.getQueues();
+    });
+  }
+
+  Future<void> recallQueue(int id) async {
+    await _performAction(() async {
+      final updatedQueue = await _repository.recallQueue(id);
+      final index = _queues.indexWhere((q) => q.id == id);
+      if (index != -1) {
+        _queues[index] = updatedQueue;
+      }
     });
   }
 }

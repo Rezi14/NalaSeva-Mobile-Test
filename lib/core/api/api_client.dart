@@ -19,7 +19,7 @@ class ApiClient {
       },
       validateStatus: (status) {
         if (status == null) return false;
-        return status < 500; // Do not throw for 401, 404, etc.
+        return status < 500 && status != 401; // Throw exception if status is 401 to handle it in onError
       },
     ));
 
@@ -45,9 +45,11 @@ class ApiClient {
       },
       onError: (e, handler) async {
         if (e.response?.statusCode == 401) {
-          // Hapus token akses sesi yang kedaluwarsa
+          // Hapus token akses sesi yang kedaluwarsa beserta data id terkait
           await _storage.delete(key: 'access_token');
           await _storage.delete(key: 'user_role');
+          await _storage.delete(key: 'patient_id');
+          await _storage.delete(key: 'doctor_id');
           // Global contextless redirect to login screen
           AppRouter.navigatorKey.currentState?.pushNamedAndRemoveUntil('/', (route) => false);
         }

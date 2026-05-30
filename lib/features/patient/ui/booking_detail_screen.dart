@@ -16,6 +16,8 @@ import '../widgets/info_row_item.dart';
 import '../widgets/ticket_cutout.dart';
 import '../widgets/ticket_stat_item.dart';
 import '../../../core/utils/app_logger.dart';
+import '../../../shared/providers/puskesmas_profile_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BookingDetailScreen extends StatelessWidget {
   final QueueModel queue;
@@ -27,6 +29,11 @@ class BookingDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final puskesmasProfileProvider = context.watch<PuskesmasProfileProvider>();
+    final puskesmasProfile = puskesmasProfileProvider.profile;
+    final puskesmasName = puskesmasProfile?.name ?? 'Puskesmas Sehat Utama';
+    final puskesmasAddress = puskesmasProfile?.address ?? 'Jl. Raya Sehat No. 12';
+
     // Calculate dynamic queue position and estimation based on actual queue number from DB
     int queuePosition = 3;
     int avgTimeMultiplier = queue.avgWaitingTime ?? 15;
@@ -125,7 +132,7 @@ class BookingDetailScreen extends StatelessWidget {
                                     child: IconButton(
                                       onPressed: () {
                                         Clipboard.setData(ClipboardData(
-                                          text: 'Puskesmas Sehat Utama - Tiket Antrean NalaSeva\n'
+                                          text: '$puskesmasName - Tiket Antrean NalaSeva\n'
                                                 'Nomor Antrean: ${queue.queueNumber}\n'
                                                 'Poliklinik: ${queue.polyclinic.name}\n'
                                                 'Nama Pasien: ${queue.patient.name}\n'
@@ -199,19 +206,49 @@ class BookingDetailScreen extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Puskesmas Sehat Utama',
+                                        puskesmasName,
                                         style: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
                                       ),
                                       Text(
-                                        'Jl. Kesehatan No. 123',
+                                        puskesmasAddress,
                                         style: GoogleFonts.inter(
                                           fontSize: 12,
                                           color: Colors.grey.shade600,
                                         ),
                                       ),
+                                      if (puskesmasProfile?.latitude != null && puskesmasProfile?.longitude != null) ...[
+                                        const SizedBox(height: 6),
+                                        InkWell(
+                                          onTap: () async {
+                                            final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${puskesmasProfile!.latitude},${puskesmasProfile.longitude}');
+                                            if (await canLaunchUrl(url)) {
+                                              await launchUrl(url, mode: LaunchMode.externalApplication);
+                                            }
+                                          },
+                                          borderRadius: BorderRadius.circular(4),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 2),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(Icons.directions_rounded, color: AppTheme.primaryColor, size: 14),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  'Petunjuk Rute',
+                                                  style: GoogleFonts.inter(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppTheme.primaryColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
@@ -370,7 +407,7 @@ class BookingDetailScreen extends StatelessWidget {
                               InfoRowItem(
                                 icon: Icons.person_rounded, 
                                 label: 'Nama Pasien', 
-                                value: queue.patient.name + (queue.patient.isElderly ? ' (Lansia - Prioritas)' : ''),
+                                value: queue.patient.name + (queue.patient.isElderly ? ' (Prioritas)' : ''),
                               ),
                               const Divider(height: 24),
                               InfoRowItem(icon: Icons.badge_rounded, label: 'NIK', value: queue.patient.nationalId ?? '-'),
@@ -387,38 +424,95 @@ class BookingDetailScreen extends StatelessWidget {
                   if (queue.patient.isElderly) ...[
                     const SizedBox(height: 24),
                     FadeInUp(
-                      duration: const Duration(milliseconds: 600),
+                      duration: const Duration(milliseconds: 700),
                       child: Container(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(22),
                         decoration: BoxDecoration(
-                          color: Colors.amber.shade50,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.amber.shade200),
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFFE8F5E9).withValues(alpha: 0.9), // Emerald Light
+                              const Color(0xFFF1F8E9).withValues(alpha: 0.8), // Soft Light Mint
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: const Color(0xFFC5E1A5), // Mint Green border
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF4CAF50).withValues(alpha: 0.08),
+                              blurRadius: 16,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.star_rounded, color: Colors.amber.shade700, size: 22),
-                            const SizedBox(width: 12),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.shade100,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.amber.shade300,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.star_rounded,
+                                color: Colors.amber.shade800,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'LAYANAN JALUR PRIORITAS (LANSIA)',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.amber.shade900,
-                                    ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'LAYANAN PRIORITAS LANSIA',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800,
+                                          color: const Color(0xFF2E7D32), // Deep Emerald Green
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.amber.shade800,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          'GOLD',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 6),
                                   Text(
-                                    'Pasien diidentifikasi masuk kategori prioritas khusus (Lansia). Silakan hubungi loket pendaftaran Puskesmas untuk verifikasi jalur antrean prioritas.',
+                                    'Pasien berhak mendapatkan kemudahan jalur antrean khusus NalaSeva (Jalur Prioritas Lansia). Silakan langsung verifikasi kehadiran Anda ke loket prioritas Puskesmas.',
                                     style: GoogleFonts.inter(
                                       fontSize: 12,
-                                      color: Colors.amber.shade800,
-                                      height: 1.4,
+                                      color: const Color(0xFF388E3C), // Emerald Medium Green
+                                      height: 1.5,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
@@ -472,7 +566,7 @@ class BookingDetailScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         TextButton.icon(
-                          onPressed: () => _showCancelConfirmation(context),
+                          onPressed: _isCancellationLocked(queue) ? null : () => _showCancelConfirmation(context),
                           style: TextButton.styleFrom(
                             foregroundColor: _isCancellationLocked(queue) ? Colors.grey.shade500 : Colors.red,
                             minimumSize: const Size(double.infinity, 56),
@@ -502,28 +596,56 @@ class BookingDetailScreen extends StatelessWidget {
   }
 
   bool _isCancellationLocked(QueueModel queue) {
-    if (queue.status.isTerminal) {
+    if (queue.status != QueueStatus.booked && queue.status != QueueStatus.waiting) {
       return true;
+    }
+    
+    final now = DateTime.now();
+    bool isGracePeriod = false;
+
+    if (queue.createdAt != null) {
+      final diff = now.difference(queue.createdAt!);
+      if (diff.inMinutes <= 15) {
+        isGracePeriod = true;
+      }
     }
     
     try {
       final dateOnly = DateTimeParser.parseDateOnly(queue.date);
-      final minutesOfDay = DateTimeParser.parseMinutesOfDay(queue.estimatedServiceTime ?? '23:59');
+      final scheduleStartTime = queue.doctorSchedule?.startTime;
+      
+      if (scheduleStartTime == null || scheduleStartTime.isEmpty) {
+        return !isGracePeriod; // Jika jadwal kosong, izinkan jika grace period, tapi asumsikan terkunci di luar grace period (atau false seperti aslinya, kita ikuti aslinya false)
+      }
+      
+      final minutesOfDay = DateTimeParser.parseMinutesOfDay(scheduleStartTime);
 
       if (dateOnly != null && minutesOfDay != null) {
-        final estimatedTime = DateTime(
+        final serviceTime = DateTime(
           dateOnly.year,
           dateOnly.month,
           dateOnly.day,
           minutesOfDay ~/ 60,
           minutesOfDay % 60,
         );
-        final now = DateTime.now();
         
-        final difference = estimatedTime.difference(now);
+        // Aturan Backend 1: Jika waktu pelayanan sudah dimulai/terlewat, pembatalan DIKUNCI mutlak
+        if (now.isAfter(serviceTime) || now.isAtSameMomentAs(serviceTime)) {
+          return true;
+        }
+        
+        // Aturan Backend 2: Jika masih dalam grace period 15 menit, dan belum waktu praktik, DIBUKA
+        if (isGracePeriod) {
+          return false;
+        }
+        
+        // Aturan Backend 3: Jika di luar grace period, cek apakah jaraknya kurang dari 2 jam
+        final difference = serviceTime.difference(now);
         if (difference.inMinutes <= 120) {
           return true;
         }
+      } else if (isGracePeriod) {
+        return false;
       }
     } catch (e, stack) {
       AppLogger.error('Gagal memeriksa status kunci pembatalan tiket antrean', error: e, stackTrace: stack, tag: 'BookingDetailScreen');
@@ -538,7 +660,7 @@ class BookingDetailScreen extends StatelessWidget {
       AppDialogs.showNotificationDialog(
         context,
         'Pembatalan Ditutup',
-        'Pembatalan mandiri tidak diizinkan kurang dari 2 jam sebelum estimasi waktu pelayanan. Silakan hubungi loket pelayanan Puskesmas.',
+        'Pembatalan mandiri tidak diizinkan kurang dari 2 jam sebelum jam mulai pelayanan. Silakan hubungi loket pelayanan Puskesmas.',
         isError: true,
       );
       return;

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import '../data/patient_repository.dart';
 import '../../../shared/models/queue_model.dart';
-import '../../../shared/constants/app_constants.dart';
 import '../../../shared/models/polyclinic_model.dart';
 import '../../../shared/models/examination_model.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../../../shared/models/doctor_model.dart';
-import '../../../core/utils/app_logger.dart';
 
 class PatientProvider extends ChangeNotifier {
   final PatientRepository _repository;
@@ -50,26 +48,7 @@ class PatientProvider extends ChangeNotifier {
 
   Future<void> fetchMyQueues() async {
     await _performAction(() async {
-      final queues = await _repository.getMyQueues();
-      final holidays = await _repository.getClinicHolidays();
-      
-      List<QueueModel> validatedQueues = [];
-      for (var q in queues) {
-        if (q.status.isActive) {
-          final isHoliday = holidays.contains(q.date);
-          if (isHoliday) {
-            try {
-              await _repository.cancelQueue(q.id);
-              q = q.copyWith(status: QueueStatus.cancelled);
-              _error = "Antrean Anda pada tanggal ${q.date} dibatalkan otomatis karena Puskesmas menetapkan hari libur pada tanggal tersebut.";
-            } catch (e, stack) {
-              AppLogger.error('Gagal membatalkan otomatis antrean saat hari libur puskesmas', error: e, stackTrace: stack, tag: 'PatientProvider');
-            }
-          }
-        }
-        validatedQueues.add(q);
-      }
-      _myQueues = validatedQueues;
+      _myQueues = await _repository.getMyQueues();
     });
   }
 
@@ -88,7 +67,11 @@ class PatientProvider extends ChangeNotifier {
   Future<void> createBooking(Map<String, dynamic> data) async {
     await _performAction(() async {
       await _repository.bookQueue(data);
-      _myQueues = await _repository.getMyQueues();
+      try {
+        _myQueues = await _repository.getMyQueues();
+      } catch (e) {
+        debugPrint('Booking created successfully, but subsequent queue list refresh failed: $e');
+      }
     });
   }
 
@@ -133,5 +116,9 @@ class PatientProvider extends ChangeNotifier {
       _clinicHolidays = results[0];
       _doctorLeaves = results[1];
     });
+  }
+
+  Future<List<ScheduleModel>> getSchedulesDirectly(int polyId) async {
+    return await _repository.getDoctorSchedules(polyId);
   }
 }

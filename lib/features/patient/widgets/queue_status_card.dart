@@ -30,6 +30,15 @@ class QueueStatusCard extends StatelessWidget {
     }
 
     final activeQueues = provider.myQueues.where((q) => q.status.isActive).toList();
+    activeQueues.sort((a, b) {
+      if (a.status == QueueStatus.examining && b.status != QueueStatus.examining) return -1;
+      if (b.status == QueueStatus.examining && a.status != QueueStatus.examining) return 1;
+      final dateCompare = a.date.compareTo(b.date);
+      if (dateCompare != 0) return dateCompare;
+      final timeA = a.estimatedServiceTime ?? '99:99';
+      final timeB = b.estimatedServiceTime ?? '99:99';
+      return timeA.compareTo(timeB);
+    });
 
     if (activeQueues.isEmpty) {
       return Container(

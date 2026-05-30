@@ -107,7 +107,7 @@ class PatientRepository {
 
   Future<void> cancelQueue(int id) async {
     try {
-      final response = await _apiClient.dio.put('queues/$id', data: {'status': 'cancelled'});
+      final response = await _apiClient.dio.delete('queues/$id');
       _checkResponse(response, 'Gagal membatalkan antrean');
     } on DioException catch (e) {
       throw _errorMessage(e, 'Gagal membatalkan antrean');

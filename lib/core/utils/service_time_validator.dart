@@ -21,7 +21,7 @@ class ServiceTimeValidator {
 
     // 2. Check Service Time
     if (queue.estimatedServiceTime == null || queue.estimatedServiceTime!.isEmpty) {
-      return null; // Allow if not specified
+      return 'Aksi ditolak. Estimasi jam pelayanan belum tersedia untuk antrean ini.';
     }
 
     try {

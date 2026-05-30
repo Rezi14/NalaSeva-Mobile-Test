@@ -166,11 +166,31 @@ class AdminRepository {
     }
   }
 
-  Future<void> checkInQueue(int id) async {
+  Future<void> checkInQueue(int id, {String? reason}) async {
     try {
-      await _apiClient.dio.post('queues/$id/checkin');
+      await _apiClient.dio.post(
+        'queues/$id/checkin',
+        data: reason != null ? {'reason': reason} : null,
+      );
     } on DioException catch (e) {
       throw ErrorParser.parse(e, 'Gagal memverifikasi Check-in');
+    }
+  }
+
+  Future<QueueModel> recallQueue(int id) async {
+    try {
+      final response = await _apiClient.dio.post('queues/$id/recall');
+      return QueueModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal memanggil ulang pasien');
+    }
+  }
+
+  Future<void> skipQueue(int id) async {
+    try {
+      await _apiClient.dio.post('queues/$id/skip');
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal memindahkan antrean ke belakang');
     }
   }
 

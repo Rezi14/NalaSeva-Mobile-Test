@@ -116,8 +116,20 @@ class AdminVoiceCallDialog {
                           return;
                         }
 
+                        final provider = context.read<AdminProvider>();
+                        await provider.updateQueueStatus(queue.id, QueueStatus.examining);
+                        if (!context.mounted) return;
+                        if (provider.error != null) {
+                          AppDialogs.showNotificationDialog(
+                            context,
+                            'Gagal Memanggil Pasien',
+                            provider.error!,
+                            isError: true,
+                          );
+                          return;
+                        }
+
                         Navigator.pop(context);
-                        await context.read<AdminProvider>().updateQueueStatus(queue.id, QueueStatus.examining);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,

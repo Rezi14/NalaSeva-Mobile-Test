@@ -129,11 +129,32 @@ class AuthRepository {
     }
   }
 
-  Future<void> forgotPassword(String email, String nationalId, String newPassword) async {
+  Future<String?> requestPasswordResetOtp(String email, String nationalId) async {
+    try {
+      final response = await _apiClient.dio.post('auth/forgot-password/otp', data: {
+        'email': email,
+        'national_id': nationalId,
+      });
+
+      if (response.data['status'] != 'success') {
+        throw response.data['message'] ?? 'Gagal meminta OTP';
+      }
+      
+      final data = response.data['data'];
+      return data?['otp_code_testing']?.toString();
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal meminta OTP. Periksa data Anda.');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> forgotPassword(String email, String nationalId, String otpCode, String newPassword) async {
     try {
       final response = await _apiClient.dio.post('auth/forgot-password', data: {
         'email': email,
         'national_id': nationalId,
+        'otp_code': otpCode,
         'new_password': newPassword,
       });
 

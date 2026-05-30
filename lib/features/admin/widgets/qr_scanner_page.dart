@@ -91,6 +91,17 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
                   }
                   
                   if (matchedQueue != null) {
+                    if (matchedQueue.status != QueueStatus.booked) {
+                      AppDialogs.showNotificationDialog(
+                        context,
+                        'Absensi Gagal',
+                        'Hanya antrean berstatus DIPESAN yang dapat diabsenkan.',
+                        isError: true,
+                      );
+                      setState(() => _isScanning = true);
+                      return;
+                    }
+
                     final validationError = ServiceTimeValidator.validateAdminAction(matchedQueue);
                     if (validationError != null) {
                       AppDialogs.showNotificationDialog(
@@ -287,7 +298,7 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
 
   Future<void> _handleScanResult(int queueId) async {
     final provider = context.read<AdminProvider>();
-    await provider.checkInQueue(queueId);
+    await provider.checkInQueue(queueId, reason: 'Scan QR Code');
     if (mounted) {
       if (provider.error != null) {
         AppDialogs.showNotificationDialog(

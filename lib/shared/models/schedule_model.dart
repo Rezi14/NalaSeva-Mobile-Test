@@ -7,6 +7,7 @@ class ScheduleModel {
   final String startTime;
   final String endTime;
   final DoctorModel? doctor;
+  final int? remainingDailyQuota;
 
   ScheduleModel({
     required this.id,
@@ -15,6 +16,7 @@ class ScheduleModel {
     required this.startTime,
     required this.endTime,
     this.doctor,
+    this.remainingDailyQuota,
   });
 
   factory ScheduleModel.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class ScheduleModel {
       startTime: json['start_time'] ?? '',
       endTime: json['end_time'] ?? '',
       doctor: json['doctor'] != null ? DoctorModel.fromJson(json['doctor']) : null,
+      remainingDailyQuota: json['remaining_daily_quota'],
     );
   }
 
@@ -36,6 +39,7 @@ class ScheduleModel {
       'start_time': startTime,
       'end_time': endTime,
       'doctor': doctor?.toJson(),
+      'remaining_daily_quota': remainingDailyQuota,
     };
   }
 }

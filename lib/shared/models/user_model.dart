@@ -146,7 +146,7 @@ class UserModel {
       doctorId: doctor?['id'],
       name: json['name'] ?? 'Unknown',
       email: json['email'] ?? '',
-      role: json['role'] ?? 'patient',
+      role: json['role'] ?? 'unknown',
       phone: phoneVal?.toString(),
       address: addressVal?.toString(),
       nationalId: nationalIdVal?.toString(),

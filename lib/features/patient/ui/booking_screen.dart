@@ -13,6 +13,7 @@ import '../widgets/booking_result_dialog.dart';
 import '../../../core/utils/app_logger.dart';
 import '../../../core/utils/date_time_parser.dart';
 import 'package:intl/intl.dart';
+import '../../../shared/constants/app_constants.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -24,7 +25,7 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   int? selectedPolyId;
   int? selectedDoctorId;
-  DateTime selectedDate = DateTime.now();
+  DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
 
   @override
   void initState() {
@@ -72,14 +73,18 @@ class _BookingScreenState extends State<BookingScreen> {
                                     children: [
                                       IconButton(
                                         onPressed: () => Navigator.pop(context),
-                                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                        icon: const Icon(
+                                          Icons.arrow_back_ios_new_rounded,
+                                          size: 20,
+                                        ),
                                         padding: EdgeInsets.zero,
                                         constraints: const BoxConstraints(),
                                         color: AppTheme.primaryColor,
                                       ),
                                       const SizedBox(width: 16),
                                       Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Ambil Antrean',
@@ -130,16 +135,25 @@ class _BookingScreenState extends State<BookingScreen> {
                         child: BookingDropdownCard(
                           hint: 'Pilih Poliklinik',
                           value: selectedPolyId,
-                          items: provider.polyclinics.map((p) => DropdownMenuItem<int>(
-                            value: p.id,
-                            child: Text(p.name, style: GoogleFonts.inter(fontSize: 14)),
-                          )).toList(),
+                          items: provider.polyclinics
+                              .map(
+                                (p) => DropdownMenuItem<int>(
+                                  value: p.id,
+                                  child: Text(
+                                    p.name,
+                                    style: GoogleFonts.inter(fontSize: 14),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                           onChanged: (val) {
                             setState(() {
                               selectedPolyId = val;
                               selectedDoctorId = null;
                             });
-                            if (val != null) provider.fetchSchedulesForPoly(val);
+                            if (val != null) {
+                              provider.fetchSchedulesForPoly(val);
+                            }
                           },
                           icon: Icons.local_hospital_rounded,
                         ),
@@ -155,49 +169,72 @@ class _BookingScreenState extends State<BookingScreen> {
                         duration: const Duration(milliseconds: 600),
                         delay: const Duration(milliseconds: 500),
                         child: BookingDropdownCard(
-                          hint: selectedPolyId == null 
-                              ? 'Pilih Poliklinik Terlebih Dahulu' 
-                              : (provider.availableSchedules.isEmpty 
-                                  ? 'Tidak Ada Jadwal Dokter Tersedia' 
-                                  : 'Pilih Dokter & Jadwal'),
+                          hint: selectedPolyId == null
+                              ? 'Pilih Poliklinik Terlebih Dahulu'
+                              : (provider.availableSchedules.isEmpty
+                                    ? 'Tidak Ada Jadwal Dokter Tersedia'
+                                    : 'Pilih Dokter & Jadwal'),
                           value: selectedDoctorId,
-                          enabled: selectedPolyId != null && provider.availableSchedules.isNotEmpty,
-                           items: provider.availableSchedules.where((s) {
-                             final doc = _resolveDoctor(provider, s);
-                             return doc.isOnline;
-                           }).map((s) {
-                             final startStr = s.startTime.length >= 5 ? s.startTime.substring(0, 5) : s.startTime;
-                             final endStr = s.endTime.length >= 5 ? s.endTime.substring(0, 5) : s.endTime;
-                             final quota = _calculateQuota(s.startTime, s.endTime);
-                             final doc = _resolveDoctor(provider, s);
-                             final doctorName = doc.user?.name ?? doc.name;
-                             return DropdownMenuItem<int>(
-                               value: s.id, // Using schedule ID for more precision
-                               child: Text(
-                                 "$doctorName (${s.dayOfWeek}, $startStr - $endStr | Kuota: ${quota != null ? '$quota Pasien' : 'tidak tersedia'})",
-                                 style: GoogleFonts.inter(fontSize: 12),
-                               ),
-                             );
-                           }).toList(),
+                          enabled:
+                              selectedPolyId != null &&
+                              provider.availableSchedules.isNotEmpty,
+                          items: provider.availableSchedules.map((s) {
+                            final startStr = s.startTime.length >= 5
+                                ? s.startTime.substring(0, 5)
+                                : s.startTime;
+                            final endStr = s.endTime.length >= 5
+                                ? s.endTime.substring(0, 5)
+                                : s.endTime;
+                            final quota = _calculateQuota(
+                              s.startTime,
+                              s.endTime,
+                            );
+                            final doc = _resolveDoctor(provider, s);
+                            final doctorName = doc.user?.name ?? doc.name;
+                            final quotaText = quota != null ? '$quota Kapasitas' : 'tidak tersedia';
+                            return DropdownMenuItem<int>(
+                              value:
+                                  s.id, // Using schedule ID for more precision
+                              child: Text(
+                                "$doctorName (${s.dayOfWeek}, $startStr - $endStr | $quotaText)",
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                           onChanged: (val) async {
                             setState(() {
                               selectedDoctorId = val;
                             });
                             if (val != null) {
-                              final schedules = provider.availableSchedules.where((s) => s.id == val);
+                              final schedules = provider.availableSchedules
+                                  .where((s) => s.id == val);
                               if (schedules.isEmpty) return;
                               final selectedSchedule = schedules.first;
-                              final targetDayOfWeek = _getDayOfWeekInt(selectedSchedule.dayOfWeek);
-                              
+
                               // Ambil data libur & cuti dokter asinkron
-                              await provider.fetchHolidaysAndLeaves(selectedSchedule.doctorId);
-                              final nearestDate = _getNearestDateForWeekday(targetDayOfWeek, provider);
+                              await provider.fetchHolidaysAndLeaves(
+                                selectedSchedule.doctorId,
+                              );
+                              final nearestDate = _getNearestDateForWeekday(
+                                selectedSchedule,
+                                provider,
+                              );
                               if (nearestDate == null) {
                                 if (!mounted) return;
-                                _showResultDialog(false, 'Tidak ada tanggal kunjungan yang tersedia dalam 90 hari ke depan untuk jadwal ini.');
+                                setState(() {
+                                  selectedDoctorId = null;
+                                });
+                                _showResultDialog(
+                                  false,
+                                  'Tidak ada tanggal kunjungan yang tersedia dalam 7 hari ke depan untuk jadwal ini.',
+                                );
                                 return;
                               }
-                              
+
                               setState(() {
                                 selectedDate = nearestDate;
                               });
@@ -217,57 +254,70 @@ class _BookingScreenState extends State<BookingScreen> {
                         duration: const Duration(milliseconds: 600),
                         delay: const Duration(milliseconds: 550),
                         child: InkWell(
-                          onTap: selectedDoctorId == null ? null : () async {
-                             final schedules = provider.availableSchedules.where((s) => s.id == selectedDoctorId);
-                             if (schedules.isEmpty) return;
-                             final selectedSchedule = schedules.first;
-                             final targetDayOfWeek = _getDayOfWeekInt(selectedSchedule.dayOfWeek);
-                            final selDateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
-                            final isSelHoliday = provider.clinicHolidays.contains(selDateStr);
-                            final isSelLeave = provider.doctorLeaves.contains(selDateStr);
-                            final initialDate = (selectedDate.weekday == targetDayOfWeek && !isSelHoliday && !isSelLeave)
-                                ? selectedDate
-                                : _getNearestDateForWeekday(targetDayOfWeek, provider);
-                            if (initialDate == null) {
-                              _showResultDialog(false, 'Tidak ada tanggal kunjungan yang valid dalam 90 hari ke depan.');
-                              return;
-                            }
-                            final limitDate = DateTime.now().add(const Duration(days: 30));
-                            final adjustedLastDate = initialDate.isAfter(limitDate) ? initialDate.add(const Duration(days: 7)) : limitDate;
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: initialDate,
-                              firstDate: DateTime.now(),
-                              lastDate: adjustedLastDate,
-                              selectableDayPredicate: (date) {
-                                final dateStr = DateFormat('yyyy-MM-dd').format(date);
-                                final isHoliday = provider.clinicHolidays.contains(dateStr);
-                                final isLeave = provider.doctorLeaves.contains(dateStr);
-                                return date.weekday == targetDayOfWeek && !isHoliday && !isLeave;
-                              },
-                              builder: (context, child) {
-                                return Theme(
-                                  data: Theme.of(context).copyWith(
-                                    colorScheme: const ColorScheme.light(
-                                      primary: AppTheme.primaryColor,
-                                      onPrimary: Colors.white,
-                                      onSurface: Colors.black87,
-                                    ),
-                                  ),
-                                  child: child!,
-                                );
-                              },
-                            );
-                            if (picked != null) {
-                              setState(() {
-                                selectedDate = picked;
-                              });
-                            }
-                          },
+                          onTap: selectedDoctorId == null
+                              ? null
+                              : () async {
+                                  final schedules = provider.availableSchedules
+                                      .where((s) => s.id == selectedDoctorId);
+                                  if (schedules.isEmpty) return;
+                                  final selectedSchedule = schedules.first;
+                                  final initialDate = _getNearestDateForWeekday(
+                                    selectedSchedule,
+                                    provider,
+                                  );
+                                  if (initialDate == null) {
+                                    _showResultDialog(
+                                      false,
+                                      'Tidak ada tanggal kunjungan yang valid dalam 7 hari ke depan.',
+                                    );
+                                    return;
+                                  }
+                                  final adjustedLastDate = DateTime.now().add(
+                                    const Duration(days: 7),
+                                  );
+                                  final now = DateTime.now();
+                                  final todayStart = DateTime(
+                                    now.year,
+                                    now.month,
+                                    now.day,
+                                  );
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: initialDate,
+                                    firstDate: todayStart,
+                                    lastDate: adjustedLastDate,
+                                    selectableDayPredicate: (date) {
+                                      return _isBookableDate(
+                                        date,
+                                        selectedSchedule,
+                                        provider,
+                                      );
+                                    },
+                                    builder: (context, child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: const ColorScheme.light(
+                                            primary: AppTheme.primaryColor,
+                                            onPrimary: Colors.white,
+                                            onSurface: Colors.black87,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
+                                    },
+                                  );
+                                  if (picked != null) {
+                                    setState(() {
+                                      selectedDate = picked;
+                                    });
+                                  }
+                                },
                           child: Container(
                             padding: const EdgeInsets.all(18),
                             decoration: BoxDecoration(
-                              color: selectedDoctorId == null ? Colors.grey.shade50 : Colors.white,
+                              color: selectedDoctorId == null
+                                  ? Colors.grey.shade50
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(color: Colors.grey.shade200),
                             ),
@@ -275,20 +325,27 @@ class _BookingScreenState extends State<BookingScreen> {
                               children: [
                                 Icon(
                                   Icons.calendar_month_rounded,
-                                  color: selectedDoctorId == null ? Colors.grey : AppTheme.primaryColor,
+                                  color: selectedDoctorId == null
+                                      ? Colors.grey
+                                      : AppTheme.primaryColor,
                                   size: 22,
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        selectedDoctorId == null 
+                                        selectedDoctorId == null
                                             ? 'Pilih Dokter Terlebih Dahulu'
-                                            : _formatIndonesianDate(selectedDate),
+                                            : _formatIndonesianDate(
+                                                selectedDate,
+                                              ),
                                         style: GoogleFonts.inter(
-                                          color: selectedDoctorId == null ? Colors.grey.shade400 : Colors.black87,
+                                          color: selectedDoctorId == null
+                                              ? Colors.grey.shade400
+                                              : Colors.black87,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 14,
                                         ),
@@ -307,13 +364,64 @@ class _BookingScreenState extends State<BookingScreen> {
                                   ),
                                 ),
                                 if (selectedDoctorId != null)
-                                  const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+                                  const Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 14,
+                                    color: Colors.grey,
+                                  ),
                               ],
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 48),
+                      if (_isPriorityPatient()) ...[
+                        const SizedBox(height: 24),
+                        FadeIn(
+                          duration: const Duration(milliseconds: 500),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.shade50,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.amber.shade300),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.elderly_rounded,
+                                  color: Colors.amber.shade700,
+                                  size: 28,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Layanan Antrean Prioritas',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.amber.shade900,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Anda terdeteksi sebagai lansia (usia >= 60 tahun). Antrean Anda akan secara otomatis didahulukan oleh sistem.',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 12,
+                                          color: Colors.amber.shade800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 32),
                       FadeInUp(
                         duration: const Duration(milliseconds: 600),
                         delay: const Duration(milliseconds: 600),
@@ -343,7 +451,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Widget _buildSubmitButton(PatientProvider provider) {
     bool canSubmit = selectedPolyId != null && selectedDoctorId != null;
-    
+
     return Container(
       width: double.infinity,
       height: 56,
@@ -356,17 +464,19 @@ class _BookingScreenState extends State<BookingScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
         ),
         child: provider.isLoading
-          ? const CircularProgressIndicator(color: Colors.white)
-          : Text(
-              'KONFIRMASI PENDAFTARAN',
-              style: GoogleFonts.plusJakartaSans(
-                fontWeight: FontWeight.bold,
-                color: canSubmit ? Colors.white : Colors.grey,
+            ? const CircularProgressIndicator(color: Colors.white)
+            : Text(
+                'KONFIRMASI PENDAFTARAN',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.bold,
+                  color: canSubmit ? Colors.white : Colors.grey,
+                ),
               ),
-            ),
       ),
     );
   }
@@ -385,50 +495,42 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-
   void _submit() async {
     final user = context.read<AuthProvider>().user;
-    final patientId = user?.patientId ?? user?.id;
+    final patientId = user?.patientId;
     if (patientId == null) {
-       _showResultDialog(false, 'Data pasien tidak ditemukan');
+      _showResultDialog(
+        false,
+        'Data pasien tidak ditemukan. Akun Anda tidak terdaftar sebagai pasien.',
+      );
       return;
     }
 
     final provider = context.read<PatientProvider>();
-    
+
     // Ambil antrean terbaru milik pasien untuk divalidasi
     await provider.fetchMyQueues();
-    
-    // Cek apakah pasien sudah memiliki booking aktif di poliklinik yang sama
-    final hasActiveBookingInSamePoly = provider.myQueues.any((q) => 
-        q.polyclinic.id == selectedPolyId &&
-        q.status.isActive
+
+    // Cek apakah pasien sudah memiliki booking aktif di poliklinik yang sama pada tanggal yang sama
+    final selectedDateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+    final hasActiveBookingInSamePoly = provider.myQueues.any(
+      (q) =>
+          q.polyclinic.id == selectedPolyId &&
+          q.date == selectedDateStr &&
+          q.status != QueueStatus.cancelled,
     );
 
     if (hasActiveBookingInSamePoly) {
       _showResultDialog(
-        false, 
-        'Anda masih memiliki antrean aktif di poliklinik ini. Anda tidak diperbolehkan mendaftar lebih dari satu antrean aktif pada poliklinik yang sama.'
+        false,
+        'Anda masih memiliki antrean aktif di poliklinik ini pada tanggal tersebut. Anda tidak diperbolehkan mendaftar lebih dari satu antrean aktif pada poliklinik yang sama di hari yang sama.',
       );
       return;
     }
 
-    // Cek apakah pasien sudah memiliki antrean aktif pada tanggal kunjungan yang sama lintas poliklinik (Tugas 1)
-    final selectedDateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
-    final hasActiveBookingOnSameDate = provider.myQueues.any((q) => 
-        q.date == selectedDateStr &&
-        q.status.isActive
+    final schedules = provider.availableSchedules.where(
+      (s) => s.id == selectedDoctorId,
     );
-
-    if (hasActiveBookingOnSameDate) {
-      _showResultDialog(
-        false, 
-        'Anda sudah memiliki antrean aktif pada tanggal kunjungan tersebut di poliklinik lain. Anda hanya diperbolehkan mendaftar maksimal 1 antrean aktif per hari.'
-      );
-      return;
-    }
-
-    final schedules = provider.availableSchedules.where((s) => s.id == selectedDoctorId);
     if (schedules.isEmpty) {
       _showResultDialog(false, 'Jadwal dokter tidak ditemukan');
       return;
@@ -436,38 +538,94 @@ class _BookingScreenState extends State<BookingScreen> {
     final selectedSchedule = schedules.first;
     final doctorId = selectedSchedule.doctorId;
 
-    // Kuota maksimal dihitung di client dan dikirim ke backend untuk divalidasi (pertahanan di server)
-    final quota = _calculateQuota(selectedSchedule.startTime, selectedSchedule.endTime);
+    // Cek apakah pasien sudah memiliki antrean aktif pada tanggal kunjungan yang sama dengan jadwal yang bertabrakan (Tugas 1 - Refined)
+    final activeQueuesSameDate = provider.myQueues
+        .where((q) => q.date == selectedDateStr && q.status != QueueStatus.cancelled)
+        .toList();
+
+    for (var existingQueue in activeQueuesSameDate) {
+      var existingSchedule = existingQueue.doctorSchedule;
+      if (existingSchedule == null && existingQueue.doctorScheduleId != null) {
+        try {
+          final schedulesOfPoly = await provider.getSchedulesDirectly(
+            existingQueue.polyclinic.id,
+          );
+          final matched = schedulesOfPoly.where(
+            (s) => s.id == existingQueue.doctorScheduleId,
+          );
+          if (matched.isNotEmpty) {
+            existingSchedule = matched.first;
+          }
+        } catch (e, stack) {
+          AppLogger.error(
+            'Gagal mengambil jadwal cadangan secara dinamis',
+            error: e,
+            stackTrace: stack,
+            tag: 'BookingScreen',
+          );
+        }
+      }
+
+      if (existingSchedule != null) {
+        final startNew =
+            DateTimeParser.parseMinutesOfDay(selectedSchedule.startTime) ?? 0;
+        final endNew =
+            DateTimeParser.parseMinutesOfDay(selectedSchedule.endTime) ?? 0;
+        final startExist =
+            DateTimeParser.parseMinutesOfDay(existingSchedule.startTime) ?? 0;
+        final endExist =
+            DateTimeParser.parseMinutesOfDay(existingSchedule.endTime) ?? 0;
+
+        if (startNew < endExist && startExist < endNew) {
+          final timeExistStr =
+              "${existingSchedule.startTime.substring(0, 5)} - ${existingSchedule.endTime.substring(0, 5)}";
+          _showResultDialog(
+            false,
+            'Pendaftaran gagal. Jam pelayanan dokter bentrok dengan antrean aktif Anda yang lain pada hari tersebut ($timeExistStr WIB).',
+          );
+          return;
+        }
+      }
+    }
+
+
 
     // Proteksi tanggal di masa lalu atau jam praktik hari ini yang sudah terlewat (Tugas 2)
     final now = DateTime.now();
-    final todayStr = DateFormat('yyyy-MM-dd').format(now);
-    final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-    final todayOnly = DateTime(now.year, now.month, now.day);
-    
-    if (selectedDateOnly.isBefore(todayOnly)) {
+    final selectedDateOnly = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    );
+
+    if (selectedDateOnly.isBefore(DateTime(now.year, now.month, now.day))) {
       _showResultDialog(false, 'Tanggal kunjungan tidak boleh di masa lalu.');
       return;
     }
 
-    if (selectedDateStr == todayStr) {
-      try {
-        final endMinutes = DateTimeParser.parseMinutesOfDay(selectedSchedule.endTime);
-        if (endMinutes == null) {
-          _showResultDialog(false, 'Format jam praktik dokter tidak valid. Silakan pilih jadwal lain.');
-          return;
-        }
-        final limitTime = DateTime(now.year, now.month, now.day, endMinutes ~/ 60, endMinutes % 60);
-        if (now.isAfter(limitTime)) {
-          _showResultDialog(
-            false,
-            'Jam praktik dokter untuk hari ini sudah selesai. Silakan pilih tanggal lain.'
-          );
-          return;
-        }
-      } catch (e, stack) {
-        AppLogger.error('Gagal memvalidasi jam selesai praktik dokter', error: e, stackTrace: stack, tag: 'BookingScreen');
-        _showResultDialog(false, 'Format jam praktik dokter tidak valid. Silakan pilih jadwal lain.');
+    if (selectedDateStr == DateFormat('yyyy-MM-dd').format(now)) {
+      final startMinutes = DateTimeParser.parseMinutesOfDay(
+        selectedSchedule.startTime,
+      );
+      if (startMinutes == null) {
+        _showResultDialog(
+          false,
+          'Format jam praktik dokter tidak valid. Silakan pilih jadwal lain.',
+        );
+        return;
+      }
+      final serviceStart = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        startMinutes ~/ 60,
+        startMinutes % 60,
+      );
+      if (!now.isBefore(serviceStart)) {
+        _showResultDialog(
+          false,
+          'Pendaftaran untuk hari ini hanya bisa dilakukan sebelum jam mulai praktik dokter.',
+        );
         return;
       }
     }
@@ -480,54 +638,106 @@ class _BookingScreenState extends State<BookingScreen> {
       'doctor_id': doctorId,
       'doctor_schedule_id': selectedSchedule.id,
       'date': selectedDateStr,
-      if (quota != null) 'max_quota': quota,
     });
-    
+
     if (mounted) {
       if (provider.error != null) {
         String errorMsg = provider.error!;
         if (errorMsg.contains('aktif di poliklinik')) {
-          errorMsg = 'Anda sudah terdaftar pada poliklinik ini untuk tanggal terpilih. Silakan pilih tanggal lain atau cek riwayat antrean Anda.';
+          errorMsg =
+              'Anda sudah terdaftar pada poliklinik ini untuk tanggal terpilih. Silakan pilih tanggal lain atau cek riwayat antrean Anda.';
         }
         _showResultDialog(false, errorMsg);
       } else {
-        _showResultDialog(true, 'Antrean Anda telah sukses terdaftar di poliklinik!');
+        _showResultDialog(
+          true,
+          'Antrean Anda telah sukses terdaftar di poliklinik!',
+        );
       }
     }
   }
 
-
   int _getDayOfWeekInt(String indonesianDay) {
     switch (indonesianDay.toLowerCase()) {
-      case 'senin': return DateTime.monday;
-      case 'selasa': return DateTime.tuesday;
-      case 'rabu': return DateTime.wednesday;
-      case 'kamis': return DateTime.thursday;
-      case 'jumat': return DateTime.friday;
-      case 'sabtu': return DateTime.saturday;
-      case 'minggu': return DateTime.sunday;
-      default: return 1;
+      case 'senin':
+        return DateTime.monday;
+      case 'selasa':
+        return DateTime.tuesday;
+      case 'rabu':
+        return DateTime.wednesday;
+      case 'kamis':
+        return DateTime.thursday;
+      case 'jumat':
+        return DateTime.friday;
+      case 'sabtu':
+        return DateTime.saturday;
+      case 'minggu':
+        return DateTime.sunday;
+      default:
+        return 1;
     }
   }
 
   DoctorModel _resolveDoctor(PatientProvider provider, ScheduleModel schedule) {
     return provider.doctors.firstWhere(
       (d) => d.id == schedule.doctorId,
-      orElse: () => schedule.doctor ?? DoctorModel(id: schedule.doctorId, userId: 0, isOnline: false),
+      orElse: () =>
+          schedule.doctor ?? DoctorModel(id: schedule.doctorId, userId: 0),
     );
   }
 
-  DateTime? _getNearestDateForWeekday(int targetWeekday, PatientProvider provider) {
-    DateTime date = DateTime.now();
-    final maxDate = DateTime.now().add(const Duration(days: 90)); // Batas pencarian 90 hari
-    while (date.isBefore(maxDate)) {
-      if (date.weekday == targetWeekday) {
-        final dateStr = DateFormat('yyyy-MM-dd').format(date);
-        final isHoliday = provider.clinicHolidays.contains(dateStr);
-        final isLeave = provider.doctorLeaves.contains(dateStr);
-        if (!isHoliday && !isLeave) {
-          return date;
-        }
+  bool _isBookableDate(
+    DateTime date,
+    ScheduleModel schedule,
+    PatientProvider provider,
+  ) {
+    final dateStr = DateFormat('yyyy-MM-dd').format(date);
+    final isHoliday = provider.clinicHolidays.contains(dateStr);
+    final isLeave = provider.doctorLeaves.contains(dateStr);
+    if (isHoliday || isLeave) {
+      return false;
+    }
+
+    if (date.weekday != _getDayOfWeekInt(schedule.dayOfWeek)) {
+      return false;
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day) {
+      final startMinutes = DateTimeParser.parseMinutesOfDay(schedule.startTime);
+      if (startMinutes == null) {
+        return false;
+      }
+      final serviceStart = DateTime(
+        today.year,
+        today.month,
+        today.day,
+        startMinutes ~/ 60,
+        startMinutes % 60,
+      );
+      return now.isBefore(serviceStart);
+    }
+
+    return date.isAfter(today);
+  }
+
+  DateTime? _getNearestDateForWeekday(
+    ScheduleModel schedule,
+    PatientProvider provider,
+  ) {
+    final now = DateTime.now();
+    DateTime date = DateTime(now.year, now.month, now.day);
+    final maxDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).add(const Duration(days: 7));
+    while (date.isBefore(maxDate) || date.isAtSameMomentAs(maxDate)) {
+      if (_isBookableDate(date, schedule, provider)) {
+        return date;
       }
       date = date.add(const Duration(days: 1));
     }
@@ -536,11 +746,27 @@ class _BookingScreenState extends State<BookingScreen> {
 
   String _formatIndonesianDate(DateTime date) {
     final months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
     ];
     final days = [
-      'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu',
     ];
     final dayName = days[date.weekday - 1];
     final monthName = months[date.month - 1];
@@ -553,14 +779,25 @@ class _BookingScreenState extends State<BookingScreen> {
       final endTotal = DateTimeParser.parseMinutesOfDay(endTime);
       if (startTotal != null && endTotal != null) {
         final duration = endTotal - startTotal;
-        if (duration > 0) {
-          return (duration / 15).floor();
-        }
+        return duration > 0 ? (duration / 15).floor() : 10;
       }
     } catch (e, stack) {
-      AppLogger.error('Gagal menghitung kuota dari jam kerja', error: e, stackTrace: stack, tag: 'BookingScreen');
+      AppLogger.error(
+        'Gagal menghitung kuota dari jam kerja',
+        error: e,
+        stackTrace: stack,
+        tag: 'BookingScreen',
+      );
     }
-    return null;
+    return 10; // Fallback to 10 matching backend
+  }
+
+  bool _isPriorityPatient() {
+    final user = context.read<AuthProvider>().user;
+    if (user != null && user.birthDate != null) {
+      final age = DateTime.now().difference(user.birthDate!).inDays ~/ 365.25;
+      return age >= 60;
+    }
+    return false;
   }
 }
-

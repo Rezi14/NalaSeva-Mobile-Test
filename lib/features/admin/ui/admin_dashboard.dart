@@ -55,6 +55,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
     final screenWidth = MediaQuery.of(context).size.width;
+    final todayStr = DateTime.now().toIso8601String().substring(0, 10);
 
     final List<double> weeklyCounts = List.filled(7, 0.0);
     final now = DateTime.now();
@@ -180,9 +181,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                           child: AdminStatCard(
                                             label: 'Total Antrean',
                                             value: provider.queues.where((q) => 
-                                              q.status == QueueStatus.booked || 
-                                              q.status == QueueStatus.waiting || 
-                                              q.status == QueueStatus.examining
+                                              q.date == todayStr && (
+                                                q.status == QueueStatus.booked || 
+                                                q.status == QueueStatus.waiting || 
+                                                q.status == QueueStatus.examining
+                                              )
                                             ).length.toString(),
                                             icon: Icons.format_list_numbered_rounded,
                                             onTap: () => Navigator.pushNamed(context, '/admin/queues'),
@@ -303,9 +306,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 child: ClinicStatCard(
                                   name: poly.name,
                                   counter:
-                                      'Pasien: ${provider.queues.where((q) => q.polyclinic.id == poly.id && (q.status == QueueStatus.booked || q.status == QueueStatus.waiting || q.status == QueueStatus.examining)).length}',
+                                      'Pasien: ${provider.queues.where((q) => q.polyclinic.id == poly.id && q.date == todayStr && (q.status == QueueStatus.booked || q.status == QueueStatus.waiting || q.status == QueueStatus.examining)).length}',
                                   wait:
-                                      'Menunggu: ${provider.queues.where((q) => q.polyclinic.id == poly.id && q.status == QueueStatus.waiting).length}',
+                                      'Menunggu: ${provider.queues.where((q) => q.polyclinic.id == poly.id && q.date == todayStr && q.status == QueueStatus.waiting).length}',
                                   color: colors[index % colors.length],
                                 ),
                               );
@@ -348,9 +351,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             final activeQList = provider.queues
                                 .where(
                                   (q) =>
-                                      q.status == QueueStatus.booked ||
-                                      q.status == QueueStatus.waiting ||
-                                      q.status == QueueStatus.examining,
+                                      q.date == todayStr && (
+                                        q.status == QueueStatus.booked ||
+                                        q.status == QueueStatus.waiting ||
+                                        q.status == QueueStatus.examining
+                                      ),
                                 )
                                 .take(3)
                                 .toList();

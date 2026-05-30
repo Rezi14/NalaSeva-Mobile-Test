@@ -18,6 +18,11 @@ class TomorrowReminderCard extends StatelessWidget {
     final activeQueues = provider.myQueues.where((q) => q.status.isActive).toList();
         
     final tomorrowQueues = activeQueues.where((q) => q.date == tomorrowStr).toList();
+    tomorrowQueues.sort((a, b) {
+      final timeA = a.estimatedServiceTime ?? '99:99';
+      final timeB = b.estimatedServiceTime ?? '99:99';
+      return timeA.compareTo(timeB);
+    });
     if (tomorrowQueues.isEmpty) {
       return const SizedBox.shrink();
     }

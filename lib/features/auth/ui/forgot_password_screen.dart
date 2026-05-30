@@ -18,9 +18,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _nationalIdController = TextEditingController();
+  final _otpController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  bool _hasRequestedOtp = false;
+  String? _otpTestingCode;
   bool _isObscure = true;
   bool _isConfirmObscure = true;
 
@@ -28,17 +31,69 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void dispose() {
     _emailController.dispose();
     _nationalIdController.dispose();
+    _otpController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
+  void _requestOtp() async {
+    if (_emailController.text.isEmpty || _nationalIdController.text.isEmpty) {
+      AppDialogs.showNotificationDialog(
+        context,
+        'Info',
+        'Silakan masukkan Email dan NIK terlebih dahulu.',
+        isError: true,
+      );
+      return;
+    }
+
+    try {
+      final otp = await context.read<AuthProvider>().requestPasswordResetOtp(
+            _emailController.text,
+            _nationalIdController.text,
+          );
+
+      setState(() {
+        _hasRequestedOtp = true;
+        _otpTestingCode = otp;
+      });
+
+      if (mounted) {
+        AppDialogs.showSuccessDialog(
+          context,
+          'OTP Terkirim',
+          'Kode OTP berhasil dikirim ke email Anda.\n${otp != null ? "\n[Demo Mode] Kode OTP Anda: $otp" : ""}',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AppDialogs.showNotificationDialog(
+          context,
+          'Gagal',
+          e.toString(),
+          isError: true,
+        );
+      }
+    }
+  }
+
   void _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
+      if (!_hasRequestedOtp) {
+        AppDialogs.showNotificationDialog(
+          context,
+          'Info',
+          'Silakan minta kode OTP terlebih dahulu.',
+          isError: true,
+        );
+        return;
+      }
       try {
         await context.read<AuthProvider>().forgotPassword(
               _emailController.text,
               _nationalIdController.text,
+              _otpController.text,
               _newPasswordController.text,
             );
 
@@ -134,7 +189,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       FadeInUp(
                         delay: const Duration(milliseconds: 200),
                         child: Text(
-                          'Masukkan email dan NIK Anda untuk memverifikasi identitas, lalu buat password baru.',
+                          'Masukkan email dan NIK Anda untuk memverifikasi identitas, lalu masukkan kode OTP untuk merubah password.',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: Colors.grey[600],
                               ),
@@ -149,6 +204,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          enabled: !_hasRequestedOtp,
                           decoration: InputDecoration(
                             labelText: 'Email',
                             hintText: 'Masukkan email terdaftar',
@@ -168,6 +224,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: TextFormField(
                           controller: _nationalIdController,
                           keyboardType: TextInputType.number,
+                          enabled: !_hasRequestedOtp,
                           decoration: InputDecoration(
                             labelText: 'NIK',
                             hintText: 'Masukkan 16 digit NIK',
@@ -189,78 +246,144 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // New Password Field
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 600),
-                        child: TextFormField(
-                          controller: _newPasswordController,
-                          obscureText: _isObscure,
-                          decoration: InputDecoration(
-                            labelText: 'Password Baru',
-                            hintText: 'Minimal 8 karakter',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _isObscure ? Icons.visibility_off : Icons.visibility,
+                      if (!_hasRequestedOtp) ...[
+                        FadeInUp(
+                          child: ElevatedButton.icon(
+                            onPressed: isLoading ? null : _requestOtp,
+                            icon: const Icon(Icons.send_rounded, size: 18),
+                            label: const Text('MINTA KODE OTP VERIFIKASI'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.secondaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _isObscure = !_isObscure;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Password tidak boleh kosong';
-                            }
-                            if (value.length < 8) {
-                              return 'Password minimal 8 karakter';
-                            }
-                            return null;
-                          },
                         ),
-                      ),
-                      const SizedBox(height: 20),
+                      ],
 
-                      // Confirm Password Field
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 700),
-                        child: TextFormField(
-                          controller: _confirmPasswordController,
-                          obscureText: _isConfirmObscure,
-                          decoration: InputDecoration(
-                            labelText: 'Konfirmasi Password Baru',
-                            hintText: 'Ulangi password baru',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _isConfirmObscure ? Icons.visibility_off : Icons.visibility,
+                      if (_hasRequestedOtp) ...[
+                        if (_otpTestingCode != null) ...[
+                          FadeInUp(
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              margin: const EdgeInsets.only(bottom: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.blue.shade200),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _isConfirmObscure = !_isConfirmObscure;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
+                              child: Text(
+                                '[Demo Mode] Kode OTP Anda: $_otpTestingCode',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade800,
+                                ),
+                              ),
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Konfirmasi password tidak boleh kosong';
-                            }
-                            if (value != _newPasswordController.text) {
-                              return 'Kata sandi tidak cocok';
-                            }
-                            return null;
-                          },
+                        ],
+
+                        // OTP Code Field
+                        FadeInUp(
+                          child: TextFormField(
+                            controller: _otpController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'Kode OTP',
+                              hintText: 'Masukkan 6 digit kode OTP',
+                              prefixIcon: const Icon(Icons.domain_verification_rounded),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Kode OTP tidak boleh kosong';
+                              }
+                              if (value.length != 6) {
+                                return 'OTP harus 6 digit';
+                              }
+                              return null;
+                            },
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 20),
+
+                        // New Password Field
+                        FadeInUp(
+                          child: TextFormField(
+                            controller: _newPasswordController,
+                            obscureText: _isObscure,
+                            decoration: InputDecoration(
+                              labelText: 'Password Baru',
+                              hintText: 'Minimal 8 karakter',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isObscure ? Icons.visibility_off : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscure = !_isObscure;
+                                  });
+                                },
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Password tidak boleh kosong';
+                              }
+                              if (value.length < 8) {
+                                return 'Password minimal 8 karakter';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Confirm Password Field
+                        FadeInUp(
+                          child: TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: _isConfirmObscure,
+                            decoration: InputDecoration(
+                              labelText: 'Konfirmasi Password Baru',
+                              hintText: 'Ulangi password baru',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isConfirmObscure ? Icons.visibility_off : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isConfirmObscure = !_isConfirmObscure;
+                                  });
+                                },
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Konfirmasi password tidak boleh kosong';
+                              }
+                              if (value != _newPasswordController.text) {
+                                return 'Kata sandi tidak cocok';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 36),
                       
                       FadeInUp(
@@ -268,33 +391,35 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            ElevatedButton(
-                              onPressed: isLoading ? null : _submit,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primaryColor,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                            if (_hasRequestedOtp) ...[
+                              ElevatedButton(
+                                onPressed: isLoading ? null : _submit,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryColor,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
                                 ),
+                                child: isLoading
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Simpan Password Baru',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
-                              child: isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Simpan Password Baru',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                            ),
-                            const SizedBox(height: 16),
+                              const SizedBox(height: 16),
+                            ],
                             TextButton(
                               onPressed: () => Navigator.pop(context),
                               style: TextButton.styleFrom(

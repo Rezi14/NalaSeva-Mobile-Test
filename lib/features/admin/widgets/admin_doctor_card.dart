@@ -72,8 +72,16 @@ class AdminDoctorCard extends StatelessWidget {
       };
     }
 
+    if (doctor.isOnline == null) {
+      return {
+        'label': 'Status Tidak Diketahui',
+        'color': Colors.grey.shade500,
+        'bgColor': Colors.grey.shade100,
+      };
+    }
+
     // 3. Dokter Istirahat (Hanya bisa istirahat jika sedang di dalam jadwal praktik aktif)
-    if (!doctor.isOnline) {
+    if (!doctor.isOnline!) {
       return {
         'label': 'Dokter Istirahat',
         'color': AppTheme.warningColor,

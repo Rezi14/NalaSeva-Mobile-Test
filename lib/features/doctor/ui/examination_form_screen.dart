@@ -65,7 +65,18 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
   void _submit(QueueModel queue) async {
     if (_isSubmitting) return;
 
-    final doctorId = context.read<AuthProvider>().user?.doctorId ?? context.read<AuthProvider>().user?.id;
+    final doctorId = context.read<AuthProvider>().user?.doctorId;
+    if (doctorId == null) {
+      if (mounted) {
+        AppDialogs.showNotificationDialog(
+          context,
+          'Terjadi Kesalahan',
+          'Data dokter tidak ditemukan. Akun Anda tidak terdaftar sebagai dokter.',
+          isError: true,
+        );
+      }
+      return;
+    }
 
     setState(() => _isSubmitting = true);
 

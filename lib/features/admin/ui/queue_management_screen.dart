@@ -53,6 +53,8 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
     final total = provider.queues.length;
     final served = provider.queues.where((q) => q.status == QueueStatus.completed).length;
     final waiting = provider.queues.where((q) => q.status == QueueStatus.waiting).length;
+    final examining = provider.queues.where((q) => q.status == QueueStatus.examining).length;
+    final cancelled = provider.queues.where((q) => q.status == QueueStatus.cancelled).length;
     
     final hasActiveFilter = _selectedStatusFilter != null || _selectedPolyclinicId != null;
 
@@ -232,14 +234,21 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
               delay: const Duration(milliseconds: 250),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                child: Row(
-                  children: [
-                    AdminMiniStatCard(label: 'Total', value: total.toString(), bgColor: Colors.white, textColor: Colors.black87, border: true),
-                    const SizedBox(width: 12),
-                    AdminMiniStatCard(label: 'Dilayani', value: served.toString(), bgColor: Colors.green.withValues(alpha: 0.1), textColor: Colors.green),
-                    const SizedBox(width: 12),
-                    AdminMiniStatCard(label: 'Menunggu', value: waiting.toString(), bgColor: Colors.orange.withValues(alpha: 0.1), textColor: Colors.orange),
-                  ],
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      AdminMiniStatCard(label: 'Total', value: total.toString(), bgColor: Colors.white, textColor: Colors.black87, border: true),
+                      const SizedBox(width: 12),
+                      AdminMiniStatCard(label: 'Dilayani', value: served.toString(), bgColor: Colors.green.withValues(alpha: 0.1), textColor: Colors.green),
+                      const SizedBox(width: 12),
+                      AdminMiniStatCard(label: 'Menunggu', value: waiting.toString(), bgColor: Colors.orange.withValues(alpha: 0.1), textColor: Colors.orange),
+                      const SizedBox(width: 12),
+                      AdminMiniStatCard(label: 'Diperiksa', value: examining.toString(), bgColor: AppTheme.secondaryColor.withValues(alpha: 0.1), textColor: AppTheme.secondaryColor),
+                      const SizedBox(width: 12),
+                      AdminMiniStatCard(label: 'Batal', value: cancelled.toString(), bgColor: AppTheme.cancelColor.withValues(alpha: 0.1), textColor: AppTheme.cancelColor),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -431,6 +440,26 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                             if (selected) {
                               setState(() => _selectedStatusFilter = QueueStatus.completed.value);
                               setSheetState(() => _selectedStatusFilter = QueueStatus.completed.value);
+                            }
+                          },
+                        ),
+                        _filterChip(
+                          label: 'Diperiksa',
+                          isSelected: _selectedStatusFilter == QueueStatus.examining.value,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() => _selectedStatusFilter = QueueStatus.examining.value);
+                              setSheetState(() => _selectedStatusFilter = QueueStatus.examining.value);
+                            }
+                          },
+                        ),
+                        _filterChip(
+                          label: 'Batal',
+                          isSelected: _selectedStatusFilter == QueueStatus.cancelled.value,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() => _selectedStatusFilter = QueueStatus.cancelled.value);
+                              setSheetState(() => _selectedStatusFilter = QueueStatus.cancelled.value);
                             }
                           },
                         ),
