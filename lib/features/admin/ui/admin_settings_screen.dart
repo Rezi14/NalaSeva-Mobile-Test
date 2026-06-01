@@ -259,6 +259,18 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                       ),
                       const SizedBox(height: 24),
                       _settingsGroup(
+                        'Hak Akses & Pengguna',
+                        [
+                          AdminSettingsItem(
+                            icon: Icons.manage_accounts_rounded,
+                            title: 'Manajemen Pengguna (User)',
+                            value: 'Kelola akun, peran, & akses sistem',
+                            onTap: () => Navigator.pushNamed(context, '/admin/users'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      _settingsGroup(
                         'Logika Antrean',
                         [
                           AdminSettingsItem(

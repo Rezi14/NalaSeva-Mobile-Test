@@ -29,10 +29,10 @@ class AdminBottomNav extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navItem(context, Icons.medical_services_rounded, 1, '/admin/doctors'),
-              _navItem(context, Icons.calendar_month_rounded, 2, '/admin/schedules'),
-              _navItem(context, Icons.dashboard_rounded, 0, '/admin/home', isCenterDashboard: true),
-              _navItem(context, Icons.local_hospital_rounded, 3, '/admin/polyclinics'),
+              _navItem(context, Icons.dashboard_rounded, 0, '/admin/home'),
+              _navItem(context, Icons.people_alt_rounded, 1, '/admin/queues'),
+              _navItem(context, Icons.qr_code_scanner_rounded, 2, '/admin/scan', isCenterDashboard: true),
+              _navItem(context, Icons.payment_rounded, 3, '/payment/list'),
               _navItem(context, Icons.settings_rounded, 4, '/admin/settings'),
             ],
           ),

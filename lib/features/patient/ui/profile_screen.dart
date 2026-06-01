@@ -90,6 +90,8 @@ class ProfileScreen extends StatelessWidget {
                                           Navigator.pushNamed(context, '/admin/edit-profile');
                                         } else if (user?.role == 'doctor') {
                                           Navigator.pushNamed(context, '/doctor/edit-profile');
+                                        } else if (user?.role == 'pharmacist') {
+                                          Navigator.pushNamed(context, '/pharmacy/edit-profile');
                                         } else {
                                           Navigator.pushNamed(context, '/patient/edit-profile');
                                         }

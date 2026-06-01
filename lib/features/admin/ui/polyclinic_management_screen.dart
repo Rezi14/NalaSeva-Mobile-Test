@@ -12,7 +12,6 @@ import '../../../shared/models/polyclinic_model.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../widgets/admin_mini_stat_card.dart';
 import '../widgets/admin_service_card.dart';
-import '../widgets/admin_bottom_nav.dart';
 
 class PolyclinicManagementScreen extends StatefulWidget {
   const PolyclinicManagementScreen({super.key});
@@ -88,8 +87,20 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                               verticalOffset: 30.0,
                               child: FadeInAnimation(
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        if (Navigator.canPop(context)) {
+                                          Navigator.pop(context);
+                                        } else {
+                                          Navigator.pushReplacementNamed(context, '/admin/home');
+                                        }
+                                      },
+                                      icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                    ),
+                                    const SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,23 +213,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
             
             const Divider(height: 1),
 
-            // Stats Row
-            FadeInUp(
-              duration: const Duration(milliseconds: 500),
-              delay: const Duration(milliseconds: 200),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-                child: Row(
-                  children: [
-                    AdminMiniStatCard(label: 'Ruangan Aktif', value: '${provider.polyclinics.length}', bgColor: AppTheme.primaryColor.withValues(alpha: 0.1), textColor: AppTheme.primaryColor),
-                    const SizedBox(width: 16),
-                    AdminMiniStatCard(label: 'Kuota Harian', value: '$totalDailyQuota', bgColor: AppTheme.successColor.withValues(alpha: 0.1), textColor: AppTheme.successColor),
-                  ],
-                ),
-              ),
-            ),
-
-            // List
+            // List with Stats Row integrated inside to scroll together
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
@@ -227,85 +222,162 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                 },
                 child: provider.isLoading && provider.polyclinics.isEmpty
                     ? const Center(child: CircularProgressIndicator())
-                    : polyclinics.isEmpty
-                        ? SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            child: Container(
-                              height: MediaQuery.of(context).size.height * 0.5,
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.symmetric(horizontal: 32),
-                              child: FadeInUp(
-                                duration: const Duration(milliseconds: 500),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(24),
+                        itemCount: polyclinics.isEmpty ? 2 : polyclinics.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            // Stats Row at index 0 of the scrollable list
+                            return FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 200),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 24),
+                                child: Row(
                                   children: [
-                                    Icon(
-                                      Icons.medical_services_outlined,
-                                      size: 72,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      'Tidak Ada Poliklinik',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey.shade700,
+                                    Expanded(
+                                      child: AdminMiniStatCard(
+                                        label: 'Ruangan Aktif',
+                                        value: '${provider.polyclinics.length}',
+                                        bgColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                                        textColor: AppTheme.primaryColor,
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      _searchQuery.isNotEmpty
-                                          ? 'Tidak ada hasil pencarian untuk "$_searchQuery". Coba kata kunci lain.'
-                                          : 'Belum ada data layanan poliklinik terdaftar.',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 13,
-                                        color: Colors.grey,
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: AdminMiniStatCard(
+                                        label: 'Kuota Harian',
+                                        value: '$totalDailyQuota',
+                                        bgColor: AppTheme.successColor.withValues(alpha: 0.1),
+                                        textColor: AppTheme.successColor,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.all(24),
-                            itemCount: polyclinics.length,
-                            itemBuilder: (context, index) {
-                              final poly = polyclinics[index];
-                              return FadeInUp(
-                                duration: const Duration(milliseconds: 500),
-                                delay: Duration(milliseconds: 250 + (index * 80)),
-                                child: AdminServiceCard(
-                                  polyclinic: poly,
-                                  quota: _calculatePolyclinicQuota(poly, provider.schedules),
-                                  operatingHours: _getPolyclinicOperatingHours(poly, provider.schedules),
-                                  onEdit: () => _showPolyclinicForm(context, poly: poly),
-                                  onDelete: () => _confirmDeletePolyclinic(context, poly),
+                            );
+                          }
+
+                          if (polyclinics.isEmpty) {
+                            // Premium Empty State at index 1 if no poliklinik matches search/filters
+                            final isSearchingOrFiltering = _searchQuery.isNotEmpty || _filterOnlyWithSchedules;
+                            return FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 16),
+                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: Colors.grey.shade100),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.shade50,
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        isSearchingOrFiltering
+                                            ? Icons.search_off_rounded
+                                            : Icons.medical_services_outlined,
+                                        size: 64,
+                                        color: AppTheme.primaryColor,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      isSearchingOrFiltering
+                                          ? 'Layanan Tidak Ditemukan'
+                                          : 'Poliklinik Belum Tersedia',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      isSearchingOrFiltering
+                                          ? 'Tidak ada layanan poliklinik yang cocok dengan kriteria pencarian atau filter Anda. Silakan coba atur ulang pencarian.'
+                                          : 'Belum ada data layanan poliklinik terdaftar di sistem. Anda dapat menambahkannya lewat tombol tambah di pojok kanan bawah.',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade600,
+                                        height: 1.5,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    if (isSearchingOrFiltering) ...[
+                                      const SizedBox(height: 24),
+                                      OutlinedButton.icon(
+                                        onPressed: () {
+                                          setState(() {
+                                            _searchController.clear();
+                                            _searchQuery = '';
+                                            _filterOnlyWithSchedules = false;
+                                          });
+                                        },
+                                        icon: const Icon(Icons.refresh_rounded, size: 18),
+                                        label: Text(
+                                          'Reset Filter & Pencarian',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: AppTheme.primaryColor,
+                                          side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+
+                          // Polyclinic Card item
+                          final poly = polyclinics[index - 1];
+                          return FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: Duration(milliseconds: 250 + ((index - 1) * 80)),
+                            child: AdminServiceCard(
+                              polyclinic: poly,
+                              quota: _calculatePolyclinicQuota(poly, provider.schedules),
+                              operatingHours: _getPolyclinicOperatingHours(poly, provider.schedules),
+                              onEdit: () => _showPolyclinicForm(context, poly: poly),
+                              onDelete: () => _confirmDeletePolyclinic(context, poly),
+                            ),
+                          );
+                        },
+                      ),
               ),
             ),
 
-            // Bottom Navigation
-            FadeInUp(
-              duration: const Duration(milliseconds: 500),
-              child: const AdminBottomNav(activeIndex: 3),
-            ),
           ],
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 76),
-          child: FloatingActionButton(
-            onPressed: () => _showPolyclinicForm(context),
-            backgroundColor: AppTheme.primaryColor,
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: const Icon(Icons.add_rounded, color: Colors.white),
-          ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showPolyclinicForm(context),
+          backgroundColor: AppTheme.primaryColor,
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: const Icon(Icons.add_rounded, color: Colors.white),
         ),
       ),
     );

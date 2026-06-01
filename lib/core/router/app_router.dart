@@ -20,6 +20,7 @@ import '../../features/admin/ui/examination_history_screen.dart';
 import '../../features/admin/ui/queue_monitor_screen.dart';
 import '../../features/admin/ui/admin_clinic_holidays_screen.dart';
 import '../../features/admin/ui/admin_doctor_leaves_screen.dart';
+import '../../features/admin/widgets/qr_scanner_page.dart';
 
 // Doctor
 import '../../features/doctor/ui/doctor_dashboard.dart';
@@ -60,6 +61,7 @@ class AppRouter {
   static const String adminEditProfile = '/admin/edit-profile';
   static const String adminHolidays = '/admin/holidays';
   static const String adminLeaves = '/admin/leaves';
+  static const String adminScan = '/admin/scan';
 
   // Doctor routes
   static const String doctorHome = '/doctor/home';
@@ -74,6 +76,10 @@ class AppRouter {
   static const String patientEditProfile = '/patient/edit-profile';
   static const String patientHistory = '/patient/history';
   static const String patientNotifications = '/patient/notifications';
+
+  // Pharmacist routes
+  static const String pharmacyProfile = '/pharmacy/profile';
+  static const String pharmacyEditProfile = '/pharmacy/edit-profile';
 
   // Other
   static const String tvMonitor = '/tv-monitor';
@@ -99,6 +105,7 @@ class AppRouter {
     adminEditProfile: (context) => const EditProfileScreen(),
     adminHolidays: (context) => const AdminClinicHolidaysScreen(),
     adminLeaves: (context) => const AdminDoctorLeavesScreen(),
+    adminScan: (context) => const QRScannerPage(),
     doctorHome: (context) => const DoctorDashboard(),
     doctorExamination: (context) => const ExaminationFormScreen(),
     doctorProfile: (context) => const DoctorProfileScreen(),
@@ -109,6 +116,8 @@ class AppRouter {
     patientEditProfile: (context) => const EditProfileScreen(),
     patientHistory: (context) => const PatientHistoryScreen(),
     patientNotifications: (context) => const NotificationScreen(),
+    pharmacyProfile: (context) => const ProfileScreen(),
+    pharmacyEditProfile: (context) => const EditProfileScreen(),
     tvMonitor: (context) => const QueueMonitorScreen(),
     paymentList: (context) => const PaymentListScreen(),
     pharmacyHome: (context) => const PharmacyDashboardScreen(),
@@ -134,6 +143,7 @@ class AppRouter {
     adminEditProfile: ['admin'],
     adminHolidays: ['admin'],
     adminLeaves: ['admin'],
+    adminScan: ['admin'],
 
     // Doctor routes
     doctorHome: ['doctor'],
@@ -148,8 +158,10 @@ class AppRouter {
     patientEditProfile: ['patient'],
     patientHistory: ['patient'],
     patientNotifications: ['patient'],
-    paymentList: ['patient'],
+    paymentList: ['patient', 'admin'],
     pharmacyHome: ['pharmacist', 'admin'],
+    pharmacyProfile: ['pharmacist'],
+    pharmacyEditProfile: ['pharmacist'],
   };
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {

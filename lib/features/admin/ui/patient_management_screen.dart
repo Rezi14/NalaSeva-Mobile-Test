@@ -73,7 +73,13 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                         child: Row(
                           children: [
                             IconButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () {
+                                if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                } else {
+                                  Navigator.pushReplacementNamed(context, '/admin/home');
+                                }
+                              },
                               icon: const Icon(
                                 Icons.arrow_back_ios_new_rounded,
                                 size: 20,
@@ -773,46 +779,91 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
   }
 
   Widget _emptyState() {
-    return FadeIn(
-      duration: const Duration(milliseconds: 600),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
+    final isSearching = _searchQuery.isNotEmpty;
+    return FadeInUp(
+      duration: const Duration(milliseconds: 500),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.grey.shade100),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade50,
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: AppTheme.primaryColor.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.people_outline_rounded,
-                size: 72,
-                color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                isSearching
+                    ? Icons.search_off_rounded
+                    : Icons.people_outline_rounded,
+                size: 64,
+                color: AppTheme.primaryColor,
               ),
             ),
             const SizedBox(height: 24),
             Text(
-              'Pasien Tidak Ditemukan',
-              textAlign: TextAlign.center,
+              isSearching
+                  ? 'Pasien Tidak Ditemukan'
+                  : 'Belum Ada Pasien',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _searchQuery.isNotEmpty
-                  ? 'Tidak ada akun pasien terdaftar yang cocok dengan kata kunci pencarian Anda.'
-                  : 'Belum ada data pasien terdaftar yang tersedia di sistem saat ini.',
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isSearching
+                  ? 'Tidak ada data akun pasien terdaftar yang cocok dengan kata kunci pencarian Anda.'
+                  : 'Belum ada data pasien terdaftar yang tersedia di sistem saat ini. Daftarkan pasien baru menggunakan tombol di kanan bawah.',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
-                color: Colors.grey,
+                color: Colors.grey.shade600,
+                height: 1.5,
               ),
+              textAlign: TextAlign.center,
             ),
+            if (isSearching) ...[
+              const SizedBox(height: 24),
+              OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _searchController.clear();
+                    _searchQuery = '';
+                  });
+                },
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: Text(
+                  'Reset Pencarian',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.primaryColor,
+                  side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+            ],
           ],
         ),
       ),

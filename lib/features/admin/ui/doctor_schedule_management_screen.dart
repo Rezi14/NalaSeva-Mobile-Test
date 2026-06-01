@@ -12,7 +12,6 @@ import '../../../core/utils/date_time_parser.dart';
 import '../../../shared/models/doctor_model.dart';
 import '../../../shared/models/polyclinic_model.dart';
 import '../widgets/admin_schedule_card.dart';
-import '../widgets/admin_bottom_nav.dart';
 
 class DoctorScheduleManagementScreen extends StatefulWidget {
   const DoctorScheduleManagementScreen({super.key});
@@ -83,8 +82,20 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                               verticalOffset: 30.0,
                               child: FadeInAnimation(
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        if (Navigator.canPop(context)) {
+                                          Navigator.pop(context);
+                                        } else {
+                                          Navigator.pushReplacementNamed(context, '/admin/home');
+                                        }
+                                      },
+                                      icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                    ),
+                                    const SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,22 +237,14 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
               ),
             ),
 
-            // Navigation
-            FadeInUp(
-              duration: const Duration(milliseconds: 500),
-              child: const AdminBottomNav(activeIndex: 2),
-            ),
           ],
         ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 76),
-        child: FloatingActionButton(
-          onPressed: () => _showScheduleForm(context),
-          backgroundColor: AppTheme.primaryColor,
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: const Icon(Icons.add_rounded, color: Colors.white),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showScheduleForm(context),
+        backgroundColor: AppTheme.primaryColor,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
     );
   }

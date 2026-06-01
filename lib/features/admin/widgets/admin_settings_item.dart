@@ -34,24 +34,23 @@ class AdminSettingsItem extends StatelessWidget {
         title,
         style: GoogleFonts.plusJakartaSans(
           fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
         ),
       ),
-      trailing: trailing ?? Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (value.isNotEmpty)
-            Text(
-              value,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
-                color: Colors.grey,
+      subtitle: value.isNotEmpty
+          ? Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                value,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  color: Colors.grey.shade500,
+                ),
               ),
-            ),
-          const SizedBox(width: 4),
-          const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
-        ],
-      ),
+            )
+          : null,
+      trailing: trailing ?? const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
       onTap: onTap,
     );
   }

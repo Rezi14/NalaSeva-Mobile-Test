@@ -175,6 +175,26 @@ void main() {
       expect(secureStorageValues['patient_id'], '202');
     });
 
+    test('Login sukses sebagai apoteker (pharmacist) menyimpan data ke storage', () async {
+      final user = UserModel(
+        id: 3,
+        name: 'Apoteker Utama Puskesmas',
+        email: 'apoteker@apoteker.com',
+        role: 'pharmacist',
+      );
+      mockRepository.mockUser = user;
+
+      await authProvider.login('apoteker@apoteker.com', 'password123');
+
+      expect(authProvider.isLoading, false);
+      expect(authProvider.user?.name, 'Apoteker Utama Puskesmas');
+      expect(authProvider.user?.role, 'pharmacist');
+      expect(authProvider.error, null);
+
+      expect(secureStorageValues['access_token'], 'mocked_access_token');
+      expect(secureStorageValues['user_role'], 'pharmacist');
+    });
+
     test('Login gagal mengatur error dan melempar Exception', () async {
       mockRepository.shouldThrowError = true;
       mockRepository.errorMessage = 'Kredensial tidak valid';

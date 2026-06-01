@@ -10,6 +10,7 @@ import 'admin_booking_detail_screen.dart';
 import '../widgets/admin_mini_stat_card.dart';
 import '../widgets/admin_patient_card.dart';
 import '../widgets/qr_scanner_page.dart';
+import '../widgets/admin_bottom_nav.dart';
 
 class QueueManagementScreen extends StatefulWidget {
   const QueueManagementScreen({super.key});
@@ -62,6 +63,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
+        bottomNavigationBar: const AdminBottomNav(activeIndex: 1),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _openScanner(context),
           backgroundColor: AppTheme.primaryColor,
@@ -107,13 +109,6 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                               child: FadeInAnimation(
                                 child: Row(
                                   children: [
-                                    IconButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
-                                    ),
-                                    const SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,108 +223,188 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
             
             const Divider(height: 1),
 
-            // Stats row with dynamic cascade
-            FadeInUp(
-              duration: const Duration(milliseconds: 500),
-              delay: const Duration(milliseconds: 250),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      AdminMiniStatCard(label: 'Total', value: total.toString(), bgColor: Colors.white, textColor: Colors.black87, border: true),
-                      const SizedBox(width: 12),
-                      AdminMiniStatCard(label: 'Dilayani', value: served.toString(), bgColor: AppTheme.successColor.withValues(alpha: 0.1), textColor: AppTheme.successColor),
-                      const SizedBox(width: 12),
-                      AdminMiniStatCard(label: 'Menunggu', value: waiting.toString(), bgColor: AppTheme.warningColor.withValues(alpha: 0.1), textColor: AppTheme.warningColor),
-                      const SizedBox(width: 12),
-                      AdminMiniStatCard(label: 'Diperiksa', value: examining.toString(), bgColor: AppTheme.secondaryColor.withValues(alpha: 0.1), textColor: AppTheme.secondaryColor),
-                      const SizedBox(width: 12),
-                      AdminMiniStatCard(label: 'Batal', value: cancelled.toString(), bgColor: AppTheme.cancelColor.withValues(alpha: 0.1), textColor: AppTheme.cancelColor),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+             // List with Stats Row integrated inside to scroll together
+             Expanded(
+               child: RefreshIndicator(
+                 onRefresh: provider.fetchQueues,
+                 child: provider.isLoading && provider.queues.isEmpty
+                     ? const Center(child: CircularProgressIndicator())
+                     : ListView.builder(
+                         padding: const EdgeInsets.all(24),
+                         itemCount: filteredQueues.isEmpty ? 3 : filteredQueues.length + 2,
+                         itemBuilder: (context, index) {
+                           if (index == 0) {
+                             // Stats Row at index 0 of the scrollable list
+                             return FadeInUp(
+                               duration: const Duration(milliseconds: 500),
+                               delay: const Duration(milliseconds: 250),
+                               child: Padding(
+                                 padding: const EdgeInsets.only(bottom: 24),
+                                 child: SingleChildScrollView(
+                                   scrollDirection: Axis.horizontal,
+                                   child: Row(
+                                     children: [
+                                       AdminMiniStatCard(width: 100, label: 'Total', value: total.toString(), bgColor: Colors.white, textColor: Colors.black87, border: true),
+                                       const SizedBox(width: 12),
+                                       AdminMiniStatCard(width: 100, label: 'Dilayani', value: served.toString(), bgColor: AppTheme.successColor.withValues(alpha: 0.1), textColor: AppTheme.successColor),
+                                       const SizedBox(width: 12),
+                                       AdminMiniStatCard(width: 100, label: 'Menunggu', value: waiting.toString(), bgColor: AppTheme.warningColor.withValues(alpha: 0.1), textColor: AppTheme.warningColor),
+                                       const SizedBox(width: 12),
+                                       AdminMiniStatCard(width: 100, label: 'Diperiksa', value: examining.toString(), bgColor: AppTheme.secondaryColor.withValues(alpha: 0.1), textColor: AppTheme.secondaryColor),
+                                       const SizedBox(width: 12),
+                                       AdminMiniStatCard(width: 100, label: 'Batal', value: cancelled.toString(), bgColor: AppTheme.cancelColor.withValues(alpha: 0.1), textColor: AppTheme.cancelColor),
+                                     ],
+                                   ),
+                                 ),
+                               ),
+                             );
+                           }
 
-            // List with integrated empty states
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: provider.fetchQueues,
-                child: provider.isLoading && provider.queues.isEmpty
-                    ? const Center(child: CircularProgressIndicator())
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FadeInUp(
-                            duration: const Duration(milliseconds: 500),
-                            delay: const Duration(milliseconds: 320),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-                              child: Text(
-                                'Pendaftaran Terbaru',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (filteredQueues.isEmpty)
-                            Expanded(
-                              child: FadeInUp(
-                                duration: const Duration(milliseconds: 500),
-                                delay: const Duration(milliseconds: 400),
-                                child: Center(
-                                  child: Text(
-                                    'Tidak ada pendaftaran yang cocok',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          else
-                            Expanded(
-                              child: ListView.builder(
-                                padding: const EdgeInsets.symmetric(horizontal: 24),
-                                itemCount: filteredQueues.length,
-                                itemBuilder: (context, index) {
-                                  final q = filteredQueues[index];
-                                  return FadeInUp(
-                                    duration: const Duration(milliseconds: 500),
-                                    delay: Duration(milliseconds: 400 + (index * 80)),
-                                    child: AdminPatientCard(
-                                      queue: q,
-                                      onTap: () {
-                                        final provider = context.read<AdminProvider>();
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => AdminBookingDetailScreen(queue: q),
-                                          ),
-                                        ).then((_) {
-                                          if (mounted) {
-                                            provider.fetchQueues();
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                        ],
-                      ),
-              ),
-            ),
+                           if (index == 1) {
+                             // Section Header label
+                             return FadeInUp(
+                               duration: const Duration(milliseconds: 500),
+                               delay: const Duration(milliseconds: 320),
+                               child: Padding(
+                                 padding: const EdgeInsets.only(bottom: 12),
+                                 child: Text(
+                                   'Pendaftaran Terbaru',
+                                   style: GoogleFonts.plusJakartaSans(
+                                     fontWeight: FontWeight.bold,
+                                     color: Colors.grey,
+                                     fontSize: 13,
+                                   ),
+                                 ),
+                               ),
+                             );
+                           }
 
-          ],
-        ),
+                           if (filteredQueues.isEmpty) {
+                             // Premium Empty State at index 2 if search results/queues are empty
+                             final isSearchingOrFiltering = hasActiveFilter || _searchQuery.isNotEmpty;
+                             return FadeInUp(
+                               duration: const Duration(milliseconds: 500),
+                               delay: const Duration(milliseconds: 200),
+                               child: Container(
+                                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+                                 decoration: BoxDecoration(
+                                   color: Colors.white,
+                                   borderRadius: BorderRadius.circular(24),
+                                   border: Border.all(color: Colors.grey.shade100),
+                                   boxShadow: [
+                                     BoxShadow(
+                                       color: Colors.grey.shade50,
+                                       blurRadius: 16,
+                                       offset: const Offset(0, 8),
+                                     ),
+                                   ],
+                                 ),
+                                 child: Column(
+                                   mainAxisAlignment: MainAxisAlignment.center,
+                                   children: [
+                                     Container(
+                                       padding: const EdgeInsets.all(24),
+                                       decoration: BoxDecoration(
+                                         color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                                         shape: BoxShape.circle,
+                                       ),
+                                       child: Icon(
+                                         isSearchingOrFiltering
+                                             ? Icons.search_off_rounded
+                                             : Icons.hourglass_disabled_rounded,
+                                         size: 64,
+                                         color: AppTheme.primaryColor,
+                                       ),
+                                     ),
+                                     const SizedBox(height: 24),
+                                     Text(
+                                       isSearchingOrFiltering
+                                           ? 'Hasil Tidak Ditemukan'
+                                           : 'Antrean Hari Ini Kosong',
+                                       style: GoogleFonts.plusJakartaSans(
+                                         fontSize: 18,
+                                         fontWeight: FontWeight.bold,
+                                         color: Colors.black87,
+                                       ),
+                                       textAlign: TextAlign.center,
+                                     ),
+                                     const SizedBox(height: 12),
+                                     Text(
+                                       isSearchingOrFiltering
+                                           ? 'Tidak ada nomor antrean atau nama pasien yang cocok dengan pencarian Anda. Silakan periksa kembali filter Anda.'
+                                           : 'Belum ada pasien yang melakukan pendaftaran antrean hari ini. Semua data antrean akan muncul di sini setelah pasien mendaftar.',
+                                       style: GoogleFonts.plusJakartaSans(
+                                         fontSize: 13,
+                                         color: Colors.grey.shade600,
+                                         height: 1.5,
+                                       ),
+                                       textAlign: TextAlign.center,
+                                     ),
+                                     if (isSearchingOrFiltering) ...[
+                                       const SizedBox(height: 24),
+                                       OutlinedButton.icon(
+                                         onPressed: () {
+                                           setState(() {
+                                             _searchController.clear();
+                                             _searchQuery = '';
+                                             _selectedStatusFilter = null;
+                                             _selectedPolyclinicId = null;
+                                           });
+                                         },
+                                         icon: const Icon(Icons.refresh_rounded, size: 18),
+                                         label: Text(
+                                           'Reset Filter & Pencarian',
+                                           style: GoogleFonts.plusJakartaSans(
+                                             fontWeight: FontWeight.bold,
+                                           ),
+                                         ),
+                                         style: OutlinedButton.styleFrom(
+                                           foregroundColor: AppTheme.primaryColor,
+                                           side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
+                                           shape: RoundedRectangleBorder(
+                                             borderRadius: BorderRadius.circular(12),
+                                           ),
+                                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                         ),
+                                       ),
+                                     ],
+                                   ],
+                                 ),
+                               ),
+                             );
+                           }
+
+                           // Queue Patient Card item
+                           final q = filteredQueues[index - 2];
+                           return FadeInUp(
+                             duration: const Duration(milliseconds: 500),
+                             delay: Duration(milliseconds: 400 + ((index - 2) * 80)),
+                             child: Padding(
+                               padding: const EdgeInsets.only(bottom: 16),
+                               child: AdminPatientCard(
+                                 queue: q,
+                                 onTap: () {
+                                   final provider = context.read<AdminProvider>();
+                                   Navigator.push(
+                                     context,
+                                     MaterialPageRoute(
+                                       builder: (context) => AdminBookingDetailScreen(queue: q),
+                                     ),
+                                   ).then((_) {
+                                     if (mounted) {
+                                       provider.fetchQueues();
+                                     }
+                                   });
+                                 },
+                               ),
+                             ),
+                           );
+                         },
+                       ),
+               ),
+             ),
+           ],
+         ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../logic/pharmacy_provider.dart';
 import '../../../shared/models/medicine_model.dart';
 import '../../../core/theme/app_theme.dart';
@@ -50,10 +51,14 @@ class _MedicineInventoryScreenState extends State<MedicineInventoryScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             isEdit ? 'Ubah Informasi Obat' : 'Tambah Obat Baru',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: GoogleFonts.plusJakartaSans(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.black87,
+            ),
           ),
           content: SingleChildScrollView(
             child: Column(
@@ -106,13 +111,13 @@ class _MedicineInventoryScreenState extends State<MedicineInventoryScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey.shade600,
+                textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
               ),
+              child: const Text('Batal'),
+            ),
+            TextButton(
               onPressed: () async {
                 final name = nameController.text.trim();
                 final stock = int.tryParse(stockController.text) ?? 0;
@@ -162,7 +167,11 @@ class _MedicineInventoryScreenState extends State<MedicineInventoryScreen> {
                   }
                 }
               },
-              child: const Text('Simpan', style: TextStyle(color: Colors.white)),
+              style: TextButton.styleFrom(
+                foregroundColor: AppTheme.primaryColor,
+                textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+              ),
+              child: const Text('Simpan'),
             ),
           ],
         );
@@ -170,49 +179,38 @@ class _MedicineInventoryScreenState extends State<MedicineInventoryScreen> {
     );
   }
 
-  void _deleteMedicine(int id, String name) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Konfirmasi Hapus'),
-          content: Text('Apakah Anda yakin ingin menghapus obat "$name"? Data akan di-softdelete.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.deleteColor),
-              onPressed: () async {
-                try {
-                  await context.read<PharmacyProvider>().removeMedicine(id);
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    AppDialogs.showSuccessDialog(
-                      context,
-                      'Berhasil',
-                      'Obat berhasil dinonaktifkan (Soft Deleted)',
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    AppDialogs.showNotificationDialog(
-                      context,
-                      'Gagal Menghapus',
-                      'Gagal menghapus: $e',
-                      isError: true,
-                    );
-                  }
-                }
-              },
-              child: const Text('Hapus', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        );
-      },
+  void _deleteMedicine(int id, String name) async {
+    final confirm = await AppDialogs.showConfirmationDialog(
+      context,
+      'Konfirmasi Hapus',
+      'Apakah Anda yakin ingin menghapus obat "$name"? Data akan di-softdelete.',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
+      isDestructive: true,
     );
+
+    if (confirm ?? false) {
+      if (!mounted) return;
+      try {
+        await context.read<PharmacyProvider>().removeMedicine(id);
+        if (mounted) {
+          AppDialogs.showSuccessDialog(
+            context,
+            'Berhasil',
+            'Obat berhasil dinonaktifkan (Soft Deleted)',
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          AppDialogs.showNotificationDialog(
+            context,
+            'Gagal Menghapus',
+            'Gagal menghapus: $e',
+            isError: true,
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -382,7 +380,7 @@ class _MedicineInventoryScreenState extends State<MedicineInventoryScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.edit_rounded, color: Colors.blue, size: 20),
+                                    icon: const Icon(Icons.edit_rounded, color: AppTheme.editColor, size: 20),
                                     onPressed: () => _showAddEditMedicineDialog(med),
                                   ),
                                   IconButton(

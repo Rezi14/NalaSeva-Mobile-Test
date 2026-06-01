@@ -55,6 +55,8 @@ class _LoginScreenState extends State<LoginScreen> {
             Navigator.pushReplacementNamed(context, '/doctor/home');
           } else if (role == 'patient') {
             Navigator.pushReplacementNamed(context, '/patient/home');
+          } else if (role == 'pharmacist') {
+            Navigator.pushReplacementNamed(context, '/pharmacy/home');
           } else {
             throw Exception('Peran pengguna tidak dikenal: $role');
           }

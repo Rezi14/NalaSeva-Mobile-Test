@@ -19,7 +19,9 @@ import '../../../core/utils/app_logger.dart';
 import '../../../shared/providers/puskesmas_profile_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class BookingDetailScreen extends StatelessWidget {
+import 'dart:async';
+
+class BookingDetailScreen extends StatefulWidget {
   final QueueModel queue;
 
   const BookingDetailScreen({
@@ -28,7 +30,43 @@ class BookingDetailScreen extends StatelessWidget {
   });
 
   @override
+  State<BookingDetailScreen> createState() => _BookingDetailScreenState();
+}
+
+class _BookingDetailScreenState extends State<BookingDetailScreen> {
+  Timer? _pollingTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startPolling();
+  }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startPolling() {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+      try {
+        if (mounted) {
+          await context.read<PatientProvider>().fetchMyQueues();
+        }
+      } catch (e) {
+        // Silent error for background network issues
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final myQueues = context.watch<PatientProvider>().myQueues;
+    final queue = myQueues.firstWhere(
+      (q) => q.id == widget.queue.id,
+      orElse: () => widget.queue,
+    );
     final puskesmasProfileProvider = context.watch<PuskesmasProfileProvider>();
     final puskesmasProfile = puskesmasProfileProvider.profile;
     final puskesmasName = puskesmasProfile?.name ?? 'Puskesmas Sehat Utama';
@@ -566,7 +604,7 @@ class BookingDetailScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         TextButton.icon(
-                          onPressed: _isCancellationLocked(queue) ? null : () => _showCancelConfirmation(context),
+                          onPressed: _isCancellationLocked(queue) ? null : () => _showCancelConfirmation(context, queue),
                           style: TextButton.styleFrom(
                             foregroundColor: _isCancellationLocked(queue) ? Colors.grey.shade500 : Colors.red,
                             minimumSize: const Size(double.infinity, 56),
@@ -655,7 +693,7 @@ class BookingDetailScreen extends StatelessWidget {
     return false;
   }
 
-  void _showCancelConfirmation(BuildContext context) async {
+  void _showCancelConfirmation(BuildContext context, QueueModel queue) async {
     if (_isCancellationLocked(queue)) {
       AppDialogs.showNotificationDialog(
         context,

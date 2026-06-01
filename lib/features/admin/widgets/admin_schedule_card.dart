@@ -133,7 +133,7 @@ class AdminScheduleCard extends StatelessWidget {
                   IconButton(
                     constraints: const BoxConstraints(),
                     padding: const EdgeInsets.all(4),
-                    icon: const Icon(Icons.edit_note_rounded, color: AppTheme.editColor, size: 22),
+                    icon: const Icon(Icons.edit_rounded, color: AppTheme.editColor, size: 22),
                     onPressed: () => onEdit(schedule),
                   ),
                   const SizedBox(width: 6),

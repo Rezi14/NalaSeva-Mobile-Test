@@ -5,11 +5,10 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../logic/admin_provider.dart';
 import '../../../shared/models/doctor_model.dart';
+import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
-import '../../../shared/constants/app_constants.dart';
 import '../widgets/admin_doctor_card.dart';
-import '../widgets/admin_bottom_nav.dart';
 import '../widgets/admin_doctor_form_sheet.dart';
 
 class DoctorManagementScreen extends StatefulWidget {
@@ -79,8 +78,20 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                               verticalOffset: 30.0,
                               child: FadeInAnimation(
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        if (Navigator.canPop(context)) {
+                                          Navigator.pop(context);
+                                        } else {
+                                          Navigator.pushReplacementNamed(context, '/admin/home');
+                                        }
+                                      },
+                                      icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                    ),
+                                    const SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,22 +301,14 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
               ),
             ),
 
-            // Navigation
-            FadeInUp(
-              duration: const Duration(milliseconds: 500),
-              child: const AdminBottomNav(activeIndex: 1),
-            ),
           ],
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 76),
-          child: FloatingActionButton(
-            onPressed: () => AdminDoctorFormSheet.show(context),
-            backgroundColor: AppTheme.primaryColor,
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: const Icon(Icons.add_rounded, color: Colors.white),
-          ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => AdminDoctorFormSheet.show(context),
+          backgroundColor: AppTheme.primaryColor,
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: const Icon(Icons.add_rounded, color: Colors.white),
         ),
       ),
     );

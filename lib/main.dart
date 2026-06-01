@@ -17,6 +17,7 @@ import 'features/payment/logic/payment_provider.dart';
 import 'features/pharmacy/data/pharmacy_repository.dart';
 import 'features/pharmacy/logic/pharmacy_provider.dart';
 import 'shared/providers/puskesmas_profile_provider.dart';
+import 'shared/widgets/connectivity_banner.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -123,6 +124,9 @@ class _NalasevaAppState extends State<NalasevaApp> {
       theme: AppTheme.lightTheme,
       initialRoute: initialRoute,
       onGenerateRoute: AppRouter.onGenerateRoute,
+      builder: (context, child) {
+        return ConnectivityBanner(child: child!);
+      },
     );
   }
 }

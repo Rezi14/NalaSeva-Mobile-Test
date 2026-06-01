@@ -14,8 +14,6 @@ import '../widgets/clinic_stat_card.dart';
 import '../widgets/admin_queue_tile.dart';
 import '../widgets/admin_weekly_chart.dart';
 import '../widgets/admin_bottom_nav.dart';
-import '../widgets/admin_voice_call_dialog.dart';
-import '../widgets/qr_scanner_page.dart';
 import '../../../core/utils/date_time_parser.dart';
 
 extension ListDivide on List<Widget> {
@@ -37,10 +35,26 @@ class AdminDashboard extends StatefulWidget {
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard> {
+class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProviderStateMixin {
+  late AnimationController _fabAnimationController;
+  late Animation<double> _rotationAnimation;
+  late Animation<double> _menuAnimation;
+  bool _isFabOpen = false;
+
   @override
   void initState() {
     super.initState();
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.125).animate(
+      CurvedAnimation(parent: _fabAnimationController, curve: Curves.easeOut),
+    );
+    _menuAnimation = CurvedAnimation(
+      parent: _fabAnimationController,
+      curve: Curves.easeOutBack,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<AdminProvider>();
       provider.fetchUsers();
@@ -49,6 +63,72 @@ class _AdminDashboardState extends State<AdminDashboard> {
       provider.fetchQueues();
       provider.fetchPolyclinics();
     });
+  }
+
+  @override
+  void dispose() {
+    _fabAnimationController.dispose();
+    super.dispose();
+  }
+
+  void _toggleFabMenu() {
+    setState(() {
+      _isFabOpen = !_isFabOpen;
+      if (_isFabOpen) {
+        _fabAnimationController.forward();
+      } else {
+        _fabAnimationController.reverse();
+      }
+    });
+  }
+
+  Widget _buildFabMenuItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return ScaleTransition(
+      scale: _menuAnimation,
+      child: FadeTransition(
+        opacity: _menuAnimation,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Card(
+                elevation: 3,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: Text(
+                    label,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              FloatingActionButton.small(
+                heroTag: 'fab_${label.toLowerCase().replaceAll(' ', '_')}',
+                onPressed: () {
+                  _toggleFabMenu();
+                  onTap();
+                },
+                backgroundColor: Colors.white,
+                foregroundColor: AppTheme.primaryColor,
+                child: Icon(icon, size: 20),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -87,287 +167,195 @@ class _AdminDashboardState extends State<AdminDashboard> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        body: Column(
+        body: Stack(
           children: [
-            // Header Section
-            FadeIn(
-              duration: const Duration(milliseconds: 400),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                ),
-                child: SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                    child: AnimationLimiter(
-                      child: Column(
-                        children: [
-                          AnimationConfiguration.staggeredList(
-                            position: 0,
-                            duration: const Duration(milliseconds: 375),
-                            child: SlideAnimation(
-                              verticalOffset: 30.0,
-                              child: FadeInAnimation(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
+              children: [
+                // Header Section
+                FadeIn(
+                  duration: const Duration(milliseconds: 400),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: AppTheme.primaryColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(24),
+                        bottomRight: Radius.circular(24),
+                      ),
+                    ),
+                    child: SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                        child: AnimationLimiter(
+                          child: Column(
+                            children: [
+                              AnimationConfiguration.staggeredList(
+                                position: 0,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  verticalOffset: 30.0,
+                                  child: FadeInAnimation(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          'NalaSeva Admin',
-                                          style: GoogleFonts.plusJakartaSans(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'NalaSeva Admin',
+                                              style: GoogleFonts.plusJakartaSans(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            Text(
+                                              'Puskesmas Central Hub',
+                                              style: GoogleFonts.plusJakartaSans(
+                                                fontSize: 14,
+                                                color: Colors.white.withValues(alpha: 0.8),
+                                              ),
+                                            ),
+                                          ].divide(const SizedBox(height: 4)),
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(alpha: 0.15),
+                                            shape: BoxShape.circle,
                                           ),
-                                        ),
-                                        Text(
-                                          'Puskesmas Central Hub',
-                                          style: GoogleFonts.plusJakartaSans(
-                                            fontSize: 14,
-                                            color: Colors.white.withValues(alpha: 0.8),
-                                          ),
-                                        ),
-                                      ].divide(const SizedBox(height: 4)),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.15),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: IconButton(
-                                        onPressed: () => Navigator.pushNamed(
-                                          context,
-                                          '/admin/profile',
-                                        ),
-                                        icon: const Icon(
-                                          Icons.person_rounded,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          AnimationConfiguration.staggeredList(
-                            position: 1,
-                            duration: const Duration(milliseconds: 375),
-                            child: SlideAnimation(
-                              verticalOffset: 30.0,
-                              child: FadeInAnimation(
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: AdminStatCard(
-                                            label: 'Total Pasien',
-                                            value: provider.patients.length.toString(),
-                                            icon: Icons.people_alt_rounded,
-                                            onTap: () => Navigator.pushNamed(context, '/admin/patients'),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: AdminStatCard(
-                                            label: 'Total Antrean',
-                                            value: provider.queues.where((q) => 
-                                              q.date == todayStr && (
-                                                q.status == QueueStatus.booked || 
-                                                q.status == QueueStatus.waiting || 
-                                                q.status == QueueStatus.examining
-                                              )
-                                            ).length.toString(),
-                                            icon: Icons.format_list_numbered_rounded,
-                                            onTap: () => Navigator.pushNamed(context, '/admin/queues'),
+                                          child: IconButton(
+                                            onPressed: () => Navigator.pushNamed(
+                                              context,
+                                              '/admin/profile',
+                                            ),
+                                            icon: const Icon(
+                                              Icons.person_rounded,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 16),
-                                    OutlinedButton.icon(
-                                      onPressed: () => Navigator.pushNamed(context, '/tv-monitor'),
-                                      icon: const Icon(Icons.tv_rounded, size: 18, color: Colors.white),
-                                      label: Text(
-                                        'TV Monitor',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      style: OutlinedButton.styleFrom(
-                                        foregroundColor: Colors.white,
-                                        side: const BorderSide(color: Colors.white, width: 1.5),
-                                        minimumSize: const Size(double.infinity, 48),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
+                              const SizedBox(height: 24),
+                              AnimationConfiguration.staggeredList(
+                                position: 1,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  verticalOffset: 30.0,
+                                  child: FadeInAnimation(
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: AdminStatCard(
+                                                label: 'Total Pasien',
+                                                value: provider.patients.length.toString(),
+                                                icon: Icons.people_alt_rounded,
+                                                onTap: () => Navigator.pushNamed(context, '/admin/patients'),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: AdminStatCard(
+                                                label: 'Total Antrean',
+                                                value: provider.queues.where((q) => 
+                                                  q.date == todayStr && (
+                                                    q.status == QueueStatus.booked || 
+                                                    q.status == QueueStatus.waiting || 
+                                                    q.status == QueueStatus.examining
+                                                  )
+                                                ).length.toString(),
+                                                icon: Icons.format_list_numbered_rounded,
+                                                onTap: () => Navigator.pushNamed(context, '/admin/queues'),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 16),
+                                        OutlinedButton.icon(
+                                          onPressed: () => Navigator.pushNamed(context, '/tv-monitor'),
+                                          icon: const Icon(Icons.tv_rounded, size: 18, color: Colors.white),
+                                          label: Text(
+                                            'TV Monitor',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            side: const BorderSide(color: Colors.white, width: 1.5),
+                                            minimumSize: const Size(double.infinity, 48),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(14),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ].divide(const SizedBox(height: 16)),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
 
-            // Scrollable Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Clinic Live Status
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                const Divider(height: 1),
+
+                // Scrollable Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 200),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Status Langsung Klinik',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pushNamed(
-                                  context,
-                                  '/admin/polyclinics',
-                                ),
-                                child: const Text('Lihat Semua'),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        if (provider.polyclinics.isEmpty)
-                          FadeInUp(
-                            duration: const Duration(milliseconds: 500),
-                            delay: const Duration(milliseconds: 250),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 20),
-                                child: Text(
-                                  'Belum ada poliklinik yang aktif',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: Colors.grey,
-                                    fontSize: 14,
+                        // Clinic Live Status
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 200),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Status Langsung Klinik',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
                                   ),
-                                ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pushNamed(
+                                      context,
+                                      '/admin/polyclinics',
+                                    ),
+                                    child: const Text('Lihat Semua'),
+                                  ),
+                                ],
                               ),
                             ),
-                          )
-                        else
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: screenWidth >= 1024 ? 4 : (screenWidth >= 600 ? 3 : 2),
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: screenWidth >= 1024 ? 1.7 : 1.5,
-                            ),
-                            itemCount: provider.polyclinics.take(4).length,
-                            itemBuilder: (context, index) {
-                              final poly = provider.polyclinics[index];
-                              final colors = [
-                                AppTheme.primaryColor, // Emerald Green
-                                const Color(0xFF10B981), // Mint Success Green
-                                const Color(0xFF0D9488), // Teal Green
-                                const Color(0xFF047857), // Forest Green
-                              ];
-                              return FadeInUp(
+                            const SizedBox(height: 16),
+                            if (provider.polyclinics.isEmpty)
+                              FadeInUp(
                                 duration: const Duration(milliseconds: 500),
-                                delay: Duration(milliseconds: 250 + (index * 80)),
-                                child: ClinicStatCard(
-                                  name: poly.name,
-                                  counter:
-                                      'Pasien: ${provider.queues.where((q) => q.polyclinic.id == poly.id && q.date == todayStr && (q.status == QueueStatus.booked || q.status == QueueStatus.waiting || q.status == QueueStatus.examining)).length}',
-                                  wait:
-                                      'Menunggu: ${provider.queues.where((q) => q.polyclinic.id == poly.id && q.date == todayStr && q.status == QueueStatus.waiting).length}',
-                                  color: colors[index % colors.length],
-                                ),
-                              );
-                            },
-                          ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // Active Queues
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 350),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Antrean Aktif',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pushNamed(
-                                    context, '/admin/queues'),
-                                child: const Text('Lihat Semua'),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Builder(
-                          builder: (context) {
-                            final activeQList = provider.queues
-                                .where(
-                                  (q) =>
-                                      q.date == todayStr && (
-                                        q.status == QueueStatus.booked ||
-                                        q.status == QueueStatus.waiting ||
-                                        q.status == QueueStatus.examining
-                                      ),
-                                )
-                                .take(3)
-                                .toList();
-                            if (activeQList.isEmpty) {
-                              return FadeInUp(
-                                duration: const Duration(milliseconds: 500),
-                                delay: const Duration(milliseconds: 400),
+                                delay: const Duration(milliseconds: 250),
                                 child: Center(
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 20),
                                     child: Text(
-                                      'Tidak ada antrean aktif',
+                                      'Belum ada poliklinik yang aktif',
                                       style: GoogleFonts.plusJakartaSans(
                                         color: Colors.grey,
                                         fontSize: 14,
@@ -375,83 +363,212 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     ),
                                   ),
                                 ),
-                              );
-                            }
-                            return Column(
-                              children: activeQList.asMap().entries.map((entry) {
-                                final index = entry.key;
-                                final q = entry.value;
-                                return FadeInUp(
-                                  duration: const Duration(milliseconds: 500),
-                                  delay: Duration(milliseconds: 400 + (index * 80)),
-                                  child: AdminQueueTile(
-                                    queue: q,
-                                    onTap: () {
-                                      final provider = context.read<AdminProvider>();
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AdminBookingDetailScreen(queue: q),
-                                        ),
-                                      ).then((_) {
-                                        if (mounted) {
-                                          provider.fetchQueues();
-                                        }
-                                      });
-                                    },
-                                    onCall: () => AdminVoiceCallDialog.show(context, q),
-                                    onSkip: () => _confirmMoveToBack(context, q),
+                              )
+                            else
+                              GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: screenWidth >= 1024 ? 4 : (screenWidth >= 600 ? 3 : 2),
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: screenWidth >= 1024 ? 1.7 : 1.5,
+                                ),
+                                itemCount: provider.polyclinics.take(4).length,
+                                itemBuilder: (context, index) {
+                                  final poly = provider.polyclinics[index];
+                                  final colors = [
+                                    AppTheme.primaryColor, // Emerald Green
+                                    const Color(0xFF10B981), // Mint Success Green
+                                    const Color(0xFF0D9488), // Teal Green
+                                    const Color(0xFF047857), // Forest Green
+                                  ];
+                                  return FadeInUp(
+                                    duration: const Duration(milliseconds: 500),
+                                    delay: Duration(milliseconds: 250 + (index * 80)),
+                                    child: ClinicStatCard(
+                                      name: poly.name,
+                                      counter:
+                                          'Pasien: ${provider.queues.where((q) => q.polyclinic.id == poly.id && q.date == todayStr && (q.status == QueueStatus.booked || q.status == QueueStatus.waiting || q.status == QueueStatus.examining)).length}',
+                                      wait:
+                                          'Menunggu: ${provider.queues.where((q) => q.polyclinic.id == poly.id && q.date == todayStr && q.status == QueueStatus.waiting).length}',
+                                      color: colors[index % colors.length],
+                                    ),
+                                  );
+                                },
+                              ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        // Active Queues
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 350),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Pendaftaran Aktif Hari Ini',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
                                   ),
-                                );
-                              }).toList().divide(const SizedBox(height: 12)),
-                            );
-                          }
+                                  TextButton(
+                                    onPressed: () => Navigator.pushNamed(
+                                      context,
+                                      '/admin/queues',
+                                    ),
+                                    child: const Text('Lihat Semua'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            if (provider.isLoading && provider.queues.isEmpty)
+                              const Center(child: CircularProgressIndicator())
+                            else if (provider.queues.where((q) => q.date == todayStr && q.status.isActive).isEmpty)
+                              FadeInUp(
+                                duration: const Duration(milliseconds: 500),
+                                delay: const Duration(milliseconds: 400),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 20),
+                                    child: Text(
+                                      'Tidak ada antrean aktif hari ini',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            else
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: provider.queues.where((q) => q.date == todayStr && q.status.isActive).take(5).length,
+                                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                                itemBuilder: (context, index) {
+                                  final activeQueues = provider.queues.where((q) => q.date == todayStr && q.status.isActive).toList();
+                                  final queue = activeQueues[index];
+                                  return FadeInUp(
+                                    duration: const Duration(milliseconds: 500),
+                                    delay: Duration(milliseconds: 400 + (index * 80)),
+                                    child: AdminQueueTile(
+                                      queue: queue,
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AdminBookingDetailScreen(queue: queue),
+                                          ),
+                                        ).then((_) {
+                                          if (mounted) {
+                                            provider.fetchQueues();
+                                          }
+                                        });
+                                      },
+                                      onSkip: () => _confirmMoveToBack(context, queue),
+                                    ),
+                                  );
+                                },
+                              ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        // Weekly Traffic Chart
+                        FadeInUp(
+                          duration: const Duration(milliseconds: 800),
+                          delay: const Duration(milliseconds: 500),
+                          child: AdminWeeklyChart(
+                            weeklyCounts: finalCounts,
+                            dynamicMaxY: dynamicMaxY,
+                          ),
                         ),
                       ],
                     ),
+                  ),
+                ),
 
-                    const SizedBox(height: 30),
-
-                    const SizedBox(height: 10),
-
-                    const SizedBox(height: 30),
-
-                    // Weekly Traffic Chart
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 800),
-                      delay: const Duration(milliseconds: 500),
-                      child: AdminWeeklyChart(
-                        weeklyCounts: finalCounts,
-                        dynamicMaxY: dynamicMaxY,
-                      ),
+                // Bottom Navigation
+                FadeInUp(
+                  duration: const Duration(milliseconds: 500),
+                  child: const AdminBottomNav(activeIndex: 0),
+                ),
+              ],
+            ),
+            if (_isFabOpen)
+              Positioned.fill(
+                child: FadeTransition(
+                  opacity: _fabAnimationController,
+                  child: GestureDetector(
+                    onTap: _toggleFabMenu,
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.5),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-
-            // Bottom Navigation
-            FadeInUp(
-              duration: const Duration(milliseconds: 500),
-              child: const AdminBottomNav(activeIndex: 0),
-            ),
           ],
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 76),
-          child: FloatingActionButton.extended(
-            onPressed: () => _openScanner(context),
-            backgroundColor: AppTheme.primaryColor,
-            elevation: 4,
-            icon: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white),
-            label: Text(
-              'SCAN ABSENSI',
-              style: GoogleFonts.plusJakartaSans(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 0.5,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _buildFabMenuItem(
+                icon: Icons.local_hospital_rounded,
+                label: 'Manajemen Poliklinik',
+                onTap: () => Navigator.pushNamed(context, '/admin/polyclinics'),
               ),
-            ),
+              _buildFabMenuItem(
+                icon: Icons.people_rounded,
+                label: 'Manajemen Dokter',
+                onTap: () => Navigator.pushNamed(context, '/admin/doctors'),
+              ),
+              _buildFabMenuItem(
+                icon: Icons.calendar_month_rounded,
+                label: 'Manajemen Jadwal Dokter',
+                onTap: () => Navigator.pushNamed(context, '/admin/schedules'),
+              ),
+              _buildFabMenuItem(
+                icon: Icons.queue_play_next_rounded,
+                label: 'Manajemen Antrean',
+                onTap: () => Navigator.pushNamed(context, '/admin/queues'),
+              ),
+              _buildFabMenuItem(
+                icon: Icons.person_search_rounded,
+                label: 'Manajemen Pasien',
+                onTap: () => Navigator.pushNamed(context, '/admin/patients'),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton(
+                heroTag: 'main_admin_fab',
+                onPressed: _toggleFabMenu,
+                backgroundColor: AppTheme.primaryColor,
+                child: RotationTransition(
+                  turns: _rotationAnimation,
+                  child: Icon(
+                    _isFabOpen ? Icons.close_rounded : Icons.add_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -480,16 +597,5 @@ class _AdminDashboardState extends State<AdminDashboard> {
         }
       }
     }
-  }
-
-  void _openScanner(BuildContext context) {
-    final provider = context.read<AdminProvider>();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const QRScannerPage()),
-    ).then((_) {
-      if (!mounted) return;
-      provider.fetchQueues();
-    });
   }
 }

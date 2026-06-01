@@ -196,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           hasBorder: true,
                           validator: (v) {
                             if (v == null || v.isEmpty) return 'NIK tidak boleh kosong';
-                            if (v.length != 16 || int.tryParse(v) == null) {
+                            if (!RegExp(r'^[0-9]{16}$').hasMatch(v)) {
                               return 'NIK harus berupa 16 digit angka';
                             }
                             return null;
@@ -211,7 +211,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           label: 'Nama Lengkap',
                           icon: Icons.person_outline,
                           hasBorder: true,
-                          validator: (v) => v == null || v.isEmpty ? 'Nama tidak boleh kosong' : null,
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) return 'Nama tidak boleh kosong';
+                            if (v.trim().length < 3) return 'Nama minimal 3 karakter';
+                            if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(v.trim())) {
+                              return 'Nama hanya boleh berisi huruf dan spasi';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -314,7 +321,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           icon: Icons.phone_android_outlined,
                           keyboardType: TextInputType.phone,
                           hasBorder: true,
-                          validator: (v) => v == null || v.isEmpty ? 'Nomor HP tidak boleh kosong' : null,
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Nomor WhatsApp tidak boleh kosong';
+                            final clean = v.replaceAll(RegExp(r'\s+'), '');
+                            if (!RegExp(r'^(\+62|62|0)8[1-9][0-9]{7,11}$').hasMatch(clean)) {
+                              return 'Format nomor WhatsApp tidak valid (contoh: 081234567890)';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(height: 16),

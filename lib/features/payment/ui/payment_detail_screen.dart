@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -141,6 +142,34 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     );
 
     if (pickedFile == null) return;
+
+    // Sisi Klien: Validasi Ekstensi File & Ukuran Maksimal 2MB
+    final path = pickedFile.path.toLowerCase();
+    if (!path.endsWith('.jpg') && !path.endsWith('.jpeg') && !path.endsWith('.png')) {
+      if (mounted) {
+        AppDialogs.showNotificationDialog(
+          context,
+          'Format File Salah',
+          'Bukti pembayaran harus berupa gambar dengan format JPG, JPEG, atau PNG.',
+          isError: true,
+        );
+      }
+      return;
+    }
+
+    final file = File(pickedFile.path);
+    final int fileSize = await file.length();
+    if (fileSize > 2 * 1024 * 1024) {
+      if (mounted) {
+        AppDialogs.showNotificationDialog(
+          context,
+          'Ukuran File Terlalu Besar',
+          'Ukuran bukti pembayaran tidak boleh melebihi 2MB.',
+          isError: true,
+        );
+      }
+      return;
+    }
 
     if (!mounted) return;
 
