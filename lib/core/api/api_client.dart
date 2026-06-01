@@ -19,7 +19,7 @@ class ApiClient {
       },
       validateStatus: (status) {
         if (status == null) return false;
-        return status < 500 && status != 401; // Throw exception if status is 401 to handle it in onError
+        return status >= 200 && status < 300; // Throw exception for all non-2xx status codes (like 400, 422, 404, 401, 500)
       },
     ));
 
