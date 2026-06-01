@@ -545,11 +545,6 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                 onTap: () => Navigator.pushNamed(context, '/admin/schedules'),
               ),
               _buildFabMenuItem(
-                icon: Icons.queue_play_next_rounded,
-                label: 'Manajemen Antrean',
-                onTap: () => Navigator.pushNamed(context, '/admin/queues'),
-              ),
-              _buildFabMenuItem(
                 icon: Icons.person_search_rounded,
                 label: 'Manajemen Pasien',
                 onTap: () => Navigator.pushNamed(context, '/admin/patients'),

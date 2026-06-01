@@ -27,8 +27,10 @@
 18. [Manajemen Pembayaran](#18-manajemen-pembayaran)
 19. [Modul Apotek (Pharmacy)](#19-modul-apotek-pharmacy)
 20. [Pengaturan Dinamis Puskesmas (System Settings)](#20-pengaturan-dinamis-puskesmas-system-settings)
+21. [Standarisasi UI/UX & Penyempurnaan Alur Dialog (Flutter)](#21-standarisasi-uiux--penyempurnaan-alur-dialog-flutter)
 
 ---
+
 
 ## 1. Autentikasi & Manajemen Akun
 
@@ -666,6 +668,25 @@ try {
 
 ---
 
+## 21. Standarisasi UI/UX & Penyempurnaan Alur Dialog (Flutter)
+
+### 📱 Flutter — `AppDialogs` + Custom Widgets
+
+#### 21.1 Dialog Konfirmasi Terstandarisasi
+- Mengubah elemen tombol bawaan (`TextButton`) pada dialog informasi, sukses, dan konfirmasi menjadi tombol bergaya premium (`ElevatedButton` & `OutlinedButton`) dengan lebar penuh (*full-width*) atau tata letak baris yang responsif.
+- Memberikan pewarnaan khusus berbasis aksi: `isDestructive` akan menggunakan warna error/merah (`AppTheme.errorColor`) untuk tombol tindakan destruktif (seperti pembatalan antrean atau penghapusan data), sementara tindakan standar menggunakan `AppTheme.primaryColor`.
+
+#### 21.2 Konfirmasi Pembatalan Bersyarat (Conditional Cancel Confirmation)
+- Menerapkan alur konfirmasi dua arah yang aman sebelum mengeksekusi fungsi pembatalan atau penghapusan guna mencegah salah klik oleh pengguna.
+- Sinkronisasi teks konfirmasi yang disederhanakan dan konsisten di seluruh aplikasi (misal: "Batal" untuk pembatalan dialog dan "Batalkan"/"Hapus" untuk tombol aksi eksekusi).
+
+#### 21.3 Standarisasi Navigasi & Pelindung State Form
+- Menyempurnakan perilaku tombol kembali (*back navigation buttons & handlers*) di berbagai form penting (seperti formulir tambah dokter, cuti, jadwal praktik, rekam medis, dan inventaris obat).
+- Mengintegrasikan dialog konfirmasi keluar (*discard changes prompt*) jika pengguna mencoba kembali saat form telah terisi sebagian guna menghindari hilangnya input data secara tidak sengaja.
+
+---
+
+
 ## 📊 Ringkasan Logika Bisnis per Entitas
 
 | Entitas | Logika Bisnis Kunci |
@@ -684,6 +705,7 @@ try {
 | **Pembayaran** | Otomatisasi generate tagihan, upload bukti transfer, verifikasi admin, pencatatan tunai, soft delete |
 | **Apotek** | Peran apoteker, antrean resep terkonfirmasi lunas, penyerahan obat, auto-reduction stok obat, CRUD inventaris obat & harga |
 | **Pengaturan Dinamis** | Pasangan key-value database, konfigurasi REST API admin, penentu dinamis biaya pendaftaran & durasi slot estimasi waktu antrean di Flutter |
+| **Standarisasi UI/UX** | Penggunaan tombol premium full-width, alur konfirmasi pembatalan bersyarat, serta pelindung state form saat navigasi kembali |
 
 ---
 

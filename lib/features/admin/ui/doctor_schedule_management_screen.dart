@@ -171,21 +171,32 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
-                                      Icons.calendar_month_outlined,
-                                      size: 72,
-                                      color: Colors.grey.shade400,
+                                    Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        _selectedDay != null
+                                            ? Icons.search_off_rounded
+                                            : Icons.calendar_month_outlined,
+                                        size: 64,
+                                        color: AppTheme.primaryColor,
+                                      ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: 24),
                                     Text(
-                                      'Tidak Ada Jadwal Dokter',
+                                      _selectedDay != null
+                                          ? 'Jadwal Tidak Ditemukan'
+                                          : 'Tidak Ada Jadwal Dokter',
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.grey.shade700,
+                                        color: Colors.black87,
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
+                                    const SizedBox(height: 12),
                                     Text(
                                       _selectedDay != null
                                           ? 'Belum ada jadwal dokter rutin yang terdaftar pada hari $_selectedDay.'
@@ -193,9 +204,35 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 13,
-                                        color: Colors.grey,
+                                        color: Colors.grey.shade600,
+                                        height: 1.5,
                                       ),
                                     ),
+                                    if (_selectedDay != null) ...[
+                                      const SizedBox(height: 24),
+                                      OutlinedButton.icon(
+                                        onPressed: () {
+                                          setState(() {
+                                            _selectedDay = null;
+                                          });
+                                        },
+                                        icon: const Icon(Icons.refresh_rounded, size: 18),
+                                        label: Text(
+                                          'Reset Filter',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: AppTheme.primaryColor,
+                                          side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
@@ -500,7 +537,20 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () async {
+                            bool shouldShowConfirm = false;
                             if (isEdit) {
+                              shouldShowConfirm = doctorId != schedule.doctorId ||
+                                  selectedDays.length != 1 ||
+                                  !selectedDays.contains(schedule.dayOfWeek) ||
+                                  startTime != DateTimeParser.parseTimeOfDay(schedule.startTime) ||
+                                  endTime != DateTimeParser.parseTimeOfDay(schedule.endTime);
+                            } else {
+                              shouldShowConfirm = doctorId != null ||
+                                  selectedDays.isNotEmpty ||
+                                  startTime != null ||
+                                  endTime != null;
+                            }
+                            if (shouldShowConfirm) {
                               final confirm = await AppDialogs.showConfirmationDialog(
                                 context,
                                 'Batalkan Perubahan?',

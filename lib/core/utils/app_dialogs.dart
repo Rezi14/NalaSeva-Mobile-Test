@@ -32,13 +32,22 @@ class AppDialogs {
           style: GoogleFonts.inter(fontSize: 14, color: Colors.black87),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(
-              foregroundColor: AppTheme.primaryColor,
-              textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(ctx),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                elevation: 0,
+              ),
+              child: Text(
+                'OK',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+              ),
             ),
-            child: const Text('OK'),
           ),
         ],
       ),
@@ -79,18 +88,27 @@ class AppDialogs {
           style: GoogleFonts.inter(fontSize: 14, color: Colors.black87),
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              if (onOkPressed != null) {
-                onOkPressed();
-              }
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: AppTheme.primaryColor,
-              textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                if (onOkPressed != null) {
+                  onOkPressed();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                elevation: 0,
+              ),
+              child: Text(
+                'OK',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+              ),
             ),
-            child: const Text('OK'),
           ),
         ],
       ),
@@ -122,21 +140,50 @@ class AppDialogs {
           style: GoogleFonts.inter(fontSize: 14, color: Colors.black87),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.grey.shade600,
-              textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-            ),
-            child: Text(cancelText),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(
-              foregroundColor: isDestructive ? AppTheme.errorColor : AppTheme.primaryColor,
-              textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-            ),
-            child: Text(confirmText),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.grey.shade300),
+                    minimumSize: const Size(double.infinity, 44),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text(
+                    cancelText == 'BATAL' ? 'Batal' : cancelText,
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDestructive ? AppTheme.errorColor : AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 44),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    confirmText == 'YA, DAFTAR' ? 'Daftar' :
+                    confirmText == 'YA, SIMPAN' ? 'Simpan' :
+                    confirmText == 'YA, UPDATE' ? 'Update' :
+                    confirmText == 'YA, BATALKAN' ? 'Batalkan' :
+                    confirmText == 'YA, HAPUS' || confirmText == 'HAPUS' ? 'Hapus' :
+                    confirmText,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

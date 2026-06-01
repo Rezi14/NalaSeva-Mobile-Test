@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/models/payment_model.dart';
 import '../logic/pharmacy_provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -60,18 +61,12 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Struk Bukti Pembayaran QRIS',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
+                Text(
+                  'Struk Bukti Pembayaran QRIS',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ClipRRect(
@@ -99,6 +94,28 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                         ),
                       );
                     },
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.grey.shade300),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Batal',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -401,12 +418,12 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
               children: [
                 // Voice Announcement Button using TtsHelper
                 SizedBox(
-                  height: 56,
+                  height: 50,
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppTheme.primaryColor, width: 2),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                     ),
@@ -414,7 +431,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                     child: const Icon(
                       Icons.volume_up_rounded,
                       color: AppTheme.primaryColor,
-                      size: 28,
+                      size: 24,
                     ),
                   ),
                 ),
@@ -422,20 +439,20 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                 // Dispense Button
                 Expanded(
                   child: SizedBox(
-                    height: 56,
+                    height: 50,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       onPressed: _isProcessing ? null : _dispensePrescription,
                       child: _isProcessing
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
+                          : Text(
                               'Serahkan Obat (Selesai)',
-                              style: TextStyle(
+                              style: GoogleFonts.plusJakartaSans(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,

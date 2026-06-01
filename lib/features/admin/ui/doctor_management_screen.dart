@@ -230,27 +230,50 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                         FadeInUp(
                           duration: const Duration(milliseconds: 500),
                           child: Container(
-                            height: MediaQuery.of(context).size.height * 0.4,
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            margin: const EdgeInsets.symmetric(vertical: 24),
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: Colors.grey.shade100),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.shade50,
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.people_outline_rounded,
-                                  size: 72,
-                                  color: Colors.grey.shade400,
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    _searchQuery.isNotEmpty || _selectedPolyclinicId != null
+                                        ? Icons.search_off_rounded
+                                        : Icons.people_outline_rounded,
+                                    size: 64,
+                                    color: AppTheme.primaryColor,
+                                  ),
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 24),
                                 Text(
-                                  'Tidak Ada Staf Medis',
+                                  _searchQuery.isNotEmpty || _selectedPolyclinicId != null
+                                      ? 'Staf Tidak Ditemukan'
+                                      : 'Tidak Ada Staf Medis',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.grey.shade700,
+                                    color: Colors.black87,
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 12),
                                 Text(
                                   _searchQuery.isNotEmpty
                                       ? 'Tidak ada staf medis dengan nama atau spesialisasi "$_searchQuery".'
@@ -258,9 +281,37 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 13,
-                                    color: Colors.grey,
+                                    color: Colors.grey.shade600,
+                                    height: 1.5,
                                   ),
                                 ),
+                                if (_searchQuery.isNotEmpty || _selectedPolyclinicId != null) ...[
+                                  const SizedBox(height: 24),
+                                  OutlinedButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        _searchController.clear();
+                                        _searchQuery = '';
+                                        _selectedPolyclinicId = null;
+                                      });
+                                    },
+                                    icon: const Icon(Icons.refresh_rounded, size: 18),
+                                    label: Text(
+                                      'Reset Pencarian & Filter',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppTheme.primaryColor,
+                                      side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),

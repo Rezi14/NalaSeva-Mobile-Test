@@ -70,22 +70,9 @@ class AdminDoctorFormSheet {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        isEdit ? 'Edit Dokter' : 'Tambah Dokter Baru', 
-                        style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close_rounded, color: Colors.grey),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.grey.shade100,
-                          padding: const EdgeInsets.all(8),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    isEdit ? 'Edit Dokter' : 'Tambah Dokter Baru', 
+                    style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 24),
                   TextFormField(
@@ -325,7 +312,30 @@ class AdminDoctorFormSheet {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () async {
+                            bool shouldShowConfirm = false;
                             if (isEdit) {
+                              shouldShowConfirm = nameController.text.trim() != (doctor.user?.name ?? '') ||
+                                  nikController.text.trim() != (doctor.user?.nationalId ?? '') ||
+                                  specController.text.trim() != (doctor.specialization ?? '') ||
+                                  licenseController.text.trim() != (doctor.licenseNumber ?? '') ||
+                                  phoneController.text.trim() != (doctor.user?.phone ?? '') ||
+                                  addressController.text.trim() != (doctor.user?.address ?? '') ||
+                                  selectedGender != (doctor.user?.gender ?? 'Laki-laki') ||
+                                  selectedBirthDate != doctor.user?.birthDate ||
+                                  selectedPolyclinicId != doctor.polyclinicId;
+                            } else {
+                              shouldShowConfirm = nameController.text.trim().isNotEmpty ||
+                                  nikController.text.trim().isNotEmpty ||
+                                  emailController.text.trim().isNotEmpty ||
+                                  passwordController.text.isNotEmpty ||
+                                  specController.text.trim().isNotEmpty ||
+                                  licenseController.text.trim().isNotEmpty ||
+                                  phoneController.text.trim().isNotEmpty ||
+                                  addressController.text.trim().isNotEmpty ||
+                                  selectedBirthDate != null ||
+                                  selectedPolyclinicId != null;
+                            }
+                            if (shouldShowConfirm) {
                               final confirm = await AppDialogs.showConfirmationDialog(
                                 context,
                                 'Batalkan Perubahan?',
@@ -343,14 +353,14 @@ class AdminDoctorFormSheet {
                           },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.grey),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                           child: Text(
-                            'BATAL',
-                            style: TextStyle(
+                            'Batal',
+                            style: GoogleFonts.plusJakartaSans(
                               fontWeight: FontWeight.bold,
                               color: Colors.grey.shade700,
                             ),
@@ -420,7 +430,7 @@ class AdminDoctorFormSheet {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryColor,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
                           child: provider.isLoading
@@ -429,7 +439,7 @@ class AdminDoctorFormSheet {
                                   height: 20,
                                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                 )
-                              : Text(isEdit ? 'PERBARUI' : 'SIMPAN', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              : Text(isEdit ? 'Update' : 'Simpan', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ],

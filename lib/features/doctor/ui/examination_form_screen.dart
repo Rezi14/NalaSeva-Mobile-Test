@@ -202,10 +202,6 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.close_rounded),
-                          onPressed: () => Navigator.pop(context),
-                        ),
                       ],
                     ),
                   ),
@@ -314,6 +310,30 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                       },
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Batal',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             );
@@ -351,7 +371,27 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                         ),
                         child: IconButton(
                           icon: const Icon(Icons.arrow_back_rounded, size: 20),
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () async {
+                            final hasValue = _complaintController.text.trim().isNotEmpty ||
+                                _diagnosisController.text.trim().isNotEmpty ||
+                                _treatmentNotesController.text.trim().isNotEmpty ||
+                                _medicines.isNotEmpty;
+                            if (hasValue) {
+                              final confirm = await AppDialogs.showConfirmationDialog(
+                                context,
+                                'Batalkan Pemeriksaan?',
+                                'Apakah Anda yakin ingin keluar? Seluruh data pemeriksaan yang telah diisi akan hilang.',
+                                confirmText: 'YA, KELUAR',
+                                cancelText: 'TETAP DI SINI',
+                                isDestructive: true,
+                              );
+                              if ((confirm ?? false) && context.mounted) {
+                                Navigator.pop(context);
+                              }
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -477,12 +517,18 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                                   ),
                                 )
                               : const Icon(Icons.save_rounded, color: Colors.white),
-                          label: Text(provider.isLoading ? 'MENYIMPAN...' : 'SELESAI & SIMPAN PEMERIKSAAN'),
+                          label: Text(
+                            provider.isLoading ? 'Menyimpan...' : 'Selesai & Simpan Pemeriksaan',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryColor,
                             foregroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 56),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             elevation: 0,
                           ),
                         );

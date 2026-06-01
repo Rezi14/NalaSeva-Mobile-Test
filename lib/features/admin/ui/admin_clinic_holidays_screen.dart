@@ -82,22 +82,13 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Tambah Hari Libur',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.close_rounded, color: Colors.grey),
-                          ),
-                        ],
+                      Text(
+                        'Tambah Hari Libur',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -187,19 +178,34 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                         children: [
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
+                              onPressed: () async {
+                                final hasValue = descriptionController.text.trim().isNotEmpty;
+                                if (hasValue) {
+                                  final confirm = await AppDialogs.showConfirmationDialog(
+                                    context,
+                                    'Batalkan Hari Libur?',
+                                    'Apakah Anda yakin ingin membatalkan pengisian data hari libur ini?',
+                                    confirmText: 'YA, BATALKAN',
+                                    cancelText: 'KEMBALI',
+                                    isDestructive: true,
+                                  );
+                                  if ((confirm ?? false) && context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                } else {
+                                  Navigator.pop(context);
+                                }
                               },
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(color: Colors.grey),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                minimumSize: const Size(double.infinity, 50),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                               child: Text(
-                                'BATAL',
-                                style: TextStyle(
+                                'Batal',
+                                style: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.grey.shade700,
                                 ),
@@ -256,7 +262,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                                     },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primaryColor,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                minimumSize: const Size(double.infinity, 50),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                               child: isSaving
@@ -265,9 +271,9 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                                       height: 20,
                                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                     )
-                                  : const Text(
-                                      'SIMPAN',
-                                      style: TextStyle(
+                                  : Text(
+                                      'Simpan',
+                                      style: GoogleFonts.plusJakartaSans(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),

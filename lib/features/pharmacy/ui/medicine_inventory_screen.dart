@@ -110,7 +110,35 @@ class _MedicineInventoryScreenState extends State<MedicineInventoryScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () async {
+                bool shouldShowConfirm = false;
+                if (isEdit) {
+                  shouldShowConfirm = nameController.text.trim() != medicine.name ||
+                      stockController.text.trim() != medicine.stock.toString() ||
+                      unitController.text.trim() != medicine.unit ||
+                      priceController.text.trim() != medicine.price.toInt().toString();
+                } else {
+                  shouldShowConfirm = nameController.text.trim().isNotEmpty ||
+                      stockController.text.trim().isNotEmpty ||
+                      (unitController.text.trim().isNotEmpty && unitController.text.trim() != 'tablet') ||
+                      priceController.text.trim().isNotEmpty;
+                }
+                if (shouldShowConfirm) {
+                  final confirm = await AppDialogs.showConfirmationDialog(
+                    context,
+                    'Batalkan Perubahan?',
+                    'Apakah Anda yakin ingin membatalkan pengisian/perubahan data obat ini?',
+                    confirmText: 'YA, BATALKAN',
+                    cancelText: 'TETAP EDIT',
+                    isDestructive: true,
+                  );
+                  if ((confirm ?? false) && context.mounted) {
+                    Navigator.pop(context);
+                  }
+                } else {
+                  Navigator.pop(context);
+                }
+              },
               style: TextButton.styleFrom(
                 foregroundColor: Colors.grey.shade600,
                 textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),

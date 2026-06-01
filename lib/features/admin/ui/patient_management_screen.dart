@@ -447,7 +447,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                       },
                       icon: const Icon(Icons.delete_outline_rounded, color: AppTheme.cancelColor),
                       label: Text(
-                        'HAPUS',
+                        'Hapus',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.bold,
                           color: AppTheme.cancelColor,
@@ -455,7 +455,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppTheme.cancelColor),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -471,7 +471,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                       },
                       icon: const Icon(Icons.edit_outlined, color: Colors.white),
                       label: Text(
-                        'EDIT PROFIL',
+                        'Edit Profil',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -479,7 +479,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -612,16 +612,24 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () async {
-                            final confirm = await AppDialogs.showConfirmationDialog(
-                              context,
-                              'Batalkan Perubahan?',
-                              'Apakah Anda yakin ingin membatalkan perubahan? Data yang sudah diubah tidak akan disimpan.',
-                              confirmText: 'YA, BATALKAN',
-                              cancelText: 'TETAP EDIT',
-                              isDestructive: true,
-                            );
-                            if ((confirm ?? false) && context.mounted) {
-                              Navigator.pop(context); // Close edit bottom sheet
+                            final isModified = nameController.text.trim() != patient.name ||
+                                emailController.text.trim() != (patient.user?.email ?? '') ||
+                                phoneController.text.trim() != (patient.phone ?? '') ||
+                                addressController.text.trim() != (patient.address ?? '');
+                            if (isModified) {
+                              final confirm = await AppDialogs.showConfirmationDialog(
+                                context,
+                                'Batalkan Perubahan?',
+                                'Apakah Anda yakin ingin membatalkan perubahan? Data yang sudah diubah tidak akan disimpan.',
+                                confirmText: 'YA, BATALKAN',
+                                cancelText: 'TETAP EDIT',
+                                isDestructive: true,
+                              );
+                              if ((confirm ?? false) && context.mounted) {
+                                Navigator.pop(context); // Close edit bottom sheet
+                              }
+                            } else {
+                              Navigator.pop(context);
                             }
                           },
                           style: OutlinedButton.styleFrom(
@@ -632,7 +640,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                             ),
                           ),
                           child: Text(
-                            'BATAL',
+                            'Batal',
                             style: GoogleFonts.plusJakartaSans(
                               fontWeight: FontWeight.bold,
                               color: Colors.grey.shade700,
@@ -685,7 +693,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                             ),
                           ),
                           child: Text(
-                            'SIMPAN',
+                            'Simpan',
                             style: GoogleFonts.plusJakartaSans(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,

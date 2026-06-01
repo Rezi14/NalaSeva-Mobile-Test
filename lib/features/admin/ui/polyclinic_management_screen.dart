@@ -489,7 +489,17 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () async {
+                        bool shouldShowConfirm = false;
                         if (isEdit) {
+                          shouldShowConfirm = nameController.text.trim() != (poly.name) ||
+                              codeController.text.trim() != (poly.code) ||
+                              descController.text.trim() != (poly.description ?? '');
+                        } else {
+                          shouldShowConfirm = nameController.text.trim().isNotEmpty ||
+                              codeController.text.trim().isNotEmpty ||
+                              descController.text.trim().isNotEmpty;
+                        }
+                        if (shouldShowConfirm) {
                           final confirm = await AppDialogs.showConfirmationDialog(
                             context,
                             'Batalkan Perubahan?',
@@ -507,14 +517,14 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                       },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.grey),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       child: Text(
-                        'BATAL',
-                        style: TextStyle(
+                        'Batal',
+                        style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.bold,
                           color: Colors.grey.shade700,
                         ),
@@ -571,12 +581,12 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: provider.isLoading 
                           ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : Text(isEdit ? 'UPDATE' : 'SIMPAN', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          : Text(isEdit ? 'Update' : 'Simpan', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],

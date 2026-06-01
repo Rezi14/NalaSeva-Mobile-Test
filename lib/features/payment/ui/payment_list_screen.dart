@@ -8,6 +8,7 @@ import '../logic/payment_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import 'payment_detail_screen.dart';
 import '../../admin/widgets/admin_bottom_nav.dart';
+import '../../auth/logic/auth_provider.dart';
 
 class PaymentListScreen extends StatefulWidget {
   const PaymentListScreen({super.key});
@@ -100,11 +101,12 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = context.watch<AuthProvider>().user?.role == 'admin';
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        bottomNavigationBar: const AdminBottomNav(activeIndex: 3),
+        bottomNavigationBar: isAdmin ? const AdminBottomNav(activeIndex: 3) : null,
         body: Consumer<PaymentProvider>(
           builder: (context, provider, child) {
             final filteredPayments = provider.payments.where((p) {
@@ -144,22 +146,44 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                                 child: SlideAnimation(
                                   verticalOffset: 30.0,
                                   child: FadeInAnimation(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          'Manajemen Pembayaran',
-                                          style: GoogleFonts.plusJakartaSans(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
+                                        if (Navigator.canPop(context)) ...[
+                                          IconButton(
+                                            onPressed: () => Navigator.pop(context),
+                                            icon: const Icon(
+                                                Icons.arrow_back_ios_new_rounded,
+                                                size: 20),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            color: AppTheme.primaryColor,
                                           ),
-                                        ),
-                                        Text(
-                                          'Kelola riwayat & tagihan pembayaran pasien',
-                                          style: GoogleFonts.plusJakartaSans(
-                                            fontSize: 13,
-                                            color: Colors.grey,
+                                          const SizedBox(width: 16),
+                                        ],
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                isAdmin
+                                                    ? 'Manajemen Pembayaran'
+                                                    : 'Riwayat Pembayaran',
+                                                style: GoogleFonts.plusJakartaSans(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                              Text(
+                                                isAdmin
+                                                    ? 'Kelola riwayat & tagihan pembayaran pasien'
+                                                    : 'Pantau tagihan & pembayaran Anda',
+                                                style: GoogleFonts.plusJakartaSans(
+                                                  fontSize: 13,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
@@ -292,21 +316,89 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
 
                         if (filteredPayments.isEmpty) {
                           final isFiltering = _selectedStatusFilter != null || _searchQuery.isNotEmpty;
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  isFiltering ? Icons.search_off_rounded : Icons.receipt_long_rounded,
-                                  size: 80,
-                                  color: Colors.grey[300],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  isFiltering ? 'Tidak ada hasil pencarian/filter' : 'Belum ada tagihan pembayaran',
-                                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
-                                ),
-                              ],
+                          return SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(color: Colors.grey.shade100),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.shade50,
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(24),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      isFiltering ? Icons.search_off_rounded : Icons.receipt_long_rounded,
+                                      size: 64,
+                                      color: AppTheme.primaryColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    isFiltering ? 'Hasil Tidak Ditemukan' : 'Belum Ada Tagihan',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    isFiltering
+                                        ? 'Tidak ada data tagihan pembayaran pasien yang cocok dengan pencarian atau filter aktif Anda. Silakan coba atur ulang pencarian.'
+                                        : 'Belum ada catatan tagihan pembayaran pasien yang terdaftar di sistem saat ini.',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade600,
+                                      height: 1.5,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  if (isFiltering) ...[
+                                    const SizedBox(height: 24),
+                                    OutlinedButton.icon(
+                                      onPressed: () {
+                                        setState(() {
+                                          _searchController.clear();
+                                          _searchQuery = '';
+                                          _selectedStatusFilter = null;
+                                        });
+                                      },
+                                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                                      label: Text(
+                                        'Reset Pencarian & Filter',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: AppTheme.primaryColor,
+                                        side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
                           );
                         }

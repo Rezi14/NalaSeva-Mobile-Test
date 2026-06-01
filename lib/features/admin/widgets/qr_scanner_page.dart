@@ -186,7 +186,13 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
                       color: Colors.black.withValues(alpha: 0.4),
                       child: IconButton(
                         icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () {
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          } else {
+                            Navigator.pushReplacementNamed(context, '/admin/home');
+                          }
+                        },
                       ),
                     ),
                   ),
@@ -314,7 +320,11 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
           'Berhasil',
           'Berhasil Absensi! Status menjadi MENUNGGU',
           onOkPressed: () {
-            Navigator.pop(context);
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacementNamed(context, '/admin/home');
+            }
           },
         );
       }

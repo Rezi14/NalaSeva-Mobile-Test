@@ -115,26 +115,13 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Daftar Antrean Manual',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close_rounded, color: Colors.grey),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.grey.shade100,
-                        padding: const EdgeInsets.all(8),
-                      ),
-                    ),
-                  ],
+                Text(
+                  'Daftar Antrean Manual',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 // Patient Summary Card
@@ -298,19 +285,34 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
+                        onPressed: () async {
+                          final hasValue = _selectedPolyId != null || _selectedDate != null || _selectedSchedule != null;
+                          if (hasValue) {
+                            final confirm = await AppDialogs.showConfirmationDialog(
+                              context,
+                              'Batalkan Pendaftaran?',
+                              'Apakah Anda yakin ingin membatalkan pengisian data antrean manual ini?',
+                              confirmText: 'YA, BATALKAN',
+                              cancelText: 'KEMBALI',
+                              isDestructive: true,
+                            );
+                            if ((confirm ?? false) && context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          } else {
+                            Navigator.pop(context);
+                          }
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.grey),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: Text(
-                          'BATAL',
-                          style: TextStyle(
+                          'Batal',
+                          style: GoogleFonts.plusJakartaSans(
                             fontWeight: FontWeight.bold,
                             color: Colors.grey.shade700,
                           ),
@@ -380,7 +382,7 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                                 'Gagal Booking',
                                 provider.error!,
                                 isError: true,
-                              );
+                                                    );
                             } else {
                               Navigator.pop(context);
                               AppDialogs.showSuccessDialog(
@@ -393,7 +395,7 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: provider.isLoading
@@ -402,9 +404,9 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                                 height: 20,
                                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                               )
-                            : const Text(
-                                'DAFTARKAN',
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            : Text(
+                                'Daftar',
+                                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold),
                               ),
                       ),
                     ),

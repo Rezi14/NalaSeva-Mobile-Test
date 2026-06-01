@@ -330,21 +330,89 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
                         if (filteredUsers.isEmpty) {
                           final isFiltering = _selectedRoleFilter != null || _searchQuery.isNotEmpty;
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  isFiltering ? Icons.search_off_rounded : Icons.people_outline_rounded,
-                                  size: 80,
-                                  color: Colors.grey[300],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  isFiltering ? 'Tidak ada hasil pencarian/filter' : 'Tidak ada data user.',
-                                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
-                                ),
-                              ],
+                          return SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(color: Colors.grey.shade100),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.shade50,
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(24),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      isFiltering ? Icons.search_off_rounded : Icons.people_outline_rounded,
+                                      size: 64,
+                                      color: AppTheme.primaryColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    isFiltering ? 'Hasil Tidak Ditemukan' : 'Tidak Ada Pengguna',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    isFiltering
+                                        ? 'Tidak ada data akun pengguna yang cocok dengan pencarian atau filter aktif Anda. Silakan coba atur ulang pencarian.'
+                                        : 'Belum ada data akun pengguna yang terdaftar di dalam sistem saat ini.',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade600,
+                                      height: 1.5,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  if (isFiltering) ...[
+                                    const SizedBox(height: 24),
+                                    OutlinedButton.icon(
+                                      onPressed: () {
+                                        setState(() {
+                                          _searchController.clear();
+                                          _searchQuery = '';
+                                          _selectedRoleFilter = null;
+                                        });
+                                      },
+                                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                                      label: Text(
+                                        'Reset Pencarian & Filter',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: AppTheme.primaryColor,
+                                        side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
                           );
                         }
@@ -648,10 +716,40 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () async {
+                          final hasChanges = isEdit
+                              ? (nameController.text.trim() != user.name ||
+                                  emailController.text.trim() != user.email ||
+                                  phoneController.text.trim() != (user.phone ?? '') ||
+                                  addressController.text.trim() != (user.address ?? '') ||
+                                  selectedRole != user.role.toLowerCase())
+                              : (nameController.text.trim().isNotEmpty ||
+                                  emailController.text.trim().isNotEmpty ||
+                                  passwordController.text.isNotEmpty ||
+                                  phoneController.text.trim().isNotEmpty ||
+                                  addressController.text.trim().isNotEmpty);
+
+                          if (hasChanges) {
+                            final confirm = await AppDialogs.showConfirmationDialog(
+                              context,
+                              isEdit ? 'Batalkan Perubahan?' : 'Batalkan Tambah Pengguna?',
+                              isEdit
+                                  ? 'Apakah Anda yakin ingin membatalkan perubahan data pengguna? Perubahan yang belum disimpan akan hilang.'
+                                  : 'Apakah Anda yakin ingin membatalkan pendaftaran pengguna baru? Data yang sudah dimasukkan akan hilang.',
+                              confirmText: 'YA, BATALKAN',
+                              cancelText: 'KEMBALI',
+                              isDestructive: true,
+                            );
+                            if ((confirm ?? false) && context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.grey.shade300),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: const BorderSide(color: Colors.grey),
+                          minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: Text(
@@ -698,7 +796,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: Text(

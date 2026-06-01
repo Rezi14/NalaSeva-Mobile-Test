@@ -65,26 +65,13 @@ class AdminPatientFormSheet {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Registrasi Pasien Baru',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.close_rounded, color: Colors.grey),
-                              style: IconButton.styleFrom(
-                                backgroundColor: Colors.grey.shade100,
-                                padding: const EdgeInsets.all(8),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          'Registrasi Pasien Baru',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
                         const SizedBox(height: 24),
                         TextFormField(
@@ -260,19 +247,38 @@ class AdminPatientFormSheet {
                           children: [
                             Expanded(
                               child: OutlinedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
+                                onPressed: () async {
+                                  final hasValue = nameController.text.trim().isNotEmpty ||
+                                      nikController.text.trim().isNotEmpty ||
+                                      phoneController.text.trim().isNotEmpty ||
+                                      addressController.text.trim().isNotEmpty ||
+                                      selectedBirthDate != null;
+                                  if (hasValue) {
+                                    final confirm = await AppDialogs.showConfirmationDialog(
+                                      context,
+                                      'Batalkan Registrasi?',
+                                      'Apakah Anda yakin ingin membatalkan registrasi pasien baru ini?',
+                                      confirmText: 'YA, BATALKAN',
+                                      cancelText: 'KEMBALI',
+                                      isDestructive: true,
+                                    );
+                                    if ((confirm ?? false) && context.mounted) {
+                                      Navigator.pop(context);
+                                    }
+                                  } else {
+                                    Navigator.pop(context);
+                                  }
                                 },
                                 style: OutlinedButton.styleFrom(
                                   side: const BorderSide(color: Colors.grey),
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  minimumSize: const Size(double.infinity, 50),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
                                 child: Text(
-                                  'BATAL',
-                                  style: TextStyle(
+                                  'Batal',
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey.shade700,
                                   ),
@@ -341,7 +347,7 @@ class AdminPatientFormSheet {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.primaryColor,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  minimumSize: const Size(double.infinity, 50),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
                                 child: provider.isLoading
@@ -350,9 +356,9 @@ class AdminPatientFormSheet {
                                         height: 20,
                                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                       )
-                                    : const Text(
-                                        'SIMPAN',
-                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    : Text(
+                                        'Simpan',
+                                        style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold),
                                       ),
                               ),
                             ),

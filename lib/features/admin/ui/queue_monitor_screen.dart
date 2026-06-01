@@ -253,6 +253,19 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                           children: [
                             Row(
                               children: [
+                                IconButton(
+                                  onPressed: () {
+                                    if (Navigator.canPop(context)) {
+                                      Navigator.pop(context);
+                                    } else {
+                                      Navigator.pushReplacementNamed(context, '/admin/home');
+                                    }
+                                  },
+                                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                                const SizedBox(width: 12),
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
@@ -329,6 +342,19 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                             Expanded(
                               child: Row(
                                 children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      if (Navigator.canPop(context)) {
+                                        Navigator.pop(context);
+                                      } else {
+                                        Navigator.pushReplacementNamed(context, '/admin/home');
+                                      }
+                                    },
+                                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                  const SizedBox(width: 16),
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(

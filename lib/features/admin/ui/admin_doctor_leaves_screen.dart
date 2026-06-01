@@ -97,22 +97,13 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Jadwalkan Cuti Dokter',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.close_rounded, color: Colors.grey),
-                          ),
-                        ],
+                      Text(
+                        'Jadwalkan Cuti Dokter',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -151,7 +142,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                             }).toList(),
                             onChanged: (DoctorModel? val) {
                               if (val != null) {
-                                setModalState(() {
+                                  setModalState(() {
                                   selectedDoctor = val;
                                 });
                               }
@@ -247,19 +238,34 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                         children: [
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
+                              onPressed: () async {
+                                final hasValue = reasonController.text.trim().isNotEmpty;
+                                if (hasValue) {
+                                  final confirm = await AppDialogs.showConfirmationDialog(
+                                    context,
+                                    'Batalkan Cuti Dokter?',
+                                    'Apakah Anda yakin ingin membatalkan pengisian jadwal cuti ini?',
+                                    confirmText: 'YA, BATALKAN',
+                                    cancelText: 'KEMBALI',
+                                    isDestructive: true,
+                                  );
+                                  if ((confirm ?? false) && context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                } else {
+                                  Navigator.pop(context);
+                                }
                               },
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(color: Colors.grey),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                minimumSize: const Size(double.infinity, 50),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                               child: Text(
-                                'BATAL',
-                                style: TextStyle(
+                                'Batal',
+                                style: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.grey.shade700,
                                 ),
@@ -317,7 +323,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                                     },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primaryColor,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                minimumSize: const Size(double.infinity, 50),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                               child: isSaving
@@ -326,9 +332,9 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                                       height: 20,
                                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                     )
-                                  : const Text(
-                                      'SIMPAN',
-                                      style: TextStyle(
+                                  : Text(
+                                      'Simpan',
+                                      style: GoogleFonts.plusJakartaSans(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
