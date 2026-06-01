@@ -22,7 +22,7 @@ Sistem NalaSeva memiliki **4 Aktor Utama** dengan peran dan hak akses berbasis *
 Berikut adalah diagram besar seluruh use case pada sistem **NalaSeva** menggunakan notasi **Mermaid.js**:
 
 ```mermaid
-rect admin
+flowchart LR
   classDef actorStyle fill:#2a2b36,stroke:#7c4dff,stroke-width:2px,color:#fff;
   classDef usecaseStyle fill:#1e1e24,stroke:#39ff14,stroke-width:1.5px,color:#fff;
   
