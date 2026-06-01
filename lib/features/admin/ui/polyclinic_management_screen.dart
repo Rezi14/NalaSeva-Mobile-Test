@@ -212,7 +212,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                   children: [
                     AdminMiniStatCard(label: 'Ruangan Aktif', value: '${provider.polyclinics.length}', bgColor: AppTheme.primaryColor.withValues(alpha: 0.1), textColor: AppTheme.primaryColor),
                     const SizedBox(width: 16),
-                    AdminMiniStatCard(label: 'Kuota Harian', value: '$totalDailyQuota', bgColor: Colors.green.withValues(alpha: 0.1), textColor: Colors.green),
+                    AdminMiniStatCard(label: 'Kuota Harian', value: '$totalDailyQuota', bgColor: AppTheme.successColor.withValues(alpha: 0.1), textColor: AppTheme.successColor),
                   ],
                 ),
               ),

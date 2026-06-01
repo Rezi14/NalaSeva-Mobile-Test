@@ -25,6 +25,7 @@ class AdminProvider extends ChangeNotifier {
   DashboardStatsModel? _dashboardStats;
   List<Map<String, dynamic>> _clinicHolidays = [];
   List<Map<String, dynamic>> _doctorLeaves = [];
+  Map<String, dynamic> _systemSettings = {};
   bool _isLoading = false;
   String? _error;
 
@@ -38,6 +39,7 @@ class AdminProvider extends ChangeNotifier {
   DashboardStatsModel? get dashboardStats => _dashboardStats;
   List<Map<String, dynamic>> get clinicHolidays => _clinicHolidays;
   List<Map<String, dynamic>> get doctorLeaves => _doctorLeaves;
+  Map<String, dynamic> get systemSettings => _systemSettings;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -265,6 +267,18 @@ class AdminProvider extends ChangeNotifier {
       if (index != -1) {
         _queues[index] = updatedQueue;
       }
+    });
+  }
+
+  Future<void> fetchSystemSettings() async {
+    await _performAction(() async {
+      _systemSettings = await _repository.getSystemSettings();
+    });
+  }
+
+  Future<void> updateSystemSettings(Map<String, dynamic> data) async {
+    await _performAction(() async {
+      _systemSettings = await _repository.updateSystemSettings(data);
     });
   }
 }

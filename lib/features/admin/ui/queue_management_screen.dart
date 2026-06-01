@@ -240,9 +240,9 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                     children: [
                       AdminMiniStatCard(label: 'Total', value: total.toString(), bgColor: Colors.white, textColor: Colors.black87, border: true),
                       const SizedBox(width: 12),
-                      AdminMiniStatCard(label: 'Dilayani', value: served.toString(), bgColor: Colors.green.withValues(alpha: 0.1), textColor: Colors.green),
+                      AdminMiniStatCard(label: 'Dilayani', value: served.toString(), bgColor: AppTheme.successColor.withValues(alpha: 0.1), textColor: AppTheme.successColor),
                       const SizedBox(width: 12),
-                      AdminMiniStatCard(label: 'Menunggu', value: waiting.toString(), bgColor: Colors.orange.withValues(alpha: 0.1), textColor: Colors.orange),
+                      AdminMiniStatCard(label: 'Menunggu', value: waiting.toString(), bgColor: AppTheme.warningColor.withValues(alpha: 0.1), textColor: AppTheme.warningColor),
                       const SizedBox(width: 12),
                       AdminMiniStatCard(label: 'Diperiksa', value: examining.toString(), bgColor: AppTheme.secondaryColor.withValues(alpha: 0.1), textColor: AppTheme.secondaryColor),
                       const SizedBox(width: 12),

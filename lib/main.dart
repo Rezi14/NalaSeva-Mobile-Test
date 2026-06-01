@@ -12,6 +12,10 @@ import 'features/doctor/data/doctor_repository.dart';
 import 'features/doctor/logic/doctor_provider.dart';
 import 'features/patient/data/patient_repository.dart';
 import 'features/patient/logic/patient_provider.dart';
+import 'features/payment/data/payment_repository.dart';
+import 'features/payment/logic/payment_provider.dart';
+import 'features/pharmacy/data/pharmacy_repository.dart';
+import 'features/pharmacy/logic/pharmacy_provider.dart';
 import 'shared/providers/puskesmas_profile_provider.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -35,6 +39,8 @@ void main() async {
   final adminRepository = AdminRepository(apiClient);
   final doctorRepository = DoctorRepository(apiClient);
   final patientRepository = PatientRepository(apiClient);
+  final paymentRepository = PaymentRepository(apiClient);
+  final pharmacyRepository = PharmacyRepository(apiClient);
   final puskesmasProfileProvider = PuskesmasProfileProvider(apiClient);
 
   // Pre-load data puskesmas secara asinkronus sejak aplikasi dimulai
@@ -47,6 +53,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AdminProvider(adminRepository)),
         ChangeNotifierProvider(create: (_) => DoctorProvider(doctorRepository)),
         ChangeNotifierProvider(create: (_) => PatientProvider(patientRepository)),
+        ChangeNotifierProvider(create: (_) => PaymentProvider(paymentRepository)),
+        ChangeNotifierProvider(create: (_) => PharmacyProvider(pharmacyRepository)),
         ChangeNotifierProvider.value(value: puskesmasProfileProvider),
       ],
       child: const NalasevaApp(),
@@ -103,6 +111,8 @@ class _NalasevaAppState extends State<NalasevaApp> {
         initialRoute = '/doctor/home';
       } else if (user.role == 'patient') {
         initialRoute = '/patient/home';
+      } else if (user.role == 'pharmacist') {
+        initialRoute = '/pharmacy/home';
       }
     }
 

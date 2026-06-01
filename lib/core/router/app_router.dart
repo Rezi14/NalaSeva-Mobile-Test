@@ -35,6 +35,10 @@ import '../../features/patient/ui/patient_history_screen.dart';
 import '../../features/patient/ui/notification_screen.dart';
 import '../../features/patient/ui/edit_profile_screen.dart';
 
+// Payment & Pharmacy
+import '../../features/payment/ui/payment_list_screen.dart';
+import '../../features/pharmacy/ui/pharmacy_dashboard_screen.dart';
+
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -74,6 +78,10 @@ class AppRouter {
   // Other
   static const String tvMonitor = '/tv-monitor';
 
+  // Payments & Pharmacy
+  static const String paymentList = '/payment/list';
+  static const String pharmacyHome = '/pharmacy/home';
+
   static Map<String, WidgetBuilder> get routes => {
     login: (context) => const LoginScreen(),
     register: (context) => const RegisterScreen(),
@@ -102,6 +110,8 @@ class AppRouter {
     patientHistory: (context) => const PatientHistoryScreen(),
     patientNotifications: (context) => const NotificationScreen(),
     tvMonitor: (context) => const QueueMonitorScreen(),
+    paymentList: (context) => const PaymentListScreen(),
+    pharmacyHome: (context) => const PharmacyDashboardScreen(),
   };
 
   static final Map<String, List<String>> _routePermissions = {
@@ -138,6 +148,8 @@ class AppRouter {
     patientEditProfile: ['patient'],
     patientHistory: ['patient'],
     patientNotifications: ['patient'],
+    paymentList: ['patient'],
+    pharmacyHome: ['pharmacist', 'admin'],
   };
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {

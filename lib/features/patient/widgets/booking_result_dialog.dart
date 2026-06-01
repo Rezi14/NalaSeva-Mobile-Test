@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/app_theme.dart';
 
 class BookingResultDialog extends StatelessWidget {
   final bool isSuccess;
@@ -58,13 +59,13 @@ class BookingResultDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isSuccess ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
+              color: isSuccess ? AppTheme.successColor.withValues(alpha: 0.1) : AppTheme.errorColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
               size: 64,
-              color: isSuccess ? Colors.green : Colors.red,
+              color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
             ),
           ),
           const SizedBox(height: 20),
@@ -74,7 +75,7 @@ class BookingResultDialog extends StatelessWidget {
             style: GoogleFonts.outfit(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: isSuccess ? Colors.green[800] : Colors.red[800],
+              color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
             ),
           ),
           const SizedBox(height: 12),
@@ -93,7 +94,7 @@ class BookingResultDialog extends StatelessWidget {
             height: 48,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: isSuccess ? Colors.green : Colors.red,
+                backgroundColor: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

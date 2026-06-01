@@ -103,7 +103,7 @@ class AdminPatientCard extends StatelessWidget {
                 ? ElevatedButton(
                     onPressed: onCheckIn,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: AppTheme.successColor,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       minimumSize: const Size(80, 40),

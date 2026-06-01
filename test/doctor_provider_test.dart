@@ -155,6 +155,34 @@ void main() {
       expect(doctorProvider.medicalRecords[0].diagnosis, 'Hipertensi');
     });
 
+    test('finishExamination mensubmit rekam medis dengan resep obat (prescription_items)', () async {
+      final queue = QueueModel(
+        id: 2,
+        queueNumber: 'UMM-002',
+        status: QueueStatus.examining,
+        date: '2026-06-01',
+        patient: PatientModel(id: 2, userId: 2),
+        polyclinic: PolyclinicModel(id: 1, name: 'Poli Umum', code: 'UMM'),
+      );
+      mockRepository.mockQueues = [queue];
+
+      final examData = {
+        'queue_id': 2,
+        'complaint': 'Demam Tinggi',
+        'diagnosis': 'Influenza',
+        'treatment': 'Istirahat',
+        'prescription_items': [
+          {'medicine_id': 1, 'quantity': 10, 'instruction': '3x1 setelah makan'},
+          {'medicine_id': 3, 'quantity': 5, 'instruction': '1x1 jika demam'}
+        ],
+      };
+
+      await doctorProvider.finishExamination(examData);
+
+      expect(mockRepository.lastSubmittedExaminationData?['prescription_items'], isNotNull);
+      expect(mockRepository.lastSubmittedExaminationData?['prescription_items'].length, 2);
+    });
+
     test('fetchHistoryForPatient memuat riwayat rekam medis pasien tertentu', () async {
       mockRepository.mockHistory = [
         ExaminationModel(id: 5, queueId: 2, doctorId: 10, complaint: 'Perut kembung', diagnosis: 'Gastritis', treatment: 'Antasida', createdAt: DateTime(2026, 5, 20))

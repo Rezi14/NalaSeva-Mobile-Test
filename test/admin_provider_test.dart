@@ -264,6 +264,24 @@ class MockAdminRepository implements AdminRepository {
     if (shouldThrowError) throw errorMessage;
     lastBookingData = data;
   }
+
+  Map<String, dynamic> mockSystemSettings = {
+    'registration_fee': '10000',
+    'slot_duration_minutes': '15',
+  };
+
+  @override
+  Future<Map<String, dynamic>> getSystemSettings() async {
+    if (shouldThrowError) throw errorMessage;
+    return mockSystemSettings;
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateSystemSettings(Map<String, dynamic> data) async {
+    if (shouldThrowError) throw errorMessage;
+    mockSystemSettings.addAll(data);
+    return mockSystemSettings;
+  }
 }
 
 void main() {

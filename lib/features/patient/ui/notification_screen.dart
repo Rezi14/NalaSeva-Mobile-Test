@@ -170,18 +170,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     _sectionHeader(
                                       'Layanan Selesai',
                                       Icons.check_circle_rounded,
-                                      Colors.green,
+                                      AppTheme.successColor,
                                     ),
                                     const SizedBox(height: 12),
                                     ...completedQueues.map((q) => _notifCard(
                                           icon: Icons.check_circle_rounded,
-                                          iconColor: Colors.green,
+                                          iconColor: AppTheme.successColor,
                                           title: 'Pemeriksaan Selesai',
                                           subtitle: q.polyclinic.name,
                                           message:
                                               'Pemeriksaan Anda di ${q.polyclinic.name} telah selesai. Semoga lekas sembuh!',
                                           badge: 'SELESAI',
-                                          badgeColor: Colors.green,
+                                          badgeColor: AppTheme.successColor,
                                           onTap: () => Navigator.pushNamed(
                                               context, '/patient/history'),
                                           actionLabel: 'Lihat Rekam Medis',
@@ -194,18 +194,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     _sectionHeader(
                                       'Dibatalkan',
                                       Icons.cancel_rounded,
-                                      Colors.red.shade400,
+                                      AppTheme.cancelColor,
                                     ),
                                     const SizedBox(height: 12),
                                     ...cancelledQueues.map((q) => _notifCard(
                                           icon: Icons.cancel_rounded,
-                                          iconColor: Colors.red.shade400,
+                                          iconColor: AppTheme.cancelColor,
                                           title: 'Antrean Dibatalkan',
                                           subtitle: q.polyclinic.name,
                                           message:
                                               'Antrean Anda di ${q.polyclinic.name} (No. ${q.queueNumber}) telah dibatalkan.',
                                           badge: 'BATAL',
-                                          badgeColor: Colors.red.shade400,
+                                          badgeColor: AppTheme.cancelColor,
                                         )),
                                     const SizedBox(height: 24),
                                   ],

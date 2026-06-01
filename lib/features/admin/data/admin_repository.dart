@@ -311,4 +311,22 @@ class AdminRepository {
       throw ErrorParser.parse(e, 'Gagal mendaftarkan antrean pasien');
     }
   }
+
+  Future<Map<String, dynamic>> getSystemSettings() async {
+    try {
+      final response = await _apiClient.dio.get('settings');
+      return Map<String, dynamic>.from(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil pengaturan sistem');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateSystemSettings(Map<String, dynamic> data) async {
+    try {
+      final response = await _apiClient.dio.put('settings', data: data);
+      return Map<String, dynamic>.from(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal memperbarui pengaturan sistem');
+    }
+  }
 }

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
@@ -12,6 +13,7 @@ import '../widgets/admin_bottom_nav.dart';
 import '../../../shared/providers/puskesmas_profile_provider.dart';
 import '../../../shared/widgets/map_picker_screen.dart';
 import 'package:latlong2/latlong.dart';
+import '../logic/admin_provider.dart';
 
 class AdminSettingsScreen extends StatefulWidget {
   const AdminSettingsScreen({super.key});
@@ -35,6 +37,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   
   String _lastBackup = 'Terakhir: Hari ini 04:00';
 
+  String? _qrisMerchantName;
+  String? _qrisNmid;
+  String? _qrisImagePath;
+
   @override
   void initState() {
     super.initState();
@@ -47,13 +53,30 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
       _language = prefs.getString('admin_language') ?? 'Bahasa Indonesia (ID)';
       _darkMode = prefs.getBool('admin_dark_mode') ?? false;
       _securityAccess = prefs.getString('admin_security_access') ?? 'Standar';
-      _avgServiceTime = prefs.getString('admin_avg_service_time') ?? '15 menit';
       _autoCall = prefs.getBool('admin_auto_call') ?? true;
       _emergencyBypass = prefs.getString('admin_emergency_bypass') ?? 'Level 2';
       _pushNotification = prefs.getBool('admin_push_notification') ?? true;
       _emailReport = prefs.getString('admin_email_report') ?? 'Mingguan';
       _lastBackup = prefs.getString('admin_last_backup') ?? 'Terakhir: Hari ini 04:00';
+      _qrisMerchantName = prefs.getString('qris_merchant_name') ?? 'Puskesmas NalaSeva Mandiri';
+      _qrisNmid = prefs.getString('qris_nmid') ?? 'ID102930293019';
+      _qrisImagePath = prefs.getString('qris_image_path');
     });
+
+    if (mounted) {
+      try {
+        final adminProvider = context.read<AdminProvider>();
+        await adminProvider.fetchSystemSettings();
+        if (!mounted) return;
+        final apiSettings = adminProvider.systemSettings;
+        setState(() {
+          final slotDuration = apiSettings['slot_duration_minutes'] ?? '15';
+          _avgServiceTime = '$slotDuration menit';
+        });
+      } catch (e) {
+        // Fallback
+      }
+    }
   }
 
   Future<void> _saveSetting(String key, dynamic value) async {
@@ -173,6 +196,18 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                             onTap: _showPuskesmasProfileSheet,
                           ),
                           AdminSettingsItem(
+                            icon: Icons.qr_code_scanner_rounded,
+                            title: 'QRIS Pembayaran',
+                            value: _qrisNmid != null ? 'NMID: $_qrisNmid' : 'Kelola stiker QRIS & NMID',
+                            onTap: _showQrisSettingSheet,
+                          ),
+                          AdminSettingsItem(
+                            icon: Icons.payments_rounded,
+                            title: 'Biaya Pendaftaran',
+                            value: _getRegistrationFeeText(context),
+                            onTap: _showRegistrationFeeSheet,
+                          ),
+                          AdminSettingsItem(
                             icon: Icons.language_rounded,
                             title: 'Bahasa',
                             value: _language,
@@ -234,9 +269,16 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                               title: 'Rata-rata Waktu Layanan',
                               currentValue: _avgServiceTime,
                               options: const ['10 menit', '15 menit', '20 menit', '30 menit'],
-                              onSelected: (val) {
+                              onSelected: (val) async {
                                 setState(() => _avgServiceTime = val);
-                                _saveSetting('admin_avg_service_time', val);
+                                final durationOnly = val.replaceAll(RegExp(r'[^0-9]'), '');
+                                try {
+                                  await context.read<AdminProvider>().updateSystemSettings({
+                                    'slot_duration_minutes': int.tryParse(durationOnly) ?? 15,
+                                  });
+                                } catch (e) {
+                                  // Fallback/log
+                                }
                               },
                             ),
                           ),
@@ -364,7 +406,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                           const SizedBox(height: 4),
                           Text(
                             'Status Sistem: Sehat',
-                            style: GoogleFonts.plusJakartaSans(color: Colors.green, fontSize: 12, fontWeight: FontWeight.w600),
+                            style: GoogleFonts.plusJakartaSans(color: AppTheme.successColor, fontSize: 12, fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 24),
                            ElevatedButton.icon(
@@ -683,6 +725,181 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
     );
   }
 
+  void _showQrisSettingSheet() {
+    final nameController = TextEditingController(text: _qrisMerchantName);
+    final nmidController = TextEditingController(text: _qrisNmid);
+    String? localImagePath = _qrisImagePath;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Pengaturan QRIS Pembayaran',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close_rounded, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Nama Merchant QRIS',
+                          labelStyle: GoogleFonts.inter(fontSize: 14),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          prefixIcon: const Icon(Icons.storefront_rounded),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: nmidController,
+                        decoration: InputDecoration(
+                          labelText: 'NMID (Merchant ID)',
+                          labelStyle: GoogleFonts.inter(fontSize: 14),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          prefixIcon: const Icon(Icons.qr_code_rounded),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Custom QRIS Image Upload Simulation
+                      const Text(
+                        'Foto Stiker QRIS Statis',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () {
+                          // Simulasikan upload stiker QRIS
+                          setModalState(() {
+                            localImagePath = 'assets/struk_qris_mock.png';
+                          });
+                        },
+                        child: Container(
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey[300]!, style: BorderStyle.solid),
+                          ),
+                          child: localImagePath != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Image.asset(
+                                    'assets/logo.png', // Fallback or mock logo visual
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) => const Icon(
+                                      Icons.qr_code_2_rounded,
+                                      size: 72,
+                                      color: AppTheme.primaryColor,
+                                    ),
+                                  ),
+                                )
+                              : const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.cloud_upload_rounded, size: 48, color: Colors.grey),
+                                    SizedBox(height: 8),
+                                    Text('Sentuh untuk Unggah Foto QRIS', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                                    Text('(Format JPG/PNG, Maks. 2MB)', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                                  ],
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      ElevatedButton(
+                        onPressed: () async {
+                          final name = nameController.text.trim();
+                          final nmid = nmidController.text.trim();
+                          
+                          if (name.isEmpty || nmid.isEmpty) {
+                            AppDialogs.showNotificationDialog(
+                              context,
+                              'Kesalahan',
+                              'Nama Merchant dan NMID wajib diisi!',
+                            );
+                            return;
+                          }
+
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setString('qris_merchant_name', name);
+                          await prefs.setString('qris_nmid', nmid);
+                          if (localImagePath != null) {
+                            await prefs.setString('qris_image_path', localImagePath!);
+                          }
+
+                          setState(() {
+                            _qrisMerchantName = name;
+                            _qrisNmid = nmid;
+                            _qrisImagePath = localImagePath;
+                          });
+
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            AppDialogs.showNotificationDialog(
+                              context,
+                              'Sukses',
+                              'Konfigurasi QRIS berhasil diperbarui untuk seluruh loket!',
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 54),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'SIMPAN CONFIG QRIS',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _showChoiceSheet({
     required String title,
     required String currentValue,
@@ -888,6 +1105,143 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 ),
                 const SizedBox(height: 16),
               ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _getRegistrationFeeText(BuildContext context) {
+    final settings = context.watch<AdminProvider>().systemSettings;
+    final fee = settings['registration_fee'] ?? '10000';
+    final parsed = double.tryParse(fee.toString()) ?? 10000.0;
+    return NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    ).format(parsed);
+  }
+
+  void _showRegistrationFeeSheet() {
+    final settings = context.read<AdminProvider>().systemSettings;
+    final fee = settings['registration_fee'] ?? '10000';
+    final controller = TextEditingController(text: fee.toString());
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Ubah Biaya Pendaftaran',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close_rounded, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Biaya Pendaftaran (Rupiah)',
+                      labelStyle: GoogleFonts.inter(fontSize: 14),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.payments_rounded),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final input = double.tryParse(controller.text);
+                      if (input == null || input < 0) {
+                        AppDialogs.showNotificationDialog(
+                          context,
+                          'Kesalahan',
+                          'Biaya pendaftaran tidak valid!',
+                          isError: true,
+                        );
+                        return;
+                      }
+
+                      try {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+
+                        await context.read<AdminProvider>().updateSystemSettings({
+                          'registration_fee': input,
+                        });
+
+                        if (context.mounted) {
+                          Navigator.pop(context); // Tutup loading dialog
+                          Navigator.pop(context); // Tutup bottom sheet
+                          AppDialogs.showNotificationDialog(
+                            context,
+                            'Sukses',
+                            'Biaya pendaftaran berhasil diperbarui ke database!',
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          Navigator.pop(context); // Tutup loading
+                          AppDialogs.showNotificationDialog(
+                            context,
+                            'Kesalahan',
+                            e.toString(),
+                            isError: true,
+                          );
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 54),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'SIMPAN PERUBAHAN',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
         );

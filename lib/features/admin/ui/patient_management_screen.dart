@@ -500,19 +500,16 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
 
     if ((confirm ?? false) && mounted) {
-      final scaffoldMessenger = ScaffoldMessenger.of(context);
       final provider = context.read<AdminProvider>();
       await provider.deleteUser(patient.userId);
       await provider.fetchPatients();
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            'Pasien ${patient.name} berhasil dihapus.',
-            style: GoogleFonts.plusJakartaSans(),
-          ),
-          backgroundColor: AppTheme.successColor,
-        ),
-      );
+      if (mounted) {
+        AppDialogs.showSuccessDialog(
+          context,
+          'Berhasil Dihapus',
+          'Pasien ${patient.name} berhasil dihapus dari database Puskesmas.',
+        );
+      }
     }
   }
 

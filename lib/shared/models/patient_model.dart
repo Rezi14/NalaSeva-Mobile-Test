@@ -74,6 +74,16 @@ class PatientModel {
   String? get phone => user?.phone;
   String? get address => user?.address;
 
+  int get age {
+    if (birthDate == null) return 0;
+    final now = DateTime.now();
+    int computedAge = now.year - birthDate!.year;
+    if (now.month < birthDate!.month || (now.month == birthDate!.month && now.day < birthDate!.day)) {
+      computedAge--;
+    }
+    return computedAge;
+  }
+
   bool get isElderly {
     if (birthDate == null) return false;
     final now = DateTime.now();

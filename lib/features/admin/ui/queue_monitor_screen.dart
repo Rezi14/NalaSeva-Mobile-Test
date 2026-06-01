@@ -13,6 +13,8 @@ import '../../../core/theme/app_theme.dart';
 import 'package:animate_do/animate_do.dart';
 import '../widgets/admin_polyclinic_card.dart';
 import '../../../core/utils/app_logger.dart';
+import '../../pharmacy/logic/pharmacy_provider.dart';
+import '../../../shared/models/payment_model.dart';
 
 class QueueMonitorScreen extends StatefulWidget {
   const QueueMonitorScreen({super.key});
@@ -67,6 +69,12 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
     }
     
     await provider.fetchQueues();
+    
+    // Muat data antrean apotek secara paralel tanpa menghambat
+    if (mounted) {
+      context.read<PharmacyProvider>().fetchPharmacyQueues().catchError((e) => debugPrint("Error loading pharmacy queues on TV: $e"));
+    }
+
     if (provider.error != null) {
       _handleLoadError(provider.error!);
       return;
@@ -390,55 +398,138 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                         ),
                 ),
  
-                // Grid Poliklinik
+                // Grid Poliklinik & Antrean Apotek (Split Screen Layout)
                 Expanded(
                   child: provider.isLoading && provider.polyclinics.isEmpty
                       ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
-                      : GridView.builder(
-                          padding: const EdgeInsets.all(24),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: crossAxisCount,
-                            crossAxisSpacing: 20,
-                            mainAxisSpacing: 20,
-                            childAspectRatio: childAspectRatio,
-                          ),
-                          itemCount: provider.polyclinics.length,
-                          itemBuilder: (context, index) {
-                            final poly = provider.polyclinics[index];
-                            
-                            // Ambil antrean hari ini untuk poli ini
-                            final polyQueues = provider.queues.where((q) => 
-                              q.polyclinic.id == poly.id && q.date == todayStr
-                            ).toList();
- 
-                            // Cari antrean yang SEDANG DIPERIKSA (Examining)
-                            final examiningQueue = polyQueues.firstWhere(
-                              (q) => q.status == QueueStatus.examining,
-                              orElse: () => QueueModel(
-                                id: 0,
-                                queueNumber: '-',
-                                status: QueueStatus.booked,
-                                date: todayStr,
-                                patient: PatientModel(id: 0, userId: 0, fullNameFromDb: 'Tidak Ada Pasien'),
-                                polyclinic: poly,
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // LEFT SIDE: Polyclinic Grid
+                            Expanded(
+                              flex: 2,
+                              child: GridView.builder(
+                                padding: const EdgeInsets.all(24),
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: crossAxisCount == 3 ? 2 : 1, // dynamically shrink layout on TV split
+                                  crossAxisSpacing: 20,
+                                  mainAxisSpacing: 20,
+                                  childAspectRatio: childAspectRatio,
+                                ),
+                                itemCount: provider.polyclinics.length,
+                                itemBuilder: (context, index) {
+                                  final poly = provider.polyclinics[index];
+                                  
+                                  // Ambil antrean hari ini untuk poli ini
+                                  final polyQueues = provider.queues.where((q) => 
+                                    q.polyclinic.id == poly.id && q.date == todayStr
+                                  ).toList();
+
+                                  // Cari antrean yang SEDANG DIPERIKSA (Examining)
+                                  final examiningQueue = polyQueues.firstWhere(
+                                    (q) => q.status == QueueStatus.examining,
+                                    orElse: () => QueueModel(
+                                      id: 0,
+                                      queueNumber: '-',
+                                      status: QueueStatus.booked,
+                                      date: todayStr,
+                                      patient: PatientModel(id: 0, userId: 0, fullNameFromDb: 'Tidak Ada Pasien'),
+                                      polyclinic: poly,
+                                    ),
+                                  );
+
+                                  // Ambil daftar antrean yang SEDANG MENUNGGU (Waiting)
+                                  final waitingQueues = polyQueues.where((q) => 
+                                    q.status == QueueStatus.waiting
+                                  ).toList();
+
+                                  return FadeInUp(
+                                    duration: Duration(milliseconds: 300 + (index * 100)),
+                                    child: AdminPolyclinicCard(
+                                      index: index,
+                                      polyclinic: poly, 
+                                      examiningQueue: examiningQueue,
+                                      waitingList: waitingQueues,
+                                    ),
+                                  );
+                                },
                               ),
-                            );
- 
-                            // Ambil daftar antrean yang SEDANG MENUNGGU (Waiting)
-                            final waitingQueues = polyQueues.where((q) => 
-                              q.status == QueueStatus.waiting
-                            ).toList();
- 
-                            return FadeInUp(
-                              duration: Duration(milliseconds: 300 + (index * 100)),
-                              child: AdminPolyclinicCard(
-                                index: index,
-                                polyclinic: poly, 
-                                examiningQueue: examiningQueue,
-                                waitingList: waitingQueues,
+                            ),
+
+                            // VERTICAL DIVIDER
+                            VerticalDivider(
+                              color: const Color(0xFF334155), // Slate border
+                              width: 2,
+                              thickness: 2,
+                            ),
+
+                            // RIGHT SIDE: Pharmacy (Apotek) Queues
+                            Expanded(
+                              flex: 1,
+                              child: Consumer<PharmacyProvider>(
+                                builder: (context, pharmacyProvider, child) {
+                                  final pharmacyList = pharmacyProvider.queues;
+                                  
+                                  return Container(
+                                    padding: const EdgeInsets.all(24),
+                                    color: const Color(0xFF0F172A),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Header
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.local_pharmacy_rounded, color: AppTheme.successColor, size: 28),
+                                            const SizedBox(width: 12),
+                                            Text(
+                                              'ANTREAN APOTEK',
+                                              style: GoogleFonts.plusJakartaSans(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                letterSpacing: 1.0,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 24),
+                                        
+                                        // Column Headers & Lists
+                                        Expanded(
+                                          child: ListView(
+                                            children: [
+                                              // 1. Sedang Disiapkan
+                                              _buildPharmacySectionHeader(
+                                                'SEDANG DISIAPKAN', 
+                                                Colors.orange, 
+                                                Icons.hourglass_empty_rounded,
+                                              ),
+                                              const SizedBox(height: 12),
+                                              if (pharmacyList.isEmpty)
+                                                _buildPharmacyEmptyState('Tidak ada obat diracik')
+                                              else
+                                                ...pharmacyList.map((p) => _buildPharmacyQueueTile(p, Colors.orange)),
+                                                
+                                              const SizedBox(height: 32),
+                                              
+                                              // 2. Siap Diambil
+                                              _buildPharmacySectionHeader(
+                                                'SIAP DIAMBIL', 
+                                                AppTheme.successColor, 
+                                                Icons.check_circle_outline_rounded,
+                                              ),
+                                              const SizedBox(height: 12),
+                                              _buildPharmacyEmptyState('Menunggu resep selesai'),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
+                            ),
+                          ],
                         ),
                 ),
               ],
@@ -650,6 +741,85 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPharmacySectionHeader(String title, Color color, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: color,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPharmacyEmptyState(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Center(
+        child: Text(
+          text,
+          style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 13),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPharmacyQueueTile(PaymentModel payment, Color color) {
+    final patientName = payment.queue?.patient.name ?? 'Pasien';
+    final qNumber = payment.queue?.queueNumber ?? '-';
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              patientName,
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              qNumber,
+              style: GoogleFonts.orbitron(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
