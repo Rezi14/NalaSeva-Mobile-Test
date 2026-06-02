@@ -102,7 +102,7 @@ flowchart TD
   classDef actorStyle fill:#2a2b36,stroke:#7c4dff,stroke-width:2px,color:#fff;
   classDef usecaseStyle fill:#1e1e24,stroke:#39ff14,stroke-width:1.5px,color:#fff;
 
-  User[Pengguna (Semua Role)]:::actorStyle --> UC_Login(Login Pengguna):::usecaseStyle
+  User["Pengguna (Semua Role)"]:::actorStyle --> UC_Login(Login Pengguna):::usecaseStyle
   User --> UC_OTP(Lupa Password / OTP Flow):::usecaseStyle
   Pasien[Pasien]:::actorStyle --> UC_Reg(Registrasi Akun):::usecaseStyle
   
@@ -110,7 +110,7 @@ flowchart TD
   Pasien --> UC_FCM(Update FCM Token):::usecaseStyle
   Pasien --> UC_Offline(Restore Sesi Offline):::usecaseStyle
 
-  UC_Reg -.->|include| UC_Conf[password_confirmation & role: 'patient']:::usecaseStyle
+  UC_Reg -.->|include| UC_Conf["password_confirmation & role: 'patient'"]:::usecaseStyle
   UC_Login -.->|include| UC_SaveToken[Simpan ke Secure Storage]:::usecaseStyle
   UC_OTP -.->|include| UC_VerifyOTP[Validasi 6-Digit OTP]:::usecaseStyle
   UC_Profile -.->|extend| UC_Map[Pilih Lokasi MapPicker]:::usecaseStyle
@@ -135,7 +135,7 @@ flowchart TD
   Dokter --> UC_Proc(Proses Antrean):::usecaseStyle
 
   UC_Book -.->|include| UC_Val5[5-Layer Validation Ketersediaan]:::usecaseStyle
-  UC_Book -.->|include| UC_Priority[Auto Priority Lansia Usia >= 60]:::usecaseStyle
+  UC_Book -.->|include| UC_Priority["Auto Priority Lansia Usia >= 60"]:::usecaseStyle
   
   UC_Cancel -.->|include| UC_Cutoff[Validasi Cut-off Waktu 2 Jam]:::usecaseStyle
   
@@ -143,7 +143,7 @@ flowchart TD
   UC_CheckIn -.->|include| UC_TimeVal[ServiceTimeValidator 30 Menit - 2 Jam]:::usecaseStyle
   
   UC_Recall -.->|include| UC_TTS[Bicara Audio via Text-to-Speech]:::usecaseStyle
-  UC_Recall -.->|extend| UC_RecallLimit[Kirim ke Paling Belakang jika Panggilan >= 3]:::usecaseStyle
+  UC_Recall -.->|extend| UC_RecallLimit["Kirim ke Paling Belakang jika Panggilan >= 3"]:::usecaseStyle
 ```
 
 ### 🩺 Sub-Sistem 3: Rekam Medis & Pembayaran (Payments)

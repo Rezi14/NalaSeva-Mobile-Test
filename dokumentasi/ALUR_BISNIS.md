@@ -20,34 +20,80 @@ Dokumen ini merinci seluruh **Alur Bisnis (Business Flows)** yang berjalan pada 
 Alur ini mengelola siklus masuk akun baru, autentikasi pengguna terdaftar, sinkronisasi token notifikasi (FCM), restorasi sesi offline saat internet terputus, dan pemulihan kata sandi menggunakan OTP 6-digit.
 
 ### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B{Punya Akun?}
-    B -- Tidak --> C[Form Registrasi di register_screen.dart]
-    C --> D[Validasi NIK & Email Unik di Backend]
-    D --> E[DB Transaction: Simpan User & Patient]
-    E --> F[Generate Sanctum Token -> Kembali ke Login]
-    
-    B -- Ya --> G[Form Login di login_screen.dart]
-    G --> H[Kirim Kredensial ke POST /auth/login]
-    H --> I{Kredensial Valid?}
-    I -- Tidak --> J[Error 401: Alert Kredensial Salah] --> G
-    I -- Ya --> K[Simpan access_token di Secure Storage]
-    K --> L[Hit GET /auth/profile & Simpan Role/ID]
-    L --> M[Daftarkan FCM Token via POST /auth/fcm-token]
-    M --> N[Arahkan ke Dashboard Sesuai Role]
-    
-    O[Aplikasi Dibuka Kembali] --> P[Baca Token dari Secure Storage]
-    P --> Q{Token Ditemukan?}
-    Q -- Tidak --> G
-    Q -- Ya --> R[Hit GET /auth/profile untuk Verifikasi Sesi]
-    R --> S{Koneksi Sukses?}
-    S -- Ya --> T{Sesi Valid?}
-    T -- Tidak --> U[Hapus Secure Storage] --> G
-    T -- Ya --> N
-    S -- Tidak [Offline] --> V[Muat Sentinel User 'Offline User']
-    V --> W[Baca Role/ID Terakhir dari Secure Storage]
-    W --> N
+```plaintext
+                     ┌──────────────────────────────────────┐
+                     │                Mulai                 │
+                     └──────────────────┬───────────────────┘
+                                        │
+                               Apakah punya akun?
+                                ┌───────┴───────┐
+                          Tidak │               │ Ya
+                                ▼               ▼
+    ┌───────────────────────────────┐   ┌───────────────────────────────┐
+    │       Form Registrasi         │   │          Form Login           │
+    │    (register_screen.dart)     │   │      (login_screen.dart)      │
+    └───────────────┬───────────────┘   └───────────────┬───────────────┘
+                    │                                   │
+         Validasi NIK & Email                           │ Kirim Kredensial
+                    ▼                                   ▼
+    ┌───────────────────────────────┐   ┌───────────────────────────────┐
+    │       DB Transaction:         │   │      POST /api/auth/login     │
+    │     Simpan User & Patient     │   └───────────────┬───────────────┘
+    └───────────────┬───────────────┘                   │
+                    │                                   ├──────────────────────────┐
+         Sukses -> Generate Token                       │ Sukses                   │ Gagal (401)
+                    ▼                                   ▼                          ▼
+    ┌───────────────────────────────┐   ┌───────────────────────────────┐  ┌───────────────┐
+    │     Kembali ke Form Login     │   │    Simpan access_token ke     │  │ Tampilkan     │
+    └───────────────────────────────┘   │     FlutterSecureStorage      │  │ Alert Error   │
+                                        └───────────────┬───────────────┘  └───────┬───────┘
+                                                        │                          │
+                                                        ▼                          │
+                                        ┌───────────────────────────────┐          │
+                                        │      GET /api/auth/profile    │          │
+                                        │  (Simpan User, Role, & IDs)   │          │
+                                        └───────────────┬───────────────┘          │
+                                                        │                          │
+                                                        ▼                          │
+                                        ┌───────────────────────────────┐          │
+                                        │     POST /auth/fcm-token      │◄─────────┘
+                                        │   (Pendaftaran Token FCM)     │
+                                        └───────────────┬───────────────┘
+                                                        │
+                                                        ▼
+                                        ┌───────────────────────────────┐
+                                        │     Masuk Halaman Utama       │
+                                        │      Sesuai Role User         │
+                                        └───────────────────────────────┘
+
+    =========================== RESTORASI SESI OFFLINE ===========================
+
+    ┌───────────────────────────────┐
+    │      Aplikasi Dibuka          │
+    └───────────────┬───────────────┘
+                    │
+         Baca access_token di Secure Storage
+                    ▼
+          Apakah Token Ada?
+         ┌───────┴───────┐
+   Tidak │               │ Ya
+         ▼               ▼
+    ┌──────────┐   ┌───────────────────────────────┐
+    │ Halaman  │   │     GET /api/auth/profile     │
+    │  Login   │   └───────────────┬───────────────┘
+    └──────────┘                   │
+                                   ├──────────────────────────┐
+                      Sukses Online│                          │ Jaringan Terputus (Offline)
+                                   ▼                          ▼
+                     ┌─────────────┴─────────────┐    ┌───────────────────────────────┐
+               Valid │                     Tidak │    │  Muat Sentinel "Offline User" │
+                     ▼                           ▼    │   (Baca Role Terakhir di SS)  │
+              ┌─────────────┐             ┌──────────┐└───────────────┬───────────────┘
+              │  Dashboard  │             │ Hapus SS │                │
+              │  Sesuai Role│             │ & Login  │                ▼
+              └─────────────┘             └──────────┘  ┌───────────────────────────┐
+                                                        │  Masuk Dashboard Offline  │
+                                                        └───────────────────────────┘
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -92,28 +138,85 @@ flowchart TD
 Alur ini memfasilitasi pasien untuk melakukan pemesanan nomor antrean poliklinik secara mandiri dengan verifikasi ketersediaan dokter, hari libur klinik, dan status prioritas lansia.
 
 ### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B[Pilih Poliklinik di booking_screen.dart]
-    B --> C[Pilih Dokter]
-    C --> D[Future.wait -> Muat Hari Libur Klinik & Cuti Dokter]
-    D --> E[Disable Tanggal Libur/Cuti di Date Picker]
-    E --> F[Pilih Tanggal Pelayanan Max H-7]
-    F --> G[Pilih Jadwal Praktik Dokter]
-    G --> H[Konfirmasi: Dialog AppDialogs]
-    H --> I[Kirim Request ke POST /api/queues]
-    
-    I --> J{Validasi 5-Layer Backend}
-    J -- Gagal --> K[Tampilkan Dialog Error Backend] --> B
-    J -- Lolos --> L{Usia Pasien >= 60 Tahun?}
-    
-    L -- Ya --> M[Set is_priority = true] --> O
-    L -- Tidak --> N[Set is_priority = false] --> O
-    
-    O[Tentukan Nomor Antrean format KODE_POLI-NomorUrut] --> P[Hitung Estimasi Waktu estimated_service_time]
-    P --> Q[Recalculate Estimasi Seluruh Antrean Aktif di Poli Terkait]
-    Q --> R[Simpan Antrean & Refresh List Lokal]
-    R --> S[Selesai]
+```plaintext
+                     ┌──────────────────────────────────────┐
+                     │       Buka booking_screen.dart       │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │        Pilih Poliklinik & Dokter     │
+                     └──────────────────┬───────────────────┘
+                                        │
+                              [ Future.wait paralel ]
+                              - getClinicHolidays()
+                              - getDoctorLeaves(doctorId)
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  Sistem mem-blacklist tanggal libur  │
+                     │    dan cuti pada Date Picker UI      │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │   Pilih Tanggal (Maksimal H-7) &     │
+                     │        Jadwal Praktik Dokter         │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │ Tampilkan Dialog Konfirmasi Booking  │
+                     │    (AppDialogs.showConfirmation)     │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │       Kirim POST /api/queues         │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                           ┌──────────────────────────┐
+                           │  5-Layer Validasi API:   │
+                           │  1. Tanggal Hari Libur?  │
+                           │  2. Dokter Sedang Cuti?  │
+                           │  3. Jadwal Praktik Sesuai│
+                           │  4. Antrean Poli Duplikat│
+                           │  5. Bentrokan Waktu Poli │
+                           └────────────┬─────────────┘
+                                        │
+                               Lolos Validasi?
+                                ┌───────┴───────┐
+                          Tidak │               │ Ya
+                                ▼               ▼
+                     ┌───────────────┐  ┌───────────────────────────────┐
+                     │ Tampilkan     │  │    Apakah Usia Pasien >= 60?  │
+                     │ Dialog Error  │  └───────┬───────────────┬───────┘
+                     └───────────────┘    Ya    │               │ Tidak
+                                                ▼               ▼
+                                       ┌────────────────┐┌───────────────┐
+                                       │Set is_priority ││Set is_priority│
+                                       │    = true      ││    = false    │
+                                       └────────┬───────┘└──────┬────────┘
+                                                │               │
+                                                └───────┬───────┘
+                                                        │
+                                                        ▼
+                                       ┌───────────────────────────────┐
+                                       │    Tentukan Nomor Antrean     │
+                                       │    Format: KODE_POLI-NoUrut   │
+                                       └────────┬──────────────────────┘
+                                                │
+                                                ▼
+                                       ┌───────────────────────────────┐
+                                       │   Hitung Estimasi Waktu &     │
+                                       │    Kalkulasi Ulang Seluruh    │
+                                       │        Antrean Aktif          │
+                                       └────────┬──────────────────────┘
+                                                │
+                                                ▼
+                                       ┌───────────────────────────────┐
+                                       │ Simpan Tiket & Refresh State  │
+                                       └───────────────────────────────┘
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -149,33 +252,75 @@ flowchart TD
 Alur ini mengatur proses kehadiran fisik pasien di puskesmas, validasi jendela waktu kedatangan, recall antrean terintegrasi audio TTS (Text-to-Speech), dan transisi status saat pasien masuk ke ruang periksa dokter.
 
 ### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Pasien Tiba di Puskesmas] --> B{Metode Check-in?}
-    B -- Manual Loket --> C[Cari Nama/Nomor Antrean di queue_management_screen.dart]
-    B -- QR Code Tiket --> D[Scan QR Tiket Pasien via qr_scanner_page.dart]
-    
-    C & D --> E[Jalankan ServiceTimeValidator di Client]
-    E --> F{Waktu Sesuai Jendela Toleransi? -30m s.d +2j}
-    
-    F -- Tidak --> G[Tolak Check-in & Munculkan Pesan Peringatan]
-    F -- Ya --> H[Kirim Request ke POST /queues/id/checkin]
-    
-    H --> I[Ubah status -> waiting & Catat check_in_time]
-    I --> J[Recalculate Estimasi Waktu Antrean Lain]
-    J --> K[Pasien Masuk Daftar Antrean Ruang Tunggu]
-    
-    K --> L[Dokter/Admin Panggil Pasien via Dashboard]
-    L --> M{recall_count >= 3?}
-    
-    M -- Tidak --> N[Panggil via POST /queues/id/recall]
-    N --> O[TTS Berbunyi di Layar TV Monitor] --> P[Increment recall_count]
-    
-    M -- Ya [Pasien Tidak Hadir] --> Q[Kirim ke Urutan Paling Belakang]
-    Q --> R[Ubah status -> waiting, reset check_in_time & recall_count] --> J
-    
-    P --> S[Dokter Mulai Pemeriksaan: status -> examining]
-    S --> T[Kirim FCM Notifikasi ke Pasien: Giliran Anda!]
+```plaintext
+                     ┌──────────────────────────────────────┐
+                     │       Pasien Tiba di Puskesmas       │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                 Pilih Cara Absensi
+                                ┌───────┴───────┐
+                    Manual Loket│               │ Scan QR Tiket Pasien
+                                ▼               ▼
+                     ┌───────────────┐  ┌───────────────────────────────┐
+                     │ Cari Antrean  │  │ Pindai QR via Mobile Scanner  │
+                     │   di List     │  │   (qr_scanner_page.dart)      │
+                     └───────┬───────┘  └───────────────┬───────────────┘
+                             │                          │
+                             └──────────┬───────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │      Jalankan ServiceTimeValidator   │
+                     │          (Sisi Aplikasi)             │
+                     └──────────────────┬───────────────────┘
+                                        │
+                           Apakah sesuai jendela waktu?
+                            (30m sebelum s.d 2j sesudah)
+                                ┌───────┴───────┐
+                          Tidak │               │ Ya
+                                ▼               ▼
+                     ┌───────────────┐  ┌───────────────────────────────┐
+                     │ Blok Check-in │  │  Kirim POST /queues/id/checkin│
+                     │ Tampil Error  │  └───────────────┬───────────────┘
+                     └───────────────┘                  │
+                                                        ▼
+                                        ┌───────────────────────────────┐
+                                        │  - Ubah status ke 'waiting'   │
+                                        │  - Catat check_in_time = now  │
+                                        │  - Recalculate Estimasi Waktu │
+                                        └───────────────┬───────────────┘
+                                                        │
+                                                        ▼
+                                        ┌───────────────────────────────┐
+                                        │ Pasien Masuk Antrean Tunggu   │
+                                        └───────────────┬───────────────┘
+                                                        │
+                                          Dipanggil/Recall oleh Admin
+                                                        ▼
+                                           Apakah recall_count >= 3?
+                                        ┌───────┴───────────────┐
+                                  Tidak │                       │ Ya (Pasien absen)
+                                        ▼                       ▼
+                     ┌───────────────────────────────┐ ┌──────────────────┐
+                     │ Kirim POST /queues/id/recall  │ │ Geser Antrean ke │
+                     └───────────────┬───────────────┘ │ Paling Belakang  │
+                                     │                 └────────┬─────────┘
+                                     ▼                          │
+                     ┌───────────────────────────────┐          │ Status: waiting
+                     │ TV Monitor membacakan suara   │          │ reset recall_count
+                     │ panggilan via Text-To-Speech  │          │ reset check_in_time
+                     └───────────────┬───────────────┘          ▼
+                                     │                     Kalkulasi Ulang
+                                     ▼                     Estimasi Waktu
+                               Increment
+                              recall_count
+                                     │
+                                     ▼
+                     ┌───────────────────────────────┐
+                     │  Dokter Memulai Pemeriksaan:  │
+                     │     Ubah status 'examining'   │
+                     │     Kirim FCM: Giliran Anda!  │
+                     └───────────────────────────────┘
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -215,26 +360,65 @@ flowchart TD
 Alur ini mengelola pencatatan rekam medis oleh dokter, penulisan resep obat terstruktur, transisi status antrean selesai, dan kalkulasi tagihan secara otomatis.
 
 ### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B[Dokter Buka Form Pemeriksaan di examination_form_screen.dart]
-    B --> C[Input Keluhan, Diagnosis, & Tindakan Medis]
-    C --> D[Pilih Obat dari Inventaris & Input Kuantitas Resep]
-    D --> E[Form Guard: Dialog Konfirmasi Jika Keluar Tanpa Simpan]
-    E --> F[Dokter Kirim Data ke POST /api/examinations]
-    
-    F --> G[Mulai DB Transaction Backend]
-    G --> H[Simpan Catatan Rekam Medis ke Tabel examinations]
-    H --> I[Simpan Detail Resep ke Tabel prescription_items]
-    I --> J[Kunci Harga Jual Obat Saat Ini ke Tabel Detail Resep]
-    J --> K[Ubah Status Antrean -> completed]
-    
-    K --> L[Generate Invoice Tagihan Baru di Tabel payments]
-    L --> M[Hitung Nominal: registration_fee + total_biaya_obat]
-    M --> N[Kirim Notifikasi FCM Tagihan Baru ke Pasien]
-    N --> O[Commit DB Transaction]
-    O --> P[Kembali ke Dashboard Dokter & Refresh List]
-    P --> Q[Selesai]
+```plaintext
+                     ┌──────────────────────────────────────┐
+                     │ Dokter membuka Form Pemeriksaan Medis│
+                     │    (examination_form_screen.dart)    │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  Input Keluhan, Diagnosa, Tindakan,  │
+                     │     dan Item Resep Obat + Dosis      │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  Tekan "Simpan": Kirim data resep    │
+                     │      ke POST /api/examinations       │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │    Mulai DB Transaction Backend:     │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  1. Simpan rekam medis ke tabel      │
+                     │         examinations                 │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  2. Simpan detail resep ke tabel     │
+                     │         prescription_items           │
+                     │  * Kunci harga jual obat saat ini    │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  3. Ubah status antrean -> completed │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  4. Generate Invoice Tagihan Baru    │
+                     │         (tabel payments)             │
+                     │  * Nilai = registration_fee +        │
+                     │    total_biaya_obat                  │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  5. Kirim Notifikasi FCM ke Pasien   │
+                     │      "Tagihan Baru Diterbitkan"      │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │       Commit DB Transaction          │
+                     └──────────────────────────────────────┘
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -261,28 +445,56 @@ flowchart TD
 Alur ini mengelola pelunasan tagihan pengobatan pasien melalui dua metode: non-tunai (upload bukti transfer) dengan peninjauan Admin, atau pembayaran tunai langsung di loket kasir puskesmas.
 
 ### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B[Pasien Terima Notifikasi Tagihan]
-    B --> C[Buka Detail Pembayaran di payment_detail_screen.dart]
-    C --> D{Metode Pembayaran?}
-    
-    D -- Transfer Bank / QRIS --> E[Pasien Transfer Uang ke Rekening Puskesmas]
-    E --> F[Ambil Foto Bukti Transfer via image_picker]
-    F --> G[Unggah Bukti via POST /payments/id/upload-proof]
-    G --> H[Ubah Status Tagihan -> waiting_verification]
-    H --> I[Admin Lihat Bukti di Dashboard Kasir]
-    I --> J{Bukti Valid?}
-    J -- Tidak --> K[Admin Tolak: Set status -> failed] --> L[Kirim FCM Notifikasi Gagal ke Pasien] --> C
-    J -- Ya --> M[Admin Setujui: Set status -> paid & Catat paid_at] --> N[Kirim FCM Notifikasi Lunas ke Pasien]
-    
-    D -- Tunai / Cash di Loket --> O[Pasien Bayar Tunai ke Admin Loket]
-    O --> P[Admin Klik Bayar Tunai via POST /payments/id/cash-pay]
-    P --> Q[Ubah Status Tagihan -> paid & Metode -> cash]
-    Q --> N
-    
-    N --> R[Resep Pasien Masuk ke Antrean Apoteker]
-    R --> S[Selesai]
+```plaintext
+                     ┌──────────────────────────────────────┐
+                     │     Pasien menerima notifikasi /     │
+                     │     buka payment_detail_screen       │
+                     └──────────────────┬───────────────────┘
+                                        │
+                               Pilih Metode Pembayaran
+                                ┌───────┴───────┐
+                 Transfer / QRIS│               │ Tunai (Cash) di Loket
+                                ▼               ▼
+                     ┌───────────────┐  ┌───────────────────────────────┐
+                     │ Pasien kirim  │  │ Pasien bayar tunai ke Admin   │
+                     │ dana bank/QRIS│  └───────────────┬───────────────┘
+                     └───────┬───────┘                  │
+                             │                          ▼
+                             ▼          ┌───────────────────────────────┐
+                     ┌───────────────┐  │ Admin klik "Bayar Tunai" via  │
+                     │ Ambil foto    │  │   POST /payments/id/cash-pay  │
+                     │ bukti bayar   │  └───────────────┬───────────────┘
+                     └───────┬───────┘                  │
+                             │                          ▼
+                             ▼          ┌───────────────────────────────┐
+                     ┌───────────────┐  │ - Status Pembayaran: paid     │
+                     │ Kirim bukti   │  │ - Metode Pembayaran: cash     │
+                     │   via API     │  │ - Catat paid_at = now         │
+                     └───────┬───────┘  └───────────────┬───────────────┘
+                             │                          │
+                    Status:  │                          │
+                 waiting_    │                          │
+               verification  ▼                          │
+                     ┌───────────────┐                  │
+                     │ Admin tinjau  │                  │
+                     │ bukti transfer│                  │
+                     └───────┬───────┘                  │
+                             │                          │
+                        Bukti Valid?                    │
+                        ┌────┴────┐                     │
+                  Tidak │         │ Ya                  │
+                        ▼         ▼                     │
+              ┌───────────┐ ┌───────────┐               │
+              │ Set status│ │ Set status│               │
+              │ = failed  │ │ = paid    │               │
+              └─────┬─────┘ └───┬───────┘               │
+                    │           │ paid_at = now         │
+                    ▼           ▼                       ▼
+              ┌───────────┐ ┌───────────────────────────┐
+              │ Kirim FCM │ │ Kirim FCM Lunas &         │
+              │ Bukti     │ │ Masuk Antrean Apoteker    │
+              │ Ditolak   │ └───────────────────────────┘
+              └───────────┘
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -315,27 +527,60 @@ flowchart TD
 Alur ini mengatur penyiapan obat oleh apoteker, validasi stok pengaman secara transaksional di database untuk mencegah inkonsistensi data persediaan, pemotongan stok obat otomatis, dan penyerahan obat fisik ke pasien.
 
 ### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B[Apoteker Buka pharmacy_dashboard_screen.dart]
-    B --> C[Hit GET /pharmacy/queues untuk Muat Resep Lunas]
-    C --> D[Pilih Item Antrean Resep untuk Lihat Detail]
-    D --> E[Siapkan Obat Fisik Sesuai Daftar & Kuantitas]
-    E --> F[Apoteker Tekan Tombol Serahkan Obat]
-    
-    F --> G[Kirim Request ke POST /pharmacy/queues/id/dispense]
-    G --> H[Mulai DB Transaction Backend]
-    
-    H --> I[Loop Seluruh Item Obat yang Diresepkan]
-    I --> J{Stok Obat di DB >= Kuantitas Resep?}
-    
-    J -- Tidak --> K[Rollback DB Transaction & Kembalikan Error 422] --> L[Tampilkan Dialog Peringatan di UI Apotek] --> E
-    J -- Ya --> M[Kurangi Stok Obat di DB: stock = stock - quantity]
-    
-    M --> N[Loop Selesai -> Isi dispensed_at = now() di tabel payments]
-    N --> O[Kirim Notifikasi FCM ke Pasien: Obat Selesai Diserahkan]
-    O --> P[Commit DB Transaction]
-    P --> Q[Hapus Item dari List Lokal Apotek & Selesai]
+```plaintext
+                     ┌──────────────────────────────────────┐
+                     │    Apoteker membuka dashboard apotek │
+                     │    (pharmacy_dashboard_screen.dart)  │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │       Ambil Antrean Resep Lunas      │
+                     │      (GET /api/pharmacy/queues)      │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  Siapkan Obat Fisik Sesuai Kuantitas │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │     Apoteker klik "Serahkan Obat"    │
+                     │ (POST /pharmacy/queues/id/dispense)  │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │       Mulai DB Transaction:          │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                           ┌──────────────────────────┐
+                           │ Looping detail resep:    │
+                           │ Cek Stok Obat di DB      │
+                           └────────────┬─────────────┘
+                                        │
+                               Apakah Stok Cukup?
+                                ┌───────┴───────┐
+                          Tidak │               │ Ya
+                                ▼               ▼
+                     ┌───────────────┐  ┌───────────────────────────────┐
+                     │  Rollback DB  │  │ Kurangi Stok Obat di database │
+                     │  Return 422   │  │   (stock = stock - quantity)  │
+                     └───────────────┘  └───────────────┬───────────────┘
+                                                        │
+                                                        ▼
+                                        ┌───────────────────────────────┐
+                                        │ - Set dispensed_at = now      │
+                                        │ - Kirim FCM: Obat Diserahkan  │
+                                        └───────────────┬───────────────┘
+                                                        │
+                                                        ▼
+                                        ┌───────────────────────────────┐
+                                        │     Commit DB Transaction     │
+                                        │ Hapus Resep dari List Lokal   │
+                                        └───────────────────────────────┘
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -364,29 +609,66 @@ flowchart TD
 Alur pengaman ini terjadi ketika Admin membuat hari libur klinik atau memasukkan jadwal cuti dokter. Sistem secara otomatis mendeteksi dan membatalkan tiket antrean pasien yang terkena dampak secara massal, serta mengirimkan notifikasi pemberitahuan pembatalan.
 
 ### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B{Aksi Pengaturan Admin?}
-    
-    B -- Buat Hari Libur Klinik --> C[Admin Input Tanggal Libur di admin_clinic_holidays_screen.dart]
-    C --> D[Kirim Request ke POST /api/clinic-holidays]
-    D --> E[Mulai DB Transaction Backend]
-    E --> F[Simpan Hari Libur ke clinic_holidays]
-    F --> G[Cari Seluruh Antrean Aktifbooked/waiting pada Tanggal Tersebut]
-    G --> H[Ubah Status Seluruh Antrean Menjadi cancelled]
-    H --> I[Loop Kirim Notifikasi FCM ke Semua Pasien Terkena Dampak]
-    I --> J[Recalculate Estimasi Waktu Layanan Tanggal Tersebut -> Kosong]
-    J --> K[Commit DB Transaction & Selesai]
-    
-    B -- Buat Cuti Dokter --> L[Admin Input Dokter & Tanggal Cuti di admin_doctor_leaves_screen.dart]
-    L --> M[Kirim Request ke POST /api/doctor-leaves]
-    M --> N[Mulai DB Transaction Backend]
-    N --> O[Simpan Data Cuti ke doctor_leaves]
-    O --> P[Cari Antrean Aktifbooked/waiting Dokter Terkait di Tanggal Tersebut]
-    P --> Q[Ubah Status Antrean Tersebut Menjadi cancelled]
-    Q --> R[Loop Kirim Notifikasi FCM ke Setiap Pasien Dokter Tersebut]
-    R --> S[Recalculate Estimasi Antrean Sisa Dokter Lain di Tanggal Tersebut]
-    S --> T[Commit DB Transaction & Selesai]
+```plaintext
+                     ┌──────────────────────────────────────┐
+                     │       Pemicu Aksi Admin:             │
+                     └──────────────────┬───────────────────┘
+                                        │
+                              Pilih Aksi Pengaturan
+                                ┌───────┴───────┐
+            Hari Libur Puskesmas│               │ Jadwal Cuti Dokter
+                                ▼               ▼
+                     ┌───────────────┐  ┌───────────────────────────────┐
+                     │ Input Tanggal │  │ Input Dokter, Tanggal Cuti,   │
+                     │ Libur & Alasan│  │ dan Alasan Cuti               │
+                     └───────┬───────┘  └───────────────┬───────────────┘
+                             │                          │
+                             ▼                          ▼
+                     ┌───────────────┐  ┌───────────────────────────────┐
+                     │     Kirim     │  │   Kirim POST /doctor-leaves   │
+                     │   POST API    │  └───────────────┬───────────────┘
+                     └───────┬───────┘                  │
+                             │                          ▼
+                             └──────────┬───────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │     Mulai DB Transaction Backend:    │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │ Simpan Hari Libur / Cuti ke database │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │   Cari Antrean Aktif (booked/waiting)│
+                     │    yang Terdampak pada Tanggal itu   │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │  Ubah Status Seluruh Antrean Tersebut│
+                     │           menjadi 'cancelled'        │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │ Kirim Notifikasi FCM ke Semua Pasien │
+                     │   "Antrean Dibatalkan karena Libur/  │
+                     │           Dokter Cuti"               │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │   Kalkulasi Ulang Estimasi Waktu     │
+                     └──────────────────┬───────────────────┘
+                                        │
+                                        ▼
+                     ┌──────────────────────────────────────┐
+                     │        Commit DB Transaction         │
+                     └──────────────────────────────────────┘
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
