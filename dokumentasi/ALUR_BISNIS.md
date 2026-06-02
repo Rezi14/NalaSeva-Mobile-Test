@@ -19,85 +19,51 @@ Dokumen ini merinci seluruh **Alur Bisnis (Business Flows)** yang berjalan pada 
 
 Alur ini mengelola siklus masuk akun baru, autentikasi pengguna terdaftar, sinkronisasi token notifikasi (FCM), restorasi sesi offline saat internet terputus, dan pemulihan kata sandi menggunakan OTP 6-digit.
 
-### 📊 Diagram Alir (Flowchart)
+### 📊 Diagram Alir (Flowchart - PlantUML)
+```plantuml
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam ActivityBackgroundColor #F1F1F1
+skinparam ActivityBorderColor #7C4DFF
+skinparam ActivityFontSize 12
 
-<table align="center" border="0" cellpadding="10" cellspacing="5" width="100%">
-  <tr>
-    <td align="center" colspan="3" bgcolor="#2a2b36" style="border-radius: 8px; color: #ffffff; padding: 12px;">
-      <b>🏁 MULAI</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" colspan="3"><font size="4">▼</font></td>
-  </tr>
-  <tr>
-    <td align="center" width="45%" bgcolor="#1e1e24" style="border-radius: 8px; border: 1.5px solid #7c4dff; color: #ffffff; padding: 12px;">
-      <b>A. BELUM PUNYA AKUN (Registrasi)</b><br>
-      <small>register_screen.dart</small>
-    </td>
-    <td align="center" width="10%"></td>
-    <td align="center" width="45%" bgcolor="#1e1e24" style="border-radius: 8px; border: 1.5px solid #7c4dff; color: #ffffff; padding: 12px;">
-      <b>B. SUDAH PUNYA AKUN (Login)</b><br>
-      <small>login_screen.dart</small>
-    </td>
-  </tr>
-  <tr>
-    <td align="center"><font size="4">▼</font></td>
-    <td></td>
-    <td align="center"><font size="4">▼</font></td>
-  </tr>
-  <tr>
-    <td align="center" bgcolor="#2a2b36" style="border-radius: 8px; color: #ffffff; padding: 12px;">
-      <b>1. Validasi & Kirim Data</b><br>
-      <small>POST /api/auth/register</small>
-    </td>
-    <td></td>
-    <td align="center" bgcolor="#2a2b36" style="border-radius: 8px; color: #ffffff; padding: 12px;">
-      <b>1. Kirim Kredensial</b><br>
-      <small>POST /api/auth/login</small>
-    </td>
-  </tr>
-  <tr>
-    <td align="center"><font size="4">▼</font></td>
-    <td></td>
-    <td align="center"><font size="4">▼</font></td>
-  </tr>
-  <tr>
-    <td align="center" bgcolor="#2a2b36" style="border-radius: 8px; color: #ffffff; padding: 12px;">
-      <b>2. DB Transaction Backend</b><br>
-      <small>Simpan baris User & Patient -> Sukses</small>
-    </td>
-    <td align="center"><font size="4">➔</font></td>
-    <td align="center" bgcolor="#2a2b36" style="border-radius: 8px; color: #ffffff; padding: 12px;">
-      <b>2. Simpan Token & FCM Sync</b><br>
-      <small>Secure Storage & POST /auth/fcm-token</small>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" colspan="3"><font size="4">▼</font></td>
-  </tr>
-  <tr>
-    <td align="center" bgcolor="#1e1e24" style="border-radius: 8px; border: 1.5px solid #39ff14; color: #ffffff; padding: 12px;" colspan="3">
-      <b>🔄 RESTORASI SESI / MEMBUKA APLIKASI (checkAuth)</b><br>
-      <small>Membaca Token & Memanggil Profil via GET /api/auth/profile</small>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" colspan="3"><font size="4">▼</font></td>
-  </tr>
-  <tr>
-    <td align="center" width="45%" bgcolor="#2a2b36" style="border-radius: 8px; color: #ffffff; padding: 12px;">
-      <b>🟢 ONLINE (Sesi Valid)</b><br>
-      <small>Arahkan ke Dashboard sesuai Role</small>
-    </td>
-    <td align="center" width="10%"></td>
-    <td align="center" width="45%" bgcolor="#2a2b36" style="border-radius: 8px; color: #ffffff; padding: 12px;">
-      <b>🔴 OFFLINE (Gagal Koneksi)</b><br>
-      <small>Muat Sentinel 'Offline User' & Role Cache</small>
-    </td>
-  </tr>
-</table>
-
+start
+:Aplikasi Dibuka;
+if (Token di Secure Storage?) then (Ada)
+  :Hit GET /auth/profile;
+  if (Koneksi Sukses?) then (Ya)
+    if (Sesi Valid?) then (Ya)
+      :Sinkronisasi Role/ID & Arahkan ke Dashboard;
+    else (Tidak)
+      :Hapus Secure Storage & Arahkan ke Login;
+    endif
+  else (Tidak/Offline)
+    :Muat Sentinel User 'Offline User';
+    :Baca Role/ID Terakhir dari Secure Storage;
+    :Arahkan ke Dashboard Sesuai Role;
+  endif
+else (Tidak Ada)
+  if (Punya Akun?) then (Tidak)
+    :Isi Form Registrasi;
+    :POST /api/auth/register;
+    :Simpan User & Patient (DB Transaction);
+    :Dapatkan Token -> Kembali ke Login;
+  else (Ya)
+    :Isi Form Login;
+    :Kirim ke POST /auth/login;
+    if (Kredensial Valid?) then (Ya)
+      :Simpan access_token ke Secure Storage;
+      :Hit GET /auth/profile & Simpan Role/ID;
+      :Daftarkan FCM Token (POST /auth/fcm-token);
+      :Arahkan ke Dashboard Sesuai Role;
+    else (Tidak)
+      :Error 401: Alert Kredensial Salah;
+    endif
+  endif
+endif
+stop
+@endum
+```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
 
@@ -140,29 +106,37 @@ Alur ini mengelola siklus masuk akun baru, autentikasi pengguna terdaftar, sinkr
 
 Alur ini memfasilitasi pasien untuk melakukan pemesanan nomor antrean poliklinik secara mandiri dengan verifikasi ketersediaan dokter, hari libur klinik, dan status prioritas lansia.
 
-### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B[Pilih Poliklinik di booking_screen.dart]
-    B --> C[Pilih Dokter]
-    C --> D[Future.wait -> Muat Hari Libur Klinik & Cuti Dokter]
-    D --> E[Disable Tanggal Libur/Cuti di Date Picker]
-    E --> F[Pilih Tanggal Pelayanan Max H-7]
-    F --> G[Pilih Jadwal Praktik Dokter]
-    G --> H[Konfirmasi: Dialog AppDialogs]
-    H --> I[Kirim Request ke POST /api/queues]
-    
-    I --> J{Validasi 5-Layer Backend}
-    J -- Gagal --> K[Tampilkan Dialog Error Backend] --> B
-    J -- Lolos --> L{"Usia Pasien >= 60 Tahun?"}
-    
-    L -- Ya --> M[Set is_priority = true] --> O
-    L -- Tidak --> N[Set is_priority = false] --> O
-    
-    O[Tentukan Nomor Antrean format KODE_POLI-NomorUrut] --> P[Hitung Estimasi Waktu estimated_service_time]
-    P --> Q[Recalculate Estimasi Seluruh Antrean Aktif di Poli Terkait]
-    Q --> R[Simpan Antrean & Refresh List Lokal]
-    R --> S[Selesai]
+### 📊 Diagram Alir (Flowchart - PlantUML)
+```plantuml
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam ActivityBackgroundColor #F1F1F1
+skinparam ActivityBorderColor #7C4DFF
+
+start
+:Pasien Buka booking_screen.dart;
+:Pilih Poliklinik & Dokter;
+:Muat Hari Libur Klinik & Cuti Dokter secara Paralel (Future.wait);
+:Disable Tanggal Libur/Cuti pada Kalender;
+:Pilih Tanggal Pelayanan (Max H-7);
+:Pilih Jadwal Praktik Dokter;
+:Konfirmasi (Dialog AppDialogs);
+:Kirim Request ke POST /api/queues;
+if (Validasi 5-Layer Backend?) then (Lolos)
+  if (Usia Pasien >= 60 Tahun?) then (Ya)
+    :Set is_priority = true;
+  else (Tidak)
+    :Set is_priority = false;
+  endif
+  :Tentukan Nomor Antrean (KODE_POLI-NomorUrut);
+  :Hitung Estimasi Waktu (estimated_service_time);
+  :Re-kalkulasi Estimasi Seluruh Antrean Aktif di Poli;
+  :Simpan Antrean & Refresh List Lokal;
+else (Gagal)
+  :Tampilkan Dialog Error Backend;
+endif
+stop
+@endum
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -197,34 +171,49 @@ flowchart TD
 
 Alur ini mengatur proses kehadiran fisik pasien di puskesmas, validasi jendela waktu kedatangan, recall antrean terintegrasi audio TTS (Text-to-Speech), dan transisi status saat pasien masuk ke ruang periksa dokter.
 
-### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Pasien Tiba di Puskesmas] --> B{Metode Check-in?}
-    B -- Manual Loket --> C[Cari Nama/Nomor Antrean di queue_management_screen.dart]
-    B -- QR Code Tiket --> D[Scan QR Tiket Pasien via qr_scanner_page.dart]
-    
-    C & D --> E[Jalankan ServiceTimeValidator di Client]
-    E --> F{Waktu Sesuai Jendela Toleransi? -30m s.d +2j}
-    
-    F -- Tidak --> G[Tolak Check-in & Munculkan Pesan Peringatan]
-    F -- Ya --> H[Kirim Request ke POST /queues/id/checkin]
-    
-    H --> I[Ubah status -> waiting & Catat check_in_time]
-    I --> J[Recalculate Estimasi Waktu Antrean Lain]
-    J --> K[Pasien Masuk Daftar Antrean Ruang Tunggu]
-    
-    K --> L[Dokter/Admin Panggil Pasien via Dashboard]
-    L --> M{"recall_count >= 3?"}
-    
-    M -- Tidak --> N[Panggil via POST /queues/id/recall]
-    N --> O[TTS Berbunyi di Layar TV Monitor] --> P[Increment recall_count]
-    
-    M -- "Ya (Pasien Tidak Hadir)" --> Q[Kirim ke Urutan Paling Belakang]
-    Q --> R[Ubah status -> waiting, reset check_in_time & recall_count] --> J
-    
-    P --> S[Dokter Mulai Pemeriksaan: status -> examining]
-    S --> T[Kirim FCM Notifikasi ke Pasien: Giliran Anda!]
+### 📊 Diagram Alir (Flowchart - PlantUML)
+```plantuml
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam ActivityBackgroundColor #F1F1F1
+skinparam ActivityBorderColor #7C4DFF
+
+start
+:Pasien Tiba di Puskesmas;
+if (Metode Check-in?) then (Scan QR Tiket)
+  :Scan QR Tiket Pasien via qr_scanner_page.dart;
+else (Manual Loket)
+  :Cari Nama/Nomor Antrean di queue_management_screen.dart;
+endif
+:Jalankan ServiceTimeValidator di Client;
+if (Waktu Sesuai Jendela Toleransi? [-30m s/d +2j]) then (Ya)
+  :Kirim Request ke POST /queues/id/checkin;
+  :Ubah status -> waiting & Catat check_in_time;
+  :Recalculate Estimasi Waktu Antrean Lain;
+  :Pasien Masuk Daftar Antrean Ruang Tunggu;
+  
+  repeat
+    :Dokter/Admin Panggil Pasien via Dashboard;
+    if (recall_count >= 3?) then (Ya [Pasien Absen])
+      :Kirim ke Urutan Paling Belakang;
+      :Ubah status -> waiting;
+      :Reset check_in_time & recall_count;
+      :Recalculate Estimasi Waktu Antrean;
+      detach
+    else (Tidak)
+      :Panggil via POST /queues/id/recall;
+      :TTS Berbunyi di Layar TV Monitor;
+      :Increment recall_count;
+    endif
+  repeat while (Pasien belum masuk ruang periksa)
+  
+  :Dokter Mulai Pemeriksaan (status -> examining);
+  :Kirim FCM Notifikasi ke Pasien (Giliran Anda!);
+else (Tidak)
+  :Tolak Check-in & Munculkan Pesan Peringatan;
+endif
+stop
+@endum
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -263,27 +252,34 @@ flowchart TD
 
 Alur ini mengelola pencatatan rekam medis oleh dokter, penulisan resep obat terstruktur, transisi status antrean selesai, dan kalkulasi tagihan secara otomatis.
 
-### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B[Dokter Buka Form Pemeriksaan di examination_form_screen.dart]
-    B --> C[Input Keluhan, Diagnosis, & Tindakan Medis]
-    C --> D[Pilih Obat dari Inventaris & Input Kuantitas Resep]
-    D --> E[Form Guard: Dialog Konfirmasi Jika Keluar Tanpa Simpan]
-    E --> F[Dokter Kirim Data ke POST /api/examinations]
-    
-    F --> G[Mulai DB Transaction Backend]
-    G --> H[Simpan Catatan Rekam Medis ke Tabel examinations]
-    H --> I[Simpan Detail Resep ke Tabel prescription_items]
-    I --> J[Kunci Harga Jual Obat Saat Ini ke Tabel Detail Resep]
-    J --> K[Ubah Status Antrean -> completed]
-    
-    K --> L[Generate Invoice Tagihan Baru di Tabel payments]
-    L --> M[Hitung Nominal: registration_fee + total_biaya_obat]
-    M --> N[Kirim Notifikasi FCM Tagihan Baru ke Pasien]
-    N --> O[Commit DB Transaction]
-    O --> P[Kembali ke Dashboard Dokter & Refresh List]
-    P --> Q[Selesai]
+### 📊 Diagram Alir (Flowchart - PlantUML)
+```plantuml
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam ActivityBackgroundColor #F1F1F1
+skinparam ActivityBorderColor #7C4DFF
+
+start
+:Dokter Buka Form Pemeriksaan;
+:Input Keluhan, Diagnosis, & Tindakan Medis;
+:Pilih Obat dari Inventaris & Kuantitas Resep;
+if (Dokter Simpan Pemeriksaan?) then (Simpan)
+  :POST /api/examinations;
+  partition "DB Transaction Backend" {
+    :Simpan Catatan Rekam Medis ke examinations;
+    :Simpan Detail Resep ke prescription_items;
+    :Kunci Harga Jual Obat Saat Ini;
+    :Ubah Status Antrean -> completed;
+    :Generate Invoice Tagihan di payments;
+    :Hitung Nominal: registration_fee + total_biaya_obat;
+    :Kirim Notifikasi FCM Tagihan Baru ke Pasien;
+  }
+  :Kembali ke Dashboard Dokter & Refresh List;
+else (Keluar Tanpa Simpan)
+  :Tampilkan Form Guard Dialog;
+endif
+stop
+@endum
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -309,29 +305,37 @@ flowchart TD
 
 Alur ini mengelola pelunasan tagihan pengobatan pasien melalui dua metode: non-tunai (upload bukti transfer) dengan peninjauan Admin, atau pembayaran tunai langsung di loket kasir puskesmas.
 
-### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B[Pasien Terima Notifikasi Tagihan]
-    B --> C[Buka Detail Pembayaran di payment_detail_screen.dart]
-    C --> D{Metode Pembayaran?}
-    
-    D -- Transfer Bank / QRIS --> E[Pasien Transfer Uang ke Rekening Puskesmas]
-    E --> F[Ambil Foto Bukti Transfer via image_picker]
-    F --> G[Unggah Bukti via POST /payments/id/upload-proof]
-    G --> H[Ubah Status Tagihan -> waiting_verification]
-    H --> I[Admin Lihat Bukti di Dashboard Kasir]
-    I --> J{Bukti Valid?}
-    J -- Tidak --> K[Admin Tolak: Set status -> failed] --> L[Kirim FCM Notifikasi Gagal ke Pasien] --> C
-    J -- Ya --> M[Admin Setujui: Set status -> paid & Catat paid_at] --> N[Kirim FCM Notifikasi Lunas ke Pasien]
-    
-    D -- Tunai / Cash di Loket --> O[Pasien Bayar Tunai ke Admin Loket]
-    O --> P[Admin Klik Bayar Tunai via POST /payments/id/cash-pay]
-    P --> Q[Ubah Status Tagihan -> paid & Metode -> cash]
-    Q --> N
-    
-    N --> R[Resep Pasien Masuk ke Antrean Apoteker]
-    R --> S[Selesai]
+### 📊 Diagram Alir (Flowchart - PlantUML)
+```plantuml
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam ActivityBackgroundColor #F1F1F1
+skinparam ActivityBorderColor #7C4DFF
+
+start
+:Pasien Buka Detail Pembayaran;
+if (Metode Pembayaran?) then (Transfer Bank / QRIS)
+  :Pasien Transfer Uang ke Rekening Puskesmas;
+  :Ambil Foto Bukti Transfer via image_picker;
+  :Unggah Bukti via POST /payments/id/upload-proof;
+  :Ubah Status Tagihan -> waiting_verification;
+  :Admin Lihat Bukti di Dashboard Kasir;
+  if (Bukti Valid?) then (Ya)
+    :Admin Setujui: Set status -> paid & Catat paid_at;
+    :Kirim FCM Notifikasi Lunas ke Pasien;
+  else (Tidak)
+    :Admin Tolak: Set status -> failed;
+    :Kirim FCM Notifikasi Gagal ke Pasien;
+  endif
+else (Tunai / Cash di Loket)
+  :Pasien Bayar Tunai ke Admin Loket;
+  :Admin Klik Bayar Tunai (POST /payments/id/cash-pay);
+  :Ubah Status Tagihan -> paid & Metode -> cash;
+  :Kirim FCM Notifikasi Lunas ke Pasien;
+endif
+:Resep Pasien Masuk ke Antrean Apoteker;
+stop
+@endum
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -363,28 +367,34 @@ flowchart TD
 
 Alur ini mengatur penyiapan obat oleh apoteker, validasi stok pengaman secara transaksional di database untuk mencegah inkonsistensi data persediaan, pemotongan stok obat otomatis, dan penyerahan obat fisik ke pasien.
 
-### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B[Apoteker Buka pharmacy_dashboard_screen.dart]
-    B --> C[Hit GET /pharmacy/queues untuk Muat Resep Lunas]
-    C --> D[Pilih Item Antrean Resep untuk Lihat Detail]
-    D --> E[Siapkan Obat Fisik Sesuai Daftar & Kuantitas]
-    E --> F[Apoteker Tekan Tombol Serahkan Obat]
-    
-    F --> G[Kirim Request ke POST /pharmacy/queues/id/dispense]
-    G --> H[Mulai DB Transaction Backend]
-    
-    H --> I[Loop Seluruh Item Obat yang Diresepkan]
-    I --> J{"Stok Obat di DB >= Kuantitas Resep?"}
-    
-    J -- Tidak --> K[Rollback DB Transaction & Kembalikan Error 422] --> L[Tampilkan Dialog Peringatan di UI Apotek] --> E
-    J -- Ya --> M[Kurangi Stok Obat di DB: stock = stock - quantity]
-    
-    M --> N[Loop Selesai -> Isi dispensed_at = now() di tabel payments]
-    N --> O[Kirim Notifikasi FCM ke Pasien: Obat Selesai Diserahkan]
-    O --> P[Commit DB Transaction]
-    P --> Q[Hapus Item dari List Lokal Apotek & Selesai]
+### 📊 Diagram Alir (Flowchart - PlantUML)
+```plantuml
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam ActivityBackgroundColor #F1F1F1
+skinparam ActivityBorderColor #7C4DFF
+
+start
+:Apoteker Buka pharmacy_dashboard_screen.dart;
+:Load Resep Lunas (GET /pharmacy/queues);
+:Pilih Item Antrean Resep & Siapkan Obat Fisik;
+:Apoteker Tekan Tombol Serahkan Obat;
+:POST /pharmacy/queues/id/dispense;
+partition "DB Transaction Backend" {
+  :Loop Seluruh Item Obat yang Diresepkan;
+  if (Stok Obat di DB >= Kuantitas Resep?) then (Ya)
+    :Kurangi Stok Obat di DB (stock = stock - quantity);
+  else (Tidak)
+    :Rollback DB Transaction & Return Error 422;
+    :Tampilkan Dialog Peringatan di UI Apotek;
+    end
+  endif
+  :Isi dispensed_at = now() di tabel payments;
+  :Kirim Notifikasi FCM ke Pasien (Obat Selesai Diserahkan);
+}
+:Hapus Item dari List Lokal Apotek;
+stop
+@endum
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -412,30 +422,37 @@ flowchart TD
 
 Alur pengaman ini terjadi ketika Admin membuat hari libur klinik atau memasukkan jadwal cuti dokter. Sistem secara otomatis mendeteksi dan membatalkan tiket antrean pasien yang terkena dampak secara massal, serta mengirimkan notifikasi pemberitahuan pembatalan.
 
-### 📊 Diagram Alir (Flowchart)
-```mermaid
-flowchart TD
-    A[Mulai] --> B{Aksi Pengaturan Admin?}
-    
-    B -- Buat Hari Libur Klinik --> C[Admin Input Tanggal Libur di admin_clinic_holidays_screen.dart]
-    C --> D[Kirim Request ke POST /api/clinic-holidays]
-    D --> E[Mulai DB Transaction Backend]
-    E --> F[Simpan Hari Libur ke clinic_holidays]
-    F --> G["Cari Seluruh Antrean Aktif (booked/waiting) pada Tanggal Tersebut"]
-    G --> H[Ubah Status Seluruh Antrean Menjadi cancelled]
-    H --> I[Loop Kirim Notifikasi FCM ke Semua Pasien Terkena Dampak]
-    I --> J[Recalculate Estimasi Waktu Layanan Tanggal Tersebut -> Kosong]
-    J --> K[Commit DB Transaction & Selesai]
-    
-    B -- Buat Cuti Dokter --> L[Admin Input Dokter & Tanggal Cuti di admin_doctor_leaves_screen.dart]
-    L --> M[Kirim Request ke POST /api/doctor-leaves]
-    M --> N[Mulai DB Transaction Backend]
-    N --> O[Simpan Data Cuti ke doctor_leaves]
-    O --> P["Cari Antrean Aktif (booked/waiting) Dokter Terkait di Tanggal Tersebut"]
-    P --> Q[Ubah Status Antrean Tersebut Menjadi cancelled]
-    Q --> R[Loop Kirim Notifikasi FCM ke Setiap Pasien Dokter Tersebut]
-    R --> S[Recalculate Estimasi Antrean Sisa Dokter Lain di Tanggal Tersebut]
-    S --> T[Commit DB Transaction & Selesai]
+### 📊 Diagram Alir (Flowchart - PlantUML)
+```plantuml
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam ActivityBackgroundColor #F1F1F1
+skinparam ActivityBorderColor #7C4DFF
+
+start
+if (Aksi Pengaturan Admin?) then (Buat Hari Libur Klinik)
+  :Admin Input Tanggal Libur;
+  :POST /api/clinic-holidays;
+  partition "DB Transaction Backend" {
+    :Simpan Hari Libur ke clinic_holidays;
+    :Cari Seluruh Antrean Aktif (booked/waiting) di Tanggal Tersebut;
+    :Ubah Status Seluruh Antrean Menjadi cancelled;
+    :Kirim Notifikasi FCM ke Semua Pasien Terkait;
+    :Recalculate Estimasi Waktu Layanan (Kosong);
+  }
+else (Buat Cuti Dokter)
+  :Admin Input Dokter & Tanggal Cuti;
+  :POST /api/doctor-leaves;
+  partition "DB Transaction Backend" {
+    :Simpan Data Cuti ke doctor_leaves;
+    :Cari Antrean Aktif (booked/waiting) Dokter Terkait di Tanggal Tersebut;
+    :Ubah Status Antrean Tersebut Menjadi cancelled;
+    :Kirim Notifikasi FCM ke Setiap Pasien Terkait;
+    :Recalculate Estimasi Antrean Sisa Dokter Lain;
+  }
+endif
+stop
+@endum
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
