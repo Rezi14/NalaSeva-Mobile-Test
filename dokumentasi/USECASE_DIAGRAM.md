@@ -23,34 +23,35 @@ Berikut adalah diagram besar seluruh use case pada sistem **NalaSeva** menggunak
 
 ```mermaid
 flowchart LR
-  classDef actorStyle fill:#2a2b36,stroke:#7c4dff,stroke-width:2px,color:#fff;
-  classDef usecaseStyle fill:#1e1e24,stroke:#39ff14,stroke-width:1.5px,color:#fff;
+  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
   
-  subgraph NalaSeva System Boundary
-    %% Authentication & Profile
-    UC1((Autentikasi & Akun)):::usecaseStyle
-    UC2((Kelola Profil)):::usecaseStyle
-    UC15((Lihat Profil Puskesmas)):::usecaseStyle
-    
-    %% Patient Flow
-    UC3((Booking Antrean)):::usecaseStyle
-    UC4((Batalkan Antrean)):::usecaseStyle
-    UC5((Bayar Tagihan & Resep)):::usecaseStyle
-    
-    %% Doctor Flow
-    UC6((Update Status Online)):::usecaseStyle
-    UC7((Proses Antrean)):::usecaseStyle
-    UC8((Buat Rekam Medis)):::usecaseStyle
-    
-    %% Pharmacist Flow
-    UC9((Serahkan Obat)):::usecaseStyle
-    UC10((CRUD Inventaris Obat)):::usecaseStyle
-    
-    %% Admin Flow
-    UC11((Manajemen Fisik Antrean)):::usecaseStyle
-    UC12((CRUD Master Data)):::usecaseStyle
-    UC13((Verifikasi Pembayaran)):::usecaseStyle
-    UC14((Atur Pengaturan Dinamis)):::usecaseStyle
+  subgraph NalaSeva ["Sistem NalaSeva"]
+    subgraph Modul_Auth ["Autentikasi & Akun"]
+      UC1((Autentikasi & Akun)):::usecaseStyle
+      UC2((Kelola Profil)):::usecaseStyle
+      UC15((Lihat Profil Puskesmas)):::usecaseStyle
+    end
+    subgraph Modul_Pasien ["Pelayanan Pasien"]
+      UC3((Booking Antrean)):::usecaseStyle
+      UC4((Batalkan Antrean)):::usecaseStyle
+      UC5((Bayar Tagihan & Resep)):::usecaseStyle
+    end
+    subgraph Modul_Medis ["Pelayanan Medis - Dokter"]
+      UC6((Update Status Online)):::usecaseStyle
+      UC7((Proses Antrean)):::usecaseStyle
+      UC8((Buat Rekam Medis)):::usecaseStyle
+    end
+    subgraph Modul_Apotek ["Pelayanan Apotek"]
+      UC9((Serahkan Obat)):::usecaseStyle
+      UC10((CRUD Inventaris Obat)):::usecaseStyle
+    end
+    subgraph Modul_Admin ["Administrasi & Sistem"]
+      UC11((Manajemen Fisik Antrean)):::usecaseStyle
+      UC12((CRUD Master Data)):::usecaseStyle
+      UC13((Verifikasi Pembayaran)):::usecaseStyle
+      UC14((Atur Pengaturan Dinamis)):::usecaseStyle
+    end
   end
 
   %% Actors
@@ -98,105 +99,210 @@ Untuk memperjelas relasi `<<include>>`, `<<extend>>`, dan spesifikasi masing-mas
 Mengelola alur masuk, pendaftaran mandiri pasien, pemulihan akun via OTP email, serta mekanisme offline-restore state.
 
 ```mermaid
-flowchart TD
-  classDef actorStyle fill:#2a2b36,stroke:#7c4dff,stroke-width:2px,color:#fff;
-  classDef usecaseStyle fill:#1e1e24,stroke:#39ff14,stroke-width:1.5px,color:#fff;
+flowchart LR
+  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
 
-  User["Pengguna (Semua Role)"]:::actorStyle --> UC_Login(Login Pengguna):::usecaseStyle
-  User --> UC_OTP(Lupa Password / OTP Flow):::usecaseStyle
-  Pasien[Pasien]:::actorStyle --> UC_Reg(Registrasi Akun):::usecaseStyle
-  
-  Pasien --> UC_Profile(Lihat & Update Profil):::usecaseStyle
-  Pasien --> UC_FCM(Update FCM Token):::usecaseStyle
-  Pasien --> UC_Offline(Restore Sesi Offline):::usecaseStyle
+  subgraph Actors [Aktor]
+    User["Pengguna (Semua Role)"]:::actorStyle
+    Pasien[Pasien]:::actorStyle
+  end
 
-  UC_Reg -.->|include| UC_Conf["password_confirmation & role: 'patient'"]:::usecaseStyle
-  UC_Login -.->|include| UC_SaveToken[Simpan ke Secure Storage]:::usecaseStyle
-  UC_OTP -.->|include| UC_VerifyOTP[Validasi 6-Digit OTP]:::usecaseStyle
-  UC_Profile -.->|extend| UC_Map[Pilih Lokasi MapPicker]:::usecaseStyle
+  subgraph UseCases [Use Cases]
+    UC_Login(Login Pengguna):::usecaseStyle
+    UC_OTP(Lupa Password / OTP Flow):::usecaseStyle
+    UC_Reg(Registrasi Akun):::usecaseStyle
+    UC_Profile(Lihat & Update Profil):::usecaseStyle
+    UC_FCM(Update FCM Token):::usecaseStyle
+    UC_Offline(Restore Sesi Offline):::usecaseStyle
+  end
+
+  subgraph Details [Include / Extend]
+    UC_Conf["password_confirmation & role: 'patient'"]:::usecaseStyle
+    UC_SaveToken[Simpan ke Secure Storage]:::usecaseStyle
+    UC_VerifyOTP[Validasi 6-Digit OTP]:::usecaseStyle
+    UC_Map[Pilih Lokasi MapPicker]:::usecaseStyle
+  end
+
+  %% Actor Connections
+  User --> UC_Login
+  User --> UC_OTP
+  Pasien --> UC_Reg
+  Pasien --> UC_Profile
+  Pasien --> UC_FCM
+  Pasien --> UC_Offline
+
+  %% Relations
+  UC_Reg -.->|include| UC_Conf
+  UC_Login -.->|include| UC_SaveToken
+  UC_OTP -.->|include| UC_VerifyOTP
+  UC_Profile -.->|extend| UC_Map
 ```
 
 ### 📅 Sub-Sistem 2: Manajemen Antrean (Queue)
 Mengontrol pembuatan antrean dengan 5 lapis validasi, pembatalan dengan batas toleransi, pemanggilan antrean loket, pemindaian QR code untuk check-in, dan display TV Monitor.
 
 ```mermaid
-flowchart TD
-  classDef actorStyle fill:#2a2b36,stroke:#7c4dff,stroke-width:2px,color:#fff;
-  classDef usecaseStyle fill:#1e1e24,stroke:#39ff14,stroke-width:1.5px,color:#fff;
+flowchart LR
+  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
 
-  Pasien[Pasien]:::actorStyle --> UC_Book(Booking Antrean):::usecaseStyle
-  Pasien --> UC_Cancel(Batalkan Antrean):::usecaseStyle
-  Admin[Admin]:::actorStyle --> UC_CheckIn(Check-In Antrean):::usecaseStyle
-  Admin --> UC_Recall(Panggil Ulang / Recall):::usecaseStyle
-  Admin --> UC_Skip(Skip Antrean ke Belakang):::usecaseStyle
-  Admin --> UC_TV(Display Monitor Antrean TV):::usecaseStyle
-  
-  Dokter[Dokter]:::actorStyle --> UC_Status(Toggle Status Online):::usecaseStyle
-  Dokter --> UC_Proc(Proses Antrean):::usecaseStyle
+  subgraph Actors [Aktor]
+    Pasien[Pasien]:::actorStyle
+    Dokter[Dokter]:::actorStyle
+    Admin[Admin]:::actorStyle
+  end
 
-  UC_Book -.->|include| UC_Val5[5-Layer Validation Ketersediaan]:::usecaseStyle
-  UC_Book -.->|include| UC_Priority["Auto Priority Lansia Usia >= 60"]:::usecaseStyle
-  
-  UC_Cancel -.->|include| UC_Cutoff[Validasi Cut-off Waktu 2 Jam]:::usecaseStyle
-  
-  UC_CheckIn -.->|extend| UC_QR[Pindai Tiket via QR Scanner]:::usecaseStyle
-  UC_CheckIn -.->|include| UC_TimeVal[ServiceTimeValidator 30 Menit - 2 Jam]:::usecaseStyle
-  
-  UC_Recall -.->|include| UC_TTS[Bicara Audio via Text-to-Speech]:::usecaseStyle
-  UC_Recall -.->|extend| UC_RecallLimit["Kirim ke Paling Belakang jika Panggilan >= 3"]:::usecaseStyle
+  subgraph UseCases [Use Cases]
+    UC_Book(Booking Antrean):::usecaseStyle
+    UC_Cancel(Batalkan Antrean):::usecaseStyle
+    UC_CheckIn(Check-In Antrean):::usecaseStyle
+    UC_Recall(Panggil Ulang / Recall):::usecaseStyle
+    UC_Skip(Skip Antrean ke Belakang):::usecaseStyle
+    UC_TV(Display Monitor Antrean TV):::usecaseStyle
+    UC_Status(Toggle Status Online):::usecaseStyle
+    UC_Proc(Proses Antrean):::usecaseStyle
+  end
+
+  subgraph Details [Include / Extend]
+    UC_Val5[5-Layer Validation Ketersediaan]:::usecaseStyle
+    UC_Priority["Auto Priority Lansia Usia >= 60"]:::usecaseStyle
+    UC_Cutoff[Validasi Cut-off Waktu 2 Jam]:::usecaseStyle
+    UC_QR[Pindai Tiket via QR Scanner]:::usecaseStyle
+    UC_TimeVal[ServiceTimeValidator 30 Menit - 2 Jam]:::usecaseStyle
+    UC_TTS[Bicara Audio via Text-to-Speech]:::usecaseStyle
+    UC_RecallLimit["Kirim ke Paling Belakang jika Panggilan >= 3"]:::usecaseStyle
+  end
+
+  %% Actor Connections
+  Pasien --> UC_Book
+  Pasien --> UC_Cancel
+  Dokter --> UC_Status
+  Dokter --> UC_Proc
+  Admin --> UC_CheckIn
+  Admin --> UC_Recall
+  Admin --> UC_Skip
+  Admin --> UC_TV
+
+  %% Relations
+  UC_Book -.->|include| UC_Val5
+  UC_Book -.->|include| UC_Priority
+  UC_Cancel -.->|include| UC_Cutoff
+  UC_CheckIn -.->|extend| UC_QR
+  UC_CheckIn -.->|include| UC_TimeVal
+  UC_Recall -.->|include| UC_TTS
+  UC_Recall -.->|extend| UC_RecallLimit
 ```
 
 ### 🩺 Sub-Sistem 3: Rekam Medis & Pembayaran (Payments)
 Mengatur pembuatan rekam medis dokter yang memicu pembuatan tagihan otomatis, pengunggahan bukti transfer bank oleh pasien, dan verifikasi pembayaran.
 
 ```mermaid
-flowchart TD
-  classDef actorStyle fill:#2a2b36,stroke:#7c4dff,stroke-width:2px,color:#fff;
-  classDef usecaseStyle fill:#1e1e24,stroke:#39ff14,stroke-width:1.5px,color:#fff;
+flowchart LR
+  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
 
-  Dokter[Dokter]:::actorStyle --> UC_Exam(Buat Rekam Medis & Resep):::usecaseStyle
-  Pasien[Pasien]:::actorStyle --> UC_Upload(Upload Bukti Bayar Transfer):::usecaseStyle
-  Admin[Admin]:::actorStyle --> UC_Verify(Verifikasi Pembayaran Transfer):::usecaseStyle
-  Admin --> UC_Cash(Pembayaran Tunai / Cash Pay):::usecaseStyle
+  subgraph Actors [Aktor]
+    Dokter[Dokter]:::actorStyle
+    Pasien[Pasien]:::actorStyle
+    Admin[Admin]:::actorStyle
+  end
 
-  UC_Exam -.->|include| UC_Invoice[Auto-Generate Invoice & FCM Tagihan]:::usecaseStyle
-  UC_Exam -.->|include| UC_QueueComp[Auto-Status Antrean completed]:::usecaseStyle
-  UC_Upload -.->|include| UC_StatusWaiting[Ubah Status waiting_verification]:::usecaseStyle
-  UC_Verify -.->|include| UC_FCMVerify[Kirim Notifikasi Lunas FCM]:::usecaseStyle
+  subgraph UseCases [Use Cases]
+    UC_Exam(Buat Rekam Medis & Resep):::usecaseStyle
+    UC_Upload(Upload Bukti Bayar Transfer):::usecaseStyle
+    UC_Verify(Verifikasi Pembayaran Transfer):::usecaseStyle
+    UC_Cash(Pembayaran Tunai / Cash Pay):::usecaseStyle
+  end
+
+  subgraph Details [Include / Extend]
+    UC_Invoice[Auto-Generate Invoice & FCM Tagihan]:::usecaseStyle
+    UC_QueueComp[Auto-Status Antrean completed]:::usecaseStyle
+    UC_StatusWaiting[Ubah Status waiting_verification]:::usecaseStyle
+    UC_FCMVerify[Kirim Notifikasi Lunas FCM]:::usecaseStyle
+  end
+
+  %% Actor Connections
+  Dokter --> UC_Exam
+  Pasien --> UC_Upload
+  Admin --> UC_Verify
+  Admin --> UC_Cash
+
+  %% Relations
+  UC_Exam -.->|include| UC_Invoice
+  UC_Exam -.->|include| UC_QueueComp
+  UC_Upload -.->|include| UC_StatusWaiting
+  UC_Verify -.->|include| UC_FCMVerify
 ```
 
 ### 💊 Sub-Sistem 4: Modul Apotek (Pharmacy)
 Mengelola penyerahan obat resep lunas kepada pasien serta manajemen inventaris stok obat.
 
 ```mermaid
-flowchart TD
-  classDef actorStyle fill:#2a2b36,stroke:#7c4dff,stroke-width:2px,color:#fff;
-  classDef usecaseStyle fill:#1e1e24,stroke:#39ff14,stroke-width:1.5px,color:#fff;
+flowchart LR
+  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
 
-  Apoteker[Apoteker]:::actorStyle --> UC_Queues(Lihat Antrean Resep Lunas):::usecaseStyle
-  Apoteker --> UC_Dispense(Serahkan Obat / Dispense):::usecaseStyle
-  Apoteker --> UC_Medicine(CRUD Data & Harga Obat):::usecaseStyle
+  subgraph Actors [Aktor]
+    Apoteker[Apoteker]:::actorStyle
+  end
 
-  UC_Dispense -.->|include| UC_DBTrans[Validasi & Potong Stok Obat Aman]:::usecaseStyle
-  UC_Dispense -.->|include| UC_FCMObat[Kirim Notifikasi FCM Obat Selesai]:::usecaseStyle
-  UC_Medicine -.->|include| UC_SoftDel[Dukung Soft Delete & Restore Obat]:::usecaseStyle
+  subgraph UseCases [Use Cases]
+    UC_Queues(Lihat Antrean Resep Lunas):::usecaseStyle
+    UC_Dispense(Serahkan Obat / Dispense):::usecaseStyle
+    UC_Medicine(CRUD Data & Harga Obat):::usecaseStyle
+  end
+
+  subgraph Details [Include / Extend]
+    UC_DBTrans[Validasi & Potong Stok Obat Aman]:::usecaseStyle
+    UC_FCMObat[Kirim Notifikasi FCM Obat Selesai]:::usecaseStyle
+    UC_SoftDel[Dukung Soft Delete & Restore Obat]:::usecaseStyle
+  end
+
+  %% Actor Connections
+  Apoteker --> UC_Queues
+  Apoteker --> UC_Dispense
+  Apoteker --> UC_Medicine
+
+  %% Relations
+  UC_Dispense -.->|include| UC_DBTrans
+  UC_Dispense -.->|include| UC_FCMObat
+  UC_Medicine -.->|include| UC_SoftDel
 ```
 
 ### ⚙️ Sub-Sistem 5: Konfigurasi & Pengaturan Dinamis
 Memungkinkan Admin mengonfigurasi profil puskesmas, memilih letak koordinat pada OpenStreetMap, dan menyetel konfigurasi biaya pendaftaran puskesmas.
 
 ```mermaid
-flowchart TD
-  classDef actorStyle fill:#2a2b36,stroke:#7c4dff,stroke-width:2px,color:#fff;
-  classDef usecaseStyle fill:#1e1e24,stroke:#39ff14,stroke-width:1.5px,color:#fff;
+flowchart LR
+  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
 
-  Admin[Admin]:::actorStyle --> UC_Settings(Atur Sistem Dinamis):::usecaseStyle
-  Admin --> UC_PuskProfile(Update Profil Puskesmas):::usecaseStyle
-  Admin --> UC_Master(CRUD Master Dokter, Jadwal, Cuti, Libur):::usecaseStyle
+  subgraph Actors [Aktor]
+    Admin[Admin]:::actorStyle
+  end
 
-  UC_Settings -.->|include| UC_RegFee[Atur Biaya Layanan registration_fee]:::usecaseStyle
-  UC_Settings -.->|include| UC_SlotTime[Atur Rata-rata Pelayanan slot_duration_minutes]:::usecaseStyle
-  UC_PuskProfile -.->|include| UC_OSM[Pilih Koordinat via MapPicker OpenStreetMap]:::usecaseStyle
+  subgraph UseCases [Use Cases]
+    UC_Settings(Atur Sistem Dinamis):::usecaseStyle
+    UC_PuskProfile(Update Profil Puskesmas):::usecaseStyle
+    UC_Master(CRUD Master Dokter, Jadwal, Cuti, Libur):::usecaseStyle
+  end
+
+  subgraph Details [Include / Extend]
+    UC_RegFee[Atur Biaya Layanan registration_fee]:::usecaseStyle
+    UC_SlotTime[Atur Rata-rata Pelayanan slot_duration_minutes]:::usecaseStyle
+    UC_OSM[Pilih Koordinat via MapPicker OpenStreetMap]:::usecaseStyle
+  end
+
+  %% Actor Connections
+  Admin --> UC_Settings
+  Admin --> UC_PuskProfile
+  Admin --> UC_Master
+
+  %% Relations
+  UC_Settings -.->|include| UC_RegFee
+  UC_Settings -.->|include| UC_SlotTime
+  UC_PuskProfile -.->|include| UC_OSM
 ```
 
 ---

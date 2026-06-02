@@ -22,55 +22,61 @@ Alur ini mengelola siklus masuk akun baru, autentikasi pengguna terdaftar, sinkr
 ### 📊 1.1 Alur Registrasi Pasien Baru
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([🏁 Mulai Registrasi]):::startEnd --> RegForm[📝 Isi Form Registrasi]
-    RegForm --> RegAPI[🌐 POST /auth/register]
-    RegAPI --> DBTrans[💾 Simpan User & Patient - DB Transaction]
-    DBTrans --> Done([🔑 Selesai: Arahkan ke Login]):::startEnd
+    Start([Mulai Registrasi]):::startEnd --> RegForm[Isi Form Registrasi]:::process
+    RegForm --> RegAPI[POST /auth/register]:::process
+    RegAPI --> DBTrans[Simpan User & Patient - DB Transaction]:::process
+    DBTrans --> Done([Selesai: Arahkan ke Login]):::startEnd
 ```
 
 ### 📊 1.2 Alur Login Pengguna
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([🏁 Mulai Login]):::startEnd --> LoginForm[🔑 Isi Form Login]
-    LoginForm --> LoginAPI[🌐 POST /auth/login]
-    LoginAPI --> ValidCheck{❓ Kredensial Valid?}:::decision
+    Start([Mulai Login]):::startEnd --> LoginForm[Isi Form Login]:::process
+    LoginForm --> LoginAPI[POST /auth/login]:::process
+    LoginAPI --> ValidCheck{Kredensial Valid?}:::decision
     
-    ValidCheck -- Tidak --> ErrorDlg[⚠️ Alert Gagal] --> RetryLoginForm[🔑 Ulangi Isi Form Login] --> EndFail([🏁 Selesai]):::startEnd
-    ValidCheck -- Ya --> SaveToken[🔒 Simpan Token ke Secure Storage]
-    SaveToken --> GetProfile[👤 GET /auth/profile & Simpan Role/ID]
-    GetProfile --> SyncFCM[🔔 Update FCM Token]
-    SyncFCM --> Done([🏁 Navigasi ke Dashboard]):::startEnd
+    ValidCheck -- Tidak --> ErrorDlg[Alert Gagal]:::fail --> RetryLoginForm[Ulangi Isi Form Login]:::process --> EndFail([Selesai]):::startEnd
+    ValidCheck -- Ya --> SaveToken[Simpan Token ke Secure Storage]:::process
+    SaveToken --> GetProfile[GET /auth/profile & Simpan Role/ID]:::process
+    GetProfile --> SyncFCM[Update FCM Token]:::process
+    SyncFCM --> Done([Navigasi ke Dashboard]):::success
 ```
 
 ### 📊 1.3 Alur Restorasi Sesi (Check Auth) & Mode Offline
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([📱 Aplikasi Dibuka]):::startEnd --> ReadStorage[💾 Baca Token dari Secure Storage]
-    ReadStorage --> TokenExist{❓ Ada Token?}:::decision
+    Start([Aplikasi Dibuka]):::startEnd --> ReadStorage[Baca Token dari Secure Storage]:::process
+    ReadStorage --> TokenExist{Ada Token?}:::decision
     
-    TokenExist -- Tidak --> GoLogin1([🔑 Navigasi ke Login Screen]):::startEnd
+    TokenExist -- Tidak --> GoLogin1([Navigasi ke Login Screen]):::startEnd
     
-    TokenExist -- Ya --> ProfileAPI[🌐 GET /auth/profile]
-    ProfileAPI --> ConnCheck{❓ Koneksi Sukses?}:::decision
+    TokenExist -- Ya --> ProfileAPI[GET /auth/profile]:::process
+    ProfileAPI --> ConnCheck{Koneksi Sukses?}:::decision
     
-    ConnCheck -- Ya --> SesiCheck{❓ Sesi Valid?}:::decision
-    SesiCheck -- Ya --> SyncData[🔄 Sinkronisasi Role/ID] --> GoDashboard1([🏁 Navigasi ke Dashboard]):::startEnd
-    SesiCheck -- Tidak --> ClearStorage[🗑️ Hapus Secure Storage] --> GoLogin2([🔑 Navigasi ke Login Screen]):::startEnd
+    ConnCheck -- Ya --> SesiCheck{Sesi Valid?}:::decision
+    SesiCheck -- Ya --> SyncData[Sinkronisasi Role/ID]:::process --> GoDashboard1([Navigasi ke Dashboard]):::success
+    SesiCheck -- Tidak --> ClearStorage[Hapus Secure Storage]:::process --> GoLogin2([Navigasi ke Login Screen]):::startEnd
     
-    ConnCheck -- Tidak [Offline] --> Sentinel[⚠️ Muat Sentinel 'Offline User']
-    Sentinel --> ReadRole[💾 Baca Role/ID Offline] --> GoDashboard2([🏁 Navigasi ke Dashboard Offline]):::startEnd
+    ConnCheck -- Tidak [Offline] --> Sentinel[Muat Sentinel 'Offline User']:::fail
+    Sentinel --> ReadRole[Baca Role/ID Offline]:::process --> GoDashboard2([Navigasi ke Dashboard Offline]):::success
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -89,7 +95,7 @@ flowchart TD
 3. Jika login sukses, token Sanctum (`access_token`) dikembalikan.
 4. `AuthProvider` menyimpan token secara terenkripsi ke `FlutterSecureStorage` dengan `key: 'access_token'`.
 5. Aplikasi langsung melakukan request ke `GET /api/auth/profile` untuk mengambil data profil lengkap beserta relasi model `patient` atau `doctor`.
-6. Sektor ID yang relevan (`patient_id` atau `doctor_id`) and `user_role` disimpan ke dalam `FlutterSecureStorage` untuk meminimalkan beban re-fetching di masa mendatang.
+6. Sektor ID yang relevan (`patient_id` atau `doctor_id`) dan `user_role` disimpan ke dalam `FlutterSecureStorage` untuk meminimalkan beban re-fetching di masa mendatang.
 7. Aplikasi memanggil inisialisasi Firebase Messaging (`!kIsWeb` guard) dan mendaftarkan token perangkat ke backend via `POST /api/auth/fcm-token` untuk pengiriman push notification.
 8. Pengguna diarahkan ke dashboard masing-masing.
 
@@ -117,30 +123,32 @@ Alur ini memfasilitasi pasien untuk melakukan pemesanan nomor antrean poliklinik
 ### 📊 Diagram Alir (Flowchart)
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([🏁 Mulai]):::startEnd --> Form[🏥 Pilih Poli, Dokter, & Jadwal]
-    Form --> FetchPar[⚡ Paralel Fetch: Libur Klinik & Cuti Dokter]
-    FetchPar --> Picker[📅 Pilih Tanggal & Jam Praktik]
-    Picker --> Confirm[💬 Dialog Konfirmasi AppDialogs]
-    Confirm --> API[🌐 POST /api/queues]
-    API --> Valid{❓ Validasi Backend?}:::decision
+    Start([Mulai]):::startEnd --> Form[Pilih Poli, Dokter, & Jadwal]:::process
+    Form --> FetchPar[Paralel Fetch: Libur Klinik & Cuti Dokter]:::process
+    FetchPar --> Picker[Pilih Tanggal & Jam Praktik]:::process
+    Picker --> Confirm[Dialog Konfirmasi AppDialogs]:::process
+    Confirm --> API[POST /api/queues]:::process
+    API --> Valid{Validasi Backend?}:::decision
     
-    Valid -- Gagal --> Error[⚠️ Tampilkan Pesan Error] --> EndFail([🏁 Batal/Ulangi]):::startEnd
-    Valid -- Lolos --> AgeCheck{❓ Usia Pasien >= 60?}:::decision
+    Valid -- Gagal --> Error[Tampilkan Pesan Error]:::fail --> EndFail([Batal/Ulangi]):::startEnd
+    Valid -- Lolos --> AgeCheck{Usia Pasien >= 60?}:::decision
     
-    AgeCheck -- Ya --> Priority["Set is_priority = true"] --> Numbering
-    AgeCheck -- Tidak --> Reguler["Set is_priority = false"] --> Numbering
+    AgeCheck -- Ya --> Priority["Set is_priority = true"]:::success --> Numbering
+    AgeCheck -- Tidak --> Reguler["Set is_priority = false"]:::process --> Numbering
     
-    Numbering[🎫 Tentukan Nomor Antrean KODE_POLI-NomorUrut] --> CalcTime[⏰ Hitung Estimasi & Recalculate Antrean Lain]
-    CalcTime --> Finish([💾 Simpan Antrean & Refresh List]):::startEnd
+    Numbering[Tentukan Nomor Antrean KODE_POLI-NomorUrut]:::process --> CalcTime[Hitung Estimasi & Recalculate Antrean Lain]:::process
+    CalcTime --> Finish([Simpan Antrean & Refresh List]):::success
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
 
-1. Pasien membuka dashboard pasien (`patient_dashboard.dart`) dan menekan tombol **"Daftar Antrean"** untuk masuk ke `booking_screen.dart`.
+1. Pasien membuka dashboard pasien (`patient_dashboard.dart`) and menekan tombol **"Daftar Antrean"** untuk masuk ke `booking_screen.dart`.
 2. Pasien memilih **Poliklinik** tujuan. Sistem memuat daftar dokter spesialis yang ditugaskan pada poliklinik tersebut.
 3. Pasien memilih **Dokter**. Setelah dokter dipilih, aplikasi memicu panggilan paralel menggunakan `Future.wait`:
    - `getClinicHolidays()`: Mengambil daftar tanggal hari libur klinik.
@@ -173,43 +181,47 @@ Alur ini mengatur proses kehadiran fisik pasien di puskesmas, validasi jendela w
 ### 📊 3.1 Alur Absensi & Kehadiran Pasien (Check-In)
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([🏁 Pasien Tiba di Puskesmas]):::startEnd --> Method{❓ Metode Check-In?}:::decision
-    Method -- Scan QR --> Scan[📷 Scan QR Tiket via qr_scanner_page]
-    Method -- Manual --> Search[🔎 Cari Nama/Nomor di queue_management]
+    Start([Pasien Tiba di Puskesmas]):::startEnd --> Method{Metode Check-In?}:::decision
+    Method -- Scan QR --> Scan[Scan QR Tiket via qr_scanner_page]:::process
+    Method -- Manual --> Search[Cari Nama/Nomor di queue_management]:::process
     
-    Scan & Search --> Validator[⚖️ ServiceTimeValidator di Client]
-    Validator --> TimeCheck{❓ Jendela Toleransi -30m s.d +2j?}:::decision
+    Scan & Search --> Validator[ServiceTimeValidator di Client]:::process
+    Validator --> TimeCheck{Jendela Toleransi -30m s.d +2j?}:::decision
     
-    TimeCheck -- Tidak --> Reject[⚠️ Tolak Check-In & Tampilkan Warning] --> EndReject([🏁 Selesai]):::startEnd
-    TimeCheck -- Ya --> API[🌐 POST /queues/id/checkin]
-    API --> UpdateStatus[🔄 Ubah status = waiting & Catat check_in_time]
-    UpdateStatus --> Recalc[⏰ Recalculate Estimasi & Masuk Antrean Tunggu]
-    Recalc --> Success([🏁 Selesai]):::startEnd
+    TimeCheck -- Tidak --> Reject[Tolak Check-In & Tampilkan Warning]:::fail --> EndReject([Selesai]):::startEnd
+    TimeCheck -- Ya --> API[POST /queues/id/checkin]:::process
+    API --> UpdateStatus[Ubah status = waiting & Catat check_in_time]:::process
+    UpdateStatus --> Recalc[Recalculate Estimasi & Masuk Antrean Tunggu]:::process
+    Recalc --> Success([Selesai]):::success
 ```
 
 ### 📊 3.2 Alur Pemanggilan Pasien (Recall & Examining)
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([🏁 Antrean Berjalan]):::startEnd --> Call[📣 Admin Panggil Pasien via Dashboard]
-    Call --> CountCheck{"❓ recall_count >= 3?"}:::decision
+    Start([Antrean Berjalan]):::startEnd --> Call[Admin Panggil Pasien via Dashboard]:::process
+    Call --> CountCheck{"recall_count >= 3?"}:::decision
     
-    CountCheck -- Ya --> Skip[⌛ Kirim ke Urutan Paling Belakang]
-    Skip --> Reset[🔄 Ubah status = waiting, Reset check_in_time & recall_count] --> Recalc[⏰ Recalculate Estimasi] --> Finish1([🏁 Selesai]):::startEnd
+    CountCheck -- Ya --> Skip[Kirim ke Urutan Paling Belakang]:::fail
+    Skip --> Reset[Ubah status = waiting, Reset check_in_time & recall_count]:::process --> Recalc[Recalculate Estimasi]:::process --> Finish1([Selesai]):::startEnd
     
-    CountCheck -- Tidak --> API[🌐 POST /queues/id/recall]
-    API --> TTS[🔊 TTS Berbunyi di Layar TV Monitor]
-    TTS --> Inc[➕ Increment recall_count]
-    Inc --> Examining[🩺 Dokter Mulai Pemeriksaan: status = examining]
-    Examining --> FCM[🔔 Kirim FCM: Giliran Anda!]
-    FCM --> Finish2([🏁 Selesai]):::startEnd
+    CountCheck -- Tidak --> API[POST /queues/id/recall]:::process
+    API --> TTS[TTS Berbunyi di Layar TV Monitor]:::process
+    TTS --> Inc[Increment recall_count]:::process
+    Inc --> Examining[Dokter Mulai Pemeriksaan: status = examining]:::process
+    Examining --> FCM[Kirim FCM: Giliran Anda!]:::success
+    FCM --> Finish2([Selesai]):::success
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -251,29 +263,31 @@ Alur ini mengelola pencatatan rekam medis oleh dokter, penulisan resep obat ters
 ### 📊 Diagram Alir (Flowchart)
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([🏁 Mulai Pemeriksaan]):::startEnd --> Form[📝 Input Keluhan, Diagnosis & Tindakan]
-    Form --> Rx[💊 Pilih Obat & Kuantitas Resep]
-    Rx --> Save{❓ Simpan Pemeriksaan?}:::decision
+    Start([Mulai Pemeriksaan]):::startEnd --> Form[Input Keluhan, Diagnosis & Tindakan]:::process
+    Form --> Rx[Pilih Obat & Kuantitas Resep]:::process
+    Rx --> Save{Simpan Pemeriksaan?}:::decision
     
-    Save -- Tidak --> Discard[⚠️ Dialog Peringatan Form Guard] --> EndDiscard([🏁 Keluar/Batal]):::startEnd
-    Save -- Ya --> API[🌐 POST /api/examinations]
+    Save -- Tidak --> Discard[Dialog Peringatan Form Guard]:::fail --> EndDiscard([Keluar/Batal]):::startEnd
+    Save -- Ya --> API[POST /api/examinations]:::process
     
     subgraph DB Transaction Backend
-        DB1[💾 Simpan Rekam Medis ke examinations]
-        DB2[💾 Simpan Detail Resep ke prescription_items]
-        DB3[🔒 Kunci Harga Jual Obat Saat Ini]
-        DB4[🔄 Ubah Status Antrean = completed]
-        DB5[🧾 Generate Invoice Tagihan di payments]
-        DB6[💵 Kalkulasi: registration_fee + total_biaya_obat]
+        DB1[Simpan Rekam Medis ke examinations]:::process
+        DB2[Simpan Detail Resep ke prescription_items]:::process
+        DB3[Kunci Harga Jual Obat Saat Ini]:::process
+        DB4[Ubah Status Antrean = completed]:::process
+        DB5[Generate Invoice Tagihan di payments]:::process
+        DB6[Kalkulasi: registration_fee + total_biaya_obat]:::process
     end
     
     API --> DB1
-    DB6 --> FCM[🔔 Kirim FCM Notifikasi Tagihan Baru]
-    FCM --> Done([🏁 Selesai & Refresh Dashboard]):::startEnd
+    DB6 --> FCM[Kirim FCM Notifikasi Tagihan Baru]:::success
+    FCM --> Done([Selesai & Refresh Dashboard]):::success
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -302,24 +316,26 @@ Alur ini mengelola pelunasan tagihan pengobatan pasien melalui dua metode: non-t
 ### 📊 Diagram Alir (Flowchart)
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([🏁 Mulai Pembayaran]):::startEnd --> Method{❓ Metode Pembayaran?}:::decision
+    Start([Mulai Pembayaran]):::startEnd --> Method{Metode Pembayaran?}:::decision
     
-    Method -- Transfer / QRIS --> Transfer[💸 Pasien Transfer Uang]
-    Transfer --> Upload[📷 Upload Bukti Transfer via image_picker]
-    Upload --> Waiting[🔄 Ubah Status Tagihan = waiting_verification]
-    Waiting --> Review[👤 Admin Review Bukti Transfer]
-    Review --> Valid{❓ Bukti Valid?}:::decision
+    Method -- Transfer / QRIS --> Transfer[Pasien Transfer Uang]:::process
+    Transfer --> Upload[Upload Bukti Transfer via image_picker]:::process
+    Upload --> Waiting[Ubah Status Tagihan = waiting_verification]:::process
+    Waiting --> Review[Admin Review Bukti Transfer]:::process
+    Review --> Valid{Bukti Valid?}:::decision
     
-    Valid -- Tidak --> Reject[⚠️ Set status = failed & Kirim FCM Gagal] --> EndFail([🏁 Pembayaran Ditolak]):::startEnd
-    Valid -- Ya --> Approve[🔄 Set status = paid & Catat paid_at] --> SendRx1[💊 Kirim Resep ke Apotek] --> Done1([🏁 Selesai]):::startEnd
+    Valid -- Tidak --> Reject[Set status = failed & Kirim FCM Gagal]:::fail --> EndFail([Pembayaran Ditolak]):::startEnd
+    Valid -- Ya --> Approve[Set status = paid & Catat paid_at]:::success --> SendRx1[Kirim Resep ke Apotek]:::process --> Done1([Selesai]):::success
     
-    Method -- Tunai / Cash --> Cash[💵 Pasien Bayar Tunai di Kasir]
-    Cash --> CashAPI[🌐 POST /payments/id/cash-pay]
-    CashAPI --> Paid[🔄 Set status = paid & Metode = cash] --> SendRx2[💊 Kirim Resep ke Apotek] --> Done2([🏁 Selesai]):::startEnd
+    Method -- Tunai / Cash --> Cash[Pasien Bayar Tunai di Kasir]:::process
+    Cash --> CashAPI[POST /payments/id/cash-pay]:::process
+    CashAPI --> Paid[Set status = paid & Metode = cash]:::success --> SendRx2[Kirim Resep ke Apotek]:::process --> Done2([Selesai]):::success
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -354,29 +370,31 @@ Alur ini mengatur penyiapan obat oleh apoteker, validasi stok pengaman secara tr
 ### 📊 Diagram Alir (Flowchart)
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([🏁 Mulai Dispensing]):::startEnd --> Load[📥 Load Resep Lunas dari GET /pharmacy/queues]
-    Load --> Select[💊 Pilih Resep & Siapkan Obat Fisik]
-    Select --> Dispense[👤 Apoteker Tekan Serahkan Obat]
-    Dispense --> API[🌐 POST /pharmacy/queues/id/dispense]
+    Start([Mulai Dispensing]):::startEnd --> Load[Load Resep Lunas dari GET /pharmacy/queues]:::process
+    Load --> Select[Pilih Resep & Siapkan Obat Fisik]:::process
+    Select --> Dispense[Apoteker Tekan Serahkan Obat]:::process
+    Dispense --> API[POST /pharmacy/queues/id/dispense]:::process
     
     subgraph DB Transaction Backend
-        DB1[🔄 Loop Seluruh Item Obat Resep]
-        DB2{"❓ Stok >= Kuantitas?"}:::decision
-        DB3[➖ Kurangi Stok Obat di DB]
-        DB4[🔄 Set dispensed_at = now]
-        DB5[🔔 Kirim FCM: Obat Selesai Diserahkan]
+        DB1[Loop Seluruh Item Obat Resep]:::process
+        DB2{"Stok >= Kuantitas?"}:::decision
+        DB3[Kurangi Stok Obat di DB]:::process
+        DB4[Set dispensed_at = now]:::process
+        DB5[Kirim FCM: Obat Selesai Diserahkan]:::success
     end
     
     API --> DB1
     DB1 --> DB2
-    DB2 -- Tidak --> Rollback[🔒 Rollback Transaction & Return 422] --> Warning[⚠️ Tampilkan Warning UI] --> EndFail([🏁 Dispense Gagal]):::startEnd
+    DB2 -- Tidak --> Rollback[Rollback Transaction & Return 422]:::fail --> Warning[Tampilkan Warning UI]:::fail --> EndFail([Dispense Gagal]):::startEnd
     DB2 -- Ya --> DB3 --> DB4 --> DB5
     
-    DB5 --> Success([🏁 Selesai & Hapus dari List Lokal]):::startEnd
+    DB5 --> Success([Selesai & Hapus dari List Lokal]):::success
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
@@ -407,33 +425,35 @@ Alur pengaman ini terjadi ketika Admin membuat hari libur klinik atau memasukkan
 ### 📊 Diagram Alir (Flowchart)
 ```mermaid
 flowchart TD
-    classDef default fill:#1f2937,stroke:#374151,stroke-width:1px,color:#f3f4f6;
-    classDef startEnd fill:#7c4dff,stroke:#7c4dff,color:#fff;
-    classDef decision fill:#3b82f6,stroke:#3b82f6,color:#fff;
+    classDef startEnd fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+    classDef decision fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef process fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([🏁 Mulai Pengaturan]):::startEnd --> Action{❓ Aksi Pengaturan Admin?}:::decision
+    Start([Mulai Pengaturan]):::startEnd --> Action{Aksi Pengaturan Admin?}:::decision
     
-    Action -- Buat Hari Libur Klinik --> Holiday[🌐 POST /api/clinic-holidays]
+    Action -- Buat Hari Libur Klinik --> Holiday[POST /api/clinic-holidays]:::process
     subgraph DB Transaction Libur
-        H1[💾 Simpan Hari Libur ke clinic_holidays]
-        H2[🔍 Cari Semua Antrean Aktif pada Tanggal Tersebut]
-        H3[🔄 Ubah Status Semua Antrean = cancelled]
-        H4[🔔 Kirim FCM Pembatalan Masal ke Semua Pasien]
-        H5[⏰ Recalculate Estimasi Waktu Layanan = Kosong]
+        H1[Simpan Hari Libur ke clinic_holidays]:::process
+        H2[Cari Semua Antrean Aktif pada Tanggal Tersebut]:::process
+        H3[Ubah Status Semua Antrean = cancelled]:::fail
+        H4[Kirim FCM Pembatalan Masal ke Semua Pasien]:::success
+        H5[Recalculate Estimasi Waktu Layanan = Kosong]:::process
     end
     Holiday --> H1
-    H5 --> Done1([🏁 Selesai Libur Klinik]):::startEnd
+    H5 --> Done1([Selesai Libur Klinik]):::success
     
-    Action -- Buat Cuti Dokter --> Leave[🌐 POST /api/doctor-leaves]
+    Action -- Buat Cuti Dokter --> Leave[POST /api/doctor-leaves]:::process
     subgraph DB Transaction Cuti
-        L1[💾 Simpan Data Cuti ke doctor_leaves]
-        L2[🔍 Cari Antrean Aktif Dokter Terkait pada Tanggal Tersebut]
-        L3[🔄 Ubah Status Antrean Terkait = cancelled]
-        L4[🔔 Kirim FCM Pembatalan ke Setiap Pasien Terkait]
-        L5[⏰ Recalculate Estimasi Sisa Dokter Lain]
+        L1[Simpan Data Cuti ke doctor_leaves]:::process
+        L2[Cari Antrean Aktif Dokter Terkait pada Tanggal Tersebut]:::process
+        L3[Ubah Status Antrean Terkait = cancelled]:::fail
+        L4[Kirim FCM Pembatalan ke Setiap Pasien Terkait]:::success
+        L5[Recalculate Estimasi Sisa Dokter Lain]:::process
     end
     Leave --> L1
-    L5 --> Done2([🏁 Selesai Cuti Dokter]):::startEnd
+    L5 --> Done2([Selesai Cuti Dokter]):::success
 ```
 
 ### 📝 Penjelasan Detail Langkah-Langkah
