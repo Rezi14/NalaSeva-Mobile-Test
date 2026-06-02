@@ -11,6 +11,7 @@ import '../widgets/doctor_history_row.dart';
 import '../widgets/doctor_patient_info_card.dart';
 import '../widgets/doctor_medical_text_area.dart';
 import '../widgets/doctor_medicine_form.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class ExaminationFormScreen extends StatefulWidget {
   const ExaminationFormScreen({super.key});
@@ -351,8 +352,10 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: Column(
+          children: [
           // Header Screen
           FadeInDown(
             duration: const Duration(milliseconds: 600),
@@ -542,6 +545,7 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

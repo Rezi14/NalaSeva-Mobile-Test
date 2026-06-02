@@ -10,6 +10,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../widgets/admin_doctor_card.dart';
 import '../widgets/admin_doctor_form_sheet.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class DoctorManagementScreen extends StatefulWidget {
   const DoctorManagementScreen({super.key});
@@ -51,8 +52,10 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         resizeToAvoidBottomInset: false,
-        body: Column(
-          children: [
+        body: ResponsiveCenter(
+          maxWidth: 900,
+          child: Column(
+            children: [
             // Premium Header with smooth bottom-up stagger
             FadeIn(
               duration: const Duration(milliseconds: 400),
@@ -354,6 +357,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
 
           ],
         ),
+      ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => AdminDoctorFormSheet.show(context),
           backgroundColor: AppTheme.primaryColor,

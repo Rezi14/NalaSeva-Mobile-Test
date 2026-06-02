@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../logic/pharmacy_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import 'prescription_detail_screen.dart';
@@ -97,15 +98,16 @@ class _PharmacyDashboardScreenState extends State<PharmacyDashboardScreen> {
           color: AppTheme.primaryColor,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              children: [
-                // Header Section - EXACTLY matching Patient Dashboard
-                FadeInDown(
-                  duration: const Duration(milliseconds: 600),
-                  child: Container(
-                    color: Colors.white,
-                    child: SafeArea(
-                      bottom: false,
+            child: ResponsiveCenter(
+              maxWidth: 950,
+              child: Column(
+                children: [
+                  FadeInDown(
+                    duration: const Duration(milliseconds: 600),
+                    child: Container(
+                      color: Colors.white,
+                      child: SafeArea(
+                        bottom: false,
                       child: Padding(
                         padding: const EdgeInsets.all(24),
                         child: Row(
@@ -510,6 +512,7 @@ class _PharmacyDashboardScreenState extends State<PharmacyDashboardScreen> {
             ),
           ),
         ),
+      ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             Navigator.push(

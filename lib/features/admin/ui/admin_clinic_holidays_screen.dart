@@ -8,6 +8,7 @@ import '../logic/admin_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/date_time_parser.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class AdminClinicHolidaysScreen extends StatefulWidget {
   const AdminClinicHolidaysScreen({super.key});
@@ -300,8 +301,10 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: Column(
+          children: [
           // Header
           FadeIn(
             duration: const Duration(milliseconds: 400),
@@ -496,6 +499,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
           ),
         ],
       ),
+    ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddHolidaySheet(context),
         backgroundColor: AppTheme.primaryColor,

@@ -51,6 +51,7 @@ class _MedicineInventoryScreenState extends State<MedicineInventoryScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          constraints: const BoxConstraints(maxWidth: 520),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             isEdit ? 'Ubah Informasi Obat' : 'Tambah Obat Baru',

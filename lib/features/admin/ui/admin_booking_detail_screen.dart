@@ -62,6 +62,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
+              constraints: const BoxConstraints(maxWidth: 480),
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
               shape: RoundedRectangleBorder(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../logic/patient_provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -43,8 +44,10 @@ class _PatientDashboardState extends State<PatientDashboard> {
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         body: SingleChildScrollView(
-          child: Column(
-            children: [
+          child: ResponsiveCenter(
+            maxWidth: 800,
+            child: Column(
+              children: [
               // Header Section
               FadeInDown(
                 duration: const Duration(milliseconds: 600),
@@ -241,8 +244,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   String _getGreeting() {
     final hour = DateTime.now().hour;

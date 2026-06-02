@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../logic/patient_provider.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -43,8 +44,10 @@ class _BookingScreenState extends State<BookingScreen> {
       backgroundColor: AppTheme.backgroundColor,
       body: Consumer<PatientProvider>(
         builder: (context, provider, child) {
-          return Column(
-            children: [
+          return ResponsiveCenter(
+            maxWidth: 700,
+            child: Column(
+              children: [
               // Premium Header with smooth bottom-up stagger
               FadeIn(
                 duration: const Duration(milliseconds: 400),
@@ -432,8 +435,9 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
               ),
             ],
-          );
-        },
+          ),
+        );
+      },
       ),
     );
   }

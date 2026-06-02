@@ -44,9 +44,7 @@ void main() async {
   final pharmacyRepository = PharmacyRepository(apiClient);
   final puskesmasProfileProvider = PuskesmasProfileProvider(apiClient);
 
-  // Pre-load data puskesmas secara asinkronus sejak aplikasi dimulai
-  puskesmasProfileProvider.fetchPuskesmasProfile();
-
+  
   runApp(
     MultiProvider(
       providers: [
@@ -83,6 +81,9 @@ class _NalasevaAppState extends State<NalasevaApp> {
     final authProvider = context.read<AuthProvider>();
     await authProvider.checkAuth();
     if (mounted) {
+      if (authProvider.user != null) {
+        context.read<PuskesmasProfileProvider>().fetchPuskesmasProfile();
+      }
       setState(() {
         _isChecking = false;
       });

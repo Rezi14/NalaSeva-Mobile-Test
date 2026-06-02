@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../../../shared/models/queue_model.dart';
 import '../../../shared/models/examination_model.dart';
 import '../../../core/theme/app_theme.dart';
@@ -19,8 +20,10 @@ class MedicalRecordDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: Column(
+          children: [
           // Header with Back Button
           FadeInDown(
             duration: const Duration(milliseconds: 600),
@@ -162,8 +165,9 @@ class MedicalRecordDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _infoSection(String title, List<Widget> children) {
     return Column(

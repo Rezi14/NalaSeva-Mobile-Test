@@ -56,6 +56,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+          constraints: const BoxConstraints(maxWidth: 480),
           child: Container(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -151,6 +152,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
+            constraints: const BoxConstraints(maxWidth: 480),
             title: const Text('Gagal Menyerahkan Obat'),
             content: Text(e.toString()),
             actions: [

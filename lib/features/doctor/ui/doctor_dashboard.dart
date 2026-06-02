@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../logic/doctor_provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -99,9 +100,11 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                 bottom: false,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                  child: ResponsiveCenter(
+                    maxWidth: 900,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                       Expanded(
                         child: InkWell(
                           onTap: () => Navigator.pushNamed(context, '/doctor/profile'),
@@ -176,6 +179,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                   ),
                 ),
               ),
+              ),
             ),
           ),
           
@@ -198,9 +202,11 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                child: ResponsiveCenter(
+                  maxWidth: 900,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                     // Welcome & Active Toggle Status Card
                     FadeInUp(
                       duration: const Duration(milliseconds: 500),
@@ -263,6 +269,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               ),
             ),
           ),
+        ),
         ],
       ),
     );

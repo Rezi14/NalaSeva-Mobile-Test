@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import 'payment_detail_screen.dart';
 import '../../admin/widgets/admin_bottom_nav.dart';
 import '../../auth/logic/auth_provider.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class PaymentListScreen extends StatefulWidget {
   const PaymentListScreen({super.key});
@@ -119,8 +120,10 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
               return matchesSearch && matchesStatus;
             }).toList();
 
-            return Column(
-              children: [
+            return ResponsiveCenter(
+              maxWidth: 850,
+              child: Column(
+                children: [
                 // Premium Header Block
                 FadeIn(
                   duration: const Duration(milliseconds: 400),
@@ -525,8 +528,9 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                   ),
                 ),
               ],
-            );
-          },
+            ),
+          );
+        },
         ),
       ),
     );

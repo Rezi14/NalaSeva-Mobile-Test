@@ -7,6 +7,7 @@ class AppDialogs {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        constraints: const BoxConstraints(maxWidth: 480),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
@@ -63,6 +64,7 @@ class AppDialogs {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        constraints: const BoxConstraints(maxWidth: 480),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
@@ -126,6 +128,7 @@ class AppDialogs {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        constraints: const BoxConstraints(maxWidth: 480),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           title,

@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/date_time_parser.dart';
 import '../../../shared/models/doctor_model.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class AdminDoctorLeavesScreen extends StatefulWidget {
   const AdminDoctorLeavesScreen({super.key});
@@ -361,8 +362,10 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: Column(
+          children: [
           // Header
           FadeIn(
             duration: const Duration(milliseconds: 400),
@@ -578,6 +581,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
           ),
         ],
       ),
+    ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddLeaveSheet(context),
         backgroundColor: AppTheme.primaryColor,

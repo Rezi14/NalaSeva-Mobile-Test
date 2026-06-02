@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/validators.dart';
 import '../widgets/doctor_custom_text_field.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class DoctorEditProfileScreen extends StatefulWidget {
   const DoctorEditProfileScreen({super.key});
@@ -130,8 +131,10 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 700,
+        child: Column(
+          children: [
           // Premium Header with smooth bottom-up stagger
           FadeIn(
             duration: const Duration(milliseconds: 400),
@@ -419,6 +422,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

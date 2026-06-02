@@ -4,6 +4,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
 import '../logic/patient_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class MedicalHistoryScreen extends StatelessWidget {
   const MedicalHistoryScreen({super.key});
@@ -18,8 +19,10 @@ class MedicalHistoryScreen extends StatelessWidget {
         elevation: 0,
         foregroundColor: AppTheme.primaryColor,
       ),
-      body: Consumer<PatientProvider>(
-        builder: (context, provider, child) {
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: Consumer<PatientProvider>(
+          builder: (context, provider, child) {
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -103,6 +106,7 @@ class MedicalHistoryScreen extends StatelessWidget {
             ),
           );
         },
+      ),
       ),
     );
   }

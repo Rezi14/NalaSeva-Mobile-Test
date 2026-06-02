@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../widgets/admin_patient_form_sheet.dart';
 import '../widgets/admin_queue_booking_sheet.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class PatientManagementScreen extends StatefulWidget {
   const PatientManagementScreen({super.key});
@@ -51,8 +52,10 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        body: Column(
-          children: [
+        body: ResponsiveCenter(
+          maxWidth: 900,
+          child: Column(
+            children: [
             // Safe Native Premium Header
             Container(
               decoration: const BoxDecoration(
@@ -198,6 +201,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
             ),
           ],
         ),
+      ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => AdminPatientFormSheet.show(context),
           backgroundColor: AppTheme.primaryColor,

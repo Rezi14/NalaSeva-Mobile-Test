@@ -28,6 +28,7 @@ class BookingResultDialog extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 10,
           backgroundColor: Colors.transparent,
+          constraints: const BoxConstraints(maxWidth: 480),
           child: BookingResultDialog(
             isSuccess: isSuccess,
             message: message,

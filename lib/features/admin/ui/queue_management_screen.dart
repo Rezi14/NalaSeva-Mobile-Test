@@ -11,6 +11,7 @@ import '../widgets/admin_mini_stat_card.dart';
 import '../widgets/admin_patient_card.dart';
 import '../widgets/qr_scanner_page.dart';
 import '../widgets/admin_bottom_nav.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class QueueManagementScreen extends StatefulWidget {
   const QueueManagementScreen({super.key});
@@ -81,8 +82,10 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
             ),
           ),
         ),
-        body: Column(
-          children: [
+        body: ResponsiveCenter(
+          maxWidth: 900,
+          child: Column(
+            children: [
             // Header - static fade container with staggered slides
             FadeIn(
               duration: const Duration(milliseconds: 400),
@@ -403,8 +406,9 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                        ),
                ),
              ),
-           ],
-         ),
+            ],
+          ),
+        ),
       ),
     );
   }

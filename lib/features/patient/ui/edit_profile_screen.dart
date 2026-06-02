@@ -8,6 +8,7 @@ import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -104,8 +105,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 700,
+        child: Column(
+          children: [
           // Premium Header with smooth bottom-up stagger
           FadeIn(
             duration: const Duration(milliseconds: 400),
@@ -343,6 +346,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

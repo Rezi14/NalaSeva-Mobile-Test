@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../logic/patient_provider.dart';
 import 'medical_record_detail_screen.dart';
 import '../../../shared/models/queue_model.dart';
@@ -60,8 +61,10 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: Column(
+          children: [
           // Premium Header — single-line, no filter button
           FadeIn(
             duration: const Duration(milliseconds: 400),
@@ -310,8 +313,9 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _statCard(String label, String value, String unit, IconData icon, Color color) {
     return Expanded(

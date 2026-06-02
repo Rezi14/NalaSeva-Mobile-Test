@@ -6,6 +6,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
 import '../logic/admin_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class ExaminationHistoryScreen extends StatefulWidget {
   const ExaminationHistoryScreen({super.key});
@@ -212,8 +213,10 @@ class _ExaminationHistoryScreenState extends State<ExaminationHistoryScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        body: Column(
-          children: [
+        body: ResponsiveCenter(
+          maxWidth: 900,
+          child: Column(
+            children: [
             // Custom Premium Header
             FadeIn(
               duration: const Duration(milliseconds: 400),
@@ -642,6 +645,7 @@ class _ExaminationHistoryScreenState extends State<ExaminationHistoryScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

@@ -103,6 +103,14 @@ class AppTheme {
           side: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
         ),
       ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.white,
+        modalBackgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        constraints: BoxConstraints(maxWidth: 600),
+      ),
     );
   }
 }

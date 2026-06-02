@@ -9,6 +9,7 @@ import '../../../shared/models/user_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -136,8 +137,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               return matchesSearch && matchesRole;
             }).toList();
 
-            return Column(
-              children: [
+            return ResponsiveCenter(
+              maxWidth: 950,
+              child: Column(
+                children: [
                 // Premium Header Block
                 FadeIn(
                   duration: const Duration(milliseconds: 400),
@@ -554,8 +557,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   ),
                 ),
               ],
-            );
-          },
+            ),
+          );
+        },
         ),
       ),
     );

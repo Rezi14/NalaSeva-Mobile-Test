@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
@@ -35,8 +36,10 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: Column(
+          children: [
           // Premium Header with smooth bottom-up stagger
           FadeIn(
             duration: const Duration(milliseconds: 400),
@@ -259,8 +262,9 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
 
 

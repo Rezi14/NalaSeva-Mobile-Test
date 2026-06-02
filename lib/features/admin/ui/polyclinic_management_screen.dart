@@ -12,6 +12,7 @@ import '../../../shared/models/polyclinic_model.dart';
 import '../../../shared/models/schedule_model.dart';
 import '../widgets/admin_mini_stat_card.dart';
 import '../widgets/admin_service_card.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class PolyclinicManagementScreen extends StatefulWidget {
   const PolyclinicManagementScreen({super.key});
@@ -60,8 +61,10 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         resizeToAvoidBottomInset: false,
-        body: Column(
-          children: [
+        body: ResponsiveCenter(
+          maxWidth: 800,
+          child: Column(
+            children: [
             // Premium Header with smooth bottom-up stagger
             FadeIn(
               duration: const Duration(milliseconds: 400),
@@ -372,6 +375,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
 
           ],
         ),
+      ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => _showPolyclinicForm(context),
           backgroundColor: AppTheme.primaryColor,

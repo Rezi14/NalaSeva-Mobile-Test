@@ -5,6 +5,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../../../shared/models/queue_model.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
@@ -100,8 +101,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 700,
+        child: Column(
+          children: [
           // Premium Header with smooth bottom-up stagger
           FadeIn(
             duration: const Duration(milliseconds: 400),
@@ -630,8 +633,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   bool _isCancellationLocked(QueueModel queue) {
     if (queue.status != QueueStatus.booked && queue.status != QueueStatus.waiting) {

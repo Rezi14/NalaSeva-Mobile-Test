@@ -9,6 +9,7 @@ import '../widgets/auth_text_field.dart';
 import '../widgets/auth_submit_button.dart';
 import '../../../core/router/app_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../shared/providers/puskesmas_profile_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -46,6 +47,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (mounted) {
+        // Picu pemanggilan fetch profile puskesmas setelah pengguna sukses terautentikasi
+        context.read<PuskesmasProfileProvider>().fetchPuskesmasProfile();
+
         final provider = context.read<AuthProvider>();
         if (provider.user != null) {
           final role = provider.user?.role;

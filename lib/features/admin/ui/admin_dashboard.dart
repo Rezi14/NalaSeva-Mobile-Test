@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../logic/admin_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
@@ -169,8 +170,10 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
         backgroundColor: AppTheme.backgroundColor,
         body: Stack(
           children: [
-            Column(
-              children: [
+            ResponsiveCenter(
+              maxWidth: 950,
+              child: Column(
+                children: [
                 // Header Section
                 FadeIn(
                   duration: const Duration(milliseconds: 400),
@@ -508,6 +511,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                 ),
               ],
             ),
+          ),
             if (_isFabOpen)
               Positioned.fill(
                 child: FadeTransition(

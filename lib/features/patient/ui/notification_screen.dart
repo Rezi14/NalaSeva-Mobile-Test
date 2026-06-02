@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../logic/patient_provider.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
@@ -43,8 +44,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: Column(
+          children: [
           // ── Header ──────────────────────────────────────────────
           FadeIn(
             duration: const Duration(milliseconds: 400),
@@ -234,8 +237,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 

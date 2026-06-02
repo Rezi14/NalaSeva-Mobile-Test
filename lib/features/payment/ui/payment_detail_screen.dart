@@ -10,6 +10,7 @@ import '../../../shared/models/payment_model.dart';
 import '../logic/payment_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class PaymentDetailScreen extends StatefulWidget {
   final PaymentModel payment;
@@ -232,8 +233,10 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
         elevation: 0,
         foregroundColor: AppTheme.primaryColor,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -579,6 +582,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

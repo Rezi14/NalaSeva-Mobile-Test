@@ -14,6 +14,7 @@ import '../../../shared/providers/puskesmas_profile_provider.dart';
 import '../../../shared/widgets/map_picker_screen.dart';
 import 'package:latlong2/latlong.dart';
 import '../logic/admin_provider.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class AdminSettingsScreen extends StatefulWidget {
   const AdminSettingsScreen({super.key});
@@ -92,8 +93,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 800,
+        child: Column(
+          children: [
           // Premium Header with smooth bottom-up stagger
           FadeIn(
             duration: const Duration(milliseconds: 400),
@@ -462,6 +465,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

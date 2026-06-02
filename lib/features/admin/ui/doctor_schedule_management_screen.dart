@@ -8,6 +8,7 @@ import '../../../shared/models/schedule_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/date_time_parser.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 import '../../../shared/models/doctor_model.dart';
 import '../../../shared/models/polyclinic_model.dart';
@@ -55,8 +56,10 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       resizeToAvoidBottomInset: false,
-      body: Column(
-        children: [
+      body: ResponsiveCenter(
+        maxWidth: 950,
+        child: Column(
+          children: [
             // Premium Header with smooth bottom-up stagger
             FadeIn(
               duration: const Duration(milliseconds: 400),
@@ -276,6 +279,7 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
 
           ],
         ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showScheduleForm(context),
         backgroundColor: AppTheme.primaryColor,
