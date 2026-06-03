@@ -1,57 +1,78 @@
-# 🗺️ Use Case Diagram NalaSeva (Flutter & Laravel REST API)
+# 🗺️ Use Case Diagram NalaSeva — Fokus CRUD per Aktor
 
-Dokumen ini menyajikan rancangan **Use Case Diagram** terperinci dan komprehensif untuk sistem **NalaSeva** (Aplikasi Manajemen Antrean & Rekam Medis Puskesmas Digital). Diagram ini memetakan interaksi aktor terhadap sistem batas (*system boundary*) yang terintegrasi antara **Flutter Mobile Client** dan **Laravel REST API Backend**.
-
----
-
-## 👥 Aktor Sistem (Actors)
-
-Sistem NalaSeva memiliki **4 Aktor Utama** dengan tingkat otorisasi berbasis *Role-Based Access Control* (RBAC) yang terdefinisi dengan ketat:
-
-| Aktor | Deskripsi Peran | Platform Utama |
-|---|---|---|
-| **Pasien (Patient)** | Pengguna terdaftar puskesmas yang memesan antrean (maksimal H-7), membatalkan antrean dengan cut-off 2 jam, mengunggah bukti bayar, memantau estimasi waktu secara real-time, serta melihat rekam medis miliknya. | Flutter Mobile |
-| **Dokter (Doctor)** | Tenaga medis yang memproses antrean pemeriksaan polikliniknya, mengontrol kehadiran (online/offline), dan membuat rekam medis beserta resep obat yang secara otomatis menerbitkan tagihan. | Flutter Mobile |
-| **Apoteker (Pharmacist)** | Tenaga kesehatan di apotek yang melihat daftar resep obat yang pembayarannya telah lunas, menyerahkan obat (*dispensing*), serta mengelola stok dan harga obat. | Flutter Mobile |
-| **Admin** | Pengelola sistem dengan akses penuh untuk mengelola master data (user, poliklinik, dokter, jadwal, libur), memproses check-in (manual/QR scanner), recall/panggil (dengan TTS), skip antrean, verifikasi bukti bayar (transfer/tunai), serta memperbarui konfigurasi dinamis. | Flutter Mobile |
+Dokumen ini menyajikan **Use Case Diagram berbasis operasi CRUD** (Create, Read, Update, Delete) untuk sistem **NalaSeva** (Aplikasi Manajemen Antrean & Rekam Medis Puskesmas Digital). Setiap use case dipetakan dari fitur nyata yang dimiliki masing-masing aktor sesuai `FITUR_PER_AKTOR.md`.
 
 ---
 
-## 📊 1. Diagram Kasus Penggunaan Utama (System Use Cases Overview)
+## 👥 Aktor Sistem
 
-Berikut adalah diagram besar seluruh use case pada sistem **NalaSeva** menggunakan notasi **Mermaid.js**:
+| Aktor | Deskripsi |
+|---|---|
+| **Pasien** | Pengguna akhir — registrasi mandiri, booking antrean, kelola profil, lihat rekam medis, kelola tagihan |
+| **Dokter** | Tenaga medis — kelola profil, buat & edit rekam medis, proses antrean |
+| **Apoteker** | Tenaga apotek — kelola inventaris obat, proses penyerahan obat |
+| **Admin** | Pengelola sistem — CRUD semua data master (dokter, jadwal, cuti, poliklinik, user, pasien, obat), kelola antrean, verifikasi pembayaran, pengaturan sistem |
+
+---
+
+## 📊 1. Diagram Utama — CRUD Use Cases per Aktor
 
 ```mermaid
 flowchart LR
   classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
   classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
-  
-  subgraph NalaSeva ["Sistem NalaSeva"]
-    subgraph Modul_Auth ["Autentikasi & Akun"]
-      UC1((Autentikasi & Akun)):::usecaseStyle
-      UC2((Kelola Profil)):::usecaseStyle
-      UC15((Lihat Profil Puskesmas)):::usecaseStyle
+
+  subgraph NalaSeva ["Sistem NalaSeva (CRUD)"]
+
+    subgraph Modul_Auth ["Akun & Profil"]
+      UC1(("Registrasi Akun")):::usecaseStyle
+      UC2(("Login / Logout")):::usecaseStyle
+      UC3(("Lihat & Edit Profil")):::usecaseStyle
+      UC4(("Reset Password")):::usecaseStyle
     end
-    subgraph Modul_Pasien ["Pelayanan Pasien"]
-      UC3((Booking Antrean)):::usecaseStyle
-      UC4((Batalkan Antrean)):::usecaseStyle
-      UC5((Bayar Tagihan & Resep)):::usecaseStyle
+
+    subgraph Modul_Antrean ["Manajemen Antrean"]
+      UC5(("Buat Antrean\n(Booking)")):::usecaseStyle
+      UC6(("Lihat Antrean")):::usecaseStyle
+      UC7(("Batalkan Antrean\n(Delete)")):::usecaseStyle
+      UC8(("Update Status\nAntrean")):::usecaseStyle
     end
-    subgraph Modul_Medis ["Pelayanan Medis - Dokter"]
-      UC6((Update Status Online)):::usecaseStyle
-      UC7((Proses Antrean)):::usecaseStyle
-      UC8((Buat Rekam Medis)):::usecaseStyle
+
+    subgraph Modul_Medis ["Rekam Medis"]
+      UC9(("Buat Rekam Medis")):::usecaseStyle
+      UC10(("Lihat Rekam Medis")):::usecaseStyle
+      UC11(("Edit Rekam Medis")):::usecaseStyle
+      UC12(("Hapus Rekam Medis")):::usecaseStyle
     end
-    subgraph Modul_Apotek ["Pelayanan Apotek"]
-      UC9((Serahkan Obat)):::usecaseStyle
-      UC10((CRUD Inventaris Obat)):::usecaseStyle
+
+    subgraph Modul_Tagihan ["Tagihan & Pembayaran"]
+      UC13(("Lihat Tagihan")):::usecaseStyle
+      UC14(("Upload Bukti Bayar")):::usecaseStyle
+      UC15(("Verifikasi Pembayaran")):::usecaseStyle
     end
-    subgraph Modul_Admin ["Administrasi & Sistem"]
-      UC11((Manajemen Fisik Antrean)):::usecaseStyle
-      UC12((CRUD Master Data)):::usecaseStyle
-      UC13((Verifikasi Pembayaran)):::usecaseStyle
-      UC14((Atur Pengaturan Dinamis)):::usecaseStyle
+
+    subgraph Modul_Obat ["Inventaris Obat"]
+      UC16(("Tambah Obat")):::usecaseStyle
+      UC17(("Lihat Daftar Obat")):::usecaseStyle
+      UC18(("Edit Data Obat")):::usecaseStyle
+      UC19(("Hapus / Restore Obat")):::usecaseStyle
     end
+
+    subgraph Modul_Master ["Data Master (Admin)"]
+      UC20(("CRUD Dokter")):::usecaseStyle
+      UC21(("CRUD Jadwal Dokter")):::usecaseStyle
+      UC22(("CRUD Cuti Dokter")):::usecaseStyle
+      UC23(("CRUD Hari Libur")):::usecaseStyle
+      UC24(("CRUD Poliklinik")):::usecaseStyle
+      UC25(("CRUD User")):::usecaseStyle
+      UC26(("CRUD Pasien")):::usecaseStyle
+    end
+
+    subgraph Modul_Pengaturan ["Pengaturan Sistem"]
+      UC27(("Lihat & Edit\nPengaturan Sistem")):::usecaseStyle
+      UC28(("Update Profil\nPuskesmas")):::usecaseStyle
+    end
+
   end
 
   %% Actors
@@ -60,314 +81,411 @@ flowchart LR
   Apoteker[Apoteker]:::actorStyle
   AdminActor[Admin]:::actorStyle
 
-  %% Relations
+  %% Pasien
   Pasien --> UC1
   Pasien --> UC2
   Pasien --> UC3
   Pasien --> UC4
   Pasien --> UC5
-  Pasien --> UC15
+  Pasien --> UC6
+  Pasien --> UC7
+  Pasien --> UC10
+  Pasien --> UC13
+  Pasien --> UC14
 
-  Dokter --> UC1
+  %% Dokter
   Dokter --> UC2
+  Dokter --> UC3
   Dokter --> UC6
-  Dokter --> UC7
   Dokter --> UC8
-  Dokter --> UC15
+  Dokter --> UC9
+  Dokter --> UC10
+  Dokter --> UC11
+  Dokter --> UC12
+  Dokter --> UC17
 
-  Apoteker --> UC1
-  Apoteker --> UC9
-  Apoteker --> UC10
-  Apoteker --> UC15
+  %% Apoteker
+  Apoteker --> UC2
+  Apoteker --> UC16
+  Apoteker --> UC17
+  Apoteker --> UC18
+  Apoteker --> UC19
 
-  AdminActor --> UC1
+  %% Admin
+  AdminActor --> UC2
+  AdminActor --> UC5
+  AdminActor --> UC6
+  AdminActor --> UC7
+  AdminActor --> UC8
+  AdminActor --> UC10
   AdminActor --> UC11
   AdminActor --> UC12
   AdminActor --> UC13
-  AdminActor --> UC14
-  AdminActor --> UC10
   AdminActor --> UC15
+  AdminActor --> UC16
+  AdminActor --> UC17
+  AdminActor --> UC18
+  AdminActor --> UC19
+  AdminActor --> UC20
+  AdminActor --> UC21
+  AdminActor --> UC22
+  AdminActor --> UC23
+  AdminActor --> UC24
+  AdminActor --> UC25
+  AdminActor --> UC26
+  AdminActor --> UC27
+  AdminActor --> UC28
 ```
 
 ---
 
-## 📂 2. Use Diagram Sub-Sistem Terperinci
+## 📂 2. Sub-Sistem CRUD Terperinci per Aktor
 
-Untuk memperjelas relasi `<<include>>`, `<<extend>>`, dan spesifikasi masing-masing aktor, use case dibagi menjadi 5 sub-sistem operasional:
-
-### 🔑 Sub-Sistem 1: Autentikasi & Akun
-Mengelola alur masuk, pendaftaran mandiri pasien, pemulihan akun via OTP email, serta mekanisme offline-restore state.
+### 👤 Sub-Sistem 1: Pasien — CRUD Akun, Antrean & Tagihan
 
 ```mermaid
 flowchart LR
   classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
-  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+  classDef cStyle fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#166534;
+  classDef rStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+  classDef uStyle fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#854d0e;
+  classDef dStyle fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
 
-  subgraph Actors [Aktor]
-    User["Pengguna (Semua Role)"]:::actorStyle
-    Pasien[Pasien]:::actorStyle
+  Pasien[Pasien]:::actorStyle
+
+  subgraph Akun ["Akun & Profil"]
+    C1(["C: Registrasi Akun"]):::cStyle
+    R1(["R: Lihat Profil"]):::rStyle
+    U1(["U: Edit Profil"]):::uStyle
   end
 
-  subgraph UseCases [Use Cases]
-    UC_Login(Login Pengguna):::usecaseStyle
-    UC_OTP(Lupa Password / OTP Flow):::usecaseStyle
-    UC_Reg(Registrasi Akun):::usecaseStyle
-    UC_Profile(Lihat & Update Profil):::usecaseStyle
-    UC_FCM(Update FCM Token):::usecaseStyle
-    UC_Offline(Restore Sesi Offline):::usecaseStyle
+  subgraph Antrean ["Antrean"]
+    C2(["C: Booking Antrean"]):::cStyle
+    R2(["R: Lihat Antrean Aktif"]):::rStyle
+    D1(["D: Batalkan Antrean"]):::dStyle
   end
 
-  subgraph Details [Include / Extend]
-    UC_Conf["password_confirmation & role: 'patient'"]:::usecaseStyle
-    UC_SaveToken[Simpan ke Secure Storage]:::usecaseStyle
-    UC_VerifyOTP[Validasi 6-Digit OTP]:::usecaseStyle
-    UC_Map[Pilih Lokasi MapPicker]:::usecaseStyle
+  subgraph Tagihan ["Tagihan"]
+    R3(["R: Lihat Daftar Tagihan"]):::rStyle
+    R4(["R: Lihat Detail Tagihan"]):::rStyle
+    U2(["U: Upload Bukti Bayar"]):::uStyle
   end
 
-  %% Actor Connections
-  User --> UC_Login
-  User --> UC_OTP
-  Pasien --> UC_Reg
-  Pasien --> UC_Profile
-  Pasien --> UC_FCM
-  Pasien --> UC_Offline
-
-  %% Relations
-  UC_Reg -.->|include| UC_Conf
-  UC_Login -.->|include| UC_SaveToken
-  UC_OTP -.->|include| UC_VerifyOTP
-  UC_Profile -.->|extend| UC_Map
-```
-
-### 📅 Sub-Sistem 2: Manajemen Antrean (Queue)
-Mengontrol pembuatan antrean dengan 5 lapis validasi, pembatalan dengan batas toleransi, pemanggilan antrean loket, pemindaian QR code untuk check-in, dan display TV Monitor.
-
-```mermaid
-flowchart LR
-  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
-  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
-
-  subgraph Actors [Aktor]
-    Pasien[Pasien]:::actorStyle
-    Dokter[Dokter]:::actorStyle
-    Admin[Admin]:::actorStyle
+  subgraph RekamMedis ["Rekam Medis"]
+    R5(["R: Lihat Riwayat Pemeriksaan"]):::rStyle
+    R6(["R: Lihat Detail Rekam Medis"]):::rStyle
   end
 
-  subgraph UseCases [Use Cases]
-    UC_Book(Booking Antrean):::usecaseStyle
-    UC_Cancel(Batalkan Antrean):::usecaseStyle
-    UC_CheckIn(Check-In Antrean):::usecaseStyle
-    UC_Recall(Panggil Ulang / Recall):::usecaseStyle
-    UC_Skip(Skip Antrean ke Belakang):::usecaseStyle
-    UC_TV(Display Monitor Antrean TV):::usecaseStyle
-    UC_Status(Toggle Status Online):::usecaseStyle
-    UC_Proc(Proses Antrean):::usecaseStyle
-  end
-
-  subgraph Details [Include / Extend]
-    UC_Val5[5-Layer Validation Ketersediaan]:::usecaseStyle
-    UC_Priority["Auto Priority Lansia Usia >= 60"]:::usecaseStyle
-    UC_Cutoff[Validasi Cut-off Waktu 2 Jam]:::usecaseStyle
-    UC_QR[Pindai Tiket via QR Scanner]:::usecaseStyle
-    UC_TimeVal[ServiceTimeValidator 30 Menit - 2 Jam]:::usecaseStyle
-    UC_TTS[Bicara Audio via Text-to-Speech]:::usecaseStyle
-    UC_RecallLimit["Kirim ke Paling Belakang jika Panggilan >= 3"]:::usecaseStyle
-  end
-
-  %% Actor Connections
-  Pasien --> UC_Book
-  Pasien --> UC_Cancel
-  Dokter --> UC_Status
-  Dokter --> UC_Proc
-  Admin --> UC_CheckIn
-  Admin --> UC_Recall
-  Admin --> UC_Skip
-  Admin --> UC_TV
-
-  %% Relations
-  UC_Book -.->|include| UC_Val5
-  UC_Book -.->|include| UC_Priority
-  UC_Cancel -.->|include| UC_Cutoff
-  UC_CheckIn -.->|extend| UC_QR
-  UC_CheckIn -.->|include| UC_TimeVal
-  UC_Recall -.->|include| UC_TTS
-  UC_Recall -.->|extend| UC_RecallLimit
-```
-
-### 🩺 Sub-Sistem 3: Rekam Medis & Pembayaran (Payments)
-Mengatur pembuatan rekam medis dokter yang memicu pembuatan tagihan otomatis, pengunggahan bukti transfer bank oleh pasien, dan verifikasi pembayaran.
-
-```mermaid
-flowchart LR
-  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
-  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
-
-  subgraph Actors [Aktor]
-    Dokter[Dokter]:::actorStyle
-    Pasien[Pasien]:::actorStyle
-    Admin[Admin]:::actorStyle
-  end
-
-  subgraph UseCases [Use Cases]
-    UC_Exam(Buat Rekam Medis & Resep):::usecaseStyle
-    UC_Upload(Upload Bukti Bayar Transfer):::usecaseStyle
-    UC_Verify(Verifikasi Pembayaran Transfer):::usecaseStyle
-    UC_Cash(Pembayaran Tunai / Cash Pay):::usecaseStyle
-  end
-
-  subgraph Details [Include / Extend]
-    UC_Invoice[Auto-Generate Invoice & FCM Tagihan]:::usecaseStyle
-    UC_QueueComp[Auto-Status Antrean completed]:::usecaseStyle
-    UC_StatusWaiting[Ubah Status waiting_verification]:::usecaseStyle
-    UC_FCMVerify[Kirim Notifikasi Lunas FCM]:::usecaseStyle
-  end
-
-  %% Actor Connections
-  Dokter --> UC_Exam
-  Pasien --> UC_Upload
-  Admin --> UC_Verify
-  Admin --> UC_Cash
-
-  %% Relations
-  UC_Exam -.->|include| UC_Invoice
-  UC_Exam -.->|include| UC_QueueComp
-  UC_Upload -.->|include| UC_StatusWaiting
-  UC_Verify -.->|include| UC_FCMVerify
-```
-
-### 💊 Sub-Sistem 4: Modul Apotek (Pharmacy)
-Mengelola penyerahan obat resep lunas kepada pasien serta manajemen inventaris stok obat.
-
-```mermaid
-flowchart LR
-  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
-  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
-
-  subgraph Actors [Aktor]
-    Apoteker[Apoteker]:::actorStyle
-  end
-
-  subgraph UseCases [Use Cases]
-    UC_Queues(Lihat Antrean Resep Lunas):::usecaseStyle
-    UC_Dispense(Serahkan Obat / Dispense):::usecaseStyle
-    UC_Medicine(CRUD Data & Harga Obat):::usecaseStyle
-  end
-
-  subgraph Details [Include / Extend]
-    UC_DBTrans[Validasi & Potong Stok Obat Aman]:::usecaseStyle
-    UC_FCMObat[Kirim Notifikasi FCM Obat Selesai]:::usecaseStyle
-    UC_SoftDel[Dukung Soft Delete & Restore Obat]:::usecaseStyle
-  end
-
-  %% Actor Connections
-  Apoteker --> UC_Queues
-  Apoteker --> UC_Dispense
-  Apoteker --> UC_Medicine
-
-  %% Relations
-  UC_Dispense -.->|include| UC_DBTrans
-  UC_Dispense -.->|include| UC_FCMObat
-  UC_Medicine -.->|include| UC_SoftDel
-```
-
-### ⚙️ Sub-Sistem 5: Konfigurasi & Pengaturan Dinamis
-Memungkinkan Admin mengonfigurasi profil puskesmas, memilih letak koordinat pada OpenStreetMap, dan menyetel konfigurasi biaya pendaftaran puskesmas.
-
-```mermaid
-flowchart LR
-  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
-  classDef usecaseStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
-
-  subgraph Actors [Aktor]
-    Admin[Admin]:::actorStyle
-  end
-
-  subgraph UseCases [Use Cases]
-    UC_Settings(Atur Sistem Dinamis):::usecaseStyle
-    UC_PuskProfile(Update Profil Puskesmas):::usecaseStyle
-    UC_Master(CRUD Master Dokter, Jadwal, Cuti, Libur):::usecaseStyle
-  end
-
-  subgraph Details [Include / Extend]
-    UC_RegFee[Atur Biaya Layanan registration_fee]:::usecaseStyle
-    UC_SlotTime[Atur Rata-rata Pelayanan slot_duration_minutes]:::usecaseStyle
-    UC_OSM[Pilih Koordinat via MapPicker OpenStreetMap]:::usecaseStyle
-  end
-
-  %% Actor Connections
-  Admin --> UC_Settings
-  Admin --> UC_PuskProfile
-  Admin --> UC_Master
-
-  %% Relations
-  UC_Settings -.->|include| UC_RegFee
-  UC_Settings -.->|include| UC_SlotTime
-  UC_PuskProfile -.->|include| UC_OSM
+  Pasien --> C1
+  Pasien --> R1
+  Pasien --> U1
+  Pasien --> C2
+  Pasien --> R2
+  Pasien --> D1
+  Pasien --> R3
+  Pasien --> R4
+  Pasien --> U2
+  Pasien --> R5
+  Pasien --> R6
 ```
 
 ---
 
-## 🔌 3. Pemetaan Teknis: Flutter UI & Laravel REST API Endpoints
+### 🩺 Sub-Sistem 2: Dokter — CRUD Rekam Medis & Resep
 
-Tabel berikut menunjukkan integrasi pemetaan use case di sisi Flutter Client (Screen / Provider) dengan API Endpoint Laravel REST API Backend yang tepat:
+```mermaid
+flowchart LR
+  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+  classDef cStyle fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#166534;
+  classDef rStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+  classDef uStyle fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#854d0e;
+  classDef dStyle fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
 
-| Nama Use Case | Fitur Flutter (`Provider` / `Screen`) | Endpoint REST API (Laravel) |
+  Dokter[Dokter]:::actorStyle
+
+  subgraph Profil ["Profil"]
+    R0(["R: Lihat Profil"]):::rStyle
+    U0(["U: Edit Profil"]):::uStyle
+  end
+
+  subgraph Antrean ["Antrean"]
+    R1(["R: Lihat Antrean Harian"]):::rStyle
+    U1(["U: Update Status Antrean\n(waiting → examining → completed)"]):::uStyle
+    R2(["R: Lihat Riwayat Pasien"]):::rStyle
+  end
+
+  subgraph RekamMedis ["Rekam Medis & Resep"]
+    C1(["C: Buat Rekam Medis + Resep"]):::cStyle
+    R3(["R: Lihat Rekam Medis"]):::rStyle
+    U2(["U: Edit Rekam Medis"]):::uStyle
+    D1(["D: Hapus Rekam Medis"]):::dStyle
+  end
+
+  subgraph Obat ["Referensi Obat"]
+    R4(["R: Lihat Daftar Obat\n(untuk mengisi resep)"]):::rStyle
+  end
+
+  Dokter --> R0
+  Dokter --> U0
+  Dokter --> R1
+  Dokter --> U1
+  Dokter --> R2
+  Dokter --> C1
+  Dokter --> R3
+  Dokter --> U2
+  Dokter --> D1
+  Dokter --> R4
+```
+
+---
+
+### 💊 Sub-Sistem 3: Apoteker — CRUD Inventaris Obat & Serah Obat
+
+```mermaid
+flowchart LR
+  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+  classDef cStyle fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#166534;
+  classDef rStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+  classDef uStyle fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#854d0e;
+  classDef dStyle fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
+
+  Apoteker[Apoteker]:::actorStyle
+
+  subgraph Resep ["Resep & Penyerahan"]
+    R1(["R: Lihat Antrean Resep Lunas"]):::rStyle
+    R2(["R: Lihat Detail Resep Pasien"]):::rStyle
+    U1(["U: Serahkan Obat (Dispense)\n→ potong stok otomatis"]):::uStyle
+  end
+
+  subgraph Inventaris ["Inventaris Obat"]
+    C1(["C: Tambah Obat Baru"]):::cStyle
+    R3(["R: Lihat Daftar Inventaris"]):::rStyle
+    U2(["U: Edit Data & Harga Obat"]):::uStyle
+    D1(["D: Hapus Obat (Soft Delete)"]):::dStyle
+    C2(["C: Restore Obat dari Arsip"]):::cStyle
+  end
+
+  Apoteker --> R1
+  Apoteker --> R2
+  Apoteker --> U1
+  Apoteker --> C1
+  Apoteker --> R3
+  Apoteker --> U2
+  Apoteker --> D1
+  Apoteker --> C2
+```
+
+---
+
+### 👑 Sub-Sistem 4: Admin — CRUD Data Master & Pengelolaan Sistem
+
+```mermaid
+flowchart LR
+  classDef actorStyle fill:#f3e8ff,stroke:#7c4dff,stroke-width:2px,color:#6b21a8;
+  classDef cStyle fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#166534;
+  classDef rStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+  classDef uStyle fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#854d0e;
+  classDef dStyle fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
+
+  Admin[Admin]:::actorStyle
+
+  subgraph Dokter_M ["CRUD Dokter"]
+    C1(["C: Tambah Dokter"]):::cStyle
+    R1(["R: Lihat Daftar Dokter"]):::rStyle
+    U1(["U: Edit Data Dokter"]):::uStyle
+    D1(["D: Hapus Dokter (Soft Delete)"]):::dStyle
+    C1r(["C: Restore Dokter"]):::cStyle
+  end
+
+  subgraph Jadwal_M ["CRUD Jadwal Praktik"]
+    C2(["C: Tambah Jadwal"]):::cStyle
+    R2(["R: Lihat Jadwal + Kuota"]):::rStyle
+    U2(["U: Edit Jadwal"]):::uStyle
+    D2(["D: Hapus Jadwal"]):::dStyle
+  end
+
+  subgraph Cuti_M ["CRUD Cuti Dokter"]
+    C3(["C: Tambah Cuti\n→ auto-cancel antrean"]):::cStyle
+    R3(["R: Lihat Data Cuti"]):::rStyle
+    D3(["D: Hapus Data Cuti"]):::dStyle
+  end
+
+  subgraph Libur_M ["CRUD Hari Libur"]
+    C4(["C: Tambah Hari Libur\n→ mass-cancel antrean"]):::cStyle
+    R4(["R: Lihat Hari Libur"]):::rStyle
+    D4(["D: Hapus Hari Libur"]):::dStyle
+  end
+
+  subgraph Poli_M ["CRUD Poliklinik"]
+    C5(["C: Tambah Poliklinik"]):::cStyle
+    R5(["R: Lihat Daftar Poliklinik"]):::rStyle
+    U5(["U: Edit Poliklinik"]):::uStyle
+    D5(["D: Hapus Poliklinik (Soft Delete)"]):::dStyle
+  end
+
+  subgraph User_M ["CRUD User & Pasien"]
+    C6(["C: Tambah User / Pasien"]):::cStyle
+    R6(["R: Lihat Daftar User / Pasien"]):::rStyle
+    U6(["U: Edit Data User / Pasien"]):::uStyle
+    D6(["D: Hapus User / Pasien (Soft Delete)"]):::dStyle
+  end
+
+  subgraph Antrean_M ["Kelola Antrean"]
+    C7(["C: Booking Manual (Walk-In)"]):::cStyle
+    R7(["R: Lihat Semua Antrean"]):::rStyle
+    U7(["U: Update Status Antrean"]):::uStyle
+    D7(["D: Batalkan / Hapus Antrean"]):::dStyle
+  end
+
+  subgraph RekamMedis_M ["Kelola Rekam Medis"]
+    R8(["R: Lihat Semua Rekam Medis"]):::rStyle
+    U8(["U: Edit Rekam Medis (Override)"]):::uStyle
+    D8(["D: Hapus Rekam Medis (Override)"]):::dStyle
+  end
+
+  subgraph Tagihan_M ["Kelola Pembayaran"]
+    R9(["R: Lihat Semua Tagihan"]):::rStyle
+    U9(["U: Verifikasi Bukti Transfer"]):::uStyle
+    U10(["U: Proses Pembayaran Tunai"]):::uStyle
+  end
+
+  subgraph Obat_M ["CRUD Obat (Shared Apoteker)"]
+    C8(["C: Tambah Obat"]):::cStyle
+    R10(["R: Lihat Inventaris Obat"]):::rStyle
+    U11(["U: Edit Data Obat"]):::uStyle
+    D9(["D: Hapus / Restore Obat"]):::dStyle
+  end
+
+  subgraph Sistem_M ["Pengaturan Sistem"]
+    R11(["R: Lihat Pengaturan"]):::rStyle
+    U12(["U: Edit Pengaturan Sistem\n(biaya, durasi slot)"]):::uStyle
+    U13(["U: Update Profil Puskesmas\n(nama, alamat, koordinat)"]):::uStyle
+  end
+
+  Admin --> C1
+  Admin --> R1
+  Admin --> U1
+  Admin --> D1
+  Admin --> C1r
+  Admin --> C2
+  Admin --> R2
+  Admin --> U2
+  Admin --> D2
+  Admin --> C3
+  Admin --> R3
+  Admin --> D3
+  Admin --> C4
+  Admin --> R4
+  Admin --> D4
+  Admin --> C5
+  Admin --> R5
+  Admin --> U5
+  Admin --> D5
+  Admin --> C6
+  Admin --> R6
+  Admin --> U6
+  Admin --> D6
+  Admin --> C7
+  Admin --> R7
+  Admin --> U7
+  Admin --> D7
+  Admin --> R8
+  Admin --> U8
+  Admin --> D8
+  Admin --> R9
+  Admin --> U9
+  Admin --> U10
+  Admin --> C8
+  Admin --> R10
+  Admin --> U11
+  Admin --> D9
+  Admin --> R11
+  Admin --> U12
+  Admin --> U13
+```
+
+---
+
+## 📋 3. Ringkasan Tabel CRUD per Aktor
+
+| Entitas / Fitur | Pasien | Dokter | Apoteker | Admin |
+|---|:---:|:---:|:---:|:---:|
+| **Akun (Registrasi)** | C | — | — | C |
+| **Profil Sendiri** | RU | RU | — | RU |
+| **Password** | U | U | U | U |
+| **Antrean** | C, R, D | R, U | — | C, R, U, D |
+| **Rekam Medis** | R | C, R, U, D | — | R, U, D |
+| **Tagihan / Pembayaran** | R, U* | — | — | R, U |
+| **Bukti Bayar** | U (upload) | — | — | U (verifikasi) |
+| **Resep / Penyerahan Obat** | — | — | R, U | R, U |
+| **Inventaris Obat** | — | R | C, R, U, D | C, R, U, D |
+| **Dokter** | — | — | — | C, R, U, D |
+| **Jadwal Praktik** | — | — | — | C, R, U, D |
+| **Cuti Dokter** | — | — | — | C, R, D |
+| **Hari Libur** | — | — | — | C, R, D |
+| **Poliklinik** | — | — | — | C, R, U, D |
+| **User** | — | — | — | C, R, U, D |
+| **Pasien (Data Master)** | — | — | — | C, R, U, D |
+| **Pengaturan Sistem** | — | — | — | R, U |
+| **Profil Puskesmas** | R | R | R | R, U |
+
+> *U untuk Tagihan (Pasien) = Upload bukti pembayaran*
+
+---
+
+## 🔌 4. Mapping Endpoint API per Operasi CRUD
+
+| Operasi CRUD | Endpoint Laravel REST API | Aktor |
 |---|---|---|
-| **Registrasi Pasien** | [AuthProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/logic/auth_provider.dart) / [register_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/ui/register_screen.dart) | `POST /api/auth/register` *(mengirim password_confirmation & role: 'patient')* |
-| **Login Pengguna** | [AuthProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/logic/auth_provider.dart) / [login_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/ui/login_screen.dart) | `POST /api/auth/login` |
-| **Lupa Password (OTP)** | [AuthProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/logic/auth_provider.dart) / [forgot_password_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/ui/forgot_password_screen.dart) | `POST /api/auth/forgot-password/otp` *(Request OTP)*<br>`POST /api/auth/forgot-password` *(Reset Password)* |
-| **Lihat Profil Akun** | [AuthProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/logic/auth_provider.dart) / [profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/profile_screen.dart) | `GET /api/auth/profile` |
-| **Update Profil Akun** | [AuthProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/logic/auth_provider.dart) / [edit_profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/edit_profile_screen.dart) | `POST /api/auth/update-profile` *(Multipart POST bukan PUT)* |
-| **Booking Antrean** | [PatientProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/logic/patient_provider.dart) / [booking_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/booking_screen.dart) | `POST /api/queues` *(Throttling 5 req/menit)* |
-| **Batalkan Antrean** | [PatientProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/logic/patient_provider.dart) / [booking_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/booking_detail_screen.dart) | `DELETE /api/queues/{id}` |
-| **Toggle Status Online**| [DoctorProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/logic/doctor_provider.dart) / [doctor_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/ui/doctor_dashboard.dart) | `PATCH /api/doctors/me/status` |
-| **Proses Antrean Dokter**| [DoctorProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/logic/doctor_provider.dart) / [doctor_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/ui/doctor_dashboard.dart) | `PUT /api/queues/{id}` |
-| **Buat Rekam Medis** | [DoctorProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/logic/doctor_provider.dart) / [examination_form_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/ui/examination_form_screen.dart) | `POST /api/examinations` |
-| **Lihat Riwayat Medis** | [PatientProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/logic/patient_provider.dart) / [patient_history_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/patient_history_screen.dart) | `GET /api/examinations` |
-| **Lihat Tagihan & Invoice**| [PaymentProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/logic/payment_provider.dart) / [payment_list_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/ui/payment_list_screen.dart) | `GET /api/payments` |
-| **Upload Bukti Bayar** | [PaymentProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/logic/payment_provider.dart) / [payment_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/ui/payment_detail_screen.dart) | `POST /api/payments/{id}/upload-proof` *(Throttling 5 req/menit)* |
-| **Check-In Loket Fisik**| [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) / [queue_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/queue_management_screen.dart) | `POST /api/queues/{id}/checkin` |
-| **Check-In QR Tiket** | [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) / [qr_scanner_page.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/widgets/qr_scanner_page.dart) | `POST /api/queues/{id}/checkin` *(Pindai Format QR)* |
-| **Recall / Panggil Pasien**| [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) / [queue_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/queue_management_screen.dart) | `POST /api/queues/{id}/recall` *(Integrasi audio TTS)* |
-| **Skip / Geser Antrean** | [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) / [queue_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/queue_management_screen.dart) | `POST /api/queues/{id}/skip` |
-| **Verifikasi Bukti Bayar**| [PaymentProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/logic/payment_provider.dart) / [payment_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/ui/payment_detail_screen.dart) | `POST /api/payments/{id}/verify` |
-| **Pembayaran Tunai (Cash)**| [PaymentProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/logic/payment_provider.dart) / [payment_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/ui/payment_detail_screen.dart) | `POST /api/payments/{id}/cash-pay` |
-| **Serahkan Obat** | [PharmacyProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/logic/pharmacy_provider.dart) / [prescription_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/ui/prescription_detail_screen.dart) | `POST /api/pharmacy/queues/{id}/dispense` |
-| **Membaca Profil Puskesmas**| [PuskesmasProfileProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/providers/puskesmas_profile_provider.dart) / [patient_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/patient_dashboard.dart) | `GET /api/puskesmas-profile` *(Diakses setelah otentikasi)* |
-| **Perbarui Profil Puskesmas**| [PuskesmasProfileProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/providers/puskesmas_profile_provider.dart) / [admin_settings_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_settings_screen.dart) | `PUT /api/puskesmas-profile` *(MapPicker koordinat OSM)* |
-| **Pengaturan Sistem** | [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) / [admin_settings_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_settings_screen.dart) | `GET /api/settings`<br>`PUT /api/settings` |
+| **C** Registrasi Akun | `POST /api/auth/register` | Pasien |
+| **R** Profil Akun | `GET /api/auth/profile` | Semua |
+| **U** Update Profil | `POST /api/auth/update-profile` | Semua |
+| **U** Reset Password | `POST /api/auth/forgot-password` | Semua |
+| **C** Booking Antrean | `POST /api/queues` | Pasien, Admin |
+| **R** Lihat Antrean | `GET /api/queues` | Semua |
+| **U** Update Status Antrean | `PUT /api/queues/{id}` | Dokter, Admin |
+| **D** Batalkan Antrean | `DELETE /api/queues/{id}` | Pasien, Admin |
+| **C** Buat Rekam Medis | `POST /api/examinations` | Dokter |
+| **R** Lihat Rekam Medis | `GET /api/examinations` | Pasien, Dokter, Admin |
+| **U** Edit Rekam Medis | `PUT /api/examinations/{id}` | Dokter, Admin |
+| **D** Hapus Rekam Medis | `DELETE /api/examinations/{id}` | Dokter, Admin |
+| **R** Lihat Tagihan | `GET /api/payments` | Pasien, Admin |
+| **U** Upload Bukti Bayar | `POST /api/payments/{id}/upload-proof` | Pasien |
+| **U** Verifikasi Transfer | `POST /api/payments/{id}/verify` | Admin |
+| **U** Bayar Tunai | `POST /api/payments/{id}/cash-pay` | Admin |
+| **R** Lihat Resep Apotek | `GET /api/pharmacy/queues` | Apoteker, Admin |
+| **U** Serahkan Obat | `POST /api/pharmacy/queues/{id}/dispense` | Apoteker, Admin |
+| **C** Tambah Obat | `POST /api/medicines` | Apoteker, Admin |
+| **R** Lihat Obat | `GET /api/medicines` | Dokter, Apoteker, Admin |
+| **U** Edit Obat | `PUT /api/medicines/{id}` | Apoteker, Admin |
+| **D** Hapus Obat | `DELETE /api/medicines/{id}` | Apoteker, Admin |
+| **C** Restore Obat | `POST /api/medicines/{id}/restore` | Apoteker, Admin |
+| **C** Tambah Dokter | `POST /api/doctors` | Admin |
+| **U** Edit Dokter | `PUT /api/doctors/{id}` | Admin |
+| **D** Hapus Dokter | `DELETE /api/doctors/{id}` | Admin |
+| **C** Tambah Jadwal | `POST /api/doctor-schedules` | Admin |
+| **R** Lihat Jadwal | `GET /api/doctor-schedules` | Admin |
+| **U** Edit Jadwal | `PUT /api/doctor-schedules/{id}` | Admin |
+| **D** Hapus Jadwal | `DELETE /api/doctor-schedules/{id}` | Admin |
+| **C** Tambah Cuti | `POST /api/doctor-leaves` | Admin |
+| **D** Hapus Cuti | `DELETE /api/doctor-leaves/{id}` | Admin |
+| **C** Tambah Hari Libur | `POST /api/clinic-holidays` | Admin |
+| **D** Hapus Hari Libur | `DELETE /api/clinic-holidays/{id}` | Admin |
+| **C** Tambah Poliklinik | `POST /api/polyclinics` | Admin |
+| **U** Edit Poliklinik | `PUT /api/polyclinics/{id}` | Admin |
+| **D** Hapus Poliklinik | `DELETE /api/polyclinics/{id}` | Admin |
+| **C** Tambah User | `POST /api/users` | Admin |
+| **U** Edit User | `PUT /api/users/{id}` | Admin |
+| **D** Hapus User | `DELETE /api/users/{id}` | Admin |
+| **C** Tambah Pasien | `POST /api/patients` | Admin |
+| **U** Edit Pasien | `PUT /api/patients/{id}` | Admin |
+| **D** Hapus Pasien | `DELETE /api/patients/{id}` | Admin |
+| **R** Lihat Pengaturan | `GET /api/settings` | Admin |
+| **U** Edit Pengaturan | `PUT /api/settings` | Admin |
+| **R** Profil Puskesmas | `GET /api/puskesmas-profile` | Semua |
+| **U** Update Profil Puskesmas | `PUT /api/puskesmas-profile` | Admin |
 
 ---
 
-## 🔒 4. Logika Validasi Use Case (Business Rules)
-
-Untuk menjamin keamanan dan integritas penggunaan sistem, setiap *trigger* use case diatur oleh logika bisnis pada *service layer* API:
-
-1. **Aturan Booking Keras (5-Layer Validation)**:
-   - Tanggal pendaftaran dibatasi dari hari H hingga maksimal H+7.
-   - Pendaftaran hari ini wajib dilakukan sebelum jam praktik dimulai.
-   - Validasi puskesmas tidak sedang dalam kondisi libur (`ClinicHoliday`).
-   - Validasi dokter yang bersangkutan tidak dalam status cuti (`DoctorLeave`).
-   - Sistem menolak booking duplikat pada poliklinik yang sama di hari yang sama.
-   - Sistem melarang antrean dengan irisan jam pelayanan yang tumpang tindih (*overlap*) antar-poliklinik untuk satu pasien.
-
-2. **Aturan Pembatalan Pasien (Cut-Off 2 Jam)**:
-   - Pasien diizinkan membatalkan antrean tanpa penalti jika tiket dibuat dalam waktu kurang dari 15 menit terakhir.
-   - Di luar durasi tersebut, pembatalan hanya boleh dilakukan maksimal **2 jam** sebelum estimasi pelayanan dokter dimulai.
-
-3. **Pemberian Hak Check-In (Absensi)**:
-   - Status antrean harus berstatus `booked` dan hanya bisa di-check-in pada hari kunjungan yang bersangkutan.
-   - Mengikuti validasi batas jendela waktu check-in: minimal **30 menit sebelum** dan maksimal **2 jam sesudah** waktu estimasi pelayanan (`estimated_service_time`).
-
-4. **Sistem Antrean Prioritas Usia (Elderly Flag)**:
-   - Saat booking dilakukan, sistem secara otomatis mengekstrak selisih tahun lahir pasien. Pasien berumur $\ge 60$ tahun otomatis diidentifikasi sebagai antrean prioritas.
-   - Antrean prioritas ditempatkan di urutan terdepan pada antrean berjalan, hanya kalah dari antrean prioritas yang datang lebih awal dan antrean yang sedang diperiksa (`examining`).
-
-5. **Transaksi Stok Apotek Aman**:
-   - Proses serah obat di apotek berjalan di dalam `DB::beginTransaction()`.
-   - Validasi ketat membandingkan kuantitas resep dengan stok fisik obat. Jika terdapat satu obat yang stoknya tidak memadai, seluruh transaksi penyerahan digagalkan demi menghindari inkonsistensi persediaan.
-
----
-
-*Dokumen ini merupakan panduan Use Case resmi sistem NalaSeva.*  
-*Diperbarui: 3 Juni 2026 — Sesuai dengan Sistem Produksi Flutter (`nalaseva 3`)*
+*Dokumen ini merupakan Use Case Diagram resmi sistem NalaSeva — fokus CRUD per aktor.*  
+*Diperbarui: 3 Juni 2026 — Disinkronkan penuh dengan `FITUR_PER_AKTOR.md`.*
