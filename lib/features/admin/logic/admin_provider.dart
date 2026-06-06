@@ -239,6 +239,13 @@ class AdminProvider extends ChangeNotifier {
     });
   }
 
+  Future<void> removeClinicHoliday(int id) async {
+    await _performAction(() async {
+      await _repository.deleteClinicHoliday(id);
+      _clinicHolidays = await _repository.getClinicHolidays();
+    });
+  }
+
   // Doctor Leaves Management
   Future<void> fetchDoctorLeaves({int? doctorId}) async {
     await _performAction(() async {
@@ -249,6 +256,13 @@ class AdminProvider extends ChangeNotifier {
   Future<void> addDoctorLeave(int doctorId, String date, String reason) async {
     await _performAction(() async {
       await _repository.addDoctorLeave(doctorId, date, reason);
+      _doctorLeaves = await _repository.getDoctorLeaves();
+    });
+  }
+
+  Future<void> removeDoctorLeave(int id) async {
+    await _performAction(() async {
+      await _repository.deleteDoctorLeave(id);
       _doctorLeaves = await _repository.getDoctorLeaves();
     });
   }

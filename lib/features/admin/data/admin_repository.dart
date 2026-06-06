@@ -280,6 +280,14 @@ class AdminRepository {
     }
   }
 
+  Future<void> deleteClinicHoliday(int id) async {
+    try {
+      await _apiClient.dio.delete('clinic-holidays/$id');
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal menghapus hari libur');
+    }
+  }
+
   // Doctor Leaves Management
   Future<List<Map<String, dynamic>>> getDoctorLeaves({int? doctorId}) async {
     try {
@@ -301,6 +309,14 @@ class AdminRepository {
       });
     } on DioException catch (e) {
       throw ErrorParser.parse(e, 'Gagal mengajukan cuti dokter');
+    }
+  }
+
+  Future<void> deleteDoctorLeave(int id) async {
+    try {
+      await _apiClient.dio.delete('doctor-leaves/$id');
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal menghapus data cuti dokter');
     }
   }
 

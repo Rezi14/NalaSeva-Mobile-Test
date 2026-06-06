@@ -47,8 +47,6 @@ flowchart LR
     subgraph Modul_Medis ["Rekam Medis"]
       UC15(("Buat Rekam Medis & Resep")):::usecaseStyle
       UC16(("Lihat Riwayat Pemeriksaan")):::usecaseStyle
-      UC17(("Edit Rekam Medis (Override)")):::usecaseStyle
-      UC18(("Hapus Rekam Medis (Override)")):::usecaseStyle
     end
 
     subgraph Modul_Tagihan ["Tagihan & Pembayaran"]
@@ -119,8 +117,6 @@ flowchart LR
   Dokter --> UC14
   Dokter --> UC15
   Dokter --> UC16
-  Dokter --> UC17
-  Dokter --> UC18
   Dokter --> UC24
   Dokter --> UC40
 
@@ -147,8 +143,6 @@ flowchart LR
   AdminActor --> UC13
   AdminActor --> UC14
   AdminActor --> UC16
-  AdminActor --> UC17
-  AdminActor --> UC18
   AdminActor --> UC19
   AdminActor --> UC21
   AdminActor --> UC22
@@ -350,8 +344,6 @@ flowchart LR
     C2(["C: Simpan Pemeriksaan & Kunci Harga Obat"]):::cStyle
     C3(["C: Auto-Invoice Tagihan & FCM Notif"]):::cStyle
     R4(["R: Lihat Rekam Medis Pasien"]):::rStyle
-    U3(["U: Edit Rekam Medis (Milik Sendiri)"]):::uStyle
-    D1(["D: Hapus Rekam Medis (Soft Delete)"]):::dStyle
   end
 
   subgraph Referensi ["Referensi & Dashboard"]
@@ -372,8 +364,6 @@ flowchart LR
   Dokter --> C2
   Dokter --> C3
   Dokter --> R4
-  Dokter --> U3
-  Dokter --> D1
   Dokter --> R5
   Dokter --> R6
 ```
@@ -420,13 +410,6 @@ flowchart LR
 *   **R4: Lihat Rekam Medis Pasien**
     *   *Deskripsi*: Melihat daftar rekam medis yang telah dibuat.
     *   *API*: `GET /api/examinations`
-*   **U3: Edit Rekam Medis (Milik Sendiri)**
-    *   *Deskripsi*: Mengedit catatan rekam medis yang pernah dibuat.
-    *   *Logika Bisnis*: Dibatasi hanya bisa mengedit rekam medis miliknya sendiri.
-    *   *API*: `PUT /api/examinations/{id}`
-*   **D1: Hapus Rekam Medis (Soft Delete)**
-    *   *Deskripsi*: Menghapus rekam medis miliknya dengan soft delete.
-    *   *API*: `DELETE /api/examinations/{id}`
 *   **R5: Lihat Referensi Daftar Obat**
     *   *Deskripsi*: Menampilkan obat aktif di puskesmas untuk diinput dalam resep.
     *   *API*: `GET /api/medicines`
@@ -563,7 +546,6 @@ flowchart LR
     C2(["C: Tambah Dokter & Buat Akun (DB Transaction)"]):::cStyle
     U8(["U: Edit Data Dokter (Proteksi Mutasi Poli)"]):::uStyle
     D2(["D: Hapus Dokter (Soft Delete & Check Queue)"]):::dStyle
-    C3(["C: Restore Dokter (User & Profile)"]):::cStyle
     C4(["C: Tambah Jadwal & Deteksi Overlap"]):::cStyle
     U9(["U: Edit Jadwal (Check Queue & Overlap)"]):::uStyle
     D3(["D: Hapus Jadwal Praktik"]):::dStyle
@@ -584,7 +566,6 @@ flowchart LR
     C8(["C: CRUD User (Admin/Doctor/Patient/Pharmacist)"]):::cStyle
     C9(["C: CRUD Pasien (Manual, Edit Demografis, Soft-Delete)"]):::cStyle
     R3(["R: Monitoring Riwayat Rekam Medis"]):::rStyle
-    U11(["U: Edit / Hapus Rekam Medis (Override)"]):::uStyle
   end
 
   subgraph SistemAdmin ["Sistem & Pengaturan"]
@@ -609,7 +590,6 @@ flowchart LR
   Admin --> C2
   Admin --> U8
   Admin --> D2
-  Admin --> C3
   Admin --> C4
   Admin --> U9
   Admin --> D3
@@ -624,7 +604,6 @@ flowchart LR
   Admin --> C8
   Admin --> C9
   Admin --> R3
-  Admin --> U11
   Admin --> R4
   Admin --> R5
   Admin --> U12
@@ -676,9 +655,6 @@ flowchart LR
 *   **D2: Hapus Dokter (Soft Delete & Check Queue)**
     *   *Deskripsi*: Menonaktifkan dokter. Ditolak jika ada antrean aktif. Jika aman, men-soft-delete record user dan dokter sekaligus.
     *   *API*: `DELETE /api/doctors/{id}`
-*   **C3: Restore Dokter (User & Profile)**
-    *   *Deskripsi*: Memulihkan kembali data dokter beserta akun user yang terhapus via DB Transaction.
-    *   *API*: `POST /api/doctors/{id}/restore`
 *   **C4: Tambah Jadwal & Deteksi Overlap**
     *   *Deskripsi*: Menambahkan jadwal praktik dokter baru. Jam praktik divalidasi tidak boleh overlap dengan jadwal lama dokter tersebut.
     *   *API*: `POST /api/doctor-schedules`
@@ -721,9 +697,6 @@ flowchart LR
 *   **R3: Monitoring Riwayat Rekam Medis**
     *   *Deskripsi*: Memonitoring seluruh data rekam medis pasien dari semua poliklinik tanpa batasan akses.
     *   *API*: `GET /api/examinations`
-*   **U11: Edit / Hapus Rekam Medis (Override)**
-    *   *Deskripsi*: Mengubah atau menghapus rekam medis pasien mana saja di puskesmas (Wewenang Override Admin).
-    *   *API*: `PUT /api/examinations/{id}`, `DELETE /api/examinations/{id}`
 *   **R4: Dashboard Statistik Agregat**
     *   *Deskripsi*: Menampilkan statistik real-time (jumlah antrean aktif, completed, cancelled, statistik per poli) yang diperoleh melalui query agregat di backend.
     *   *API*: `GET /api/dashboard-stats`
@@ -754,7 +727,7 @@ Berikut adalah tabel ringkasan pemetaan kemampuan operasional CRUD (Create, Read
 | **Token FCM** | U | U | U | U |
 | **Toggle Online/Offline** | — | U | — | — |
 | **Antrean** | C, R, D | R, U | — | C, R, U, D |
-| **Rekam Medis & Resep** | R | C, R, U, D | — | R, U, D |
+| **Rekam Medis & Resep** | R | C, R | — | R |
 | **Tagihan & Pembayaran** | R, U* | — | — | R, U |
 | **Bukti Bayar (Upload/Verifikasi)** | U (upload) | — | — | U (verifikasi) |
 | **Resep / Penyerahan Obat** | — | — | R, U | R, U |
@@ -802,8 +775,6 @@ Berikut adalah daftar rincian endpoint Laravel REST API yang digunakan untuk mel
 | **U** Skip Antrean | `POST /api/queues/{id}/skip` | Menggeser antrean ke paling belakang | Admin |
 | **C** Buat Rekam Medis | `POST /api/examinations` | Buat rekam medis & resep (DB Transaction)| Dokter |
 | **R** Lihat Rekam Medis | `GET /api/examinations` | Melihat rekam medis (Riwayat/Semua) | Pasien, Dokter, Admin |
-| **U** Edit Rekam Medis | `PUT /api/examinations/{id}` | Memperbarui rekam medis (Override) | Dokter, Admin |
-| **D** Hapus Rekam Medis | `DELETE /api/examinations/{id}` | Menghapus rekam medis (Soft Delete) | Dokter, Admin |
 | **R** Lihat Tagihan | `GET /api/payments` | Menampilkan seluruh/daftar tagihan | Pasien, Admin |
 | **U** Upload Bukti Bayar | `POST /api/payments/{id}/upload-proof` | Mengupload bukti transfer (Image Picker)| Pasien |
 | **U** Verifikasi Transfer | `POST /api/payments/{id}/verify` | Menyetujui/menolak verifikasi transfer | Admin |
@@ -818,7 +789,6 @@ Berikut adalah daftar rincian endpoint Laravel REST API yang digunakan untuk mel
 | **C** Tambah Dokter | `POST /api/doctors` | Tambah dokter baru (DB Transaction) | Admin |
 | **U** Edit Dokter | `PUT /api/doctors/{id}` | Edit profil dokter (Poli Mutasi Check) | Admin |
 | **D** Hapus Dokter | `DELETE /api/doctors/{id}` | Soft delete dokter & user akun | Admin |
-| **C** Restore Dokter | `POST /api/doctors/{id}/restore` | Memulihkan dokter ter-softdelete | Admin |
 | **C** Tambah Jadwal | `POST /api/doctor-schedules` | Tambah jadwal praktik (Overlap Check) | Admin |
 | **R** Lihat Jadwal | `GET /api/doctor-schedules` | Mengambil jadwal dokter & sisa kuota | Admin, Pasien |
 | **U** Edit Jadwal | `PUT /api/doctor-schedules/{id}` | Edit jadwal praktik (Check Queue) | Admin |
@@ -849,4 +819,4 @@ Berikut adalah daftar rincian endpoint Laravel REST API yang digunakan untuk mel
 ---
 
 *Dokumen ini merupakan Use Case Diagram resmi sistem NalaSeva — Fokus CRUD Per Aktor.*  
-*Diperbarui: 4 Juni 2026 — Penambahan UC41 Session Timeout (Auto Logout 15 Menit) yang sebelumnya belum terdokumentasi; sinkronisasi dengan [FITUR_PER_AKTOR.md](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/dokumentasi/FITUR_PER_AKTOR.md).*
+*Diperbarui: 6 Juni 2026 — Sinkronisasi dengan sistem aktual: hapus fitur Restore Dokter (tidak diimplementasi) dan hapus operasi Edit/Hapus Rekam Medis (by design: rekam medis bersifat immutable setelah diterbitkan).*

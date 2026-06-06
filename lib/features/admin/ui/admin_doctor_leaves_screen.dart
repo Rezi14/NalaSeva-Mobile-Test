@@ -356,6 +356,47 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
     );
   }
 
+  Future<void> _deleteLeave(BuildContext context, Map<String, dynamic> leave) async {
+    final leaveId = int.tryParse(leave['id']?.toString() ?? '');
+    if (leaveId == null) return;
+
+    final doctorId = int.tryParse(leave['doctor_id']?.toString() ?? '') ?? 0;
+    final provider = context.read<AdminProvider>();
+    DoctorModel? matchedDoctor;
+    try {
+      matchedDoctor = provider.doctors.firstWhere((d) => d.id == doctorId);
+    } catch (_) {}
+    final doctorName = matchedDoctor?.name ?? 'dokter ini';
+
+    final confirmed = await AppDialogs.showConfirmationDialog(
+      context,
+      'Hapus Data Cuti?',
+      'Apakah Anda yakin ingin menghapus jadwal cuti $doctorName? Tindakan ini tidak dapat dibatalkan.',
+      confirmText: 'YA, HAPUS',
+      cancelText: 'BATAL',
+      isDestructive: true,
+    );
+    if (!(confirmed ?? false) || !context.mounted) return;
+
+    await provider.removeDoctorLeave(leaveId);
+    if (context.mounted) {
+      if (provider.error != null) {
+        AppDialogs.showNotificationDialog(
+          context,
+          'Gagal',
+          provider.error!,
+          isError: true,
+        );
+      } else {
+        AppDialogs.showSuccessDialog(
+          context,
+          'Berhasil Dihapus',
+          'Data cuti dokter telah berhasil dihapus.',
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
@@ -565,6 +606,23 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                                                     ),
                                                   ),
                                                 ],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            // Tombol Hapus
+                                            IconButton(
+                                              onPressed: () => _deleteLeave(context, leave),
+                                              icon: const Icon(
+                                                Icons.delete_outline_rounded,
+                                                color: AppTheme.errorColor,
+                                                size: 22,
+                                              ),
+                                              tooltip: 'Hapus Cuti',
+                                              style: IconButton.styleFrom(
+                                                backgroundColor: AppTheme.errorColor.withValues(alpha: 0.08),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
                                               ),
                                             ),
                                           ],

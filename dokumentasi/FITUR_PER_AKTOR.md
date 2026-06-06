@@ -277,17 +277,7 @@ Dokter berinteraksi dengan aplikasi untuk mengelola antrean di ruang periksa, me
   5. Kirim **FCM ke Pasien:** *"Tagihan Baru Diterbitkan. Silakan lakukan pembayaran sebesar Rp{total}."*
 - Setelah sukses: `DoctorProvider.finishExamination()` menyegarkan state `_queues` dan `_medicalRecords` sekaligus.
 
-#### F3.4 Edit Rekam Medis
-- Mengedit rekam medis yang pernah dibuat via `PUT /api/examinations/{id}`.
-- **Proteksi:** dokter hanya bisa mengedit rekam medis yang `doctor_id`-nya cocok dengan dirinya.
-
-#### F3.5 Hapus Rekam Medis
-- Menghapus (soft delete) rekam medis miliknya via `DELETE /api/examinations/{id}`.
-- **Proteksi:** dokter hanya bisa menghapus rekam medis yang dia buat sendiri.
-
----
-
-### 📊 F4 — Statistik Dashboard Dokter
+#### F3.4 Statistik Dashboard Dokter
 - Melihat statistik harian di dashboard: jumlah antrean aktif, antrean selesai.
 - Data statistik di-fetch dari `GET /api/dashboard-stats` (endpoint yang sama dengan Admin, namun data difilter di backend berdasarkan poliklinik dokter).
 
@@ -464,9 +454,6 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 - Backend mengecek antrean aktif dokter. Jika ada → ditolak.
 - Jika aman → DB Transaction: soft-delete tabel `doctors` dan `users` sekaligus.
 
-#### F4.4 Restore Dokter
-- Memulihkan dokter yang di-soft-delete. Backend: restore record `doctors` dan `users` sekaligus via Transaction.
-
 ---
 
 ### 📅 F5 — Manajemen Jadwal Praktik Dokter
@@ -561,9 +548,6 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 - `GET /api/examinations` (admin mendapatkan seluruh data tanpa filter poliklinik).
 - Bisa filter berdasarkan `patient_user_id` untuk mencari riwayat pasien spesifik.
 
-#### F10.2 Edit & Hapus Rekam Medis (Override)
-- Admin dapat mengedit atau menghapus (soft delete) rekam medis mana pun, tidak terbatas pada miliknya saja.
-
 ---
 
 ### 📊 F11 — Dashboard Statistik & TV Monitor
@@ -642,8 +626,6 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 | Skip Antrean | `POST /queues/{id}/skip` | Admin |
 | Buat Rekam Medis | `POST /examinations` | Dokter |
 | Lihat Rekam Medis | `GET /examinations` | Pasien, Dokter, Admin |
-| Edit Rekam Medis | `PUT /examinations/{id}` | Dokter, Admin |
-| Hapus Rekam Medis | `DELETE /examinations/{id}` | Dokter, Admin |
 | Lihat Tagihan | `GET /payments` | Semua |
 | Upload Bukti Transfer | `POST /payments/{id}/upload-proof` *(throttle 5/menit)* | Pasien |
 | Verifikasi Transfer | `POST /payments/{id}/verify` | Admin |
@@ -668,4 +650,4 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ---
 
 *Dokumen ini merupakan spesifikasi fitur resmi per role sistem NalaSeva.*  
-*Diperbarui: 4 Juni 2026 — Penambahan fitur Auto Logout berbasis inaktivitas (`SessionTimeoutListener`, F1.6) yang sebelumnya belum terdokumentasi.*
+*Diperbarui: 6 Juni 2026 — Sinkronisasi dengan sistem aktual: hapus fitur Restore Dokter (tidak diimplementasi) dan hapus operasi Edit/Hapus Rekam Medis (by design: rekam medis bersifat immutable).*

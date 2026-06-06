@@ -298,10 +298,7 @@ Map<String, dynamic> _systemSettings
 - Cek apakah dokter masih punya antrean aktif → jika ada, tolak penghapusan.
 - Gunakan DB Transaction: soft-delete record `doctors` dan `users` secara bersamaan.
 
-#### 3.4 Restore Dokter (Admin Only)
-- Restore record `doctors` dan `users` (yang juga soft-deleted) secara bersamaan via Transaction.
-
-#### 3.5 Update Status Online (Dokter Only)
+#### 3.4 Update Status Online (Dokter Only)
 - Dokter dapat mengubah status `is_online` (true/false).
 - Jika dokter set status menjadi **offline**, sistem langsung mengirim **notifikasi FCM ke semua admin** yang memiliki FCM token, dengan pesan bahwa dokter sedang istirahat.
 
@@ -461,14 +458,7 @@ Map<String, dynamic> _systemSettings
 - Dokter: hanya bisa melihat rekam medis dari polikliniknya sendiri, bisa difilter berdasarkan `patient_user_id`.
 - Admin: bisa melihat semua, bisa filter berdasarkan `patient_user_id`.
 
-#### 9.3 Update Rekam Medis (Dokter & Admin)
-- Pasien dilarang mengubah rekam medis.
-- Dokter hanya bisa mengubah rekam medis yang dia buat sendiri (`doctor_id` harus cocok).
-
-#### 9.4 Hapus Rekam Medis (Dokter & Admin)
-- Pasien dilarang menghapus.
-- Dokter hanya bisa menghapus rekam medis miliknya sendiri.
-- Menggunakan soft-delete.
+> **Catatan Desain:** Rekam medis bersifat **immutable** setelah diterbitkan — tidak ada operasi update atau delete yang disediakan. Hal ini menjaga integritas data medis dan jejak audit pemeriksaan.
 
 ---
 

@@ -295,6 +295,42 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
     );
   }
 
+  Future<void> _deleteHoliday(BuildContext context, Map<String, dynamic> holiday) async {
+    final holidayId = int.tryParse(holiday['id']?.toString() ?? '');
+    if (holidayId == null) return;
+
+    final description = holiday['description']?.toString() ?? 'hari libur ini';
+    final provider = context.read<AdminProvider>();
+
+    final confirmed = await AppDialogs.showConfirmationDialog(
+      context,
+      'Hapus Hari Libur?',
+      'Apakah Anda yakin ingin menghapus "$description"? Tindakan ini tidak dapat dibatalkan.',
+      confirmText: 'YA, HAPUS',
+      cancelText: 'BATAL',
+      isDestructive: true,
+    );
+    if (!(confirmed ?? false) || !context.mounted) return;
+
+    await provider.removeClinicHoliday(holidayId);
+    if (context.mounted) {
+      if (provider.error != null) {
+        AppDialogs.showNotificationDialog(
+          context,
+          'Gagal',
+          provider.error!,
+          isError: true,
+        );
+      } else {
+        AppDialogs.showSuccessDialog(
+          context,
+          'Berhasil Dihapus',
+          'Hari libur telah berhasil dihapus.',
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
@@ -461,7 +497,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                                               ),
                                             ),
                                             const SizedBox(width: 16),
-                                            Expanded(
+                                             Expanded(
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
@@ -483,6 +519,23 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                                                     ),
                                                   ),
                                                 ],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            // Tombol Hapus
+                                            IconButton(
+                                              onPressed: () => _deleteHoliday(context, holiday),
+                                              icon: const Icon(
+                                                Icons.delete_outline_rounded,
+                                                color: AppTheme.errorColor,
+                                                size: 22,
+                                              ),
+                                              tooltip: 'Hapus Hari Libur',
+                                              style: IconButton.styleFrom(
+                                                backgroundColor: AppTheme.errorColor.withValues(alpha: 0.08),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
                                               ),
                                             ),
                                           ],
