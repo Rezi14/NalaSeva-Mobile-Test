@@ -119,12 +119,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _showUserForm(context),
-          backgroundColor: AppTheme.primaryColor,
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+        floatingActionButton: ResponsiveCenter(
+          maxWidth: 950,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton(
+              onPressed: () => _showUserForm(context),
+              backgroundColor: AppTheme.primaryColor,
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+            ),
+          ),
         ),
         body: Consumer<AdminProvider>(
           builder: (context, provider, child) {

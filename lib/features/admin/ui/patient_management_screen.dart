@@ -202,14 +202,21 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
           ],
         ),
       ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => AdminPatientFormSheet.show(context),
-          backgroundColor: AppTheme.primaryColor,
-          foregroundColor: Colors.white,
-          icon: const Icon(Icons.person_add_alt_1_rounded),
-          label: Text(
-            'TAMBAH PASIEN',
-            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+        floatingActionButton: ResponsiveCenter(
+          maxWidth: 900,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton.extended(
+              onPressed: () => AdminPatientFormSheet.show(context),
+              backgroundColor: AppTheme.primaryColor,
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.person_add_alt_1_rounded),
+              label: Text(
+                'TAMBAH PASIEN',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+              ),
+            ),
           ),
         ),
       ),

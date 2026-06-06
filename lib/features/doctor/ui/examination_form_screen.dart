@@ -530,8 +530,8 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryColor,
                             foregroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context))),
                             elevation: 0,
                           ),
                         );

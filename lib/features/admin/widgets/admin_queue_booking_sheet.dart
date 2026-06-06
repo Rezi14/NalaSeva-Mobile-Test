@@ -8,6 +8,7 @@ import '../../../shared/models/schedule_model.dart';
 import '../../../shared/models/doctor_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class AdminQueueBookingSheet extends StatefulWidget {
   final PatientModel patient;
@@ -102,12 +103,16 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
       }).toList();
     }
 
+    final sheetH = ResponsiveHelper.sheetMaxHeight(context);
+    final pad    = ResponsiveHelper.paddingDialog(context);
+    final headSz = ResponsiveHelper.fontSizeHeading(context);
+    final btnH   = ResponsiveHelper.buttonHeight(context);
+    final btnR   = ResponsiveHelper.radiusButton(context);
+
     return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
-      ),
+      constraints: BoxConstraints(maxHeight: sheetH),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
+        padding: EdgeInsets.fromLTRB(pad, pad, pad, MediaQuery.of(context).viewInsets.bottom + pad),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -118,12 +123,12 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                 Text(
                   'Daftar Antrean Manual',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
+                    fontSize: headSz,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: pad),
                 // Patient Summary Card
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -305,9 +310,9 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.grey),
-                          minimumSize: const Size(double.infinity, 50),
+                          minimumSize: Size(double.infinity, btnH),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(btnR),
                           ),
                         ),
                         child: Text(
@@ -395,8 +400,8 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          minimumSize: Size(double.infinity, btnH),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(btnR)),
                         ),
                         child: provider.isLoading
                             ? const SizedBox(

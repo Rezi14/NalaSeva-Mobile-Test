@@ -64,21 +64,30 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        bottomNavigationBar: const AdminBottomNav(activeIndex: 1),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _openScanner(context),
-          backgroundColor: AppTheme.primaryColor,
-          elevation: 4,
-          icon: const Icon(
-            Icons.qr_code_scanner_rounded,
-            color: Colors.white,
-          ),
-          label: Text(
-            'SCAN ABSENSI',
-            style: GoogleFonts.plusJakartaSans(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 0.5,
+        floatingActionButton: ResponsiveCenter(
+          maxWidth: 900,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 76),
+              child: FloatingActionButton.extended(
+                onPressed: () => _openScanner(context),
+                backgroundColor: AppTheme.primaryColor,
+                elevation: 4,
+                icon: const Icon(
+                  Icons.qr_code_scanner_rounded,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  'SCAN ABSENSI',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -330,7 +339,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                                          color: Colors.black87,
                                        ),
                                        textAlign: TextAlign.center,
-                                     ),
+                                      ),
                                      const SizedBox(height: 12),
                                      Text(
                                        isSearchingOrFiltering
@@ -406,6 +415,12 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                        ),
                ),
              ),
+
+              // Bottom Navigation
+              FadeInUp(
+                duration: const Duration(milliseconds: 500),
+                child: const AdminBottomNav(activeIndex: 1),
+              ),
             ],
           ),
         ),

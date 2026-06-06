@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../features/auth/logic/auth_provider.dart';
 import '../../core/router/app_router.dart';
+import '../../core/theme/app_theme.dart';
 
 class SessionTimeoutListener extends StatefulWidget {
   final Widget child;
@@ -42,16 +44,64 @@ class _SessionTimeoutListenerState extends State<SessionTimeoutListener> {
     if (!mounted) return;
     
     final authProvider = context.read<AuthProvider>();
-    if (authProvider.user != null) {
+    final user = authProvider.user;
+    if (user != null && user.role == 'patient') {
       await authProvider.logout();
       // Redirect to login screen
       AppRouter.navigatorKey.currentState?.pushNamedAndRemoveUntil('/', (route) => false);
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sesi Anda telah berakhir karena tidak ada aktivitas.'),
+          SnackBar(
+            content: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.timer_off_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Sesi Telah Berakhir',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Sesi Anda telah berakhir karena tidak ada aktivitas.',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             behavior: SnackBarBehavior.floating,
+            backgroundColor: AppTheme.warningColor,
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -60,7 +110,8 @@ class _SessionTimeoutListenerState extends State<SessionTimeoutListener> {
 
   void _handleUserInteraction() {
     final authProvider = context.read<AuthProvider>();
-    if (authProvider.user != null) {
+    final user = authProvider.user;
+    if (user != null && user.role == 'patient') {
       _startTimer();
     }
   }

@@ -198,8 +198,8 @@ class ProfileScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.cancelColor,
                   foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context))),
                   elevation: 0,
                 ),
               ),

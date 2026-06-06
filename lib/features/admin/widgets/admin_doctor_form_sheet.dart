@@ -7,6 +7,7 @@ import '../../../shared/models/doctor_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class AdminDoctorFormSheet {
   static void show(BuildContext context, {DoctorModel? doctor}) {
@@ -57,12 +58,16 @@ class AdminDoctorFormSheet {
           }
 
           return Consumer<AdminProvider>(
-            builder: (context, provider, child) => Container(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.85,
-              ),
+            builder: (context, provider, child) {
+              final sheetH = ResponsiveHelper.sheetMaxHeight(context);
+              final pad    = ResponsiveHelper.paddingDialog(context);
+              final headSz = ResponsiveHelper.fontSizeHeading(context);
+              final btnH   = ResponsiveHelper.buttonHeight(context);
+              final btnR   = ResponsiveHelper.radiusButton(context);
+              return Container(
+              constraints: BoxConstraints(maxHeight: sheetH),
               child: Padding(
-                padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
+                padding: EdgeInsets.fromLTRB(pad, pad, pad, MediaQuery.of(context).viewInsets.bottom + pad),
                 child: SingleChildScrollView(
               child: Form(
                 key: formKey,
@@ -72,9 +77,9 @@ class AdminDoctorFormSheet {
                   children: [
                   Text(
                     isEdit ? 'Edit Dokter' : 'Tambah Dokter Baru', 
-                    style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.plusJakartaSans(fontSize: headSz, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: pad),
                   TextFormField(
                     controller: nameController, 
                     decoration: const InputDecoration(
@@ -306,7 +311,7 @@ class AdminDoctorFormSheet {
                       prefixIcon: Icon(Icons.location_on_outlined),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: pad),
                   Row(
                     children: [
                       Expanded(
@@ -353,9 +358,9 @@ class AdminDoctorFormSheet {
                           },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.grey),
-                            minimumSize: const Size(double.infinity, 50),
+                            minimumSize: Size(double.infinity, btnH),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(btnR),
                             ),
                           ),
                           child: Text(
@@ -430,8 +435,8 @@ class AdminDoctorFormSheet {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryColor,
-                            minimumSize: const Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            minimumSize: Size(double.infinity, btnH),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(btnR)),
                           ),
                           child: provider.isLoading
                               ? const SizedBox(
@@ -449,9 +454,10 @@ class AdminDoctorFormSheet {
             ),
           ),
         ),
-      ),
-    );
-  },
+      );
+    },
+  );
+},
 ),
 );
   }

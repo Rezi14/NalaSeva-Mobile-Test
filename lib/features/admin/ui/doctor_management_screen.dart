@@ -358,12 +358,19 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
           ],
         ),
       ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => AdminDoctorFormSheet.show(context),
-          backgroundColor: AppTheme.primaryColor,
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: const Icon(Icons.add_rounded, color: Colors.white),
+        floatingActionButton: ResponsiveCenter(
+          maxWidth: 900,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton(
+              onPressed: () => AdminDoctorFormSheet.show(context),
+              backgroundColor: AppTheme.primaryColor,
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: const Icon(Icons.add_rounded, color: Colors.white),
+            ),
+          ),
         ),
       ),
     );

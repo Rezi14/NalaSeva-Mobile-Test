@@ -203,12 +203,22 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             ),
           ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  // Digital Ticket Card
-                  FadeInUp(
+            child: RefreshIndicator(
+              color: AppTheme.primaryColor,
+              onRefresh: () async {
+                try {
+                  await context.read<PatientProvider>().fetchMyQueues();
+                } catch (e) {
+                  // Silent catch
+                }
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    // Digital Ticket Card
+                    FadeInUp(
                     duration: const Duration(milliseconds: 600),
                     child: Container(
                       decoration: BoxDecoration(
@@ -260,36 +270,40 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                           color: Colors.grey.shade600,
                                         ),
                                       ),
-                                      if (puskesmasProfile?.latitude != null && puskesmasProfile?.longitude != null) ...[
-                                        const SizedBox(height: 6),
-                                        InkWell(
-                                          onTap: () async {
-                                            final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${puskesmasProfile!.latitude},${puskesmasProfile.longitude}');
-                                            if (await canLaunchUrl(url)) {
-                                              await launchUrl(url, mode: LaunchMode.externalApplication);
-                                            }
-                                          },
-                                          borderRadius: BorderRadius.circular(4),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 2),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(Icons.directions_rounded, color: AppTheme.primaryColor, size: 14),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  'Petunjuk Rute',
-                                                  style: GoogleFonts.inter(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: AppTheme.primaryColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                       if (puskesmasProfile?.latitude != null && puskesmasProfile?.longitude != null) ...[
+                                         const SizedBox(height: 8),
+                                         InkWell(
+                                           onTap: () async {
+                                             final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${puskesmasProfile!.latitude},${puskesmasProfile.longitude}');
+                                             if (await canLaunchUrl(url)) {
+                                               await launchUrl(url, mode: LaunchMode.externalApplication);
+                                             }
+                                           },
+                                           borderRadius: BorderRadius.circular(20),
+                                           child: Container(
+                                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                             decoration: BoxDecoration(
+                                               color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                                               borderRadius: BorderRadius.circular(20),
+                                             ),
+                                             child: Row(
+                                               mainAxisSize: MainAxisSize.min,
+                                               children: [
+                                                 const Icon(Icons.directions_rounded, color: AppTheme.primaryColor, size: 16),
+                                                 const SizedBox(width: 6),
+                                                 Text(
+                                                   'Petunjuk Rute',
+                                                   style: GoogleFonts.plusJakartaSans(
+                                                     fontSize: 12,
+                                                     fontWeight: FontWeight.bold,
+                                                     color: AppTheme.primaryColor,
+                                                   ),
+                                                 ),
+                                               ],
+                                             ),
+                                           ),
+                                         ),
+                                       ],
                                     ],
                                   ),
                                 ),
@@ -312,12 +326,18 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  queue.queueNumber,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 64,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppTheme.primaryColor,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      queue.queueNumber,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 64,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppTheme.primaryColor,
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -631,6 +651,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               ),
             ),
           ),
+        ),
         ],
       ),
     ),

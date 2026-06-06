@@ -110,6 +110,29 @@ class AppTheme {
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         constraints: BoxConstraints(maxWidth: 600),
+        showDragHandle: true,
+        dragHandleColor: Color(0xFFE0E0E0),
+        dragHandleSize: Size(40, 4),
+        modalElevation: 8,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: Colors.white,
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        titleTextStyle: TextStyle(
+          fontFamily: 'PlusJakartaSans',
+          fontSize: 17,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+        contentTextStyle: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 13,
+          color: Colors.black87,
+          height: 1.5,
+        ),
       ),
     );
   }

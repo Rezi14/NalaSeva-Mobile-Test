@@ -252,11 +252,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: 44,
-                backgroundColor: Colors.grey.shade100,
-                child: Icon(Icons.notifications_none_rounded,
-                    size: 44, color: Colors.grey.shade400),
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.notifications_none_rounded,
+                  size: 48,
+                  color: AppTheme.primaryColor,
+                ),
               ),
               const SizedBox(height: 20),
               Text(
@@ -264,7 +270,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade500,
+                  color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 8),
@@ -273,7 +279,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  color: Colors.grey.shade400,
+                  color: Colors.grey.shade600,
                   height: 1.6,
                 ),
               ),

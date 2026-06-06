@@ -312,8 +312,6 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                   ),
                 ),
 
-                const Divider(height: 1),
-
                 // Scrollable Content
                 Expanded(
                   child: SingleChildScrollView(
@@ -527,47 +525,54 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
               ),
           ],
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 76),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              _buildFabMenuItem(
-                icon: Icons.local_hospital_rounded,
-                label: 'Manajemen Poliklinik',
-                onTap: () => Navigator.pushNamed(context, '/admin/polyclinics'),
-              ),
-              _buildFabMenuItem(
-                icon: Icons.people_rounded,
-                label: 'Manajemen Dokter',
-                onTap: () => Navigator.pushNamed(context, '/admin/doctors'),
-              ),
-              _buildFabMenuItem(
-                icon: Icons.calendar_month_rounded,
-                label: 'Manajemen Jadwal Dokter',
-                onTap: () => Navigator.pushNamed(context, '/admin/schedules'),
-              ),
-              _buildFabMenuItem(
-                icon: Icons.person_search_rounded,
-                label: 'Manajemen Pasien',
-                onTap: () => Navigator.pushNamed(context, '/admin/patients'),
-              ),
-              const SizedBox(height: 8),
-              FloatingActionButton(
-                heroTag: 'main_admin_fab',
-                onPressed: _toggleFabMenu,
-                backgroundColor: AppTheme.primaryColor,
-                child: RotationTransition(
-                  turns: _rotationAnimation,
-                  child: Icon(
-                    _isFabOpen ? Icons.close_rounded : Icons.add_rounded,
-                    color: Colors.white,
-                    size: 28,
+        floatingActionButton: ResponsiveCenter(
+          maxWidth: 950,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 76),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  _buildFabMenuItem(
+                    icon: Icons.local_hospital_rounded,
+                    label: 'Manajemen Poliklinik',
+                    onTap: () => Navigator.pushNamed(context, '/admin/polyclinics'),
                   ),
-                ),
+                  _buildFabMenuItem(
+                    icon: Icons.people_rounded,
+                    label: 'Manajemen Dokter',
+                    onTap: () => Navigator.pushNamed(context, '/admin/doctors'),
+                  ),
+                  _buildFabMenuItem(
+                    icon: Icons.calendar_month_rounded,
+                    label: 'Manajemen Jadwal Dokter',
+                    onTap: () => Navigator.pushNamed(context, '/admin/schedules'),
+                  ),
+                  _buildFabMenuItem(
+                    icon: Icons.person_search_rounded,
+                    label: 'Manajemen Pasien',
+                    onTap: () => Navigator.pushNamed(context, '/admin/patients'),
+                  ),
+                  const SizedBox(height: 8),
+                  FloatingActionButton(
+                    heroTag: 'main_admin_fab',
+                    onPressed: _toggleFabMenu,
+                    backgroundColor: AppTheme.primaryColor,
+                    child: RotationTransition(
+                      turns: _rotationAnimation,
+                      child: Icon(
+                        _isFabOpen ? Icons.close_rounded : Icons.add_rounded,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

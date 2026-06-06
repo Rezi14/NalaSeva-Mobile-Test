@@ -63,6 +63,15 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 - **Aturan NIK:** NIK hanya bisa diisi/diubah **jika sebelumnya masih kosong**. Setelah NIK tersimpan, tidak dapat diubah lagi untuk mencegah pemalsuan identitas.
 - Setelah update: Flutter otomatis refetch `GET /api/auth/profile` dan sinkronisasi ulang `patient_id` di storage.
 
+#### F1.6 Auto Logout (Session Timeout — Pasien Only)
+- Widget `SessionTimeoutListener` membungkus seluruh `MaterialApp` secara global, namun pengecekan inaktivitas hanya aktif untuk pengguna dengan **role pasien**.
+- Jika pengguna dengan role pasien tidak berinteraksi dengan layar selama **15 menit** (tidak ada `onPointerDown` maupun `onPointerSignal`), sistem secara otomatis:
+  1. Memanggil `authProvider.logout()` → hapus token dari `FlutterSecureStorage`, panggil API logout.
+  2. Redirect paksa ke halaman Login via `AppRouter.navigatorKey.currentState?.pushNamedAndRemoveUntil('/')` (global navigasi tanpa `BuildContext`).
+  3. Menampilkan `SnackBar` floating berwarna kuning/warning: **"Sesi Telah Berakhir — Sesi Anda telah berakhir karena tidak ada aktivitas."**
+- Timer reset otomatis setiap kali pengguna menyentuh layar.
+- Berbeda dengan Auto-Logout pada **F1.2** (error interceptor 401) — fitur ini berbasis **inaktivitas waktu**, bukan respons server.
+
 ---
 
 ### 🗓️ F2 — Booking & Manajemen Antrean
@@ -366,7 +375,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 - Login menggunakan kredensial admin (`role = 'admin'`).
 - Navigasi ke `/admin/home`.
 
-#### F1.2 Error Interceptor & Auto-Logout
+#### F1.2 Error Interceptor (401 Auto-Logout)
 - `ApiClient` (Dio) memiliki error interceptor: jika server mengembalikan **HTTP 401 Unauthorized**, sistem otomatis menghapus semua key storage dan meredirect ke layar Login menggunakan `AppRouter.navigatorKey.currentState?.pushNamedAndRemoveUntil('/')` (navigasi global tanpa `BuildContext`).
 
 ---
@@ -659,4 +668,4 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ---
 
 *Dokumen ini merupakan spesifikasi fitur resmi per role sistem NalaSeva.*  
-*Diperbarui: 3 Juni 2026 — Disinkronkan penuh dengan `BUSINESS_LOGIC.md`, `ALUR_BISNIS.md`, dan `USECASE_DIAGRAM.md`.*
+*Diperbarui: 4 Juni 2026 — Penambahan fitur Auto Logout berbasis inaktivitas (`SessionTimeoutListener`, F1.6) yang sebelumnya belum terdokumentasi.*

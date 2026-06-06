@@ -264,18 +264,25 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                                   padding: const EdgeInsets.only(top: 60),
                                   child: Column(
                                     children: [
-                                      CircleAvatar(
-                                        radius: 40,
-                                        backgroundColor: Colors.grey.shade100,
-                                        child: Icon(Icons.medical_information_rounded, size: 40, color: Colors.grey.shade400),
+                                      Container(
+                                        padding: const EdgeInsets.all(24),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.medical_information_rounded,
+                                          size: 48,
+                                          color: AppTheme.primaryColor,
+                                        ),
                                       ),
-                                      const SizedBox(height: 16),
+                                      const SizedBox(height: 20),
                                       Text(
                                         'Belum ada rekam medis',
                                         style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 16,
+                                          fontSize: 17,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.grey.shade500,
+                                          color: Colors.black87,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
@@ -284,7 +291,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.inter(
                                           fontSize: 13,
-                                          color: Colors.grey.shade400,
+                                          color: Colors.grey.shade600,
                                           height: 1.5,
                                         ),
                                       ),

@@ -113,7 +113,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                              border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.2)),
                             ),
                             child: IconButton(
                               icon: const Icon(Icons.notifications_none_rounded, color: AppTheme.primaryColor),
@@ -129,8 +128,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
  
               TomorrowReminderCard(provider: provider),
               TurnIsNearAlertCard(provider: provider),
- 
-              const Divider(height: 1),
  
               Padding(
                 padding: const EdgeInsets.all(24),
@@ -228,12 +225,12 @@ class _PatientDashboardState extends State<PatientDashboard> {
                         icon: const Icon(Icons.call_rounded, color: Colors.white),
                         label: const Text('Panggilan Darurat'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(double.infinity, 56),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          elevation: 0,
-                        ),
+                           backgroundColor: Colors.red,
+                           foregroundColor: Colors.white,
+                           minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context))),
+                           elevation: 0,
+                         ),
                       ),
                     ),
                     const SizedBox(height: 24),

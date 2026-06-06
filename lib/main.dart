@@ -22,6 +22,9 @@ import 'shared/widgets/connectivity_banner.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+import 'package:flutter/foundation.dart';
+import 'core/services/firebase_messaging_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -78,6 +81,18 @@ class _NalasevaAppState extends State<NalasevaApp> {
   }
 
   Future<void> _checkInitialAuth() async {
+    // Request FCM permission and initialize immediately on app start
+    if (!kIsWeb) {
+      try {
+        final fcmService = FirebaseMessagingService();
+        await fcmService.initialize();
+      } catch (e) {
+        debugPrint('FCM Init at startup failed: $e');
+      }
+    }
+    
+    if (!mounted) return;
+
     final authProvider = context.read<AuthProvider>();
     await authProvider.checkAuth();
     if (mounted) {

@@ -207,6 +207,19 @@ class AuthProvider extends ChangeNotifier {
           } else {
             await _storage.delete(key: 'doctor_id');
           }
+
+          if (!kIsWeb) {
+            try {
+              final fcmService = FirebaseMessagingService();
+              await fcmService.initialize();
+              final tokenStr = await fcmService.getFCMToken();
+              if (tokenStr != null) {
+                await _repository.updateFcmToken(tokenStr);
+              }
+            } catch (e) {
+              debugPrint('FCM Setup Error on checkAuth: $e');
+            }
+          }
         }
       } catch (e) {
         final errStr = e.toString().toLowerCase();

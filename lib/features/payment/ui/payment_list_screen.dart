@@ -107,7 +107,6 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        bottomNavigationBar: isAdmin ? const AdminBottomNav(activeIndex: 3) : null,
         body: Consumer<PaymentProvider>(
           builder: (context, provider, child) {
             final filteredPayments = provider.payments.where((p) {
@@ -527,10 +526,16 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                     ),
                   ),
                 ),
-              ],
-            ),
-          );
-        },
+                // Bottom Navigation
+                if (isAdmin)
+                  FadeInUp(
+                    duration: const Duration(milliseconds: 500),
+                    child: const AdminBottomNav(activeIndex: 3),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

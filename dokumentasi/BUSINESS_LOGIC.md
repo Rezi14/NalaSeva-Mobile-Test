@@ -29,6 +29,7 @@
 20. [Pengaturan Dinamis Puskesmas (System Settings)](#20-pengaturan-dinamis-puskesmas-system-settings)
 21. [Standarisasi UI/UX & Penyempurnaan Alur Dialog (Flutter)](#21-standarisasi-uiux--penyempurnaan-alur-dialog-flutter)
 22. [Flutter: Utilitas & Integrasi Sistem](#22-flutter-utilitas--integrasi-sistem)
+    - [22.11 Session Timeout Listener (Auto Logout)](#2211-session-timeout-listener-auto-logout)
 23. [Struktur Model Data (Flutter)](#23-struktur-model-data-flutter)
 24. [Daftar Dependensi & Library (pubspec.yaml)](#24-daftar-dependensi--library-pubspecyaml)
 25. [Daftar Lengkap Halaman UI (UI Screens)](#25-daftar-lengkap-halaman-ui-ui-screens)
@@ -1064,6 +1065,28 @@ Sistem UI dikonsistensikan secara dinamis menggunakan utilitas responsif terpadu
 - **ResponsiveCenter (Centering Guard)**:
   - Membungkus konten agar tidak melebar berantakan di layar besar (seperti tablet/iPad). Membatasi lebar konten maksimal (`maxWidth` default `800`) dan memusatkan posisinya di layar sehingga tata letak UI tetap seimbang dan premium.
 
+#### 22.11 Session Timeout Listener (Auto Logout)
+- **File**: [session_timeout_listener.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/widgets/session_timeout_listener.dart)
+- Widget `StatefulWidget` yang membungkus seluruh `MaterialApp` via `builder` di `main.dart` secara global, tetapi mekanisme inaktivitas dan logout hanya diterapkan khusus untuk pengguna dengan **role pasien** (`patient`).
+- **Mekanisme Timer Inaktivitas**:
+  - Menggunakan `dart:async Timer` dengan durasi default **15 menit** (`const Duration(minutes: 15)`).
+  - Timer **direset** setiap kali pengguna dengan role pasien menyentuh layar (`onPointerDown`) atau melakukan scroll (`onPointerSignal`) melalui widget `Listener` dengan `HitTestBehavior.translucent`.
+  - Jika **tidak ada interaksi selama 15 menit**, method `_handleTimeout()` dipanggil secara otomatis.
+- **Alur Timeout (`_handleTimeout`):**
+  1. Cek `authProvider.user != null && authProvider.user.role == 'patient'` — hanya dieksekusi jika pengguna yang login adalah pasien.
+  2. Panggil `authProvider.logout()` untuk menghapus token dari `FlutterSecureStorage` dan memanggil API logout.
+  3. Redirect paksa ke halaman login via `AppRouter.navigatorKey.currentState?.pushNamedAndRemoveUntil('/', ...)` (global navigasi tanpa `BuildContext`).
+  4. Tampilkan `SnackBar` floating berwarna `warningColor` dengan pesan: **"Sesi Telah Berakhir - Sesi Anda telah berakhir karena tidak ada aktivitas."**
+- **Integrasi di `main.dart`**: Diterapkan sebagai layer terluar dari `ConnectivityBanner`:
+  ```dart
+  builder: (context, child) {
+    return SessionTimeoutListener(
+      timeoutDuration: const Duration(minutes: 15),
+      child: ConnectivityBanner(child: child!),
+    );
+  }
+  ```
+
 ---
 
 ## 23. Struktur Model Data (Flutter)
@@ -1215,4 +1238,4 @@ Berikut adalah pembagian seluruh berkas halaman antarmuka (UI Screens) yang diim
 ---
 
 *Dokumen ini mencakup **seluruh** logika bisnis dari kedua project NalaSeva.*  
-*Diperbarui: 3 Juni 2026 — Sinkronisasi penuh dengan kode aktual Flutter (`nalaseva 3`)*
+*Diperbarui: 4 Juni 2026 — Penambahan dokumentasi fitur Auto Logout (`SessionTimeoutListener`) yang sebelumnya belum terdokumentasi.*

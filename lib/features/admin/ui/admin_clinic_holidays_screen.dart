@@ -72,9 +72,9 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 24,
-                right: 24,
-                top: 24,
+                left: ResponsiveHelper.paddingDialog(context),
+                right: ResponsiveHelper.paddingDialog(context),
+                top: ResponsiveHelper.paddingDialog(context),
               ),
               child: Form(
                 key: formKey,
@@ -199,9 +199,9 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                               },
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(color: Colors.grey),
-                                minimumSize: const Size(double.infinity, 50),
+                                minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                                 ),
                               ),
                               child: Text(
@@ -263,8 +263,8 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                                     },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primaryColor,
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context))),
                               ),
                               child: isSaving
                                   ? const SizedBox(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class BookingResultDialog extends StatelessWidget {
   final bool isSuccess;
@@ -23,29 +24,44 @@ class BookingResultDialog extends StatelessWidget {
     return showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          elevation: 10,
-          backgroundColor: Colors.transparent,
-          constraints: const BoxConstraints(maxWidth: 480),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: ResponsiveHelper.isLandscape(ctx) ? 48 : 24,
+          vertical: ResponsiveHelper.isLandscape(ctx) ? 16 : 40,
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: ResponsiveHelper.dialogMaxWidth(ctx),
+            maxHeight: ResponsiveHelper.dialogMaxHeight(ctx),
+          ),
           child: BookingResultDialog(
             isSuccess: isSuccess,
             message: message,
             onFinished: onFinished,
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final padding  = ResponsiveHelper.paddingDialog(context);
+    final radius   = ResponsiveHelper.radiusDialog(context);
+    final iconSz   = ResponsiveHelper.iconSize(context, base: 52);
+    final iconPad  = ResponsiveHelper.paddingCard(context);
+    final headSz   = ResponsiveHelper.fontSizeHeading(context);
+    final bodySz   = ResponsiveHelper.fontSizeBody(context);
+    final btnH     = ResponsiveHelper.buttonHeight(context);
+    final btnR     = ResponsiveHelper.radiusButton(context);
+    final btnFontSz = ResponsiveHelper.fontSizeButton(context);
+    final isLandscape = ResponsiveHelper.isLandscape(context);
+
     return Container(
-      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(radius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -54,65 +70,121 @@ class BookingResultDialog extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isSuccess ? AppTheme.successColor.withValues(alpha: 0.1) : AppTheme.errorColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
-              size: 64,
-              color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            isSuccess ? 'Pendaftaran Berhasil' : 'Pendaftaran Gagal',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.grey[700],
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon with optional row layout in landscape to save vertical space
+              if (isLandscape)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(iconPad * 0.7),
+                      decoration: BoxDecoration(
+                        color: isSuccess
+                            ? AppTheme.successColor.withValues(alpha: 0.1)
+                            : AppTheme.errorColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
+                        size: iconSz * 0.85,
+                        color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
+                      ),
+                    ),
+                    SizedBox(width: padding * 0.8),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isSuccess ? 'Pendaftaran Berhasil' : 'Pendaftaran Gagal',
+                            style: GoogleFonts.outfit(
+                              fontSize: headSz,
+                              fontWeight: FontWeight.bold,
+                              color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            message,
+                            style: GoogleFonts.inter(
+                              fontSize: bodySz,
+                              color: Colors.grey[700],
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              else ...[
+                Container(
+                  padding: EdgeInsets.all(iconPad),
+                  decoration: BoxDecoration(
+                    color: isSuccess
+                        ? AppTheme.successColor.withValues(alpha: 0.1)
+                        : AppTheme.errorColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
+                    size: iconSz,
+                    color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
+                  ),
                 ),
-                elevation: 0,
-              ),
-              onPressed: onFinished,
-              child: Text(
-                'Selesai',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                SizedBox(height: padding * 0.8),
+                Text(
+                  isSuccess ? 'Pendaftaran Berhasil' : 'Pendaftaran Gagal',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                    fontSize: headSz,
+                    fontWeight: FontWeight.bold,
+                    color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
+                  ),
+                ),
+                SizedBox(height: padding * 0.5),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: bodySz,
+                    color: Colors.grey[700],
+                    height: 1.5,
+                  ),
+                ),
+              ],
+
+              SizedBox(height: padding),
+              SizedBox(
+                width: double.infinity,
+                height: btnH,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(btnR),
+                    ),
+                  ),
+                  onPressed: onFinished,
+                  child: Text(
+                    'Selesai',
+                    style: GoogleFonts.inter(
+                      fontSize: btnFontSz,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
