@@ -123,7 +123,6 @@ flowchart LR
   Dokter --> UC18
   Dokter --> UC24
   Dokter --> UC40
-  Dokter --> UC41
 
   %% Apoteker
   Apoteker --> UC2
@@ -135,7 +134,6 @@ flowchart LR
   Apoteker --> UC26
   Apoteker --> UC27
   Apoteker --> UC28
-  Apoteker --> UC41
 
   %% Admin
   AdminActor --> UC2
@@ -739,8 +737,8 @@ flowchart LR
     *   *API*: `PUT /api/puskesmas-profile`
 *   **R6: Route-Level RBAC Guard (401 Interceptor)**
     *   *Deskripsi*: `ApiClient` (Dio) mendeteksi error **HTTP 401 Unauthorized** dari server dan langsung menghapus token + meredirect ke halaman Login secara global via `AppRouter.navigatorKey` tanpa `BuildContext`.
-*   **D_ST2: Session Timeout — Auto Logout (15 Menit)**
-    *   *Deskripsi*: Sama seperti `D_ST` di sub-sistem Pasien — widget `SessionTimeoutListener` global aktif untuk semua role termasuk Admin. Lihat deskripsi lengkap di Sub-Sistem Pasien.
+*   **D_ST2: Session Timeout — Auto Logout (15 Menit — Pasien Only)**
+    *   *Deskripsi*: Widget `SessionTimeoutListener` membungkus `MaterialApp` secara **global** via `builder`, namun logika pengecekan inaktivitas dan pemanggilan `logout()` **hanya aktif untuk pengguna dengan role `patient`**. Admin, Dokter, dan Apoteker **tidak** terkena auto-logout berbasis inaktivitas waktu ini. Use case ini didaftarkan di sini hanya sebagai catatan bahwa widget tersebut beroperasi di level global — namun efeknya terbatas pada pasien. Lihat deskripsi lengkap di Sub-Sistem Pasien (D_ST).
 
 ---
 
@@ -773,10 +771,10 @@ Berikut adalah tabel ringkasan pemetaan kemampuan operasional CRUD (Create, Read
 | **Pengaturan Sistem** | — | — | — | R, U |
 | **Profil Puskesmas & OSM Peta** | R | R | R | R, U |
 | **Koneksi Jaringan Internet** | R | R | R | R |
-| **Session Timeout (Auto Logout)** | D | D | D | D |
+| **Session Timeout (Auto Logout)** | D | — | — | — |
 
 > *Keterangan U* untuk Tagihan (Pasien) = Melakukan upload bukti pembayaran.*  
-> *Keterangan D* untuk Session Timeout = Fitur global yang secara otomatis men-logout pengguna setelah 15 menit tidak ada interaksi layar.*
+> *Keterangan D* untuk Session Timeout = Fitur yang secara otomatis men-logout **khusus role Pasien** setelah 15 menit tidak ada interaksi layar. Dokter, Apoteker, dan Admin **tidak** terkena auto-logout berbasis inaktivitas ini.*
 
 ---
 

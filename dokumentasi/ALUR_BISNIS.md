@@ -210,7 +210,7 @@ flowchart TD
     classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
     classDef fail fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
 
-    Start([Antrean Berjalan]):::startEnd --> Call[Admin Panggil Pasien via Dashboard]:::process
+    Start([Antrean Berjalan]):::startEnd --> Call[Admin Panggil Ulang Pasien via Dashboard\n    status antrean harus examining]:::process
     Call --> CountCheck{"recall_count >= 3?"}:::decision
     
     CountCheck -- Ya --> Skip[Kirim ke Urutan Paling Belakang]:::fail

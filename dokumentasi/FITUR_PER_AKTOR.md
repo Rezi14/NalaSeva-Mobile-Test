@@ -63,7 +63,7 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 - **Aturan NIK:** NIK hanya bisa diisi/diubah **jika sebelumnya masih kosong**. Setelah NIK tersimpan, tidak dapat diubah lagi untuk mencegah pemalsuan identitas.
 - Setelah update: Flutter otomatis refetch `GET /api/auth/profile` dan sinkronisasi ulang `patient_id` di storage.
 
-#### F1.6 Auto Logout (Session Timeout — Pasien Only)
+#### F1.7 Auto Logout (Session Timeout — Pasien Only)
 - Widget `SessionTimeoutListener` membungkus seluruh `MaterialApp` secara global, namun pengecekan inaktivitas hanya aktif untuk pengguna dengan **role pasien**.
 - Jika pengguna dengan role pasien tidak berinteraksi dengan layar selama **15 menit** (tidak ada `onPointerDown` maupun `onPointerSignal`), sistem secara otomatis:
   1. Memanggil `authProvider.logout()` → hapus token dari `FlutterSecureStorage`, panggil API logout.
