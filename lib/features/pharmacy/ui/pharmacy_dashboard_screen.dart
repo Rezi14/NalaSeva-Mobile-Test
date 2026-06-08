@@ -513,24 +513,26 @@ class _PharmacyDashboardScreenState extends State<PharmacyDashboardScreen> {
           ),
         ),
       ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const MedicineInventoryScreen()),
-            );
-          },
-          backgroundColor: AppTheme.primaryColor,
-          elevation: 4,
-          icon: const Icon(Icons.inventory_2_rounded, color: Colors.white),
-          label: Text(
-            'Kelola Obat',
-            style: GoogleFonts.plusJakartaSans(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        floatingActionButton: user?.role == 'pharmacist'
+            ? FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MedicineInventoryScreen()),
+                  );
+                },
+                backgroundColor: AppTheme.primaryColor,
+                elevation: 4,
+                icon: const Icon(Icons.inventory_2_rounded, color: Colors.white),
+                label: Text(
+                  'Kelola Obat',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            : null,
       ),
     );
   }

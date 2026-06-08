@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/models/payment_model.dart';
 import '../logic/pharmacy_provider.dart';
+import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/tts_helper.dart';
 import '../../../core/utils/app_dialogs.dart';
@@ -175,6 +176,9 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    final isPharmacist = user?.role == 'pharmacist';
+    
     final patient = widget.payment.queue?.patient;
     final patientName = patient?.name ?? 'Pasien';
     final nationalId = patient?.nationalId ?? '-';
@@ -437,32 +441,55 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
-                // Dispense Button
-                Expanded(
-                  child: SizedBox(
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                if (isPharmacist) ...[
+                  const SizedBox(width: 16),
+                  // Dispense Button
+                  Expanded(
+                    child: SizedBox(
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      onPressed: _isProcessing ? null : _dispensePrescription,
-                      child: _isProcessing
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : Text(
-                              'Serahkan Obat (Selesai)',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                        onPressed: _isProcessing ? null : _dispensePrescription,
+                        child: _isProcessing
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                'Serahkan Obat (Selesai)',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
+                      ),
                     ),
                   ),
-                ),
+                ] else ...[
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Text(
+                        'Hanya Apoteker yang dapat menyerahkan obat',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 40),

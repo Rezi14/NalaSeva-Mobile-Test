@@ -248,11 +248,7 @@ Dokter berinteraksi dengan aplikasi untuk mengelola antrean di ruang periksa, me
   - Saat berhasil: backend mencatat `called_time = now()` dan mengirimkan **FCM "Giliran Anda!"** ke HP pasien.
 - **Batasan dokter:** Dokter **dilarang** mengubah status ke `cancelled` — hanya admin yang bisa.
 
-#### F2.3 Skip Antrean (Geser ke Belakang)
-- Dokter dapat memindahkan antrean pasien ke posisi belakang antrean dari sisi dokter.
-- Request `POST queues/{id}/skip`. Backend: reset `check_in_time = now()`, `recall_count = 0`.
-
-#### F2.4 Riwayat Pemeriksaan Pasien (Patient History Lookup)
+#### F2.3 Riwayat Pemeriksaan Pasien (Patient History Lookup)
 - Melihat riwayat pemeriksaan pasien tertentu sebelum memulai pemeriksaan baru — berguna untuk konteks medis.
 - `fetchHistoryForPatient(patientUserId)` → `GET examinations?patient_user_id={id}` → disimpan ke state `_patientHistory`.
 - Terbatas pada rekam medis dari poliklinik dokter yang bersangkutan.
@@ -349,11 +345,6 @@ Apoteker memproses penyerahan obat resep yang telah dibayar lunas, mengelola inv
 - Request `DELETE medicines/{id}` → soft delete (data tidak benar-benar terhapus dari database).
 - Tujuan soft delete: riwayat resep lama yang merujuk obat ini tetap valid dan tidak rusak relasinya.
 - Sisi Flutter: item dihapus dari state list lokal `_medicines` via `removeWhere`.
-
-#### F3.5 Restore Obat (dari Arsip)
-- Memulihkan obat yang sebelumnya dihapus (soft delete) kembali ke inventaris aktif.
-- Request `POST medicines/{id}/restore`.
-- Sisi Flutter: item yang di-restore di-*append* kembali ke state list `_medicines`.
 
 ---
 
@@ -600,13 +591,10 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 
 ---
 
-### 🎛️ F14 — Hak Akses Apotek (Shared Role: Admin = Apoteker)
+### 🎛️ F14 — Hak Akses Apotek
 
-- Admin memiliki **semua akses yang sama** dengan Apoteker:
-  - Melihat antrean resep obat siap serah (`GET pharmacy/queues`).
-  - Serahkan obat ke pasien (`POST pharmacy/queues/{id}/dispense`).
-  - CRUD inventaris obat (`POST`, `PUT`, `DELETE medicines`).
-  - Restore obat yang di-soft-delete (`POST medicines/{id}/restore`).
+- Admin hanya dapat melihat antrean resep obat siap serah (`GET pharmacy/queues`).
+- Hak akses penyerahan obat (`POST pharmacy/queues/{id}/dispense`) dan pengelolaan inventaris obat (melihat, menambah, mengedit, dan menghapus obat) dibatasi **hanya untuk Apoteker**.
 
 ---
 
@@ -639,7 +627,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 | Update Status Antrean | `PUT` | `queues/{id}` | Dokter, Admin |
 | Check-In Loket | `POST` | `queues/{id}/checkin` | Admin |
 | Recall Antrean | `POST` | `queues/{id}/recall` | Admin |
-| Skip Antrean | `POST` | `queues/{id}/skip` | Dokter, Admin |
+| Skip Antrean | `POST` | `queues/{id}/skip` | Admin |
 
 ### 📝 Rekam Medis
 
@@ -663,12 +651,11 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 | Fitur | Method | Endpoint | Aktor |
 |---|---|---|---|
 | Lihat Antrean Resep Apotek | `GET` | `pharmacy/queues` | Admin, Apoteker |
-| Serahkan Obat (Dispense) | `POST` | `pharmacy/queues/{id}/dispense` | Admin, Apoteker |
-| Lihat Inventaris Obat | `GET` | `medicines` | Dokter, Admin, Apoteker |
-| Tambah Obat | `POST` | `medicines` | Admin, Apoteker |
-| Edit Obat | `PUT` | `medicines/{id}` | Admin, Apoteker |
-| Hapus Obat | `DELETE` | `medicines/{id}` | Admin, Apoteker |
-| Restore Obat | `POST` | `medicines/{id}/restore` | Admin, Apoteker |
+| Serahkan Obat (Dispense) | `POST` | `pharmacy/queues/{id}/dispense` | Apoteker |
+| Lihat Inventaris Obat | `GET` | `medicines` | Apoteker |
+| Tambah Obat | `POST` | `medicines` | Apoteker |
+| Edit Obat | `PUT` | `medicines/{id}` | Apoteker |
+| Hapus Obat | `DELETE` | `medicines/{id}` | Apoteker |
 
 ### 🩺 Dokter & Jadwal
 
@@ -724,4 +711,4 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ---
 
 *Dokumen ini merupakan spesifikasi fitur resmi per role sistem NalaSeva.*  
-*Diperbarui: 8 Juni 2026 — Sinkronisasi penuh dengan kode aktual Flutter (`ApiClient` base URL dikonfirmasi = `.../api/`). Perbaikan konsistensi: semua path endpoint seragam tanpa prefix `/api/` (karena base URL sudah mengandungnya). Endpoint tambahan dari kode aktual ditambahkan: `GET doctors` & `GET polyclinics` (digunakan pasien saat booking), `GET doctor-schedules?polyclinic_id` (pasien), `GET clinic-holidays` & `GET doctor-leaves?doctor_id` (pasien saat booking), `POST queues/{id}/skip` oleh Dokter, `GET medicines` oleh Dokter. Tabel referensi cepat dipecah per kategori. Skip antrean oleh Dokter ditambahkan sebagai F2.3 baru.*
+*Diperbarui: 8 Juni 2026 — Sinkronisasi penuh dengan kode aktual Flutter (`ApiClient` base URL dikonfirmasi = `.../api/`). Perbaikan konsistensi: semua path endpoint seragam tanpa prefix `/api/` (karena base URL sudah mengandungnya). Endpoint tambahan dari kode aktual ditambahkan: `GET doctors` & `GET polyclinics` (digunakan pasien saat booking), `GET doctor-schedules?polyclinic_id` (pasien), `GET clinic-holidays` & `GET doctor-leaves?doctor_id` (pasien saat booking), `GET medicines` oleh Dokter. Tabel referensi cepat dipecah per kategori. Skip antrean dikonfirmasi hanya boleh dilakukan oleh Admin.*

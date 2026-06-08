@@ -688,20 +688,23 @@ Validator sisi client yang digunakan oleh **Admin** saat check-in (termasuk via 
 | Endpoint | Deskripsi |
 |----------|-----------|
 | `GET /pharmacy/queues` | Lihat antrean resep yang lunas & belum diserahkan |
+
+#### 15.7 Route Apoteker Only (role:pharmacist)
+| Endpoint | Deskripsi |
+|----------|-----------|
 | `POST /pharmacy/queues/{id}/dispense` | Serahkan obat ke pasien |
 | `POST /medicines` | Tambah obat baru |
 | `PUT/PATCH /medicines/{id}` | Update data obat |
 | `DELETE /medicines/{id}` | Hapus obat (soft delete) |
-| `POST /medicines/{id}/restore` | Restore obat |
 
-#### 15.7 Route Read-Only Semua Role (Authenticated)
+#### 15.8 Route Read-Only Semua Role (Authenticated)
 | Endpoint | Deskripsi |
 |----------|-----------|
 | `GET /medicines`, `GET /medicines/{id}` | Lihat daftar obat (semua role terautentikasi) |
 | `GET /payments`, `GET /payments/{id}` | Lihat tagihan (filter IDOR di controller) |
 | `POST /payments/{id}/upload-proof` | Upload bukti pembayaran (pasien, throttle 5/menit) |
 
-#### 15.8 Throttling
+#### 15.9 Throttling
 - Route login, register, dan OTP menggunakan throttle: `throttle:auth` untuk mencegah brute-force.
 - Route booking (`POST /queues`) dan upload bukti bayar (`POST /payments/{id}/upload-proof`) menggunakan throttle: `5 request per 1 menit`.
 
@@ -709,7 +712,7 @@ Validator sisi client yang digunakan oleh **Admin** saat check-in (termasuk via 
 
 ### 📱 Flutter — [AppRouter](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/core/router/app_router.dart) (Route-Level RBAC)
 
-#### 15.9 Peta Route & Izin Role
+#### 15.10 Peta Route & Izin Role
 ```dart
 static final Map<String, List<String>> _routePermissions = {
   // Route publik (list kosong = bebas akses)
@@ -728,7 +731,7 @@ static final Map<String, List<String>> _routePermissions = {
 };
 ```
 
-#### 15.10 Guard di `onGenerateRoute`
+#### 15.11 Guard di `onGenerateRoute`
 - Jika route memiliki `allowedRoles` yang tidak kosong:
   - `user == null` → redirect ke `LoginScreen`.
   - `!allowedRoles.contains(user.role)` → redirect ke `LoginScreen`.
