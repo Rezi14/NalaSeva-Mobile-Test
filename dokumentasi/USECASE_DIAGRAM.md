@@ -61,7 +61,6 @@ flowchart LR
       UC24(("Lihat Daftar Obat")):::usecaseStyle
       UC25(("Edit Data & Harga Obat")):::usecaseStyle
       UC26(("Hapus Obat (Soft Delete)")):::usecaseStyle
-      UC27(("Restore Obat dari Arsip")):::usecaseStyle
       UC28(("Serahkan Obat (Dispense)")):::usecaseStyle
     end
 
@@ -128,7 +127,6 @@ flowchart LR
   Apoteker --> UC24
   Apoteker --> UC25
   Apoteker --> UC26
-  Apoteker --> UC27
   Apoteker --> UC28
 
   %% Admin
@@ -146,12 +144,6 @@ flowchart LR
   AdminActor --> UC19
   AdminActor --> UC21
   AdminActor --> UC22
-  AdminActor --> UC23
-  AdminActor --> UC24
-  AdminActor --> UC25
-  AdminActor --> UC26
-  AdminActor --> UC27
-  AdminActor --> UC28
   AdminActor --> UC29
   AdminActor --> UC30
   AdminActor --> UC31
@@ -452,7 +444,6 @@ flowchart LR
     R4(["R: Lihat Daftar Inventaris Obat"]):::rStyle
     U3(["U: Edit Data & Harga Obat"]):::uStyle
     D1(["D: Hapus Obat (Soft Delete)"]):::dStyle
-    C3(["C: Restore Obat dari Arsip"]):::cStyle
   end
 
   Apoteker --> R0
@@ -467,7 +458,6 @@ flowchart LR
   Apoteker --> R4
   Apoteker --> U3
   Apoteker --> D1
-  Apoteker --> C3
 ```
 
 #### 📝 Deskripsi Detail Use Case Apoteker:
@@ -506,9 +496,6 @@ flowchart LR
 *   **D1: Hapus Obat (Soft Delete)**
     *   *Deskripsi*: Menghapus obat dengan soft delete agar tidak merusak relasi histori resep lama.
     *   *API*: `DELETE /api/medicines/{id}`
-*   **C3: Restore Obat dari Arsip**
-    *   *Deskripsi*: Memulihkan kembali obat yang ter-softdelete agar aktif kembali.
-    *   *API*: `POST /api/medicines/{id}/restore`
 
 ---
 
@@ -730,8 +717,8 @@ Berikut adalah tabel ringkasan pemetaan kemampuan operasional CRUD (Create, Read
 | **Rekam Medis & Resep** | R | C, R | — | R |
 | **Tagihan & Pembayaran** | R, U* | — | — | R, U |
 | **Bukti Bayar (Upload/Verifikasi)** | U (upload) | — | — | U (verifikasi) |
-| **Resep / Penyerahan Obat** | — | — | R, U | R, U |
-| **Inventaris Obat & Restore** | — | R | C, R, U, D | C, R, U, D |
+| **Resep / Penyerahan Obat** | — | — | R, U | R |
+| **Inventaris Obat** | — | R | C, R, U, D | — |
 | **Dokter (Master Data)** | — | — | — | C, R, U, D |
 | **Jadwal Praktik Dokter** | — | — | — | C, R, U, D |
 | **Cuti Dokter** | R | — | — | C, R, D |
@@ -780,12 +767,11 @@ Berikut adalah daftar rincian endpoint Laravel REST API yang digunakan untuk mel
 | **U** Verifikasi Transfer | `POST /api/payments/{id}/verify` | Menyetujui/menolak verifikasi transfer | Admin |
 | **U** Bayar Tunai | `POST /api/payments/{id}/cash-pay` | Pembayaran langsung di loket kasir | Admin |
 | **R** Lihat Resep Apotek | `GET /api/pharmacy/queues` | Memantau antrean resep obat lunas | Apoteker, Admin |
-| **U** Serahkan Obat | `POST /api/pharmacy/queues/{id}/dispense`| Dispense obat ke pasien (DB Transaction) | Apoteker, Admin |
-| **C** Tambah Obat | `POST /api/medicines` | Menambahkan data obat baru | Apoteker, Admin |
-| **R** Lihat Obat | `GET /api/medicines` | Mengambil data inventaris obat | Semua |
-| **U** Edit Obat | `PUT /api/medicines/{id}` | Memperbarui data dan harga obat | Apoteker, Admin |
-| **D** Hapus Obat | `DELETE /api/medicines/{id}` | Soft delete obat dari database | Apoteker, Admin |
-| **C** Restore Obat | `POST /api/medicines/{id}/restore` | Memulihkan obat ter-softdelete | Apoteker, Admin |
+| **U** Serahkan Obat | `POST /api/pharmacy/queues/{id}/dispense`| Dispense obat ke pasien (DB Transaction) | Apoteker |
+| **C** Tambah Obat | `POST /api/medicines` | Menambahkan data obat baru | Apoteker |
+| **R** Lihat Obat | `GET /api/medicines` | Mengambil data inventaris obat | Apoteker, Dokter |
+| **U** Edit Obat | `PUT /api/medicines/{id}` | Memperbarui data dan harga obat | Apoteker |
+| **D** Hapus Obat | `DELETE /api/medicines/{id}` | Soft delete obat dari database | Apoteker |
 | **C** Tambah Dokter | `POST /api/doctors` | Tambah dokter baru (DB Transaction) | Admin |
 | **U** Edit Dokter | `PUT /api/doctors/{id}` | Edit profil dokter (Poli Mutasi Check) | Admin |
 | **D** Hapus Dokter | `DELETE /api/doctors/{id}` | Soft delete dokter & user akun | Admin |
@@ -818,5 +804,4 @@ Berikut adalah daftar rincian endpoint Laravel REST API yang digunakan untuk mel
 
 ---
 
-*Dokumen ini merupakan Use Case Diagram resmi sistem NalaSeva — Fokus CRUD Per Aktor.*  
-*Diperbarui: 6 Juni 2026 — Sinkronisasi dengan sistem aktual: hapus fitur Restore Dokter (tidak diimplementasi) dan hapus operasi Edit/Hapus Rekam Medis (by design: rekam medis bersifat immutable setelah diterbitkan).*
+*Diperbarui: 8 Juni 2026 — Sinkronisasi dengan sistem aktual: hapus fitur Restore Dokter (tidak diimplementasi) dan hapus operasi Edit/Hapus Rekam Medis (by design: rekam medis bersifat immutable setelah diterbitkan). Batasi serah terima obat dan CRUD obat hanya untuk Apoteker (Admin tidak memegang akses). Hapus Restore Obat karena tidak ada di Flutter.*
