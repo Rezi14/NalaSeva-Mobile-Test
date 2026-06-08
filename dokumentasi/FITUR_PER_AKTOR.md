@@ -667,7 +667,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 | Edit Dokter | `PUT` | `doctors/{id}` | Admin |
 | Hapus Dokter | `DELETE` | `doctors/{id}` | Admin |
 | Lihat Jadwal Dokter | `GET` | `doctor-schedules` | Admin |
-| Lihat Jadwal per Poliklinik | `GET` | `doctor-schedules?polyclinic_id={id}` | Pasien |
+| Lihat Jadwal per Poliklinik | `GET` | `doctor-schedules?polyclinic_id={id}` | Pasien, Admin |
 | Tambah Jadwal | `POST` | `doctor-schedules` | Admin |
 | Edit Jadwal | `PUT` | `doctor-schedules/{id}` | Admin |
 | Hapus Jadwal | `DELETE` | `doctor-schedules/{id}` | Admin |
