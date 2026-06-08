@@ -49,6 +49,8 @@ class MockAdminRepository implements AdminRepository {
   Map<String, dynamic>? lastLeaveData;
   Map<String, dynamic>? lastBookingData;
   int? lastRecalledQueueId;
+  int? lastDeletedHolidayId;
+  int? lastDeletedLeaveId;
 
 
 
@@ -260,6 +262,20 @@ class MockAdminRepository implements AdminRepository {
   }
 
   @override
+  Future<void> deleteClinicHoliday(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    lastDeletedHolidayId = id;
+    mockClinicHolidays.removeWhere((e) => e['id'] == id);
+  }
+
+  @override
+  Future<void> deleteDoctorLeave(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    lastDeletedLeaveId = id;
+    mockDoctorLeaves.removeWhere((e) => e['id'] == id);
+  }
+
+  @override
   Future<void> bookQueue(Map<String, dynamic> data) async {
     if (shouldThrowError) throw errorMessage;
     lastBookingData = data;
@@ -375,6 +391,26 @@ void main() {
       await adminProvider.addDoctorLeave(12, '2026-06-05', 'Seminar Kedokteran');
       expect(mockRepository.lastLeaveData?['reason'], 'Seminar Kedokteran');
       expect(adminProvider.doctorLeaves.length, 1);
+    });
+
+    test('removeClinicHoliday & removeDoctorLeave menghapus entri hari libur & cuti', () async {
+      mockRepository.mockClinicHolidays = [{'id': 1, 'holiday_date': '2026-06-01', 'description': 'Libur'}];
+      mockRepository.mockDoctorLeaves = [{'id': 2, 'doctor_id': 12, 'leave_date': '2026-06-05', 'reason': 'Cuti'}];
+      
+      // Load them into the provider
+      await adminProvider.fetchClinicHolidays();
+      await adminProvider.fetchDoctorLeaves();
+      
+      expect(adminProvider.clinicHolidays.length, 1);
+      expect(adminProvider.doctorLeaves.length, 1);
+
+      await adminProvider.removeClinicHoliday(1);
+      expect(mockRepository.lastDeletedHolidayId, 1);
+      expect(adminProvider.clinicHolidays.isEmpty, true);
+
+      await adminProvider.removeDoctorLeave(2);
+      expect(mockRepository.lastDeletedLeaveId, 2);
+      expect(adminProvider.doctorLeaves.isEmpty, true);
     });
   });
 }

@@ -25,43 +25,43 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 #### F1.1 Registrasi Mandiri
 - Pasien mengisi form pendaftaran dengan **10 kolom**: `Nama Lengkap`, `Email`, `Password`, `Konfirmasi Password`, `NIK` (National Identity Number — 16 digit), `Nomor Telepon`, `Jenis Kelamin` (Laki-laki / Perempuan), `Tanggal Lahir`, `Alamat`.
 - Sisi Flutter: kelas `Validators` memvalidasi format email dan memastikan seluruh field terisi sebelum request dikirim ke server.
-- Payload yang dikirim ke `POST /api/auth/register` secara otomatis menyertakan `password_confirmation` (bernilai sama dengan `password`) dan `role: 'patient'` yang diinjeksi oleh kode Flutter, bukan dari input pengguna.
+- Payload yang dikirim ke `POST auth/register` secara otomatis menyertakan `password_confirmation` (bernilai sama dengan `password`) dan `role: 'patient'` yang diinjeksi oleh kode Flutter, bukan dari input pengguna.
 - Backend (Laravel): NIK dan Email divalidasi unik di database. Jika lolos, backend menjalankan **DB Transaction** untuk membuat baris baru di tabel `users` (`role = 'patient'`) dan baris baru di tabel `patients` yang berelasi ke `user_id`.
 - Setelah registrasi berhasil, pengguna **tidak** langsung masuk ke dashboard — diarahkan ke halaman Login.
 
 #### F1.2 Login & Sinkronisasi Token FCM
 - Memasukkan Email dan Password pada `login_screen.dart`.
-- Request ke `POST /api/auth/login`. Jika kredensial salah → error `401` ditangkap `ErrorParser` dan ditampilkan di UI.
+- Request ke `POST auth/login`. Jika kredensial salah → error `401` ditangkap `ErrorParser` dan ditampilkan di UI.
 - Jika login sukses, backend mengembalikan `access_token` (Laravel Sanctum Bearer Token) yang disimpan terenkripsi ke `FlutterSecureStorage` (`key: 'access_token'`).
-- Langsung setelah itu, aplikasi memanggil `GET /api/auth/profile` untuk mengambil data profil lengkap beserta relasi `patient` dan `doctor`.
+- Langsung setelah itu, aplikasi memanggil `GET auth/profile` untuk mengambil data profil lengkap beserta relasi `patient` dan `doctor`.
 - ID yang relevan (`patient_id`) dan `user_role` disimpan ke `FlutterSecureStorage` untuk kebutuhan offline.
-- Inisialisasi Firebase Messaging (dikunci di belakang kondisi `!kIsWeb` agar tidak crash di browser) dan mendaftarkan FCM Token perangkat ke server via `POST /api/auth/fcm-token`.
+- Inisialisasi Firebase Messaging (dikunci di belakang kondisi `!kIsWeb` agar tidak crash di browser) dan mendaftarkan FCM Token perangkat ke server via `POST auth/fcm-token`.
 - Navigasi otomatis menuju `/patient/home`.
 
 #### F1.3 Pemulihan Sesi (Session Restore / Offline Mode)
 - Setiap kali aplikasi dibuka, `checkAuth()` di `AuthProvider` dipanggil sebelum widget pertama dirender.
 - Membaca `access_token` dari `FlutterSecureStorage`.
-- **Jika token ada → coba `GET /api/auth/profile`:**
+- **Jika token ada → coba `GET auth/profile`:**
   - ✅ Sukses: sinkronisasi ulang `user_role`, `patient_id`, `doctor_id` ke storage → navigasi ke dashboard.
   - ❌ Error 401/403 (token kedaluwarsa/tidak valid): hapus **4 key** (`access_token`, `user_role`, `patient_id`, `doctor_id`) → paksa ke layar Login.
   - 📡 Error jaringan/server down (offline): tangkap error secara *silent*, baca `user_role` dan `patient_id` yang sudah tersimpan di storage, buat **Sentinel UserModel Offline** (`id: 0`, `name: 'Offline User'`, `email: ''`) → app tetap navigasi ke dashboard offline agar pasien tetap bisa melihat data yang di-cache.
 - **Jika tidak ada token:** `_user = null` → tampilkan layar Login.
 
 #### F1.4 Lupa Password (OTP 6-Digit Flow)
-- **Langkah 1 — Request OTP:** Mengisi Email dan NIK terdaftar di `forgot_password_screen.dart`. Request ke `POST /api/auth/forgot-password/otp`. Backend memverifikasi kecocokan Email + NIK. Jika cocok, generate OTP 6-digit acak, hapus OTP lama untuk email ini, simpan ke tabel `password_reset_otps` dengan masa kedaluwarsa **15 menit**. *(Pada mode non-production, kode OTP dikembalikan langsung di JSON response untuk kemudahan pengujian.)*
-- **Langkah 2 — Reset Password:** Mengisi OTP, password baru. Request ke `POST /api/auth/forgot-password`. Backend memvalidasi OTP (benar dan belum expired), memvalidasi ulang NIK + email. Jika valid, hash password baru disimpan. Backend menghapus **seluruh** token Sanctum aktif user tersebut (*force logout semua perangkat/sesi*).
+- **Langkah 1 — Request OTP:** Mengisi Email dan NIK terdaftar di `forgot_password_screen.dart`. Request ke `POST auth/forgot-password/otp`. Backend memverifikasi kecocokan Email + NIK. Jika cocok, generate OTP 6-digit acak, hapus OTP lama untuk email ini, simpan ke tabel `password_reset_otps` dengan masa kedaluwarsa **15 menit**. *(Pada mode non-production, kode OTP dikembalikan langsung di JSON response untuk kemudahan pengujian.)*
+- **Langkah 2 — Reset Password:** Mengisi OTP, password baru. Request ke `POST auth/forgot-password`. Backend memvalidasi OTP (benar dan belum expired), memvalidasi ulang NIK + email. Jika valid, hash password baru disimpan. Backend menghapus **seluruh** token Sanctum aktif user tersebut (*force logout semua perangkat/sesi*).
 
 #### F1.5 Logout
-- Request ke `POST /api/auth/logout`.
+- Request ke `POST auth/logout`.
 - Blok `finally` di Flutter: hapus 4 key dari storage (`access_token`, `user_role`, `patient_id`, `doctor_id`), set `_user = null`, panggil `notifyListeners()` → UI otomatis kembali ke layar Login.
 - ⚠️ Catatan: logout API hanya menghapus token **saat ini**, bukan semua token aktif.
 
 #### F1.6 Lihat Profil & Edit Profil
 - Melihat data profil diri sendiri: nama, email, telepon, alamat, jenis kelamin, tanggal lahir, NIK.
-- Memperbarui profil via `POST /api/auth/update-profile` (menggunakan POST bukan PUT karena Flutter mengirim multipart form-data yang lebih kompatibel).
+- Memperbarui profil via `POST auth/update-profile` (menggunakan POST bukan PUT karena Flutter mengirim multipart form-data yang lebih kompatibel).
 - Field yang bisa diubah: `name`, `email`, `phone`, `address`, `gender`, `birth_date`.
 - **Aturan NIK:** NIK hanya bisa diisi/diubah **jika sebelumnya masih kosong**. Setelah NIK tersimpan, tidak dapat diubah lagi untuk mencegah pemalsuan identitas.
-- Setelah update: Flutter otomatis refetch `GET /api/auth/profile` dan sinkronisasi ulang `patient_id` di storage.
+- Setelah update: Flutter otomatis refetch `GET auth/profile` dan sinkronisasi ulang `patient_id` di storage.
 
 #### F1.7 Auto Logout (Session Timeout — Pasien Only)
 - Widget `SessionTimeoutListener` membungkus seluruh `MaterialApp` secara global, namun pengecekan inaktivitas hanya aktif untuk pengguna dengan **role pasien**.
@@ -82,15 +82,15 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 
 #### F2.2 Booking Antrean Online (Mandiri)
 - **Alur Step-by-Step:**
-  1. Pilih **Poliklinik** → sistem memuat daftar dokter di poliklinik tersebut.
+  1. Pilih **Poliklinik** → sistem memuat daftar poliklinik via `GET polyclinics` dan daftar dokter via `GET doctors`.
   2. Pilih **Dokter** → sistem memicu **2 request paralel** (`Future.wait`):
-     - `getClinicHolidays()`: mengambil daftar tanggal hari libur puskesmas.
-     - `getDoctorLeaves(doctorId)`: mengambil daftar tanggal cuti dokter tersebut.
+     - `GET clinic-holidays`: mengambil daftar tanggal hari libur puskesmas.
+     - `GET doctor-leaves?doctor_id={id}`: mengambil daftar tanggal cuti dokter tersebut.
   3. Tanggal-tanggal libur dan cuti otomatis di-*disable* pada kalender date picker — pasien tidak dapat memilihnya.
   4. Pilih **Tanggal Kunjungan** (dibatasi maksimal H-7 dari sekarang hingga hari ini; tidak bisa memilih tanggal lampau).
-  5. Pilih **Jadwal Dokter** (`doctor_schedule_id`) sesuai hari yang dipilih. Jadwal di-fetch via `getSchedulesDirectly()` — langsung divalidasi real-time tanpa disimpan ke state provider.
+  5. Pilih **Jadwal Dokter** (`doctor_schedule_id`) sesuai hari yang dipilih. Jadwal di-fetch via `GET doctor-schedules?polyclinic_id={id}` — langsung divalidasi real-time tanpa disimpan ke state provider.
   6. Dialog konfirmasi visual ditampilkan (`AppDialogs.showConfirmationDialog`).
-  7. Jika dikonfirmasi, data dikirim ke `POST /api/queues` (dilindungi **throttle: maks. 5 request per menit** per user untuk mencegah spam booking).
+  7. Jika dikonfirmasi, data dikirim ke `POST queues` (dilindungi **throttle: maks. 5 request per menit** per user untuk mencegah spam booking).
 
 - **5-Layer Validasi Backend (berurutan):**
   1. **Hari Libur Klinik:** Tanggal pelayanan tidak boleh bertepatan dengan hari libur puskesmas.
@@ -122,7 +122,7 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
   - **Estimasi Layanan:** `base_time` (waktu sekarang atau jam mulai praktik, mana yang lebih lambat) + `posisi × slot_duration_minutes`.
 
 #### F2.6 Pembatalan Antrean Mandiri
-- Request `DELETE /api/queues/{id}`.
+- Request `DELETE queues/{id}`.
 - **Aturan yang divalidasi backend sebelum mengizinkan pembatalan:**
   - Antrean milik pasien sendiri (anti-IDOR).
   - Status harus `booked` atau `waiting` (tidak bisa batalkan yang sudah `examining` atau `completed`).
@@ -164,7 +164,7 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 
 #### F4.3 Upload Bukti Transfer / QRIS
 - Mengambil foto bukti transfer dari galeri atau kamera menggunakan library `image_picker`.
-- Mengirim gambar ke `POST /api/payments/{id}/upload-proof` (dilindungi **throttle: maks. 5 request per menit** untuk mencegah spam upload).
+- Mengirim gambar ke `POST payments/{id}/upload-proof` (dilindungi **throttle: maks. 5 request per menit** untuk mencegah spam upload).
 - Setelah upload berhasil, status tagihan otomatis berubah menjadi `waiting_verification`.
 - Bukti tersimpan di direktori server `payment_proofs/`.
 
@@ -190,7 +190,7 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 
 #### F5.2 Melihat Profil Puskesmas
 - Melihat informasi puskesmas (nama, alamat, nomor kontak, koordinat lokasi) yang ditampilkan di dashboard pasien.
-- Data di-fetch dari `GET /api/puskesmas-profile` setelah login berhasil atau saat sesi dipulihkan.
+- Data di-fetch dari `GET puskesmas-profile` setelah login berhasil atau saat sesi dipulihkan.
 
 #### F5.3 Indikator Koneksi Internet (Connectivity Banner)
 - Banner merah melayang muncul di bagian atas layar secara global jika aplikasi mendeteksi tidak ada koneksi internet aktif.
@@ -216,16 +216,16 @@ Dokter berinteraksi dengan aplikasi untuk mengelola antrean di ruang periksa, me
 
 #### F1.3 Toggle Status Online / Offline
 - Mengubah status kehadiran melalui switch di `doctor_dashboard.dart`.
-- Request `PATCH /api/doctors/me/status` dengan field `is_online = true/false`.
+- Request `PATCH doctors/me/status` dengan field `is_online = true/false`.
 - **Efek saat set Offline:** Backend otomatis mengirim **notifikasi FCM ke semua akun Admin** yang memiliki FCM token terdaftar dengan pesan bahwa dokter sedang beristirahat/tidak tersedia.
 - State `_isOnline` di `DoctorProvider` diperbarui secara lokal setelah response sukses (tidak perlu refetch).
 
 #### F1.4 Lihat & Edit Profil Dokter
 - Melihat data profil diri: nama, email, telepon, spesialisasi, nomor SIP (Surat Izin Praktik), poliklinik.
-- Mengedit data profil personal melalui `doctor_edit_profile_screen.dart` (menggunakan endpoint yang sama `POST /api/auth/update-profile`).
+- Mengedit data profil personal melalui `doctor_edit_profile_screen.dart` (menggunakan endpoint yang sama `POST auth/update-profile`).
 
 #### F1.5 Logout
-- Request ke `POST /api/auth/logout`. Blok `finally` membersihkan storage dan menavigasi ke Login.
+- Request ke `POST auth/logout`. Blok `finally` membersihkan storage dan menavigasi ke Login.
 
 ---
 
@@ -233,11 +233,11 @@ Dokter berinteraksi dengan aplikasi untuk mengelola antrean di ruang periksa, me
 
 #### F2.1 Daftar Antrean Harian
 - Melihat semua antrean pasien yang ditugaskan untuk dirinya pada hari ini di `doctor_dashboard.dart`.
-- Data di-fetch via `GET /api/queues` (backend memfilter berdasarkan `doctor_id` dari token).
+- Data di-fetch via `GET queues` (backend memfilter berdasarkan `doctor_id` dari token).
 - Menampilkan status setiap antrean: `booked`, `waiting`, `examining`, `completed`.
 
 #### F2.2 Transisi Status Antrean
-- Dokter mengubah status antrean melalui `PUT /api/queues/{id}` sesuai aturan *state machine*:
+- Dokter mengubah status antrean melalui `PUT queues/{id}` sesuai aturan *state machine*:
   ```
   waiting → examining  (memulai pemeriksaan)
   examining → completed (selesai — tapi biasanya via finishExamination)
@@ -248,9 +248,13 @@ Dokter berinteraksi dengan aplikasi untuk mengelola antrean di ruang periksa, me
   - Saat berhasil: backend mencatat `called_time = now()` dan mengirimkan **FCM "Giliran Anda!"** ke HP pasien.
 - **Batasan dokter:** Dokter **dilarang** mengubah status ke `cancelled` — hanya admin yang bisa.
 
-#### F2.3 Riwayat Pemeriksaan Pasien (Patient History Lookup)
+#### F2.3 Skip Antrean (Geser ke Belakang)
+- Dokter dapat memindahkan antrean pasien ke posisi belakang antrean dari sisi dokter.
+- Request `POST queues/{id}/skip`. Backend: reset `check_in_time = now()`, `recall_count = 0`.
+
+#### F2.4 Riwayat Pemeriksaan Pasien (Patient History Lookup)
 - Melihat riwayat pemeriksaan pasien tertentu sebelum memulai pemeriksaan baru — berguna untuk konteks medis.
-- `fetchHistoryForPatient(patientUserId)` → `GET /api/examinations?patient_user_id={id}` → disimpan ke state `_patientHistory`.
+- `fetchHistoryForPatient(patientUserId)` → `GET examinations?patient_user_id={id}` → disimpan ke state `_patientHistory`.
 - Terbatas pada rekam medis dari poliklinik dokter yang bersangkutan.
 
 ---
@@ -262,13 +266,13 @@ Dokter berinteraksi dengan aplikasi untuk mengelola antrean di ruang periksa, me
   - **Keluhan Utama** pasien (text bebas).
   - **Hasil Diagnosa** klinis (text bebas).
   - **Tindakan Medis / Treatment** (text bebas).
-  - **Resep Obat Terstruktur:** memilih obat dari inventaris aktif puskesmas, mengisi jumlah (*quantity*), dan instruksi pemakaian (contoh: *"3x1 tablet setelah makan"*).
+  - **Resep Obat Terstruktur:** memilih obat dari inventaris aktif puskesmas via `GET medicines`, mengisi jumlah (*quantity*), dan instruksi pemakaian (contoh: *"3x1 tablet setelah makan"*).
 
 #### F3.2 Pelindung Form (Form Guard)
 - Jika dokter menekan tombol *back* saat form sudah terisi sebagian, sistem memunculkan **dialog konfirmasi peringatan** (`showConfirmationDialog`) agar data tidak hilang tanpa sengaja.
 
 #### F3.3 Simpan Rekam Medis & Pembuatan Tagihan Otomatis
-- Request ke `POST /api/examinations`.
+- Request ke `POST examinations`.
 - Backend menjalankan **DB Transaction** yang atomik:
   1. Simpan rekam medis ke tabel `examinations`. `doctor_id` dikunci dari token login, bukan dari input request (anti-spoofing).
   2. Simpan tiap item resep ke tabel `prescription_items`. **Harga obat dikunci pada saat ini** dari tabel `medicines` → harga tidak akan berubah di tagihan pasien walau admin mengubah harga obat di masa depan.
@@ -279,7 +283,7 @@ Dokter berinteraksi dengan aplikasi untuk mengelola antrean di ruang periksa, me
 
 #### F3.4 Statistik Dashboard Dokter
 - Melihat statistik harian di dashboard: jumlah antrean aktif, antrean selesai.
-- Data statistik di-fetch dari `GET /api/dashboard-stats` (endpoint yang sama dengan Admin, namun data difilter di backend berdasarkan poliklinik dokter).
+- Data statistik di-fetch dari `GET dashboard-stats` (endpoint yang sama dengan Admin, namun data difilter di backend berdasarkan poliklinik dokter).
 
 ---
 
@@ -304,7 +308,7 @@ Apoteker memproses penyerahan obat resep yang telah dibayar lunas, mengelola inv
 - Membuka `pharmacy_dashboard_screen.dart` yang menampilkan daftar antrean resep yang:
   - Status pembayaran = `paid` (sudah lunas).
   - `dispensed_at IS NULL` (obat belum diserahkan).
-- Data di-fetch dari `GET /api/pharmacy/queues`.
+- Data di-fetch dari `GET pharmacy/queues`.
 
 #### F2.2 Detail Resep Pasien
 - Membuka `prescription_detail_screen.dart` untuk melihat rincian tiap resep:
@@ -314,7 +318,7 @@ Apoteker memproses penyerahan obat resep yang telah dibayar lunas, mengelola inv
 
 #### F2.3 Serahkan Obat ke Pasien (Dispense) — DB Transaction
 - Apoteker menyiapkan obat fisik, lalu menekan tombol **"Serahkan Obat"**.
-- Request ke `POST /api/pharmacy/queues/{id}/dispense`.
+- Request ke `POST pharmacy/queues/{id}/dispense`.
 - Backend menjalankan **DB Transaction** dengan keamanan berlapis:
   1. **Loop seluruh item resep** untuk divalidasi satu per satu.
   2. **Validasi Stok Kritis:** Cek stok aktual tiap obat di tabel `medicines`. Jika **satu saja** obat stoknya kurang dari kuantiti resep → **Rollback seluruh transaksi** → return error `422 Unprocessable Entity` → Apoteker menerima dialog warning dengan nama obat yang stoknya tidak cukup.
@@ -329,26 +333,26 @@ Apoteker memproses penyerahan obat resep yang telah dibayar lunas, mengelola inv
 
 #### F3.1 Daftar Inventaris Obat
 - Melihat semua obat aktif di `medicine_inventory_screen.dart`, termasuk stok terkini dan harga satuan.
-- Data dari `GET /api/medicines` (endpoint ini bisa diakses semua role yang sudah login, termasuk dokter untuk memilih obat saat menulis resep).
+- Data dari `GET medicines` (endpoint ini bisa diakses semua role yang sudah login, termasuk dokter untuk memilih obat saat menulis resep).
 
 #### F3.2 Tambah Obat Baru
-- Request `POST /api/medicines` dengan data: nama obat, deskripsi, satuan (tablet/botol/ampul/dll), harga satuan, dan stok awal.
+- Request `POST medicines` dengan data: nama obat, deskripsi, satuan (tablet/botol/ampul/dll), harga satuan, dan stok awal.
 - Sisi Flutter: setelah sukses, item baru langsung di-*append* ke state list lokal `_medicines` tanpa refetch.
 - ⚠️ Harga obat yang disimpan inilah yang akan digunakan untuk **mengunci biaya resep** pasien pada saat dokter membuat rekam medis.
 
 #### F3.3 Edit Data Obat
-- Request `PUT /api/medicines/{id}`: update nama, deskripsi, harga, satuan.
+- Request `PUT medicines/{id}`: update nama, deskripsi, harga, satuan.
 - Sisi Flutter: update data di state list lokal by index.
 - Perubahan harga hanya berlaku untuk resep **yang dibuat setelah** perubahan ini; resep lama tidak terpengaruh karena harga sudah dikunci saat transaksi.
 
 #### F3.4 Hapus Obat (Soft Delete)
-- Request `DELETE /api/medicines/{id}` → soft delete (data tidak benar-benar terhapus dari database).
+- Request `DELETE medicines/{id}` → soft delete (data tidak benar-benar terhapus dari database).
 - Tujuan soft delete: riwayat resep lama yang merujuk obat ini tetap valid dan tidak rusak relasinya.
 - Sisi Flutter: item dihapus dari state list lokal `_medicines` via `removeWhere`.
 
 #### F3.5 Restore Obat (dari Arsip)
 - Memulihkan obat yang sebelumnya dihapus (soft delete) kembali ke inventaris aktif.
-- Request `POST /api/medicines/{id}/restore`.
+- Request `POST medicines/{id}/restore`.
 - Sisi Flutter: item yang di-restore di-*append* kembali ke state list `_medicines`.
 
 ---
@@ -375,7 +379,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 #### F2.1 Booking Antrean Manual (Walk-In Patient)
 - Mendaftarkan antrean untuk pasien yang datang langsung ke puskesmas tanpa aplikasi.
 - Memilih data pasien, poliklinik, dokter, jadwal, dan tanggal.
-- Request ke `POST /api/queues` (validasi backend yang sama dengan booking mandiri pasien, termasuk 5-layer validation dan kuota).
+- Request ke `POST queues` (validasi backend yang sama dengan booking mandiri pasien, termasuk 5-layer validation dan kuota).
 
 #### F2.2 Check-In Manual (Loket)
 - Admin mencari antrean pasien di list `queue_management_screen.dart`.
@@ -385,7 +389,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
   - Waktu saat ini harus dalam rentang: **30 menit sebelum** hingga **2 jam setelah** `estimated_service_time`.
   - Jika terlalu awal → dialog: *"Absensi hanya diizinkan maksimal 30 menit sebelum jam pelayanan."*
   - Jika terlalu telat → dialog: *"Sudah melewati batas 2 jam setelah jam pelayanan."*
-- Request `POST /api/queues/{id}/checkin`. Backend mengubah status → `waiting`, mencatat `check_in_time = now()`.
+- Request `POST queues/{id}/checkin`. Backend mengubah status → `waiting`, mencatat `check_in_time = now()`.
 - Setelah check-in: backend memicu recalculate estimasi seluruh antrean di poliklinik + tanggal yang sama.
 
 #### F2.3 Check-In via QR Code Scanner
@@ -397,7 +401,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 - Jika valid → langsung trigger check-in instan.
 
 #### F2.4 Recall / Panggil Ulang Antrean
-- Memanggil ulang pasien via `POST /api/queues/{id}/recall`.
+- Memanggil ulang pasien via `POST queues/{id}/recall`.
 - **Aturan Recall:**
   - Jika `recall_count < 3` → backend increment `recall_count + 1`.
   - Jika `recall_count >= 3` → backend **menggeser antrean ke posisi paling belakang**: status kembali ke `waiting`, `check_in_time = now()`, `recall_count = 0`. Validasi: waktu layanan dokter belum habis.
@@ -407,16 +411,16 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 #### F2.5 Skip Antrean (Geser ke Paling Belakang)
 - Admin memindahkan antrean pasien secara paksa ke posisi belakang antrean.
 - Validasi: status harus `waiting` dan sudah check-in.
-- Request `POST /api/queues/{id}/skip`. Backend: reset `check_in_time = now()`, `recall_count = 0`.
+- Request `POST queues/{id}/skip`. Backend: reset `check_in_time = now()`, `recall_count = 0`.
 - Sisi Flutter: refresh list antrean setelah sukses.
 
 #### F2.6 Batalkan / Hapus Antrean
 - Admin dapat membatalkan atau menghapus antrean pasien mana pun tanpa batasan waktu operasional.
-- Request `DELETE /api/queues/{id}`.
+- Request `DELETE queues/{id}`.
 
 #### F2.7 Update Status Antrean (Manual Override)
 - Admin dapat mengubah status antrean (`booked` → `waiting`, `waiting` → `examining`, dll.) langsung dari panel antrean.
-- Request `PUT /api/queues/{id}` dengan field `status`.
+- Request `PUT queues/{id}` dengan field `status`.
 - Admin dibebaskan dari validasi jendela waktu layanan (hak akses override).
 
 ---
@@ -424,17 +428,17 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ### 💰 F3 — Verifikasi Pembayaran & Kasir Loket
 
 #### F3.1 Melihat Semua Tagihan Pasien
-- Admin bisa melihat semua tagihan dari semua pasien (tidak terbatas) via `GET /api/payments`.
+- Admin bisa melihat semua tagihan dari semua pasien (tidak terbatas) via `GET payments`.
 - Daftar di `payment_list_screen.dart` menampilkan status: `pending`, `waiting_verification`, `paid`, `failed`.
 
 #### F3.2 Verifikasi Bukti Transfer (Manual Review)
 - Admin membuka detail tagihan di `payment_detail_screen.dart`, melihat foto bukti transfer yang diunggah pasien.
-- **Jika SETUJU:** Request `POST /api/payments/{id}/verify` dengan `status = 'approved'`. Backend: status → `paid`, catat `paid_at = now()`. Kirim **FCM ke Pasien:** *"Pembayaran Terverifikasi Lunas!"*
-- **Jika TOLAK:** Request `POST /api/payments/{id}/verify` dengan `status = 'rejected'`. Backend: status → `failed`. Pasien diminta upload ulang bukti.
+- **Jika SETUJU:** Request `POST payments/{id}/verify` dengan `status = 'approved'`. Backend: status → `paid`, catat `paid_at = now()`. Kirim **FCM ke Pasien:** *"Pembayaran Terverifikasi Lunas!"*
+- **Jika TOLAK:** Request `POST payments/{id}/verify` dengan `status = 'rejected'`. Backend: status → `failed`. Pasien diminta upload ulang bukti.
 
 #### F3.3 Pembayaran Tunai di Loket (Cash Pay)
 - Menerima uang tunai dari pasien di loket kasir fisik.
-- Request `POST /api/payments/{id}/cash-pay`. Backend: status → `paid`, metode = `cash`, catat `paid_at = now()` secara instan.
+- Request `POST payments/{id}/cash-pay`. Backend: status → `paid`, metode = `cash`, catat `paid_at = now()` secara instan.
 - Kirim **FCM ke Pasien:** *"Pembayaran Lunas (Tunai)! Silakan menuju apotek."*
 
 ---
@@ -442,11 +446,11 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ### 👨‍⚕️ F4 — Manajemen Data Master Dokter
 
 #### F4.1 Tambah Dokter
-- Request `POST /api/doctors` dengan data: nama, email, password, nomor telepon, spesialisasi, nomor SIP, poliklinik.
+- Request `POST doctors` dengan data: nama, email, password, nomor telepon, spesialisasi, nomor SIP, poliklinik.
 - Backend menjalankan **DB Transaction**: buat akun `users` (`role = 'doctor'`) + buat record profil di tabel `doctors`.
 
 #### F4.2 Edit Data Dokter
-- Request `PUT /api/doctors/{id}`.
+- Request `PUT doctors/{id}`.
 - **Proteksi Mutasi Poliklinik:** Jika `polyclinic_id` diubah, backend mengecek apakah dokter masih punya antrean aktif (`booked`, `waiting`, `examining`) di poliklinik lama. Jika ada → **ditolak**.
 - Update dilakukan secara terpisah ke tabel `users` (data personal) dan tabel `doctors` (data profesi).
 
@@ -459,11 +463,11 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ### 📅 F5 — Manajemen Jadwal Praktik Dokter
 
 #### F5.1 Tambah Jadwal Praktik
-- Request `POST /api/doctor-schedules` dengan: `doctor_id`, `polyclinic_id`, `day_of_week` (hari), `start_time`, `end_time`.
+- Request `POST doctor-schedules` dengan: `doctor_id`, `polyclinic_id`, `day_of_week` (hari), `start_time`, `end_time`.
 - **Deteksi Overlap:** Backend menolak jika ada jadwal lain dokter yang sama pada hari yang sama dengan jam yang bertabrakan. Kondisi overlap: `start_baru < end_lama && start_lama < end_baru`.
 
 #### F5.2 Edit Jadwal Praktik
-- Request `PUT /api/doctor-schedules/{id}`.
+- Request `PUT doctor-schedules/{id}`.
 - **Proteksi Perubahan:** Jika `day_of_week`, `start_time`, atau `end_time` berubah → backend cek antrean aktif yang menggunakan jadwal ini. Jika ada → **ditolak**.
 - Validasi overlap tetap dilakukan (kecuali dengan jadwal itu sendiri).
 
@@ -472,7 +476,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 - Jika aman → hapus jadwal.
 
 #### F5.4 Lihat Jadwal dengan Sisa Kuota
-- `GET /api/doctor-schedules?date={tanggal}` mengembalikan `remaining_daily_quota` untuk setiap jadwal.
+- `GET doctor-schedules` (admin) atau `GET doctor-schedules?polyclinic_id={id}` (pasien saat booking) mengembalikan `remaining_daily_quota` untuk setiap jadwal.
 - Kuota = `durasi_menit / slot_duration_minutes` dikurangi jumlah booking aktif pada tanggal tersebut.
 
 ---
@@ -480,7 +484,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ### 🏥 F6 — Manajemen Cuti Dokter
 
 #### F6.1 Tambah Cuti Dokter — Auto-Cancel Antrean
-- Request `POST /api/doctor-leaves` dengan: `doctor_id`, `leave_date`, `reason`.
+- Request `POST doctor-leaves` dengan: `doctor_id`, `leave_date`, `reason`.
 - Backend menjalankan **DB Transaction:**
   1. Simpan data cuti ke tabel `doctor_leaves`.
   2. Cari semua antrean aktif (`booked`, `waiting`) dokter tersebut pada `leave_date`.
@@ -489,16 +493,16 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
   5. Recalculate estimasi antrean yang tersisa di poliklinik + tanggal tersebut.
 
 #### F6.2 Lihat & Hapus Cuti
-- Admin melihat semua data cuti (termasuk yang sudah lewat).
-- Bisa filter per `doctor_id`.
-- Menghapus data cuti yang sudah tidak relevan.
+- Admin melihat semua data cuti (termasuk yang sudah lewat) via `GET doctor-leaves`.
+- Bisa filter per `doctor_id` via `GET doctor-leaves?doctor_id={id}`.
+- Menghapus data cuti yang sudah tidak relevan via `DELETE doctor-leaves/{id}`.
 
 ---
 
 ### 📅 F7 — Manajemen Hari Libur Puskesmas
 
 #### F7.1 Tambah Hari Libur — Mass Cancel Otomatis
-- Request `POST /api/clinic-holidays` dengan: `holiday_date`, `description`.
+- Request `POST clinic-holidays` dengan: `holiday_date`, `description`.
 - Backend menjalankan **DB Transaction:**
   1. Simpan hari libur ke tabel `clinic_holidays`.
   2. Cari **semua** antrean aktif (`booked`, `waiting`) dari **seluruh poliklinik** pada `holiday_date`.
@@ -507,23 +511,24 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
   5. Recalculate estimasi per poliklinik.
 
 #### F7.2 Lihat & Hapus Hari Libur
-- Admin melihat semua hari libur (termasuk yang sudah lewat).
+- Admin melihat semua hari libur (termasuk yang sudah lewat) via `GET clinic-holidays`.
 - Non-admin (pasien, dokter) hanya melihat hari libur yang belum lewat (`holiday_date >= hari ini`).
+- Hapus hari libur via `DELETE clinic-holidays/{id}`.
 
 ---
 
 ### 🏛️ F8 — Manajemen Poliklinik
 
 #### F8.1 Tambah Poliklinik
-- Request `POST /api/polyclinics` dengan: nama poliklinik, `code` unik (awalan nomor antrean, misal: `UMM`), deskripsi layanan.
+- Request `POST polyclinics` dengan: nama poliklinik, `code` unik (awalan nomor antrean, misal: `UMM`), deskripsi layanan.
 
 #### F8.2 Edit Poliklinik
-- Request `PUT /api/polyclinics/{id}`.
+- Request `PUT polyclinics/{id}`.
 - **Proteksi Kode:** Jika `code` diubah → backend cek antrean aktif hari ini. Jika ada → ditolak (karena kode sudah menjadi prefix di nomor antrean yang beredar).
 
 #### F8.3 Hapus Poliklinik
 - Backend cek: ada antrean aktif? Ada jadwal dokter terdaftar? Jika ada salah satu → ditolak.
-- Jika aman → soft-delete poliklinik.
+- Jika aman → soft-delete poliklinik via `DELETE polyclinics/{id}`.
 
 ---
 
@@ -531,13 +536,13 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 
 #### F9.1 CRUD User
 - Membuat, melihat, mengedit, dan menonaktifkan akun pengguna dengan role apa pun (`admin`, `doctor`, `patient`, `pharmacist`).
-- Request ke endpoint `/api/users` (CRUD).
+- Request ke `GET users`, `POST users`, `PUT users/{id}`, `DELETE users/{id}`.
 
 #### F9.2 CRUD Pasien
-- Tambah pasien secara manual (untuk pasien tanpa smartphone): DB Transaction buat `users` + `patients`.
-- Edit data demografis pasien (nama, alamat, dll) via `PUT /api/patients/{id}`. Update dilakukan ke tabel `users`.
-- Hapus (soft delete) pasien.
-- Melihat seluruh daftar pasien (`GET /api/patients`).
+- Tambah pasien secara manual (untuk pasien tanpa smartphone): DB Transaction buat `users` + `patients` via `POST patients`.
+- Edit data demografis pasien (nama, alamat, dll) via `PUT users/{id}`. Update dilakukan ke tabel `users`.
+- Hapus (soft delete) pasien via `DELETE users/{id}`.
+- Melihat seluruh daftar pasien via `GET patients`.
 
 ---
 
@@ -545,7 +550,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 
 #### F10.1 Lihat Semua Riwayat Pemeriksaan
 - Admin melihat rekam medis seluruh pasien dari semua poliklinik di `examination_history_screen.dart`.
-- `GET /api/examinations` (admin mendapatkan seluruh data tanpa filter poliklinik).
+- `GET examinations` (admin mendapatkan seluruh data tanpa filter poliklinik).
 - Bisa filter berdasarkan `patient_user_id` untuk mencari riwayat pasien spesifik.
 
 ---
@@ -553,7 +558,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ### 📊 F11 — Dashboard Statistik & TV Monitor
 
 #### F11.1 Dashboard Statistik Harian
-- `GET /api/dashboard-stats` mengembalikan statistik real-time hari ini:
+- `GET dashboard-stats` mengembalikan statistik real-time hari ini:
   - Total pasien dan dokter terdaftar.
   - Jumlah antrean aktif (status: `booked`, `waiting`, `examining`).
   - Jumlah antrean selesai (`completed`) hari ini.
@@ -575,13 +580,13 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ### ⚙️ F12 — Pengaturan Dinamis Puskesmas (System Settings)
 
 #### F12.1 Konfigurasi Parameter Operasional
-- Melihat dan mengubah pengaturan puskesmas di `admin_settings_screen.dart` via `GET /api/settings` dan `PUT /api/settings`.
+- Melihat dan mengubah pengaturan puskesmas di `admin_settings_screen.dart` via `GET settings` dan `PUT settings`.
 - **Biaya Pendaftaran (`registration_fee`):** Nilai default Rp 10.000. Nilai ini digunakan backend saat membuat invoice tagihan pasien otomatis (`ExaminationController`).
 - **Durasi Slot Pelayanan (`slot_duration_minutes`):** Nilai default 15 menit. Digunakan oleh: (1) kalkulasi kuota harian booking; (2) kalkulasi estimasi waktu tunggu antrean; (3) fallback waktu tunggu jika belum ada historis pemeriksaan hari ini.
 - Perubahan langsung berlaku untuk semua kalkulasi selanjutnya tanpa perlu restart server.
 
 #### F12.2 Update Profil Puskesmas & Koordinat Lokasi
-- Memperbarui nama, alamat, nomor kontak puskesmas via `PUT /api/puskesmas-profile`.
+- Memperbarui nama, alamat, nomor kontak puskesmas via `PUT puskesmas-profile`.
 - **Map Picker (OpenStreetMap):** Menekan tombol pilih lokasi membuka `MapPickerScreen` yang menampilkan peta interaktif berbasis `flutter_map` + `latlong2`. Admin dapat menggeser marker untuk menentukan koordinat persis lokasi puskesmas. Koordinat dikembalikan sebagai objek `LatLng` dan diunggah ke backend. Default koordinat (jika belum pernah diset): Jember (`-8.165143, 113.716255`).
 
 ---
@@ -598,56 +603,125 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ### 🎛️ F14 — Hak Akses Apotek (Shared Role: Admin = Apoteker)
 
 - Admin memiliki **semua akses yang sama** dengan Apoteker:
-  - Melihat antrean resep obat siap serah (`GET /api/pharmacy/queues`).
-  - Serahkan obat ke pasien (`POST /api/pharmacy/queues/{id}/dispense`).
-  - CRUD inventaris obat (`POST`, `PUT`, `DELETE /api/medicines`).
-  - Restore obat yang di-soft-delete (`POST /api/medicines/{id}/restore`).
+  - Melihat antrean resep obat siap serah (`GET pharmacy/queues`).
+  - Serahkan obat ke pasien (`POST pharmacy/queues/{id}/dispense`).
+  - CRUD inventaris obat (`POST`, `PUT`, `DELETE medicines`).
+  - Restore obat yang di-soft-delete (`POST medicines/{id}/restore`).
 
 ---
 
 ## 📎 Referensi Cepat: Endpoint API per Aktor
 
-| Fitur | Endpoint | Aktor |
-|---|---|---|
-| Registrasi | `POST /auth/register` | Pasien |
-| Login | `POST /auth/login` | Semua |
-| Lupa Password OTP | `POST /auth/forgot-password/otp` | Semua |
-| Reset Password | `POST /auth/forgot-password` | Semua |
-| Lihat Profil | `GET /auth/profile` | Semua |
-| Update Profil | `POST /auth/update-profile` | Semua |
-| Update FCM Token | `POST /auth/fcm-token` | Semua |
-| Logout | `POST /auth/logout` | Semua |
-| Booking Antrean | `POST /queues` *(throttle 5/menit)* | Pasien, Admin |
-| Batalkan Antrean | `DELETE /queues/{id}` | Pasien, Admin |
-| Lihat Antrean | `GET /queues` | Semua |
-| Update Status Antrean | `PUT /queues/{id}` | Dokter, Admin |
-| Check-In Loket | `POST /queues/{id}/checkin` | Admin |
-| Recall Antrean | `POST /queues/{id}/recall` | Admin |
-| Skip Antrean | `POST /queues/{id}/skip` | Admin |
-| Buat Rekam Medis | `POST /examinations` | Dokter |
-| Lihat Rekam Medis | `GET /examinations` | Pasien, Dokter, Admin |
-| Lihat Tagihan | `GET /payments` | Semua |
-| Upload Bukti Transfer | `POST /payments/{id}/upload-proof` *(throttle 5/menit)* | Pasien |
-| Verifikasi Transfer | `POST /payments/{id}/verify` | Admin |
-| Pembayaran Tunai | `POST /payments/{id}/cash-pay` | Admin |
-| Lihat Resep Apotek | `GET /pharmacy/queues` | Admin, Apoteker |
-| Serahkan Obat | `POST /pharmacy/queues/{id}/dispense` | Admin, Apoteker |
-| CRUD Obat | `POST/PUT/DELETE /medicines` | Admin, Apoteker |
-| Restore Obat | `POST /medicines/{id}/restore` | Admin, Apoteker |
-| Toggle Online Dokter | `PATCH /doctors/me/status` | Dokter |
-| CRUD Dokter | `POST/PUT/DELETE /doctors` | Admin |
-| CRUD Jadwal Dokter | `POST/PUT/DELETE /doctor-schedules` | Admin |
-| CRUD Cuti Dokter | `POST/DELETE /doctor-leaves` | Admin |
-| CRUD Hari Libur | `POST/DELETE /clinic-holidays` | Admin |
-| CRUD Poliklinik | `POST/PUT/DELETE /polyclinics` | Admin |
-| CRUD User | `POST/PUT/DELETE /users` | Admin |
-| CRUD Pasien | `POST/PUT/DELETE /patients` | Admin |
-| Dashboard Statistik | `GET /dashboard-stats` | Admin, Dokter |
-| Pengaturan Sistem | `GET/PUT /settings` | Admin |
-| Profil Puskesmas | `GET /puskesmas-profile` | Semua |
-| Update Profil Puskesmas | `PUT /puskesmas-profile` | Admin |
+> **Catatan Base URL:** Base URL = `https://nalaseva-api.up.railway.app/api/`  
+> Semua path di bawah adalah **relatif** terhadap base URL tersebut — **tanpa** prefix `/api/` tambahan.  
+> Contoh: `auth/login` → URL lengkap = `https://nalaseva-api.up.railway.app/api/auth/login`
+
+### 🔐 Autentikasi (Semua Aktor)
+
+| Fitur | Method | Endpoint | Aktor |
+|---|---|---|---|
+| Registrasi | `POST` | `auth/register` | Pasien |
+| Login | `POST` | `auth/login` | Semua |
+| Lupa Password — Request OTP | `POST` | `auth/forgot-password/otp` | Semua |
+| Lupa Password — Reset | `POST` | `auth/forgot-password` | Semua |
+| Lihat Profil | `GET` | `auth/profile` | Semua |
+| Update Profil | `POST` | `auth/update-profile` | Semua |
+| Update FCM Token | `POST` | `auth/fcm-token` | Semua |
+| Logout | `POST` | `auth/logout` | Semua |
+
+### 🗓️ Antrean
+
+| Fitur | Method | Endpoint | Aktor |
+|---|---|---|---|
+| Lihat Antrean | `GET` | `queues` | Pasien, Dokter, Admin |
+| Booking Antrean | `POST` | `queues` *(throttle 5/menit)* | Pasien, Admin |
+| Batalkan / Hapus Antrean | `DELETE` | `queues/{id}` | Pasien, Admin |
+| Update Status Antrean | `PUT` | `queues/{id}` | Dokter, Admin |
+| Check-In Loket | `POST` | `queues/{id}/checkin` | Admin |
+| Recall Antrean | `POST` | `queues/{id}/recall` | Admin |
+| Skip Antrean | `POST` | `queues/{id}/skip` | Dokter, Admin |
+
+### 📝 Rekam Medis
+
+| Fitur | Method | Endpoint | Aktor |
+|---|---|---|---|
+| Lihat Rekam Medis | `GET` | `examinations` | Pasien, Dokter, Admin |
+| Lihat Rekam Medis per Pasien | `GET` | `examinations?patient_user_id={id}` | Dokter, Admin |
+| Buat Rekam Medis | `POST` | `examinations` | Dokter |
+
+### 💳 Pembayaran
+
+| Fitur | Method | Endpoint | Aktor |
+|---|---|---|---|
+| Lihat Tagihan | `GET` | `payments` | Pasien, Admin |
+| Upload Bukti Transfer | `POST` | `payments/{id}/upload-proof` *(throttle 5/menit)* | Pasien |
+| Verifikasi Transfer | `POST` | `payments/{id}/verify` | Admin |
+| Pembayaran Tunai | `POST` | `payments/{id}/cash-pay` | Admin |
+
+### 💊 Apotek & Inventaris Obat
+
+| Fitur | Method | Endpoint | Aktor |
+|---|---|---|---|
+| Lihat Antrean Resep Apotek | `GET` | `pharmacy/queues` | Admin, Apoteker |
+| Serahkan Obat (Dispense) | `POST` | `pharmacy/queues/{id}/dispense` | Admin, Apoteker |
+| Lihat Inventaris Obat | `GET` | `medicines` | Dokter, Admin, Apoteker |
+| Tambah Obat | `POST` | `medicines` | Admin, Apoteker |
+| Edit Obat | `PUT` | `medicines/{id}` | Admin, Apoteker |
+| Hapus Obat | `DELETE` | `medicines/{id}` | Admin, Apoteker |
+| Restore Obat | `POST` | `medicines/{id}/restore` | Admin, Apoteker |
+
+### 🩺 Dokter & Jadwal
+
+| Fitur | Method | Endpoint | Aktor |
+|---|---|---|---|
+| Toggle Status Online Dokter | `PATCH` | `doctors/me/status` | Dokter |
+| Lihat Daftar Dokter | `GET` | `doctors` | Pasien, Admin |
+| Tambah Dokter | `POST` | `doctors` | Admin |
+| Edit Dokter | `PUT` | `doctors/{id}` | Admin |
+| Hapus Dokter | `DELETE` | `doctors/{id}` | Admin |
+| Lihat Jadwal Dokter | `GET` | `doctor-schedules` | Admin |
+| Lihat Jadwal per Poliklinik | `GET` | `doctor-schedules?polyclinic_id={id}` | Pasien |
+| Tambah Jadwal | `POST` | `doctor-schedules` | Admin |
+| Edit Jadwal | `PUT` | `doctor-schedules/{id}` | Admin |
+| Hapus Jadwal | `DELETE` | `doctor-schedules/{id}` | Admin |
+
+### 🏥 Cuti, Libur & Poliklinik
+
+| Fitur | Method | Endpoint | Aktor |
+|---|---|---|---|
+| Lihat Cuti Dokter | `GET` | `doctor-leaves` / `doctor-leaves?doctor_id={id}` | Pasien, Admin |
+| Tambah Cuti Dokter | `POST` | `doctor-leaves` | Admin |
+| Hapus Cuti Dokter | `DELETE` | `doctor-leaves/{id}` | Admin |
+| Lihat Hari Libur | `GET` | `clinic-holidays` | Pasien, Admin |
+| Tambah Hari Libur | `POST` | `clinic-holidays` | Admin |
+| Hapus Hari Libur | `DELETE` | `clinic-holidays/{id}` | Admin |
+| Lihat Poliklinik | `GET` | `polyclinics` | Pasien, Admin |
+| Tambah Poliklinik | `POST` | `polyclinics` | Admin |
+| Edit Poliklinik | `PUT` | `polyclinics/{id}` | Admin |
+| Hapus Poliklinik | `DELETE` | `polyclinics/{id}` | Admin |
+
+### 👥 User & Pasien
+
+| Fitur | Method | Endpoint | Aktor |
+|---|---|---|---|
+| Lihat Semua User | `GET` | `users` | Admin |
+| Tambah User | `POST` | `users` | Admin |
+| Edit User | `PUT` | `users/{id}` | Admin |
+| Hapus User | `DELETE` | `users/{id}` | Admin |
+| Lihat Semua Pasien | `GET` | `patients` | Admin |
+| Tambah Pasien Manual | `POST` | `patients` | Admin |
+
+### 📊 Statistik & Pengaturan
+
+| Fitur | Method | Endpoint | Aktor |
+|---|---|---|---|
+| Dashboard Statistik | `GET` | `dashboard-stats` | Admin, Dokter |
+| Pengaturan Sistem | `GET` | `settings` | Admin |
+| Update Pengaturan | `PUT` | `settings` | Admin |
+| Lihat Profil Puskesmas | `GET` | `puskesmas-profile` | Semua |
+| Update Profil Puskesmas | `PUT` | `puskesmas-profile` | Admin |
 
 ---
 
 *Dokumen ini merupakan spesifikasi fitur resmi per role sistem NalaSeva.*  
-*Diperbarui: 6 Juni 2026 — Sinkronisasi dengan sistem aktual: hapus fitur Restore Dokter (tidak diimplementasi) dan hapus operasi Edit/Hapus Rekam Medis (by design: rekam medis bersifat immutable).*
+*Diperbarui: 8 Juni 2026 — Sinkronisasi penuh dengan kode aktual Flutter (`ApiClient` base URL dikonfirmasi = `.../api/`). Perbaikan konsistensi: semua path endpoint seragam tanpa prefix `/api/` (karena base URL sudah mengandungnya). Endpoint tambahan dari kode aktual ditambahkan: `GET doctors` & `GET polyclinics` (digunakan pasien saat booking), `GET doctor-schedules?polyclinic_id` (pasien), `GET clinic-holidays` & `GET doctor-leaves?doctor_id` (pasien saat booking), `POST queues/{id}/skip` oleh Dokter, `GET medicines` oleh Dokter. Tabel referensi cepat dipecah per kategori. Skip antrean oleh Dokter ditambahkan sebagai F2.3 baru.*
