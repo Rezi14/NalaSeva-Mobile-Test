@@ -139,6 +139,11 @@ class _NalasevaAppState extends State<NalasevaApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       initialRoute: initialRoute,
+      onGenerateInitialRoutes: (initialRouteName) {
+        return [
+          AppRouter.onGenerateRoute(RouteSettings(name: initialRouteName))!,
+        ];
+      },
       onGenerateRoute: AppRouter.onGenerateRoute,
       builder: (context, child) {
         return SessionTimeoutListener(

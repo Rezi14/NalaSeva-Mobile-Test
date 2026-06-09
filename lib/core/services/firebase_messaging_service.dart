@@ -30,15 +30,27 @@ class FirebaseMessagingService {
     // 2. Setup background message handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // 3. Request permissions for iOS
+    // 3. Request permissions for iOS & Android
+    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+        _localNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    
+    // Explicitly request notification permission for Android 13+ (API level 33+)
+    final bool? androidGranted = await androidImplementation?.requestNotificationsPermission();
+    log('Android notification permission status: $androidGranted');
+
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
+      announcement: false,
       badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
       sound: true,
     );
     
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      log('User granted notification permission');
+      log('Firebase notification permission granted');
     }
 
     // 4. Listen to foreground messages
