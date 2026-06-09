@@ -25,42 +25,16 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
   bool _isUploading = false;
   String _merchantName = 'Puskesmas NalaSeva Mandiri';
   String _nmid = 'ID102930293019';
-  Timer? _pollingTimer;
 
   @override
   void initState() {
     super.initState();
     _loadQrisSettings();
-    if (widget.payment.status == 'waiting_verification') {
-      _startPolling();
-    }
   }
 
   @override
   void dispose() {
-    _stopPolling();
     super.dispose();
-  }
-
-  void _startPolling() {
-    _stopPolling();
-    _pollingTimer = Timer.periodic(const Duration(seconds: 8), (timer) async {
-      try {
-        final provider = context.read<PaymentProvider>();
-        await provider.fetchMyPayments();
-        final currentPayment = provider.payments.firstWhere((p) => p.id == widget.payment.id);
-        if (currentPayment.status == 'paid' || currentPayment.status == 'failed') {
-          _stopPolling();
-        }
-      } catch (e) {
-        // Silent error to prevent UI crash during network issue in polling
-      }
-    });
-  }
-
-  void _stopPolling() {
-    _pollingTimer?.cancel();
-    _pollingTimer = null;
   }
 
   Future<void> _loadQrisSettings() async {
@@ -81,27 +55,42 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     ).format(amount);
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
+  Color _getStatusColor(PaymentModel payment) {
+    if (payment.status == 'pending' && payment.createdAt != null) {
+      final diff = DateTime.now().difference(payment.createdAt!);
+      if (diff.inHours >= 2) {
+        return AppTheme.errorColor;
+      }
+    }
+    switch (payment.status) {
       case 'paid':
         return AppTheme.successColor;
       case 'waiting_verification':
         return AppTheme.warningColor;
       case 'failed':
+      case 'cancelled':
         return AppTheme.errorColor;
       default:
         return AppTheme.secondaryColor;
     }
   }
 
-  String _getStatusText(String status) {
-    switch (status) {
+  String _getStatusText(PaymentModel payment) {
+    if (payment.status == 'pending' && payment.createdAt != null) {
+      final diff = DateTime.now().difference(payment.createdAt!);
+      if (diff.inHours >= 2) {
+        return 'Kadaluwarsa';
+      }
+    }
+    switch (payment.status) {
       case 'paid':
         return 'Lunas';
       case 'waiting_verification':
         return 'Menunggu Verifikasi';
       case 'failed':
         return 'Gagal';
+      case 'cancelled':
+        return 'Batal / Kadaluwarsa';
       default:
         return 'Belum Bayar';
     }
@@ -192,7 +181,6 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
           onOkPressed: () {
             if (mounted) {
               Navigator.pop(context);
-              _startPolling();
             }
           },
         );
@@ -270,13 +258,13 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(payment.status).withValues(alpha: 0.1),
+                          color: _getStatusColor(payment).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          _getStatusText(payment.status),
+                          _getStatusText(payment),
                           style: TextStyle(
-                            color: _getStatusColor(payment.status),
+                            color: _getStatusColor(payment),
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),

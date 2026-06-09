@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,6 +6,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
@@ -41,6 +44,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   String? _qrisMerchantName;
   String? _qrisNmid;
   String? _qrisImagePath;
+  String? _puskesmasLogoPath;
 
   @override
   void initState() {
@@ -62,6 +66,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
       _qrisMerchantName = prefs.getString('qris_merchant_name') ?? 'Puskesmas NalaSeva Mandiri';
       _qrisNmid = prefs.getString('qris_nmid') ?? 'ID102930293019';
       _qrisImagePath = prefs.getString('qris_image_path');
+      _puskesmasLogoPath = prefs.getString('puskesmas_logo_path');
     });
 
     if (mounted) {
@@ -515,218 +520,282 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Profil Puskesmas',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Nama Puskesmas',
-                      labelStyle: GoogleFonts.inter(fontSize: 14),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      prefixIcon: const Icon(Icons.local_hospital_rounded),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: addressController,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      labelText: 'Alamat',
-                      labelStyle: GoogleFonts.inter(fontSize: 14),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      prefixIcon: const Icon(Icons.location_on_rounded),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: phoneController,
-                          keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(
-                            labelText: 'Telepon',
-                            labelStyle: GoogleFonts.inter(fontSize: 14),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            prefixIcon: const Icon(Icons.phone_rounded),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            labelText: 'Email',
-                            labelStyle: GoogleFonts.inter(fontSize: 14),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            prefixIcon: const Icon(Icons.email_rounded),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: latController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          decoration: InputDecoration(
-                            labelText: 'Latitude GPS',
-                            labelStyle: GoogleFonts.inter(fontSize: 14),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            prefixIcon: const Icon(Icons.map_rounded),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: lngController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          decoration: InputDecoration(
-                            labelText: 'Longitude GPS',
-                            labelStyle: GoogleFonts.inter(fontSize: 14),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            prefixIcon: const Icon(Icons.explore_rounded),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MapPickerScreen(
-                            initialLatitude: double.tryParse(latController.text),
-                            initialLongitude: double.tryParse(lngController.text),
-                          ),
-                        ),
-                      );
-
-                      if (result != null && result is LatLng) {
-                        latController.text = result.latitude.toString();
-                        lngController.text = result.longitude.toString();
-                      }
-                    },
-                    icon: const Icon(Icons.pin_drop_rounded, color: AppTheme.primaryColor),
-                    label: Text(
-                      'PILIH LOKASI DARI PETA',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppTheme.primaryColor, width: 1.5),
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (nameController.text.isEmpty ||
-                          addressController.text.isEmpty ||
-                          phoneController.text.isEmpty ||
-                          emailController.text.isEmpty) {
-                        AppDialogs.showNotificationDialog(
-                          context,
-                          'Gagal',
-                          'Semua field utama wajib diisi!',
-                        );
-                        return;
-                      }
-
-                      final lat = double.tryParse(latController.text);
-                      final lng = double.tryParse(lngController.text);
-
-                      try {
-                        // Tampilkan loading dialog
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-
-                        await provider.updatePuskesmasProfile(
-                          name: nameController.text,
-                          address: addressController.text,
-                          phone: phoneController.text,
-                          email: emailController.text,
-                          latitude: lat,
-                          longitude: lng,
-                        );
-
-                        if (context.mounted) {
-                          Navigator.pop(context); // Tutup loading dialog
-                          Navigator.pop(context); // Tutup bottom sheet
-                          AppDialogs.showNotificationDialog(
-                            context,
-                            'Sukses',
-                            'Profil Puskesmas berhasil diperbarui secara real-time!',
-                          );
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          Navigator.pop(context); // Tutup loading dialog
-                          AppDialogs.showNotificationDialog(
-                            context,
-                            'Kesalahan',
-                            e.toString(),
-                          );
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 54),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'SIMPAN PERUBAHAN',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+        String? localLogoPath = _puskesmasLogoPath;
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-            ),
-          ),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Profil Puskesmas',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Puskesmas Logo Picker Section
+                      Center(
+                        child: Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.grey.shade100,
+                              backgroundImage: localLogoPath != null && localLogoPath!.isNotEmpty
+                                  ? FileImage(File(localLogoPath!)) as ImageProvider
+                                  : const AssetImage('assets/logo.png'),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: CircleAvatar(
+                                radius: 18,
+                                backgroundColor: AppTheme.primaryColor,
+                                child: IconButton(
+                                  icon: const Icon(Icons.camera_alt_rounded, size: 16, color: Colors.white),
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () async {
+                                    final picker = ImagePicker();
+                                    final image = await picker.pickImage(source: ImageSource.gallery);
+                                    if (image != null) {
+                                      setModalState(() {
+                                        localLogoPath = image.path;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Text(
+                          'Logo Puskesmas',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Nama Puskesmas',
+                          labelStyle: GoogleFonts.inter(fontSize: 14),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          prefixIcon: const Icon(Icons.local_hospital_rounded),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: addressController,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                          labelText: 'Alamat',
+                          labelStyle: GoogleFonts.inter(fontSize: 14),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          prefixIcon: const Icon(Icons.location_on_rounded),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: phoneController,
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                labelText: 'Telepon',
+                                labelStyle: GoogleFonts.inter(fontSize: 14),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                prefixIcon: const Icon(Icons.phone_rounded),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                labelText: 'Email',
+                                labelStyle: GoogleFonts.inter(fontSize: 14),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                prefixIcon: const Icon(Icons.email_rounded),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: latController,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                labelText: 'Latitude GPS',
+                                labelStyle: GoogleFonts.inter(fontSize: 14),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                prefixIcon: const Icon(Icons.map_rounded),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: lngController,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                labelText: 'Longitude GPS',
+                                labelStyle: GoogleFonts.inter(fontSize: 14),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                prefixIcon: const Icon(Icons.explore_rounded),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MapPickerScreen(
+                                initialLatitude: double.tryParse(latController.text),
+                                initialLongitude: double.tryParse(lngController.text),
+                              ),
+                            ),
+                          );
+
+                          if (result != null && result is LatLng) {
+                            latController.text = result.latitude.toString();
+                            lngController.text = result.longitude.toString();
+                          }
+                        },
+                        icon: const Icon(Icons.pin_drop_rounded, color: AppTheme.primaryColor),
+                        label: Text(
+                          'PILIH LOKASI DARI PETA',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppTheme.primaryColor, width: 1.5),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (nameController.text.isEmpty ||
+                              addressController.text.isEmpty ||
+                              phoneController.text.isEmpty ||
+                              emailController.text.isEmpty) {
+                            AppDialogs.showNotificationDialog(
+                              context,
+                              'Gagal',
+                              'Semua field utama wajib diisi!',
+                            );
+                            return;
+                          }
+
+                          final lat = double.tryParse(latController.text);
+                          final lng = double.tryParse(lngController.text);
+
+                          try {
+                            // Tampilkan loading dialog
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+
+                            await provider.updatePuskesmasProfile(
+                              name: nameController.text,
+                              address: addressController.text,
+                              phone: phoneController.text,
+                              email: emailController.text,
+                              latitude: lat,
+                              longitude: lng,
+                            );
+
+                            // Save logo locally in SharedPreferences
+                            final prefs = await SharedPreferences.getInstance();
+                            if (localLogoPath != null) {
+                              await prefs.setString('puskesmas_logo_path', localLogoPath!);
+                            } else {
+                              await prefs.remove('puskesmas_logo_path');
+                            }
+
+                            setState(() {
+                              _puskesmasLogoPath = localLogoPath;
+                            });
+
+                            if (context.mounted) {
+                              Navigator.pop(context); // Tutup loading dialog
+                              Navigator.pop(context); // Tutup bottom sheet
+                              AppDialogs.showNotificationDialog(
+                                context,
+                                'Sukses',
+                                'Profil Puskesmas berhasil diperbarui secara real-time!',
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              Navigator.pop(context); // Tutup loading dialog
+                              AppDialogs.showNotificationDialog(
+                                context,
+                                'Kesalahan',
+                                e.toString(),
+                              );
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 54),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'SIMPAN PERUBAHAN',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -796,9 +865,9 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                       const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () {
-                          // Simulasikan upload stiker QRIS
+                          // Simulasikan upload stiker QRIS dengan men-generate simulasi QR
                           setModalState(() {
-                            localImagePath = 'assets/struk_qris_mock.png';
+                            localImagePath = 'simulated_qris';
                           });
                         },
                         child: Container(
@@ -811,13 +880,11 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                           child: localImagePath != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
-                                  child: Image.asset(
-                                    'assets/logo.png', // Fallback or mock logo visual
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (context, error, stackTrace) => const Icon(
-                                      Icons.qr_code_2_rounded,
-                                      size: 72,
-                                      color: AppTheme.primaryColor,
+                                  child: Center(
+                                    child: QrImageView(
+                                      data: nmidController.text.isNotEmpty ? 'nmid:${nmidController.text.trim()}|merchant:${nameController.text.trim()}' : 'NalaSevaQRISPlaceholder',
+                                      version: QrVersions.auto,
+                                      size: 120,
                                     ),
                                   ),
                                 )
@@ -826,8 +893,8 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                                   children: [
                                     Icon(Icons.cloud_upload_rounded, size: 48, color: Colors.grey),
                                     SizedBox(height: 8),
-                                    Text('Sentuh untuk Unggah Foto QRIS', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                                    Text('(Format JPG/PNG, Maks. 2MB)', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                                    Text('Sentuh untuk Menghasilkan QRIS Simulasi', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                                    Text('(Berdasarkan NMID & Nama Merchant)', style: TextStyle(color: Colors.grey, fontSize: 11)),
                                   ],
                                 ),
                         ),

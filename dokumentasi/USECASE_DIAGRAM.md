@@ -278,9 +278,11 @@ flowchart LR
     *   *API*: `DELETE /api/queues/{id}`
 *   **R7: Lihat Daftar & Detail Tagihan**
     *   *Deskripsi*: Melihat daftar dan detail biaya invoice (`NS-PAY-YYYYMMDD-XXXXXX`) yang berisi biaya registrasi dan biaya obat (harga obat dikunci saat resep terbit).
+    *   *Logika Bisnis*: Jika tagihan masih `pending` setelah 2 jam, status otomatis berubah menjadi Kadaluwarsa.
     *   *API*: `GET /api/payments`
 *   **U3: Upload Bukti Transfer (Image Picker)**
     *   *Deskripsi*: Mengunggah foto bukti bayar dari galeri atau kamera HP (dilindungi throttle maks 5/menit).
+    *   *Logika Bisnis*: Memvalidasi ukuran file (maks 2MB) dan format ekstensi gambar (.jpg, .jpeg, .png) di sisi client.
     *   *API*: `POST /api/payments/{id}/upload-proof`
 *   **R8: Lihat Riwayat Pemeriksaan (Filter Bulan)**
     *   *Deskripsi*: Melihat daftar riwayat rekam medis pribadi, terlindungi dari IDOR, dan dapat dicari per bulan.
@@ -290,6 +292,8 @@ flowchart LR
     *   *API*: `GET /api/examinations/{id}`
 *   **R10: Lihat Kotak Masuk FCM**
     *   *Deskripsi*: Menampilkan riwayat notifikasi push yang diterima.
+    *   *Logika Bisnis*: Notifikasi payload FCM diproses secara silent untuk menyinkronkan/memperbarui data lokal di provider.
+
 *   **R11: Lihat Profil Puskesmas & Peta**
     *   *Deskripsi*: Melihat profil puskesmas beserta koordinat peta lokasi.
     *   *API*: `GET /api/puskesmas-profile`
@@ -677,7 +681,9 @@ flowchart LR
     *   *API*: `DELETE /api/polyclinics/{id}`
 *   **C8: CRUD User**
     *   *Deskripsi*: Membuat, membaca, memperbarui, dan menghapus akun pengguna (Admin, Dokter, Pasien, Apoteker).
+    *   *Logika Bisnis*: Form dilindungi oleh Form Guard yang menampilkan dialog peringatan pembatalan jika ditutup dengan field terisi sebagian.
     *   *API*: `/api/users` (CRUD)
+
 *   **C9: CRUD Pasien**
     *   *Deskripsi*: Pendaftaran pasien secara manual, edit data demografis, soft delete, dan penayangan daftar pasien.
     *   *API*: `/api/patients` (CRUD)

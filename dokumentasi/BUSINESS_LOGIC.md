@@ -553,6 +553,13 @@ Mengambil data statistik real-time untuk hari ini:
 - Token dikirim ke server via `POST /auth/fcm-token` setelah login berhasil.
 - Di-wrap dalam `!kIsWeb` guard (FCM tidak tersedia di platform web).
 
+#### 12.6 Auto-Sync Data Real-Time Berbasis Payload Notifikasi (Silent Sync)
+- Ketika aplikasi client menerima notifikasi FCM, service listener (`FirebaseMessagingService._handleMessageData`) memproses data payload untuk menyinkronkan data secara asinkron tanpa memuat ulang seluruh aplikasi:
+  - Payload `'type': 'payment_updated'` atau `'payment'` -> Memanggil `fetchMyPayments()` pada `PaymentProvider` dan `fetchMyQueues()` pada `PatientProvider`.
+  - Payload `'type': 'queue_updated'` atau `'queue'` -> Memanggil `fetchMyQueues()` pada `PatientProvider` dan `fetchMyQueues()` pada `DoctorProvider`.
+  - Payload `'type': 'prescription_updated'` atau `'prescription'` -> Memanggil `fetchPharmacyQueues()` pada `PharmacyProvider`.
+
+
 ---
 
 ### 📱 Flutter — [NotificationScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/notification_screen.dart)
@@ -855,9 +862,15 @@ final adminRepository = AdminRepository(apiClient);
 
 #### 18.2 Alur Transaksi Pasien (Upload Bukti)
 - Pasien dapat melihat daftar tagihan aktif miliknya (dilengkapi IDOR protection agar pasien tidak bisa melihat pembayaran orang lain).
+- **Masa Berlaku Tagihan (2 Jam)**: Jika tagihan berada dalam status `pending` selama $\ge$ 2 jam sejak tagihan dibuat (`createdAt`), client secara dinamis mengubah statusnya menjadi **Kadaluwarsa** ("Resep Kadaluwarsa/Tidak Ditebus"), merubah indikator warna menjadi merah (errorColor), dan menonaktifkan proses pembayaran.
 - Pasien mengunggah gambar bukti transfer bank/QRIS (`payment_proof`).
+- **Validasi Bukti di Sisi Klien**: Sebelum berkas bukti diunggah ke server, client memvalidasi:
+  - Format/ekstensi gambar wajib berupa `.jpg`, `.jpeg`, atau `.png`.
+  - Ukuran berkas gambar maksimal **2MB**.
+  - Jika tidak lolos, dialog notifikasi error ditampilkan dan upload dibatalkan.
 - Setelah bukti berhasil diunggah, status pembayaran berubah otomatis menjadi `waiting_verification` (menunggu verifikasi).
 - Bukti transfer disimpan secara aman di storage direktori `payment_proofs/`.
+
 
 #### 18.3 Verifikasi Admin (Cash / Transfer)
 - **Verifikasi Bukti Transfer**: Admin memeriksa bukti transfer secara manual, lalu menyetujui (`status = 'paid'`, mencatat `paid_at = now()`) atau menolak (`status = 'failed'`).
@@ -969,7 +982,8 @@ Kelas `AppDialogs` menyediakan 3 jenis dialog seragam yang responsif dan konsist
 
 #### 21.3 Standarisasi Navigasi & Pelindung State Form
 - Dialog konfirmasi keluar (*discard changes prompt*) jika user mencoba kembali saat form telah terisi sebagian.
-- Diterapkan di form: tambah dokter, cuti, jadwal praktik, rekam medis, inventaris obat.
+- Diterapkan di form: tambah/edit user, tambah dokter, cuti, jadwal praktik, rekam medis, inventaris obat.
+
 
 ---
 

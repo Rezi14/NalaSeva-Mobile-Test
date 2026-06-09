@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import '../logic/payment_provider.dart';
+import '../../../shared/models/payment_model.dart';
 import '../../../core/theme/app_theme.dart';
 import 'payment_detail_screen.dart';
 import '../../admin/widgets/admin_bottom_nav.dart';
@@ -45,27 +46,42 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
     ).format(amount);
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
+  Color _getStatusColor(PaymentModel payment) {
+    if (payment.status == 'pending' && payment.createdAt != null) {
+      final diff = DateTime.now().difference(payment.createdAt!);
+      if (diff.inHours >= 2) {
+        return AppTheme.errorColor;
+      }
+    }
+    switch (payment.status) {
       case 'paid':
         return AppTheme.successColor;
       case 'waiting_verification':
         return AppTheme.warningColor;
       case 'failed':
+      case 'cancelled':
         return AppTheme.errorColor;
       default:
         return AppTheme.secondaryColor;
     }
   }
 
-  String _getStatusText(String status) {
-    switch (status) {
+  String _getStatusText(PaymentModel payment) {
+    if (payment.status == 'pending' && payment.createdAt != null) {
+      final diff = DateTime.now().difference(payment.createdAt!);
+      if (diff.inHours >= 2) {
+        return 'Kadaluwarsa';
+      }
+    }
+    switch (payment.status) {
       case 'paid':
         return 'Lunas';
       case 'waiting_verification':
         return 'Menunggu Verifikasi';
       case 'failed':
         return 'Gagal';
+      case 'cancelled':
+        return 'Batal / Kadaluwarsa';
       default:
         return 'Belum Bayar';
     }
@@ -462,13 +478,13 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                                                 Container(
                                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                                   decoration: BoxDecoration(
-                                                    color: _getStatusColor(payment.status).withValues(alpha: 0.1),
+                                                    color: _getStatusColor(payment).withValues(alpha: 0.1),
                                                     borderRadius: BorderRadius.circular(10),
                                                   ),
                                                   child: Text(
-                                                    _getStatusText(payment.status),
+                                                    _getStatusText(payment),
                                                     style: TextStyle(
-                                                      color: _getStatusColor(payment.status),
+                                                      color: _getStatusColor(payment),
                                                       fontWeight: FontWeight.bold,
                                                       fontSize: 12,
                                                     ),

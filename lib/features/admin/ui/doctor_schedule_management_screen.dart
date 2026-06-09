@@ -342,6 +342,7 @@ class _DoctorScheduleManagementScreenState extends State<DoctorScheduleManagemen
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
+      showDragHandle: false,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {

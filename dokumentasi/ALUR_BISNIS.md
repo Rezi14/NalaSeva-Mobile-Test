@@ -302,10 +302,11 @@ flowchart TD
    - **Rekam Medis**: Menyimpan baris rekam medis baru di tabel `examinations` dengan mengunci `doctor_id` sesuai ID dokter yang sedang login (keamanan anti-spoofing).
    - **Detail Resep**: Menyimpan setiap obat resep ke tabel `prescription_items`. Backend membaca harga obat saat ini dari tabel `medicines` dan menyimpannya langsung ke tabel detail resep untuk **mengunci harga transaksi jual** (melindungi dari perubahan nominal tagihan jika di masa mendatang harga obat di inventaris mengalami penyesuaian).
    - **Status Antrean**: Status antrean diubah secara otomatis menjadi `completed`.
-   - **Penerbitan Invoice**: Sistem membuat baris tagihan baru di tabel `payments` dengan nomor invoice unik (format: `NS-PAY-YYYYMMDD-XXXXXX`) dengan status awal `pending`.
+   - **Penerbitan Invoice**: Sistem membuat baris tagihan baru di tabel `payments` dengan nomor invoice unik (format: `NS-PAY-YYYYMMDD-XXXXXX`) dengan status awal `pending`. Pasien memiliki batas waktu **2 jam** untuk melunasi tagihan ini sebelum otomatis dianggap kadaluwarsa.
      - *Nominal Tagihan* dihitung dari formula: `registration_fee` (dari konfigurasi sistem) + `total_biaya_obat` (jumlahan `quantity * harga_obat_terkunci`).
    - **Notifikasi FCM**: Sistem mengirim push notification ke HP Pasien terkait: *"Tagihan Baru Diterbitkan. Silakan lakukan pembayaran tagihan sebesar Rp..."*
 8. DB Transaction dilakukan commit. Halaman dokter kembali ke dashboard dan menyegarkan state.
+9. **Masa Berlaku Tagihan**: Jika tagihan berada dalam status `pending` selama $\ge$ 2 jam sejak `created_at`, sistem client akan secara dinamis menganggap resep tersebut telah **Kadaluwarsa** (status obat berubah menjadi *"Resep Kadaluwarsa/Tidak Ditebus"*), dan tombol pembayaran akan dinonaktifkan.
 
 ---
 
@@ -324,9 +325,14 @@ flowchart TD
 
     Start([Mulai Pembayaran]):::startEnd --> Method{Metode Pembayaran?}:::decision
     
-    Method -- Transfer / QRIS --> Transfer[Pasien Transfer Uang]:::process
+    Method -- Transfer / QRIS --> TimeCheck{Sesi Pending < 2 Jam?}:::decision
+    TimeCheck -- Tidak --> Expired([Tagihan Kadaluwarsa]):::fail
+    TimeCheck -- Ya --> Transfer[Pasien Transfer Uang]:::process
     Transfer --> Upload[Upload Bukti Transfer via image_picker]:::process
-    Upload --> Waiting[Ubah Status Tagihan = waiting_verification]:::process
+    Upload --> Validation{Validasi Klien: Format & Ukuran < 2MB?}:::decision
+    Validation -- Gagal --> WarnDlg[Tampilkan Error Dialog]:::fail --> Transfer
+    Validation -- Lolos --> API[POST /payments/id/upload-proof]:::process
+    API --> Waiting[Ubah Status Tagihan = waiting_verification]:::process
     Waiting --> Review[Admin Review Bukti Transfer]:::process
     Review --> Valid{Bukti Valid?}:::decision
     
@@ -341,16 +347,21 @@ flowchart TD
 ### 📝 Penjelasan Detail Langkah-Langkah
 
 #### A. Metode Pembayaran Non-Tunai (Transfer/QRIS)
-1. Pasien membuka menu riwayat pembayaran pada halaman `payment_list_screen.dart` dan memilih tagihan yang berstatus `pending`.
-2. Pasien melakukan transfer dana sesuai nominal tagihan ke rekening bank resmi puskesmas yang tertera.
+1. Pasien membuka menu riwayat pembayaran pada halaman `payment_list_screen.dart` dan memilih tagihan yang berstatus `pending`. Sistem memvalidasi usia tagihan; jika usia tagihan $\ge$ 2 jam dari sejak dibuat, statusnya otomatis berubah menjadi **Kadaluwarsa** di UI, dan alur pembayaran ditolak.
+2. Pasien melakukan transfer dana sesuai nominal tagihan ke rekening bank resmi puskesmas yang tertera (melalui scan QRIS statis).
 3. Pasien memotret atau memilih gambar bukti transfer dari galeri menggunakan `image_picker`.
-4. Pasien mengklik tombol **"Kirim Bukti Pembayaran"** pada `payment_detail_screen.dart`.
-5. Gambar bukti diunggah ke API `POST /api/payments/{id}/upload-proof` (dilindungi throttle: maksimal 5 kali unggah per menit untuk menghindari spamming server).
-6. Backend menyimpan gambar bukti transfer secara aman di direktori penyimpanan `payment_proofs/` dan memperbarui status tagihan menjadi `waiting_verification` (menunggu verifikasi).
-7. Admin kasir memantau daftar pembayaran di dashboard dan meninjau keaslian gambar bukti transfer yang dikirim pasien.
-8. Admin menentukan keputusan verifikasi:
+4. **Validasi Bukti Pembayaran di Sisi Klien**: Sebelum mengirim bukti pembayaran, aplikasi client memverifikasi berkas gambar:
+   - Format file wajib berupa gambar dengan ekstensi `.jpg`, `.jpeg`, atau `.png`.
+   - Ukuran maksimal gambar tidak boleh melebihi **2MB**.
+   - Jika validasi gagal, dialog error akan ditampilkan dan proses dihentikan.
+5. Pasien mengklik tombol **"Kirim Bukti Pembayaran"** pada `payment_detail_screen.dart`.
+6. Gambar bukti diunggah ke API `POST /api/payments/{id}/upload-proof` (dilindungi throttle: maksimal 5 kali unggah per menit untuk menghindari spamming server).
+7. Backend menyimpan gambar bukti transfer secara aman di direktori penyimpanan `payment_proofs/` dan memperbarui status tagihan menjadi `waiting_verification` (menunggu verifikasi).
+8. Admin kasir memantau daftar pembayaran di dashboard dan meninjau keaslian gambar bukti transfer yang dikirim pasien.
+9. Admin menentukan keputusan verifikasi:
    - **Ditolak**: Admin menekan tombol tolak (mengirim `status = 'failed'`). Status tagihan kembali menjadi `failed`. Sistem mengirimkan **Notifikasi FCM ke Pasien**: *"Verifikasi Pembayaran Gagal. Bukti transfer tidak valid."* Pasien diminta mengunggah ulang bukti yang benar.
    - **Disetujui**: Admin menekan tombol verifikasi (mengirim `status = 'paid'`). Backend memperbarui status menjadi `paid` dan mencatat waktu pembayaran pada kolom `paid_at`. Sistem mengirimkan **Notifikasi FCM ke Pasien**: *"Pembayaran Terverifikasi Lunas! Silakan mengambil obat di loket apotek."*
+
 
 #### B. Metode Pembayaran Tunai (Cash Pay) di Loket
 1. Pasien mendatangi loket pembayaran fisik puskesmas dan menyerahkan uang tunai sesuai total nominal tagihan kepada Admin.

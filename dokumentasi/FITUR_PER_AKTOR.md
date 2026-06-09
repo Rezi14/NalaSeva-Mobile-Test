@@ -154,6 +154,7 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 #### F4.1 Melihat Daftar Tagihan
 - Melihat semua tagihan pembayaran miliknya di `payment_list_screen.dart` (IDOR-protected: tidak bisa melihat tagihan pasien lain).
 - Status tagihan yang bisa dilihat: `pending`, `waiting_verification`, `paid`, `failed`.
+- **Masa Berlaku Tagihan (2 Jam)**: Jika tagihan berada dalam status `pending` selama $\ge$ 2 jam sejak tagihan dibuat (`createdAt`), client secara dinamis mengubah statusnya menjadi **Kadaluwarsa** ("Resep Kadaluwarsa/Tidak Ditebus"), merubah indikator warna menjadi merah, dan menonaktifkan proses pembayaran.
 
 #### F4.2 Detail Tagihan & Rincian Biaya
 - Melihat rincian di `payment_detail_screen.dart`:
@@ -164,9 +165,14 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 
 #### F4.3 Upload Bukti Transfer / QRIS
 - Mengambil foto bukti transfer dari galeri atau kamera menggunakan library `image_picker`.
+- **Validasi Bukti di Sisi Klien**: Sebelum gambar bukti diunggah ke server, client memvalidasi:
+  - Format/ekstensi gambar wajib berupa `.jpg`, `.jpeg`, atau `.png`.
+  - Ukuran berkas gambar maksimal **2MB**.
+  - Jika tidak lolos, dialog notifikasi error ditampilkan dan upload dibatalkan.
 - Mengirim gambar ke `POST payments/{id}/upload-proof` (dilindungi **throttle: maks. 5 request per menit** untuk mencegah spam upload).
 - Setelah upload berhasil, status tagihan otomatis berubah menjadi `waiting_verification`.
 - Bukti tersimpan di direktori server `payment_proofs/`.
+
 
 ---
 
@@ -187,6 +193,11 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
   | Klinik libur → antrean dibatalkan | "Antrean {queue_number} dibatalkan karena puskesmas libur: {deskripsi}." |
 
 - Notifikasi muncul di tray HP bahkan saat aplikasi di background/foreground (menggunakan `flutter_local_notifications` untuk foreground).
+- **Sinkronisasi Data Otomatis Real-Time (Silent Sync)**: Ketika aplikasi client menerima notifikasi FCM berisi payload data secara foreground maupun background, service listener akan memproses payload `type` secara otomatis untuk menyegarkan data lokal pada provider terkait:
+  - Payload `'type': 'payment_updated'` atau `'payment'` -> Memanggil `fetchMyPayments()` pada `PaymentProvider` dan `fetchMyQueues()` pada `PatientProvider`.
+  - Payload `'type': 'queue_updated'` atau `'queue'` -> Memanggil `fetchMyQueues()` pada `PatientProvider` dan `fetchMyQueues()` pada `DoctorProvider`.
+  - Payload `'type': 'prescription_updated'` atau `'prescription'` -> Memanggil `fetchPharmacyQueues()` pada `PharmacyProvider`.
+
 
 #### F5.2 Melihat Profil Puskesmas
 - Melihat informasi puskesmas (nama, alamat, nomor kontak, koordinat lokasi) yang ditampilkan di dashboard pasien.
@@ -528,6 +539,8 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 #### F9.1 CRUD User
 - Membuat, melihat, mengedit, dan menonaktifkan akun pengguna dengan role apa pun (`admin`, `doctor`, `patient`, `pharmacist`).
 - Request ke `GET users`, `POST users`, `PUT users/{id}`, `DELETE users/{id}`.
+- **Pelindung Form (Form Guard)**: Jika admin menolak menyimpan atau mencoba menutup form input/edit user saat field telah berubah/terisi sebagian, dialog konfirmasi peringatan visual dimunculkan untuk mencegah hilangnya data secara tidak sengaja.
+
 
 #### F9.2 CRUD Pasien
 - Tambah pasien secara manual (untuk pasien tanpa smartphone): DB Transaction buat `users` + `patients` via `POST patients`.

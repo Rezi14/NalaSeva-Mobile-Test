@@ -303,6 +303,44 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                                   DoctorHistoryRow(label: 'Diagnosa:', value: exam.diagnosis),
                                   const SizedBox(height: 12),
                                   DoctorHistoryRow(label: 'Tindakan & Resep:', value: exam.treatment),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Status Obat: ',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: exam.medicineDeliveryStatus == 'Obat Diterima'
+                                              ? AppTheme.successColor.withValues(alpha: 0.1)
+                                              : (exam.medicineDeliveryStatus == 'Resep Kadaluwarsa/Tidak Ditebus'
+                                                  ? AppTheme.errorColor.withValues(alpha: 0.1)
+                                                  : AppTheme.warningColor.withValues(alpha: 0.1)),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          exam.medicineDeliveryStatus,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            color: exam.medicineDeliveryStatus == 'Obat Diterima'
+                                                ? AppTheme.successColor
+                                                : (exam.medicineDeliveryStatus == 'Resep Kadaluwarsa/Tidak Ditebus'
+                                                    ? AppTheme.errorColor
+                                                    : AppTheme.warningColor),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             );

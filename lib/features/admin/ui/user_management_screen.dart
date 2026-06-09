@@ -610,6 +610,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
+      showDragHandle: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),

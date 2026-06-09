@@ -15,6 +15,7 @@ class PaymentModel {
   final String status;
   final DateTime? paidAt;
   final DateTime? dispensedAt;
+  final DateTime? createdAt;
   final QueueModel? queue;
   final ExaminationModel? examination;
 
@@ -31,6 +32,7 @@ class PaymentModel {
     required this.status,
     this.paidAt,
     this.dispensedAt,
+    this.createdAt,
     this.queue,
     this.examination,
   });
@@ -55,6 +57,7 @@ class PaymentModel {
       status: json['status'] ?? 'pending',
       paidAt: DateTimeParser.parseDateTime(json['paid_at']?.toString()),
       dispensedAt: DateTimeParser.parseDateTime(json['dispensed_at']?.toString()),
+      createdAt: DateTimeParser.parseDateTime(json['created_at']?.toString()),
       queue: json['queue'] != null ? QueueModel.fromJson(json['queue']) : null,
       examination: json['examination'] != null ? ExaminationModel.fromJson(json['examination']) : null,
     );
@@ -74,6 +77,7 @@ class PaymentModel {
       'status': status,
       'paid_at': paidAt?.toIso8601String(),
       'dispensed_at': dispensedAt?.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
       'queue': queue?.toJson(),
       'examination': examination?.toJson(),
     };

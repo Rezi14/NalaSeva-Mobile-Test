@@ -1,6 +1,7 @@
 import 'doctor_model.dart';
 import 'queue_model.dart';
 import 'prescription_item_model.dart';
+import 'payment_model.dart';
 import '../../core/utils/date_time_parser.dart';
 
 class ExaminationModel {
@@ -14,6 +15,7 @@ class ExaminationModel {
   final DoctorModel? doctor;
   final QueueModel? queue;
   final List<PrescriptionItemModel> prescriptionItems;
+  final PaymentModel? payment;
 
   ExaminationModel({
     required this.id,
@@ -26,6 +28,7 @@ class ExaminationModel {
     this.doctor,
     this.queue,
     this.prescriptionItems = const [],
+    this.payment,
   });
 
   factory ExaminationModel.fromJson(Map<String, dynamic> json) {
@@ -49,6 +52,7 @@ class ExaminationModel {
       doctor: json['doctor'] != null ? DoctorModel.fromJson(json['doctor']) : null,
       queue: json['queue'] != null ? QueueModel.fromJson(json['queue']) : null,
       prescriptionItems: prescriptionItemsList,
+      payment: json['payment'] != null ? PaymentModel.fromJson(json['payment']) : null,
     );
   }
 
@@ -64,9 +68,27 @@ class ExaminationModel {
       'doctor': doctor?.toJson(),
       'queue': queue?.toJson(),
       'prescription_items': prescriptionItems.map((e) => e.toJson()).toList(),
+      'payment': payment?.toJson(),
     };
   }
 
   String get patientName => queue?.patient.name ?? 'Pasien';
   String get doctorName => doctor?.name ?? 'Dokter';
+
+  String get medicineDeliveryStatus {
+    if (payment == null) return "Tidak Ada Resep / Pembayaran";
+    if (payment!.status == 'paid' && payment!.dispensedAt != null) {
+      return "Obat Diterima";
+    }
+    if (payment!.status == 'cancelled' || payment!.status == 'failed' || payment!.status == 'expired') {
+      return "Resep Kadaluwarsa/Tidak Ditebus";
+    }
+    if (payment!.status == 'pending' && payment!.createdAt != null) {
+      final diff = DateTime.now().difference(payment!.createdAt!);
+      if (diff.inHours >= 2) {
+        return "Resep Kadaluwarsa/Tidak Ditebus";
+      }
+    }
+    return "Menunggu Pembayaran / Penyerahan";
+  }
 }

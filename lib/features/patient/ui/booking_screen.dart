@@ -6,6 +6,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../../core/utils/responsive_helper.dart';
 import '../logic/patient_provider.dart';
 import '../../auth/logic/auth_provider.dart';
+import '../../payment/logic/payment_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/models/doctor_model.dart';
 import '../../../shared/models/schedule_model.dart';
@@ -511,6 +512,29 @@ class _BookingScreenState extends State<BookingScreen> {
     }
 
     final provider = context.read<PatientProvider>();
+    final paymentProvider = context.read<PaymentProvider>();
+
+    // Pengecekan tagihan tertunggak > 24 jam
+    try {
+      await paymentProvider.fetchMyPayments();
+      final hasOutstanding = paymentProvider.payments.any((p) {
+        if (p.status != 'pending') return false;
+        final created = p.createdAt ?? p.queue?.createdAt;
+        if (created == null) return false;
+        final diff = DateTime.now().difference(created);
+        return diff.inHours > 24;
+      });
+
+      if (hasOutstanding) {
+        _showResultDialog(
+          false,
+          'Harap lunasi tagihan Anda sebelumnya untuk dapat membuat antrean baru.',
+        );
+        return;
+      }
+    } catch (e) {
+      AppLogger.error('Gagal memvalidasi tagihan tertunggak', error: e, tag: 'BookingScreen');
+    }
 
     // Ambil antrean terbaru milik pasien untuk divalidasi
     await provider.fetchMyQueues();

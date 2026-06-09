@@ -358,6 +358,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      showDragHandle: false,
       builder: (context) {
         return Container(
           decoration: const BoxDecoration(
@@ -541,6 +542,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      showDragHandle: false,
       builder: (context) {
         return Container(
           decoration: const BoxDecoration(
