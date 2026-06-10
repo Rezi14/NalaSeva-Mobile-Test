@@ -1,17 +1,15 @@
 import 'package:flutter/foundation.dart';
-import 'package:dio/dio.dart';
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/error_parser.dart';
 import '../models/puskesmas_profile_model.dart';
+import '../repositories/puskesmas_profile_repository.dart';
 
 class PuskesmasProfileProvider extends ChangeNotifier {
-  final ApiClient _apiClient;
+  final PuskesmasProfileRepository _repository;
 
   PuskesmasProfileModel? _profile;
   bool _isLoading = false;
   String? _error;
 
-  PuskesmasProfileProvider(this._apiClient);
+  PuskesmasProfileProvider(this._repository);
 
   PuskesmasProfileModel? get profile => _profile;
   bool get isLoading => _isLoading;
@@ -23,13 +21,7 @@ class PuskesmasProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _apiClient.dio.get('puskesmas-profile');
-      final responseData = response.data['data'];
-      _profile = PuskesmasProfileModel.fromJson(responseData);
-      _isLoading = false;
-      notifyListeners();
-    } on DioException catch (e) {
-      _error = ErrorParser.parse(e, 'Gagal mengambil profil Puskesmas').toString();
+      _profile = await _repository.fetchProfile();
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -52,26 +44,16 @@ class PuskesmasProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _apiClient.dio.put(
-        'puskesmas-profile',
-        data: {
-          'name': name,
-          'address': address,
-          'phone': phone,
-          'email': email,
-          'latitude': latitude,
-          'longitude': longitude,
-        },
+      _profile = await _repository.updateProfile(
+        name: name,
+        address: address,
+        phone: phone,
+        email: email,
+        latitude: latitude,
+        longitude: longitude,
       );
-      final responseData = response.data['data'];
-      _profile = PuskesmasProfileModel.fromJson(responseData);
       _isLoading = false;
       notifyListeners();
-    } on DioException catch (e) {
-      _error = ErrorParser.parse(e, 'Gagal memperbarui profil Puskesmas').toString();
-      _isLoading = false;
-      notifyListeners();
-      rethrow;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;

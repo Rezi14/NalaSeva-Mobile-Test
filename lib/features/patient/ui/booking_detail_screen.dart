@@ -630,7 +630,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                           onPressed: _isCancellationLocked(queue) ? null : () => _showCancelConfirmation(context, queue),
                           style: TextButton.styleFrom(
                             foregroundColor: _isCancellationLocked(queue) ? Colors.grey.shade500 : Colors.red,
-                            minimumSize: const Size(double.infinity, 56),
+                            minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                           ),
                           icon: Icon(
                             _isCancellationLocked(queue) ? Icons.lock_clock_rounded : Icons.cancel_rounded,

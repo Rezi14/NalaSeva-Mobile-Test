@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/service_time_validator.dart';
 import '../../../core/utils/tts_helper.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../widgets/admin_info_row.dart';
 import '../widgets/admin_booking_action_buttons.dart';
 
@@ -59,14 +60,17 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
     return showDialog<String>(
       context: context,
       builder: (BuildContext context) {
+        final maxW   = ResponsiveHelper.dialogMaxWidth(context);
+        final radius = ResponsiveHelper.radiusDialog(context);
+        final btnR   = ResponsiveHelper.radiusButton(context);
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              constraints: const BoxConstraints(maxWidth: 480),
+              constraints: BoxConstraints(maxWidth: maxW),
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(radius),
               ),
               title: Row(
                 children: [
@@ -110,7 +114,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(btnR),
                       border: Border.all(color: Colors.grey.shade200),
                     ),
                     child: DropdownButtonHideUnderline(
@@ -159,7 +163,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                     backgroundColor: AppTheme.primaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(btnR),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     elevation: 0,
@@ -287,131 +291,170 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       barrierDismissible: false,
       barrierLabel: 'calling',
       transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, anim1, anim2) {
+      pageBuilder: (dialogContext, anim1, anim2) {
         return Align(
           alignment: Alignment.center,
           child: ScaleTransition(
             scale: anim1,
             child: Material(
               color: Colors.transparent,
-              child: Container(
-                width: 300,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
+              child: Builder(
+                builder: (ctx) {
+                  final maxW    = ResponsiveHelper.dialogMaxWidth(ctx);
+                  final padding = ResponsiveHelper.paddingDialog(ctx);
+                  final radius  = ResponsiveHelper.radiusDialog(ctx);
+                  final btnH    = ResponsiveHelper.buttonHeight(ctx);
+                  final btnR    = ResponsiveHelper.radiusButton(ctx);
+                  final iconSz  = ResponsiveHelper.iconSize(ctx, base: 40);
+                  final qNumSz  = ResponsiveHelper.fontSizeHeading(ctx) * 1.8;
+                  final fBody   = ResponsiveHelper.fontSizeBody(ctx);
+                  final fCap    = ResponsiveHelper.fontSizeCaption(ctx);
+
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: maxW,
+                      maxHeight: ResponsiveHelper.dialogMaxHeight(ctx),
                     ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(20),
+                    child: Container(
+                      margin: EdgeInsets.symmetric(
+                        horizontal: ResponsiveHelper.isLandscape(ctx) ? 24 : 16,
+                      ),
+                      padding: EdgeInsets.all(padding),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(radius),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
-                      child: const Icon(
-                        Icons.settings_voice_rounded,
-                        size: 40,
-                        color: AppTheme.primaryColor,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: padding * 0.4),
+                            Container(
+                              padding: EdgeInsets.all(padding * 0.8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.settings_voice_rounded,
+                                size: iconSz,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                            SizedBox(height: padding),
+                            Text(
+                              isRecall ? 'PANGGILAN ULANG' : 'PANGGILAN SUARA',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: fCap,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                                letterSpacing: 2,
+                              ),
+                            ),
+                            SizedBox(height: padding * 0.3),
+                            Text(
+                              _currentQueue.queueNumber,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: qNumSz,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            SizedBox(height: padding * 0.2),
+                            Text(
+                              _currentQueue.patient.fullName,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: fBody,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            SizedBox(height: padding),
+                            Text(
+                              isRecall
+                                  ? '🔊 "Panggilan ulang untuk nomor antrean ${_currentQueue.queueNumber}, ${_currentQueue.patient.fullName}, ke Ruang Pemeriksaan ${_currentQueue.polyclinic.name}..."'
+                                  : '🔊 "Memanggil nomor antrean ${_currentQueue.queueNumber}, ${_currentQueue.patient.fullName}, ke Ruang Pemeriksaan ${_currentQueue.polyclinic.name}..."',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                fontSize: fCap,
+                                color: Colors.grey.shade500,
+                                fontStyle: FontStyle.italic,
+                                height: 1.5,
+                              ),
+                            ),
+                            SizedBox(height: padding * 1.2),
+                            SizedBox(
+                              width: double.infinity,
+                              height: btnH,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (isRecall) {
+                                    Navigator.pop(ctx);
+                                    return;
+                                  }
+                                  final provider = ctx.read<AdminProvider>();
+                                  final navigator = Navigator.of(ctx);
+                                  await provider.updateQueueStatus(_currentQueue.id, QueueStatus.examining);
+                                  if (mounted) {
+                                    if (provider.error != null) {
+                                      _onErrorMessage(provider.error!);
+                                    } else {
+                                      navigator.pop();
+                                      _onSuccessMessage('Pasien dipanggil dan dimasukkan ke ruang periksa');
+                                      setState(() {
+                                        final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+                                        if (matchingQueues.isNotEmpty) {
+                                          _currentQueue = matchingQueues.first;
+                                        } else {
+                                          _currentQueue = _currentQueue.copyWith(status: QueueStatus.examining);
+                                        }
+                                      });
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryColor,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(btnR),
+                                  ),
+                                ),
+                                child: Text(
+                                  isRecall ? 'TUTUP' : 'PANGGIL & MASUKKAN',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: ResponsiveHelper.fontSizeButton(ctx),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: padding * 0.3),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx),
+                              child: Text(
+                                'Batal',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fBody,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      isRecall ? 'PANGGILAN ULANG' : 'PANGGILAN SUARA',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _currentQueue.queueNumber,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _currentQueue.patient.fullName,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      isRecall
-                          ? '🔊 "Panggilan ulang untuk nomor antrean ${_currentQueue.queueNumber}, ${_currentQueue.patient.fullName}, ke Ruang Pemeriksaan ${_currentQueue.polyclinic.name}..."'
-                          : '🔊 "Memanggil nomor antrean ${_currentQueue.queueNumber}, ${_currentQueue.patient.fullName}, ke Ruang Pemeriksaan ${_currentQueue.polyclinic.name}..."',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                        fontStyle: FontStyle.italic,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (isRecall) {
-                          Navigator.pop(context);
-                          return;
-                        }
-                        final provider = context.read<AdminProvider>();
-                        final navigator = Navigator.of(context);
-                        await provider.updateQueueStatus(_currentQueue.id, QueueStatus.examining);
-                        if (mounted) {
-                          if (provider.error != null) {
-                            _onErrorMessage(provider.error!);
-                          } else {
-                            navigator.pop();
-                            _onSuccessMessage('Pasien dipanggil dan dimasukkan ke ruang periksa');
-                            setState(() {
-                              final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
-                              if (matchingQueues.isNotEmpty) {
-                                _currentQueue = matchingQueues.first;
-                              } else {
-                                _currentQueue = _currentQueue.copyWith(status: QueueStatus.examining);
-                              }
-                            });
-                          }
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        isRecall ? 'TUTUP' : 'PANGGIL & MASUKKAN',
-                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ),

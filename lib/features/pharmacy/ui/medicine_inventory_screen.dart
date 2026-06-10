@@ -6,6 +6,7 @@ import '../logic/pharmacy_provider.dart';
 import '../../../shared/models/medicine_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class MedicineInventoryScreen extends StatefulWidget {
   const MedicineInventoryScreen({super.key});
@@ -50,9 +51,11 @@ class _MedicineInventoryScreenState extends State<MedicineInventoryScreen> {
     showDialog(
       context: context,
       builder: (context) {
+        final radius = ResponsiveHelper.radiusDialog(context);
+        final maxW   = ResponsiveHelper.dialogMaxWidth(context);
         return AlertDialog(
-          constraints: const BoxConstraints(maxWidth: 520),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          constraints: BoxConstraints(maxWidth: maxW),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
           title: Text(
             isEdit ? 'Ubah Informasi Obat' : 'Tambah Obat Baru',
             style: GoogleFonts.plusJakartaSans(

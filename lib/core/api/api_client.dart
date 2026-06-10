@@ -6,7 +6,9 @@ import '../router/app_router.dart';
 class ApiClient {
   late Dio dio;
   static const String baseUrl = 'https://nalaseva-api.up.railway.app/api/';
-  final _storage = const FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   ApiClient() {
     dio = Dio(BaseOptions(

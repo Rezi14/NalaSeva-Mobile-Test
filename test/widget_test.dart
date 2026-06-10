@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:nalaseva/features/auth/widgets/auth_submit_button.dart';
 import 'package:nalaseva/features/auth/widgets/auth_gender_button.dart';
 import 'package:nalaseva/features/auth/widgets/auth_text_field.dart';
 import 'package:nalaseva/features/auth/logic/auth_provider.dart';
 import 'package:nalaseva/features/auth/data/auth_repository.dart';
+import 'package:nalaseva/core/services/firebase_messaging_service.dart';
 import 'package:nalaseva/shared/models/user_model.dart';
 import 'package:nalaseva/features/auth/ui/login_screen.dart';
 
@@ -143,11 +145,13 @@ void main() {
 
   group('Responsive LoginScreen Layout Tests', () {
     late DummyAuthRepository dummyRepository;
+    late DummyFirebaseMessagingService dummyFcmService;
     late AuthProvider dummyAuthProvider;
 
     setUp(() {
       dummyRepository = DummyAuthRepository();
-      dummyAuthProvider = AuthProvider(dummyRepository);
+      dummyFcmService = DummyFirebaseMessagingService();
+      dummyAuthProvider = AuthProvider(dummyRepository, dummyFcmService);
     });
 
     Future<void> configureScreen(WidgetTester tester, double width, double height) async {
@@ -257,6 +261,20 @@ class DummyAuthRepository implements AuthRepository {
   Future<String?> requestPasswordResetOtp(String email, String nationalId) async => null;
   @override
   Future<void> forgotPassword(String email, String nationalId, String otpCode, String newPassword) async {}
+}
+
+class DummyFirebaseMessagingService implements FirebaseMessagingService {
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<bool> hasNotificationPermission() async => true;
+
+  @override
+  Future<String?> getFCMToken() async => 'mocked_token';
+
+  @override
+  Future<void> showLocalNotification(RemoteMessage message) async {}
 }
 
 

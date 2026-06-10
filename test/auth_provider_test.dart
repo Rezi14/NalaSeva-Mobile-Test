@@ -1,8 +1,25 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:nalaseva/features/auth/data/auth_repository.dart';
 import 'package:nalaseva/features/auth/logic/auth_provider.dart';
+import 'package:nalaseva/core/services/firebase_messaging_service.dart';
 import 'package:nalaseva/shared/models/user_model.dart';
+
+// Custom Mock for FirebaseMessagingService
+class MockFirebaseMessagingService implements FirebaseMessagingService {
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<bool> hasNotificationPermission() async => true;
+
+  @override
+  Future<String?> getFCMToken() async => 'mocked_fcm_token';
+
+  @override
+  Future<void> showLocalNotification(RemoteMessage message) async {}
+}
 
 // Custom Mock for AuthRepository
 class MockAuthRepository implements AuthRepository {
@@ -139,12 +156,14 @@ void main() {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channelNew, mockCallHandler);
 
   late MockAuthRepository mockRepository;
+  late MockFirebaseMessagingService mockFcmService;
   late AuthProvider authProvider;
 
   setUp(() {
     secureStorageValues.clear();
     mockRepository = MockAuthRepository();
-    authProvider = AuthProvider(mockRepository);
+    mockFcmService = MockFirebaseMessagingService();
+    authProvider = AuthProvider(mockRepository, mockFcmService);
   });
 
   group('AuthProvider Tests', () {

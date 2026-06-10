@@ -7,6 +7,7 @@ import '../../auth/logic/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/tts_helper.dart';
 import '../../../core/utils/app_dialogs.dart';
+import '../../../core/utils/responsive_helper.dart';
 
 class PrescriptionDetailScreen extends StatefulWidget {
   final PaymentModel payment;
@@ -47,19 +48,23 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
 
   void _showPaymentProofDialog(String proofPath) {
     // Generate absolute URL for Laravel storage
-    // Base URL is typically 'https://nalaseva-api.up.railway.app/'
     final absoluteUrl = 'https://nalaseva-api.up.railway.app/storage/$proofPath';
 
     showDialog(
       context: context,
       builder: (context) {
+        final radius  = ResponsiveHelper.radiusDialog(context);
+        final padding = ResponsiveHelper.paddingDialog(context);
+        final maxW    = ResponsiveHelper.dialogMaxWidth(context);
+        final btnH    = ResponsiveHelper.buttonHeight(context);
+        final btnR    = ResponsiveHelper.radiusButton(context);
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(radius),
           ),
-          constraints: const BoxConstraints(maxWidth: 480),
+          constraints: BoxConstraints(maxWidth: maxW),
           child: Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(padding),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -67,12 +72,12 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                   'Struk Bukti Pembayaran QRIS',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: ResponsiveHelper.fontSizeHeading(context),
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: padding * 0.8),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(btnR),
                   child: Image.network(
                     absoluteUrl,
                     fit: BoxFit.contain,
@@ -98,24 +103,24 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: padding),
                 SizedBox(
                   width: double.infinity,
-                  height: 44,
+                  height: btnH,
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: Colors.grey.shade300),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(btnR),
                       ),
                     ),
                     child: Text(
-                      'Batal',
+                      'Tutup',
                       style: GoogleFonts.plusJakartaSans(
                         color: Colors.grey.shade700,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: ResponsiveHelper.fontSizeButton(context),
                       ),
                     ),
                   ),
@@ -150,19 +155,11 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            constraints: const BoxConstraints(maxWidth: 480),
-            title: const Text('Gagal Menyerahkan Obat'),
-            content: Text(e.toString()),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              )
-            ],
-          ),
+        AppDialogs.showNotificationDialog(
+          context,
+          'Gagal Menyerahkan Obat',
+          e.toString(),
+          isError: true,
         );
       }
     } finally {

@@ -17,13 +17,13 @@ import 'features/payment/logic/payment_provider.dart';
 import 'features/pharmacy/data/pharmacy_repository.dart';
 import 'features/pharmacy/logic/pharmacy_provider.dart';
 import 'shared/providers/puskesmas_profile_provider.dart';
+import 'shared/repositories/puskesmas_profile_repository.dart';
+import 'core/services/firebase_messaging_service.dart';
 import 'shared/widgets/session_timeout_listener.dart';
 import 'shared/widgets/connectivity_banner.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-import 'package:flutter/foundation.dart';
-import 'core/services/firebase_messaging_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,13 +45,14 @@ void main() async {
   final patientRepository = PatientRepository(apiClient);
   final paymentRepository = PaymentRepository(apiClient);
   final pharmacyRepository = PharmacyRepository(apiClient);
-  final puskesmasProfileProvider = PuskesmasProfileProvider(apiClient);
+  final fcmService = FirebaseMessagingService(authRepository);
+  final puskesmasProfileRepository = PuskesmasProfileRepository(apiClient);
+  final puskesmasProfileProvider = PuskesmasProfileProvider(puskesmasProfileRepository);
 
-  
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
+        ChangeNotifierProvider(create: (_) => AuthProvider(authRepository, fcmService)),
         ChangeNotifierProvider(create: (_) => AdminProvider(adminRepository)),
         ChangeNotifierProvider(create: (_) => DoctorProvider(doctorRepository)),
         ChangeNotifierProvider(create: (_) => PatientProvider(patientRepository)),
@@ -81,27 +82,32 @@ class _NalasevaAppState extends State<NalasevaApp> {
   }
 
   Future<void> _checkInitialAuth() async {
-    // Request FCM permission and initialize immediately on app start
-    if (!kIsWeb) {
-      try {
-        final fcmService = FirebaseMessagingService();
-        await fcmService.initialize();
-      } catch (e) {
-        debugPrint('FCM Init at startup failed: $e');
-      }
-    }
-    
     if (!mounted) return;
 
-    final authProvider = context.read<AuthProvider>();
-    await authProvider.checkAuth();
-    if (mounted) {
-      if (authProvider.user != null) {
-        context.read<PuskesmasProfileProvider>().fetchPuskesmasProfile();
+    try {
+      final authProvider = context.read<AuthProvider>();
+      await authProvider.checkAuth().timeout(
+        const Duration(seconds: 4),
+        onTimeout: () {
+          debugPrint('Auth check timed out');
+        },
+      );
+    } catch (e) {
+      debugPrint('Error during auth check: $e');
+    } finally {
+      if (mounted) {
+        try {
+          final authProvider = context.read<AuthProvider>();
+          if (authProvider.user != null) {
+            context.read<PuskesmasProfileProvider>().fetchPuskesmasProfile();
+          }
+        } catch (e) {
+          debugPrint('Error fetching puskesmas profile on start: $e');
+        }
+        setState(() {
+          _isChecking = false;
+        });
       }
-      setState(() {
-        _isChecking = false;
-      });
     }
   }
 

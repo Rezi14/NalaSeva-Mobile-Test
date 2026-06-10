@@ -448,8 +448,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.cancelColor,
                               foregroundColor: Colors.white,
-                              minimumSize: const Size(double.infinity, 56),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
+                              ),
                               elevation: 0,
                             ),
                           ),
@@ -698,9 +700,9 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                         ),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: AppTheme.primaryColor, width: 1.5),
-                          minimumSize: const Size(double.infinity, 50),
+                          minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                           ),
                         ),
                       ),
@@ -776,9 +778,9 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
                           foregroundColor: Colors.white,
-                          minimumSize: const Size(double.infinity, 54),
+                          minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                           ),
                         ),
                         child: Text(
@@ -940,9 +942,9 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
                           foregroundColor: Colors.white,
-                          minimumSize: const Size(double.infinity, 54),
+                          minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                           ),
                         ),
                         child: Text(
@@ -1273,9 +1275,9 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
                       foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 54),
+                      minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                       ),
                     ),
                     child: Text(

@@ -450,6 +450,7 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) => Consumer<AdminProvider>(
         builder: (context, provider, child) => Padding(
@@ -521,9 +522,9 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                       },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.grey),
-                        minimumSize: const Size(double.infinity, 50),
+                        minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                         ),
                       ),
                       child: Text(
@@ -585,8 +586,10 @@ class _PolyclinicManagementScreenState extends State<PolyclinicManagementScreen>
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
+                        ),
                       ),
                       child: provider.isLoading 
                           ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))

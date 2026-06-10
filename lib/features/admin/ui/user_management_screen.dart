@@ -761,8 +761,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.grey),
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
+                          ),
                         ),
                         child: Text(
                           'Batal',
@@ -808,8 +810,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
+                          ),
                         ),
                         child: Text(
                           isEdit ? 'Update' : 'Simpan',

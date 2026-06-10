@@ -357,17 +357,13 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       showDragHandle: false,
       builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-          ),
+        return Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -441,10 +437,10 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF10B981), // Premium emerald green
-                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: AppTheme.successColor, // Premium emerald green
+                  minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                   ),
                 ),
               ),
@@ -467,9 +463,9 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppTheme.cancelColor),
-                        minimumSize: const Size(double.infinity, 50),
+                        minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                         ),
                       ),
                     ),
@@ -491,9 +487,9 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
-                        minimumSize: const Size(double.infinity, 50),
+                        minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                         ),
                       ),
                     ),
@@ -541,17 +537,13 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       showDragHandle: false,
       builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-          ),
+        return Padding(
           padding: EdgeInsets.fromLTRB(
             24,
             16,
@@ -589,7 +581,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                     controller: nameController,
                     decoration: const InputDecoration(
                       labelText: 'Nama Lengkap',
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person_outline_rounded),
                     ),
                     validator: (v) => v == null || v.isEmpty ? 'Nama tidak boleh kosong' : null,
                   ),
@@ -598,7 +590,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                     controller: emailController,
                     decoration: const InputDecoration(
                       labelText: 'Email',
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email_outlined),
                     ),
                     validator: (v) => v == null || v.isEmpty ? 'Email tidak boleh kosong' : null,
                   ),
@@ -607,7 +599,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                     controller: phoneController,
                     decoration: const InputDecoration(
                       labelText: 'Nomor Telepon (Opsional)',
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.phone_outlined),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -615,7 +607,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                     controller: addressController,
                     decoration: const InputDecoration(
                       labelText: 'Alamat (Opsional)',
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.location_on_outlined),
                     ),
                     maxLines: 2,
                   ),
@@ -647,9 +639,9 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                           },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.grey),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                             ),
                           ),
                           child: Text(
@@ -700,9 +692,9 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryColor,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                             ),
                           ),
                           child: Text(

@@ -293,9 +293,9 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor: Colors.white,
                                             side: const BorderSide(color: Colors.white, width: 1.5),
-                                            minimumSize: const Size(double.infinity, 48),
+                                            minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(14),
+                                              borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
                                             ),
                                           ),
                                         ),
@@ -381,7 +381,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                   final poly = provider.polyclinics[index];
                                   final colors = [
                                     AppTheme.primaryColor, // Emerald Green
-                                    const Color(0xFF10B981), // Mint Success Green
+                                    AppTheme.successColor, // Mint Success Green
                                     const Color(0xFF0D9488), // Teal Green
                                     const Color(0xFF047857), // Forest Green
                                   ];

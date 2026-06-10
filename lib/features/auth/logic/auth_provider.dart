@@ -6,13 +6,16 @@ import '../../../core/services/firebase_messaging_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _repository;
-  final _storage = const FlutterSecureStorage();
+  final FirebaseMessagingService _fcmService;
+  final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
   
   UserModel? _user;
   bool _isLoading = false;
   String? _error;
 
-  AuthProvider(this._repository);
+  AuthProvider(this._repository, this._fcmService);
 
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
@@ -46,16 +49,27 @@ class AuthProvider extends ChangeNotifier {
       }
       
       if (!kIsWeb) {
-        try {
-          final fcmService = FirebaseMessagingService();
-          await fcmService.initialize();
-          final token = await fcmService.getFCMToken();
-          if (token != null) {
-            await _repository.updateFcmToken(token);
+        // Run FCM setup in background to avoid blocking login flow
+        Future.microtask(() async {
+          try {
+            final token = await _fcmService.getFCMToken();
+            final hasPermission = await _fcmService.hasNotificationPermission();
+
+            if (token == null || !hasPermission) {
+              // Jika token null atau belum ada izin, panggil initialize untuk memicu popup izin
+              await _fcmService.initialize();
+              final newToken = await _fcmService.getFCMToken();
+              if (newToken != null) {
+                await _repository.updateFcmToken(newToken);
+              }
+            } else {
+              // Jika token & izin sudah siap, langsung perbarui di backend
+              await _repository.updateFcmToken(token);
+            }
+          } catch (e) {
+            debugPrint('FCM Setup Error: $e');
           }
-        } catch (e) {
-          debugPrint('FCM Setup Error: $e');
-        }
+        });
       }
 
       _isLoading = false;
@@ -209,16 +223,27 @@ class AuthProvider extends ChangeNotifier {
           }
 
           if (!kIsWeb) {
-            try {
-              final fcmService = FirebaseMessagingService();
-              await fcmService.initialize();
-              final tokenStr = await fcmService.getFCMToken();
-              if (tokenStr != null) {
-                await _repository.updateFcmToken(tokenStr);
+            // Run FCM setup in background to avoid blocking app start checkAuth
+            Future.microtask(() async {
+              try {
+                final tokenStr = await _fcmService.getFCMToken();
+                final hasPermission = await _fcmService.hasNotificationPermission();
+
+                if (tokenStr == null || !hasPermission) {
+                  // Jika token null atau belum ada izin, panggil initialize untuk memicu popup izin
+                  await _fcmService.initialize();
+                  final newToken = await _fcmService.getFCMToken();
+                  if (newToken != null) {
+                    await _repository.updateFcmToken(newToken);
+                  }
+                } else {
+                  // Jika token & izin sudah siap, langsung perbarui di backend
+                  await _repository.updateFcmToken(tokenStr);
+                }
+              } catch (e) {
+                debugPrint('FCM Setup Error on checkAuth: $e');
               }
-            } catch (e) {
-              debugPrint('FCM Setup Error on checkAuth: $e');
-            }
+            });
           }
         }
       } catch (e) {

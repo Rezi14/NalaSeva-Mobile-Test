@@ -608,8 +608,10 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
                         foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
+                        ),
                       ),
                       child: Text(
                         'Terapkan Filter',
