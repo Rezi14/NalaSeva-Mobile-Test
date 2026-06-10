@@ -23,7 +23,7 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 ### 🔐 F1 — Autentikasi & Manajemen Akun
 
 #### F1.1 Registrasi Mandiri
-- Pasien mengisi form pendaftaran dengan **10 kolom**: `Nama Lengkap`, `Email`, `Password`, `Konfirmasi Password`, `NIK` (National Identity Number — 16 digit), `Nomor Telepon`, `Jenis Kelamin` (Laki-laki / Perempuan), `Tanggal Lahir`, `Alamat`.
+- Pasien mengisi form pendaftaran dengan **8 kolom**: `NIK` (National Identity Number — 16 digit), `Nama Lengkap`, `Email`, `Jenis Kelamin` (Laki-laki / Perempuan), `Tanggal Lahir`, `Nomor Telepon`, `Alamat`, dan `Password`.
 - Sisi Flutter: kelas `Validators` memvalidasi format email dan memastikan seluruh field terisi sebelum request dikirim ke server.
 - Payload yang dikirim ke `POST auth/register` secara otomatis menyertakan `password_confirmation` (bernilai sama dengan `password`) dan `role: 'patient'` yang diinjeksi oleh kode Flutter, bukan dari input pengguna.
 - Backend (Laravel): NIK dan Email divalidasi unik di database. Jika lolos, backend menjalankan **DB Transaction** untuk membuat baris baru di tabel `users` (`role = 'patient'`) dan baris baru di tabel `patients` yang berelasi ke `user_id`.
@@ -60,7 +60,7 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 - Melihat data profil diri sendiri: nama, email, telepon, alamat, jenis kelamin, tanggal lahir, NIK.
 - Memperbarui profil via `POST auth/update-profile` (menggunakan POST bukan PUT karena Flutter mengirim multipart form-data yang lebih kompatibel).
 - Field yang bisa diubah: `name`, `email`, `phone`, `address`, `gender`, `birth_date`.
-- **Aturan NIK:** NIK hanya bisa diisi/diubah **jika sebelumnya masih kosong**. Setelah NIK tersimpan, tidak dapat diubah lagi untuk mencegah pemalsuan identitas.
+- **Aturan NIK:** NIK bersifat *read-only* (tidak dapat diubah secara mandiri) pada halaman Edit Profil demi keamanan data.
 - Setelah update: Flutter otomatis refetch `GET auth/profile` dan sinkronisasi ulang `patient_id` di storage.
 
 #### F1.7 Auto Logout (Session Timeout — Pasien Only)
@@ -89,8 +89,13 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
   3. Tanggal-tanggal libur dan cuti otomatis di-*disable* pada kalender date picker — pasien tidak dapat memilihnya.
   4. Pilih **Tanggal Kunjungan** (dibatasi maksimal H-7 dari sekarang hingga hari ini; tidak bisa memilih tanggal lampau).
   5. Pilih **Jadwal Dokter** (`doctor_schedule_id`) sesuai hari yang dipilih. Jadwal di-fetch via `GET doctor-schedules?polyclinic_id={id}` — langsung divalidasi real-time tanpa disimpan ke state provider.
-  6. Dialog konfirmasi visual ditampilkan (`AppDialogs.showConfirmationDialog`).
-  7. Jika dikonfirmasi, data dikirim ke `POST queues` (dilindungi **throttle: maks. 5 request per menit** per user untuk mencegah spam booking).
+  6. Sebelum proses pendaftaran dilakukan, sistem memicu serangkaian validasi client:
+     - **Pengecekan Tagihan Tertunggak**: Mengambil riwayat pembayaran pasien. Jika ditemukan tagihan berstatus `pending` (belum dibayar) yang berusia **lebih dari 24 jam**, pendaftaran dibatalkan dengan pesan error: *"Harap lunasi tagihan Anda sebelumnya untuk dapat membuat antrean baru."*
+     - **Duplikat Antrean Klien**: Memastikan tidak ada antrean aktif pada poliklinik yang sama di hari kunjungan terpilih.
+     - **Konflik Waktu Klien**: Memvalidasi jadwal agar tidak bertabrakan dengan antrean aktif lain miliknya pada hari tersebut.
+     - **Batas Waktu Layanan & Masa Lalu**: Memastikan tanggal bukan di masa lalu, dan pendaftaran hari ini wajib sebelum jam mulai praktik dokter.
+  7. Jika seluruh validasi lolos, dialog konfirmasi visual ditampilkan (`AppDialogs.showConfirmationDialog`).
+  8. Jika dikonfirmasi, data dikirim ke `POST queues` (dilindungi **throttle: maks. 5 request per menit** per user untuk mencegah spam booking).
 
 - **5-Layer Validasi Backend (berurutan):**
   1. **Hari Libur Klinik:** Tanggal pelayanan tidak boleh bertepatan dengan hari libur puskesmas.
@@ -318,10 +323,11 @@ Apoteker memproses penyerahan obat resep yang telah dibayar lunas, mengelola inv
 - Data di-fetch dari `GET pharmacy/queues`.
 
 #### F2.2 Detail Resep Pasien
-- Membuka `prescription_detail_screen.dart` untuk melihat rincian tiap resep:
+- Membuka `prescription_detail_screen.dart` to melihat rincian tiap resep:
   - Nama pasien.
   - Nomor invoice dan total tagihan.
   - Daftar obat: nama obat, jumlah yang diresepkan, instruksi pemakaian, harga per satuan (saat resep dibuat).
+  - **Panggilan Suara Apotek (TTS)**: Tombol volume untuk membacakan panggilan suara pasien secara lisan ke loket apotek menggunakan `TtsHelper.speak`.
 
 #### F2.3 Serahkan Obat ke Pasien (Dispense) — DB Transaction
 - Apoteker menyiapkan obat fisik, lalu menekan tombol **"Serahkan Obat"**.
@@ -408,7 +414,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
   - Jika `recall_count < 3` → backend increment `recall_count + 1`.
   - Jika `recall_count >= 3` → backend **menggeser antrean ke posisi paling belakang**: status kembali ke `waiting`, `check_in_time = now()`, `recall_count = 0`. Validasi: waktu layanan dokter belum habis.
 - Sisi Flutter: `AdminProvider.recallQueue()` mengupdate item antrean **di list lokal secara langsung** (`_queues[index] = updatedQueue`) tanpa refetch penuh — optimasi rendering UI.
-- Bersamaan dengan recall, layar TV Monitor merespons dengan output suara TTS (Text-to-Speech).
+- **Panggilan Suara Loket (TTS)**: Admin dapat memicu panggilan pertama (`waiting` -> `examining`) atau panggilan ulang/recall (`examining`) yang membunyikan suara TTS secara lokal langsung dari `admin_booking_detail_screen.dart` disertai dialog visual panggilan simulasi. Bersamaan dengan itu, layar TV Monitor publik juga merespons dengan output suara TTS yang sama.
 
 #### F2.5 Skip Antrean (Geser ke Paling Belakang)
 - Admin memindahkan antrean pasien secara paksa ke posisi belakang antrean.

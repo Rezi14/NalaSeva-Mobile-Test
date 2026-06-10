@@ -149,4 +149,75 @@ class PatientRepository {
       throw _errorMessage(e, 'Gagal mengambil cuti dokter');
     }
   }
+
+  // Show Endpoints (Single Resource Details)
+  Future<QueueModel> getQueue(int id) async {
+    try {
+      final response = await _apiClient.dio.get('queues/$id');
+      _checkResponse(response, 'Gagal mengambil detail antrean');
+      return QueueModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal mengambil detail antrean');
+    }
+  }
+
+  Future<ExaminationModel> getExamination(int id) async {
+    try {
+      final response = await _apiClient.dio.get('examinations/$id');
+      _checkResponse(response, 'Gagal mengambil detail rekam medis');
+      return ExaminationModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal mengambil detail rekam medis');
+    }
+  }
+
+  Future<PolyclinicModel> getPolyclinic(int id) async {
+    try {
+      final response = await _apiClient.dio.get('polyclinics/$id');
+      _checkResponse(response, 'Gagal mengambil detail poliklinik');
+      return PolyclinicModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal mengambil detail poliklinik');
+    }
+  }
+
+  Future<DoctorModel> getDoctor(int id) async {
+    try {
+      final response = await _apiClient.dio.get('doctors/$id');
+      _checkResponse(response, 'Gagal mengambil detail dokter');
+      return DoctorModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal mengambil detail dokter');
+    }
+  }
+
+  Future<ScheduleModel> getDoctorScheduleDetail(int id) async {
+    try {
+      final response = await _apiClient.dio.get('doctor-schedules/$id');
+      _checkResponse(response, 'Gagal mengambil detail jadwal dokter');
+      return ScheduleModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal mengambil detail jadwal dokter');
+    }
+  }
+
+  Future<Map<String, dynamic>> getClinicHoliday(int id) async {
+    try {
+      final response = await _apiClient.dio.get('clinic-holidays/$id');
+      _checkResponse(response, 'Gagal mengambil detail hari libur');
+      return Map<String, dynamic>.from(response.data['data']);
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal mengambil detail hari libur');
+    }
+  }
+
+  Future<Map<String, dynamic>> getDoctorLeave(int id) async {
+    try {
+      final response = await _apiClient.dio.get('doctor-leaves/$id');
+      _checkResponse(response, 'Gagal mengambil detail cuti dokter');
+      return Map<String, dynamic>.from(response.data['data']);
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal mengambil detail cuti dokter');
+    }
+  }
 }

@@ -83,8 +83,8 @@ flowchart TD
 
 #### A. Registrasi Pasien Mandiri
 1. Pasien membuka halaman pendaftaran (`register_screen.dart`).
-2. Pasien menginput: **NIK (16 digit)**, **Nama Lengkap**, **Email**, **Password**, **Password Konfirmasi**, **Nomor Telepon**, **Jenis Kelamin**, **Tanggal Lahir**, dan **Alamat Tinggal**.
-3. Kelas `Validators` memeriksa format email dan teks wajib. Parameter `role: 'patient'` dan `password_confirmation` diinjeksi secara otomatis pada request payload.
+2. Pasien menginput: **NIK (16 digit)**, **Nama Lengkap**, **Email**, **Jenis Kelamin** (Laki-laki/Perempuan), **Tanggal Lahir**, **Nomor WhatsApp**, **Alamat Lengkap**, dan **Password**.
+3. Kelas `Validators` memeriksa format email dan teks wajib. Parameter `role: 'patient'` dan `password_confirmation` (disamakan dengan password input) diinjeksi secara otomatis pada request payload.
 4. Data dikirim ke API `POST /api/auth/register`.
 5. Backend Laravel memvalidasi keunikan email dan NIK. Melalui **Database Transaction**, server menyimpan baris baru ke tabel `users` (dengan `role = 'patient'`) kemudian baris baru ke tabel `patients` yang berelasi ke `user_id`.
 6. Token Sanctum dibuat dan dikembalikan ke client. Pengguna dialihkan ke halaman login untuk masuk.
@@ -156,8 +156,13 @@ flowchart TD
 4. Tanggal-tanggal libur klinik dan cuti dokter yang dikembalikan server dimasukkan ke dalam daftar pengecualian (*blacklist*) di date picker kalender sehingga pasien tidak dapat mengkliknya.
 5. Pasien memilih **Tanggal Pelayanan** (pendaftaran dibatasi maksimal **H-7** hingga hari ini).
 6. Pasien memilih **Jadwal Dokter** (`doctor_schedule_id`) yang sesuai dengan hari tersebut.
-7. Pasien menekan tombol daftar, memicu dialog konfirmasi visual (`AppDialogs.showConfirmationDialog`).
-8. Jika dikonfirmasi, data dikirim ke API `POST /api/queues` (dilindungi throttle: maksimal 5 kali per menit per user).
+7. Pasien menekan tombol daftar, memicu serangkaian validasi di sisi client:
+   - **Pengecekan Tagihan Tertunggak**: Aplikasi mengambil riwayat pembayaran pasien. Jika ditemukan tagihan berstatus `pending` yang dibuat **lebih dari 24 jam** yang lalu, booking dihentikan dengan pesan error: *"Harap lunasi tagihan Anda sebelumnya untuk dapat membuat antrean baru."*
+   - **Duplikat Antrean Klien**: Memastikan tidak ada antrean aktif pada poliklinik yang sama di hari kunjungan terpilih.
+   - **Konflik Waktu Klien**: Memvalidasi jadwal yang dipilih agar tidak tumpang tindih (*overlap*) dengan jam pelayanan antrean aktif lain yang dimiliki pasien pada hari tersebut.
+   - **Batas Waktu Layanan & Masa Lalu**: Memastikan tanggal kunjungan bukan di masa lalu, dan jika mendaftar untuk hari ini, pendaftaran dilakukan sebelum jam mulai praktik dokter.
+8. Jika seluruh validasi client lolos, aplikasi memicu dialog konfirmasi visual (`AppDialogs.showConfirmationDialog`).
+9. Jika dikonfirmasi, data dikirim ke API `POST /api/queues` (dilindungi throttle: maksimal 5 kali per menit per user).
 9. Backend memvalidasi data menggunakan **5-Layer Validation Ketersediaan**:
    - *Layer 1 (Hari Libur)*: Tanggal pelayanan tidak boleh beririsan dengan hari libur puskesmas.
    - *Layer 2 (Cuti Dokter)*: Dokter bersangkutan tidak sedang cuti pada tanggal tersebut.

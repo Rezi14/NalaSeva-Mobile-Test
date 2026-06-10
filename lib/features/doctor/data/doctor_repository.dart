@@ -70,4 +70,23 @@ class DoctorRepository {
       throw ErrorParser.parse(e, 'Gagal memperbarui status aktif/istirahat');
     }
   }
+
+  // Show Endpoints (Single Resource Details)
+  Future<QueueModel> getQueue(int id) async {
+    try {
+      final response = await _apiClient.dio.get('queues/$id');
+      return QueueModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail antrean');
+    }
+  }
+
+  Future<ExaminationModel> getExamination(int id) async {
+    try {
+      final response = await _apiClient.dio.get('examinations/$id');
+      return ExaminationModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail pemeriksaan');
+    }
+  }
 }

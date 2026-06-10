@@ -86,6 +86,29 @@ class MockDoctorRepository implements DoctorRepository {
   Future<void> skipQueue(int id) async {
     // Satisfy missing skipQueue implementation
   }
+
+  @override
+  Future<QueueModel> getQueue(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return mockQueues.firstWhere((q) => q.id == id,
+      orElse: () => QueueModel(
+        id: id,
+        queueNumber: 'MCK-001',
+        status: QueueStatus.booked,
+        date: '2026-06-01',
+        patient: PatientModel(id: 1, userId: 1),
+        polyclinic: PolyclinicModel(id: 1, name: 'Mock Poly', code: 'MCK'),
+      ),
+    );
+  }
+
+  @override
+  Future<ExaminationModel> getExamination(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return mockExaminations.firstWhere((e) => e.id == id,
+      orElse: () => ExaminationModel(id: id, queueId: 1, doctorId: 10, complaint: 'None', diagnosis: 'None', treatment: 'None'),
+    );
+  }
 }
 
 void main() {

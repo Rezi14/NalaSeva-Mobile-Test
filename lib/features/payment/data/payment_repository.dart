@@ -84,4 +84,15 @@ class PaymentRepository {
       throw _errorMessage(e, 'Gagal memproses pembayaran tunai');
     }
   }
+
+  // Show Endpoints (Single Resource Details)
+  Future<PaymentModel> getPayment(int id) async {
+    try {
+      final response = await _apiClient.dio.get('payments/$id');
+      _checkResponse(response, 'Gagal mengambil detail pembayaran');
+      return PaymentModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal mengambil detail pembayaran');
+    }
+  }
 }

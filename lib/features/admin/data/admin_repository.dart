@@ -345,4 +345,86 @@ class AdminRepository {
       throw ErrorParser.parse(e, 'Gagal memperbarui pengaturan sistem');
     }
   }
+
+  // Show Endpoints (Single Resource Details)
+  Future<UserModel> getUser(int id) async {
+    try {
+      final response = await _apiClient.dio.get('users/$id');
+      return UserModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail user');
+    }
+  }
+
+  Future<PatientModel> getPatient(int id) async {
+    try {
+      final response = await _apiClient.dio.get('patients/$id');
+      return PatientModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail pasien');
+    }
+  }
+
+  Future<DoctorModel> getDoctor(int id) async {
+    try {
+      final response = await _apiClient.dio.get('doctors/$id');
+      return DoctorModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail dokter');
+    }
+  }
+
+  Future<PolyclinicModel> getPolyclinic(int id) async {
+    try {
+      final response = await _apiClient.dio.get('polyclinics/$id');
+      return PolyclinicModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail poliklinik');
+    }
+  }
+
+  Future<QueueModel> getQueue(int id) async {
+    try {
+      final response = await _apiClient.dio.get('queues/$id');
+      return QueueModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail antrean');
+    }
+  }
+
+  Future<ScheduleModel> getSchedule(int id) async {
+    try {
+      final response = await _apiClient.dio.get('doctor-schedules/$id');
+      return ScheduleModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail jadwal');
+    }
+  }
+
+  Future<ExaminationModel> getExamination(int id) async {
+    try {
+      final response = await _apiClient.dio.get('examinations/$id');
+      return ExaminationModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail pemeriksaan');
+    }
+  }
+
+  Future<Map<String, dynamic>> getClinicHoliday(int id) async {
+    try {
+      final response = await _apiClient.dio.get('clinic-holidays/$id');
+      return Map<String, dynamic>.from(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail hari libur');
+    }
+  }
+
+  Future<Map<String, dynamic>> getDoctorLeave(int id) async {
+    try {
+      final response = await _apiClient.dio.get('doctor-leaves/$id');
+      return Map<String, dynamic>.from(response.data['data']);
+    } on DioException catch (e) {
+      throw ErrorParser.parse(e, 'Gagal mengambil detail cuti dokter');
+    }
+  }
 }

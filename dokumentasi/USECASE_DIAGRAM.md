@@ -234,8 +234,8 @@ flowchart LR
 
 #### 📝 Deskripsi Detail Use Case Pasien:
 
-*   **C1: Registrasi Mandiri (10 Kolom)**
-    *   *Deskripsi*: Pasien mendaftar akun baru dengan mengisi form data diri (Nama, Email, Password, Konfirmasi Password, NIK 16-digit, No Telepon, Jenis Kelamin, Tanggal Lahir, Alamat).
+*   **C1: Registrasi Mandiri (8 Kolom)**
+    *   *Deskripsi*: Pasien mendaftar akun baru dengan mengisi form data diri (NIK 16-digit, Nama Lengkap, Email, Jenis Kelamin, Tanggal Lahir, No Telepon/WhatsApp, Alamat, Password).
     *   *Logika Bisnis*: Backend memproses via **DB Transaction** untuk menyimpan record di tabel `users` (sebagai `patient`) dan `patients` sekaligus. NIK dan Email divalidasi unik.
     *   *API*: `POST /api/auth/register`
 *   **R1: Login & FCM Token Sync**
@@ -252,14 +252,14 @@ flowchart LR
     *   *API*: `POST /api/auth/forgot-password/otp`, `POST /api/auth/forgot-password`
 *   **U2: Edit Profil & Kunci NIK**
     *   *Deskripsi*: Memperbarui data profil diri sendiri.
-    *   *Logika Bisnis*: NIK hanya dapat diisi atau diedit apabila sebelumnya masih kosong. Setelah terisi, NIK terkunci permanen demi keamanan identitas.
+    *   *Logika Bisnis*: NIK bersifat *read-only* (tidak dapat diubah) pada halaman Edit Profil demi keamanan data.
     *   *API*: `POST /api/auth/update-profile`
 *   **D1: Logout Akun**
     *   *Deskripsi*: Keluar dari sistem dan menghapus sesi token aktif saat ini.
     *   *API*: `POST /api/auth/logout`
 *   **C2: Booking Mandiri (Maks H-7)**
     *   *Deskripsi*: Melakukan pendaftaran nomor antrean poliklinik secara mandiri untuk hari ini hingga H-7.
-    *   *Logika Bisnis*: Dilindungi **throttle limit** maks 5 request per menit dan **Anti-IDOR Check** (hanya bisa mendaftarkan diri sendiri).
+    *   *Logika Bisnis*: Dilindungi **throttle limit** maks 5 request per menit, **Anti-IDOR Check** (hanya bisa mendaftarkan diri sendiri), serta **Pengecekan Tagihan Tertunggak > 24 jam** di sisi client (mencegah booking jika memiliki tagihan pending berusia > 24 jam).
     *   *API*: `POST /api/queues`
 *   **R3: Cek Libur & Cuti Dokter**
     *   *Deskripsi*: Mengambil data tanggal libur klinik dan cuti dokter yang dipilih untuk kemudian di-disable pada kalender date picker.
@@ -475,8 +475,8 @@ flowchart LR
 *   **R1: Memantau Antrean Resep Lunas**
     *   *Deskripsi*: Menampilkan resep obat pasien yang tagihannya lunas (`paid`) dan obatnya belum diserahkan (`dispensed_at IS NULL`).
     *   *API*: `GET /api/pharmacy/queues`
-*   **R2: Lihat Detail Resep & Harga Terkunci**
-    *   *Deskripsi*: Menampilkan rincian obat, kuantiti, dan cara pakai resep.
+*   **R2: Lihat Detail Resep & Harga Terkunci & Panggilan Suara**
+    *   *Deskripsi*: Menampilkan rincian obat, kuantiti, dan cara pakai resep, serta memicu panggilan suara TTS loket apotek untuk memanggil pasien mengambil obat.
 *   **U1: Serahkan Obat (Dispense)**
     *   *Deskripsi*: Memproses penyerahan obat fisik ke pasien.
     *   *Logika Bisnis*: Menggunakan **DB Transaction**. Sisi Flutter melakukan optimistic update dengan menghapus item dari list lokal secara instan.
@@ -617,7 +617,7 @@ flowchart LR
     *   *API*: `POST /api/queues/{id}/checkin`
 *   **U3: Panggil Ulang (Recall & TTS)**
     *   *Deskripsi*: Memanggil nomor urut antrean pasien ke ruang periksa.
-    *   *Logika Bisnis*: Jika dipanggil 3 kali tidak hadir, status antrean dikembalikan ke `waiting`, `recall_count` reset ke 0, dan antrean digeser ke paling belakang. Panggilan memicu TTS suara lisan di TV Monitor.
+    *   *Logika Bisnis*: Jika dipanggil 3 kali tidak hadir, status antrean dikembalikan ke `waiting`, `recall_count` reset ke 0, dan antrean digeser ke paling belakang. Panggilan memicu TTS suara lisan secara lokal di HP Admin (dialog simulasi) dan juga di TV Monitor.
     *   *API*: `POST /api/queues/{id}/recall`
 *   **U4: Geser ke Belakang (Skip)**
     *   *Deskripsi*: Menggeser antrean pasien secara paksa ke urutan paling belakang jika dilewati.

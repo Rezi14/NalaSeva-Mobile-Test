@@ -84,7 +84,7 @@
 
 #### 1.8 Register (Flutter)
 - Mengirimkan data registrasi ke API `POST auth/register`.
-- Mengirimkan 10 field: `name`, `email`, `password`, **`password_confirmation`** (diambil sama nilainya dengan `password`), `national_id` (NIK), `phone_number`, `gender`, `birth_date`, `address`, dan **`role`** (secara eksplisit diset `'patient'`).
+- Mengirimkan payload berisi 10 field yang diisi dari **8 input form** di `register_screen.dart`: `national_id` (NIK 16 digit), `name` (Nama Lengkap), `email`, `gender` (Jenis Kelamin), `birth_date` (Tanggal Lahir), `phone_number` (Nomor WhatsApp), `address` (Alamat Lengkap), dan `password`. Parameter `role` diset `'patient'` dan `password_confirmation` disamakan dengan `password` secara otomatis oleh repositori.
 - Setelah registrasi berhasil, pengguna tidak langsung login otomatis, melainkan diarahkan kembali ke halaman login.
 
 #### 1.9 Logout (Flutter)
@@ -134,6 +134,9 @@ Merupakan logika bisnis paling kompleks dalam sistem. Validasi dilakukan secara 
 
 **Validasi Kepemilikan (Anti-IDOR):**
 - Jika user adalah `patient`, sistem memastikan `patient_id` yang dikirim adalah milik user yang sedang login. Pasien tidak bisa mendaftarkan orang lain.
+
+**Validasi Tagihan Tertunggak (Client-Side Guard):**
+- Sebelum pendaftaran antrean dikirim ke server, aplikasi Flutter memverifikasi riwayat pembayaran pasien. Jika ditemukan tagihan berstatus `pending` (belum dibayar) yang berusia **lebih dari 24 jam**, pendaftaran ditolak dengan pesan error: *"Harap lunasi tagihan Anda sebelumnya untuk dapat membuat antrean baru."*
 
 **Validasi Ketersediaan (5 Layer):**
 1. **Hari Libur Klinik** — Tidak bisa mendaftar jika tanggal tersebut adalah hari libur puskesmas.
@@ -795,6 +798,9 @@ Future<void> _performAction(Future<void> Function() action) async {
 - `fetchSchedulesForPoly(polyId)`: Menyimpan jadwal yang ditemukan ke state `_availableSchedules` untuk ditampilkan pada UI pembuat antrean.
 
 **DoctorProvider:**
+- `fetchMyQueues()`: Mengambil daftar antrean aktif dokter terautentikasi dan menyimpannya di state `_queues`.
+- `fetchMedicalRecords()`: Mengambil daftar rekam medis pasien yang pernah diperiksa oleh dokter tersebut dan menyimpannya di state `_medicalRecords`.
+- `processQueue(id, status)`: Memperbarui status antrean pasien (misalnya mengubah dari status `waiting` menjadi `examining`), lalu menyegarkan daftar antrean dokter `_queues` secara instan.
 - `toggleOnlineStatus()`: Mengubah status online dokter di server dan secara instan melakukan update lokal pada state `_isOnline`.
 - `setOnlineStatus(bool value)`: Menginisialisasi state online dokter secara sinkronus berdasarkan profile payload dari server tanpa melakukan hit API tambahan.
 - `finishExamination(data)`: Menyelesaikan proses pemeriksaan, mengirim data rekam medis, dan langsung menyegarkan data antrean `_queues` serta rekam medis dokter `_medicalRecords`.
@@ -807,12 +813,18 @@ Future<void> _performAction(Future<void> Function() action) async {
 
 **PharmacyProvider:**
 - `fetchPharmacyQueues()`: Mengambil seluruh antrean resep yang telah berstatus lunas (`paid`) dan siap diserahkan.
+- `fetchMedicines()`: Mengambil daftar obat-obatan yang terdaftar dari server untuk inventaris apotek.
 - `dispense(paymentId)`: Menyerahkan obat kepada pasien dan secara optimistik menghapus antrean resep tersebut dari list lokal `_queues` tanpa harus melakukan refetch data penuh ke server.
 - `createMedicine(data)` / `editMedicine(id, data)` / `removeMedicine(id)` / `restoreMedicine(id)`: Melakukan CRUD data inventaris obat dan memanipulasi list lokal `_medicines` untuk sinkronisasi state instan.
 
 **PaymentProvider:**
+- `fetchMyPayments()`: Mengambil daftar semua tagihan pembayaran aktif dari server.
 - `uploadProof(paymentId, filePath)`: Mengunggah file bukti transfer bank/QRIS dan memperbarui item pembayaran terkait di list lokal `_payments`.
 - `verify(paymentId, status)` / `payWithCash(paymentId)`: Mengubah status pembayaran (approve/reject/tunai) dan menyelaraskan perubahan ke state lokal.
+
+**PuskesmasProfileProvider:**
+- `fetchPuskesmasProfile()`: Mengambil profil puskesmas terbaru dari server (`GET puskesmas-profile`) dan menyimpannya di state `_profile`.
+- `updatePuskesmasProfile(...)`: Memperbarui profil puskesmas di server (`PUT puskesmas-profile`) termasuk koordinat GPS (`latitude` & `longitude`), lalu memperbarui state lokal.
 
 ---
 
@@ -1012,7 +1024,10 @@ Kelas `AppDialogs` menyediakan 3 jenis dialog seragam yang responsif dan konsist
 - Menggunakan conditional import berbasis arsitektur Dart:
   - `dart.library.html` → Memanggil API browser `SpeechSynthesis`.
   - `dart.library.io` → Memanggil package native `flutter_tts`.
-- Mengekspos `TtsHelper.speak(text)` untuk membacakan nomor panggilan pasien secara lisan pada layar TV Monitor Puskesmas ([queue_monitor_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/queue_monitor_screen.dart)).
+- Mengekspos `TtsHelper.speak(text)` untuk membacakan nomor panggilan pasien secara lisan pada:
+  1. **Layar TV Monitor Puskesmas** ([queue_monitor_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/queue_monitor_screen.dart)) secara otomatis ketika status antrean berubah menjadi `examining`.
+  2. **Halaman Detail Antrean Admin** ([admin_booking_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_booking_detail_screen.dart)) ketika admin menekan tombol panggil atau panggil ulang (*recall*).
+  3. **Halaman Detail Resep Apoteker** ([prescription_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/ui/prescription_detail_screen.dart)) ketika apoteker menekan tombol panggilan suara untuk mengumumkan obat siap diambil.
 
 #### 22.4 Map Picker (Lokasi Puskesmas)
 - **File**: [map_picker_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/widgets/map_picker_screen.dart)
@@ -1158,6 +1173,121 @@ Merepresentasikan unit poliklinik di puskesmas.
   - `name` (`String`): Nama poliklinik (misal: "Poli Umum", "Poli Gigi").
   - `code` (`String`): Kode unik poliklinik (misal: "UMM", "GIG"), digunakan sebagai prefix nomor antrean.
   - `description` (`String?`): Penjelasan deskripsi layanan poliklinik.
+
+### 23.5 [UserModel](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/models/user_model.dart)
+Merepresentasikan data dasar akun pengguna di sistem (dapat berupa Admin, Pasien, Dokter, atau Apoteker).
+- **Fields**:
+  - `id` (`int`): ID akun pengguna.
+  - `patientId` (`int?`): ID pasien terasosiasi (jika role adalah patient).
+  - `doctorId` (`int?`): ID dokter terasosiasi (jika role adalah doctor).
+  - `name` (`String`): Nama lengkap pengguna.
+  - `email` (`String`): Alamat email akun.
+  - `role` (`String`): Peran/hak akses pengguna (`admin`, `patient`, `doctor`, `pharmacist`).
+  - `phone` (`String?`): Nomor telepon (di-parse aman dari berbagai variasi field JSON backend).
+  - `address` (`String?`): Alamat tempat tinggal (di-parse aman dari field JSON backend).
+  - `nationalId` (`String?`): NIK (16 digit, di-parse aman dari field JSON backend).
+  - `gender` (`String?`): Jenis kelamin (otomatis dinormalkan menjadi `'Laki-laki'` atau `'Perempuan'`).
+  - `birthDate` (`DateTime?`): Tanggal lahir (diproses via `DateTimeParser`).
+  - `licenseNumber` (`String?`): Nomor Surat Izin Praktik (SIP) khusus untuk dokter.
+  - `specialization` (`String?`): Spesialisasi dokter.
+  - `isOnline` (`bool?`): Status online dokter (di-parse aman dari boolean, string, atau number).
+- **Convenience Getters**:
+  - `fullName` (`String`): Mengembalikan properti `name` untuk kemudahan rendering UI.
+
+### 23.6 [QueueModel](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/models/queue_model.dart)
+Merepresentasikan tiket pendaftaran antrean poliklinik pasien.
+- **Fields**:
+  - `id` (`int`): ID antrean di database.
+  - `queueNumber` (`String`): Nomor antrean terformat (misal: `"UMM-001"`).
+  - `status` (`QueueStatus`): Status antrean saat ini (diwakili tipe `QueueStatus` enum).
+  - `date` (`String`): Tanggal pelayanan antrean.
+  - `patient` (`PatientModel`): Data objek pasien pemesan tiket antrean.
+  - `polyclinic` (`PolyclinicModel`): Unit poliklinik tujuan layanan.
+  - `estimatedServiceTime` (`String?`): Perkiraan jam dilayani (format `HH:mm`).
+  - `avgWaitingTime` (`int?`): Rata-rata waktu tunggu antrean.
+  - `positionWaiting` (`int?`): Posisi jumlah antrean yang sedang menunggu saat ini.
+  - `doctorId` (`int?`): ID dokter yang menangani antrean.
+  - `doctorScheduleId` (`int?`): ID jadwal praktik dokter.
+  - `doctorSchedule` (`ScheduleModel?`): Objek jadwal praktik dokter terikat.
+  - `recallCount` (`int`): Jumlah pemanggilan ulang antrean oleh admin.
+  - `createdAt` (`DateTime?`): Tanggal dan waktu pembuatan tiket antrean.
+
+### 23.7 [PaymentModel](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/models/payment_model.dart)
+Merepresentasikan rincian invoice/transaksi tagihan pembayaran medis pasien.
+- **Fields**:
+  - `id` (`int`): ID pembayaran.
+  - `queueId` (`int`): ID antrean terkait.
+  - `examinationId` (`int?`): ID pemeriksaan rekam medis terkait.
+  - `transactionNumber` (`String`): Nomor invoice transaksi unik (format: `NS-PAY-YYYYMMDD-XXXXXX`).
+  - `registrationFee` (`double`): Biaya layanan registrasi dasar puskesmas.
+  - `medicineFee` (`double`): Total biaya obat-obatan yang diresepkan.
+  - `totalAmount` (`double`): Total biaya pembayaran (`registrationFee + medicineFee`).
+  - `paymentMethod` (`String`): Metode pembayaran yang dipilih (`transfer_bank` atau `cash`).
+  - `paymentProof` (`String?`): Nama file/URL gambar bukti transfer pembayaran.
+  - `status` (`String`): Status transaksi (`pending`, `waiting_verification`, `paid`, `failed`).
+  - `paidAt` (`DateTime?`): Waktu transaksi berhasil diverifikasi/dibayar.
+  - `dispensedAt` (`DateTime?`): Waktu obat diserahkan oleh apoteker.
+  - `createdAt` (`DateTime?`): Waktu pembuatan tagihan invoice.
+  - `queue` (`QueueModel?`): Detail objek antrean terkait.
+  - `examination` (`ExaminationModel?`): Detail objek rekam medis terkait.
+
+### 23.8 [MedicineModel](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/models/medicine_model.dart)
+Merepresentasikan data persediaan obat-obatan yang dikelola apoteker.
+- **Fields**:
+  - `id` (`int`): ID obat di database.
+  - `name` (`String`): Nama obat (misal: `"Paracetamol"`).
+  - `stock` (`int`): Jumlah persediaan stok fisik obat yang tersedia.
+  - `unit` (`String`): Satuan kemasan obat (misal: `"Tablet"`, `"Botol"`).
+  - `price` (`double`): Harga jual per satu unit obat.
+
+### 23.9 [PrescriptionItemModel](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/models/prescription_item_model.dart)
+Merepresentasikan detail resep obat yang dilampirkan ke rekam medis pasien.
+- **Fields**:
+  - `id` (`int`): ID detail resep.
+  - `examinationId` (`int`): ID pemeriksaan rekam medis terkait.
+  - `medicineId` (`int`): ID obat terdaftar.
+  - `quantity` (`int`): Jumlah kuantiti obat yang diberikan.
+  - `instruction` (`String`): Dosis/aturan konsumsi obat (misal: `"3 x 1 sehari sesudah makan"`).
+  - `price` (`double`): Harga satuan obat saat diresepkan.
+  - `medicine` (`MedicineModel?`): Relasi detail objek obat terkait.
+
+### 23.10 [PuskesmasProfileModel](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/models/puskesmas_profile_model.dart)
+Merepresentasikan informasi identitas institusi puskesmas digital NalaSeva.
+- **Fields**:
+  - `id` (`int`): ID profil puskesmas.
+  - `name` (`String`): Nama instansi puskesmas.
+  - `address` (`String`): Alamat fisik lengkap puskesmas.
+  - `phone` (`String`): Nomor telepon puskesmas.
+  - `email` (`String`): Email resmi puskesmas.
+  - `logoUrl` (`String?`): File URL logo puskesmas.
+  - `latitude` (`double?`): Koordinat GPS lintang lokasi puskesmas.
+  - `longitude` (`double?`): Koordinat GPS bujur lokasi puskesmas.
+
+### 23.11 [DashboardStatsModel](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/models/dashboard_stats_model.dart)
+Merepresentasikan data akumulasi analitik dan ringkasan operasional harian puskesmas.
+- **Fields**:
+  - `totalPatients` (`int`): Total keseluruhan pasien terdaftar.
+  - `totalDoctors` (`int`): Total keseluruhan dokter terdaftar.
+  - `activeQueuesToday` (`int`): Jumlah antrean aktif berstatus booked, waiting, atau examining hari ini.
+  - `completedQueuesToday` (`int`): Jumlah antrean yang telah berstatus completed hari ini.
+  - `cancelledQueuesToday` (`int`): Jumlah antrean yang dibatalkan hari ini.
+  - `polyclinicStats` (`List<PolyclinicStat>`): Statistik per poliklinik hari ini.
+- **Sub-Class `PolyclinicStat` Fields**:
+  - `polyclinicId` (`int`): ID poliklinik terasosiasi.
+  - `name` (`String`): Nama poliklinik.
+  - `activeQueueCount` (`int`): Jumlah total tiket antrean aktif hari ini.
+  - `waitingQueueCount` (`int`): Jumlah antrean yang sedang menunggu dilayani dokter hari ini.
+
+### 23.12 [ScheduleModel](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/models/schedule_model.dart)
+Merepresentasikan jadwal mingguan praktik pelayanan dokter puskesmas.
+- **Fields**:
+  - `id` (`int`): ID jadwal praktik.
+  - `doctorId` (`int`): ID dokter terjadwal.
+  - `dayOfWeek` (`String`): Nama hari kerja praktik dokter (misal: `"Senin"`).
+  - `startTime` (`String`): Jam pelayanan dimulai (format `HH:mm`).
+  - `endTime` (`String`): Jam pelayanan berakhir (format `HH:mm`).
+  - `doctor` (`DoctorModel?`): Objek profil dokter terkait.
+  - `remainingDailyQuota` (`int?`): Sisa kuota harian penerimaan antrean pasien.
 
 ---
 

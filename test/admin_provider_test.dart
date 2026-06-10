@@ -298,6 +298,67 @@ class MockAdminRepository implements AdminRepository {
     mockSystemSettings.addAll(data);
     return mockSystemSettings;
   }
+
+  @override
+  Future<UserModel> getUser(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return UserModel(id: id, name: 'Mock User', email: 'mock@example.com', role: 'patient');
+  }
+
+  @override
+  Future<PatientModel> getPatient(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return PatientModel(id: id, userId: 1);
+  }
+
+  @override
+  Future<DoctorModel> getDoctor(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return DoctorModel(id: id, userId: 1);
+  }
+
+  @override
+  Future<PolyclinicModel> getPolyclinic(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return PolyclinicModel(id: id, name: 'Mock Poly', code: 'MCK');
+  }
+
+  @override
+  Future<QueueModel> getQueue(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return QueueModel(
+      id: id,
+      queueNumber: 'MCK-001',
+      status: QueueStatus.booked,
+      date: '2026-06-01',
+      patient: PatientModel(id: 1, userId: 1),
+      polyclinic: PolyclinicModel(id: 1, name: 'Mock Poly', code: 'MCK'),
+    );
+  }
+
+  @override
+  Future<ScheduleModel> getSchedule(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return ScheduleModel(id: id, doctorId: 1, dayOfWeek: 'Senin', startTime: '08:00', endTime: '12:00');
+  }
+
+  @override
+  Future<ExaminationModel> getExamination(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return ExaminationModel(id: id, queueId: 1, doctorId: 1, complaint: 'None', diagnosis: 'None', treatment: 'None', prescriptionItems: []);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getClinicHoliday(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return {'id': id, 'holiday_date': '2026-06-01', 'description': 'Mock Holiday'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> getDoctorLeave(int id) async {
+    if (shouldThrowError) throw errorMessage;
+    return {'id': id, 'doctor_id': 1, 'leave_date': '2026-06-05', 'reason': 'Mock Leave'};
+  }
 }
 
 void main() {

@@ -102,4 +102,15 @@ class PharmacyRepository {
       throw _errorMessage(e, 'Gagal mengembalikan obat');
     }
   }
+
+  // Show Endpoints (Single Resource Details)
+  Future<MedicineModel> getMedicine(int id) async {
+    try {
+      final response = await _apiClient.dio.get('medicines/$id');
+      _checkResponse(response, 'Gagal mengambil detail obat');
+      return MedicineModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal mengambil detail obat');
+    }
+  }
 }
