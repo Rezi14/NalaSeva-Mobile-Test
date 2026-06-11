@@ -275,8 +275,15 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                          InkWell(
                                            onTap: () async {
                                              final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${puskesmasProfile!.latitude},${puskesmasProfile.longitude}');
-                                             if (await canLaunchUrl(url)) {
-                                               await launchUrl(url, mode: LaunchMode.externalApplication);
+                                             try {
+                                               if (await canLaunchUrl(url)) {
+                                                 await launchUrl(url, mode: LaunchMode.externalApplication);
+                                               } else {
+                                                 // Try direct launch in case package visibility check fails on some devices
+                                                 await launchUrl(url, mode: LaunchMode.externalApplication);
+                                               }
+                                             } catch (e, stack) {
+                                               AppLogger.error('Gagal membuka petunjuk rute', error: e, stackTrace: stack, tag: 'BookingDetailScreen');
                                              }
                                            },
                                            borderRadius: BorderRadius.circular(20),
