@@ -176,7 +176,7 @@ flowchart LR
   Pasien[Pasien]:::actorStyle
 
   subgraph Akun ["Akun & Profil"]
-    C1(["C: Registrasi Mandiri (10 Kolom)"]):::cStyle
+    C1(["C: Registrasi Mandiri (8 Kolom)"]):::cStyle
     R1(["R: Login & FCM Token Sync"]):::rStyle
     R2(["R: Pemulihan Sesi (Offline Mode)"]):::rStyle
     U1(["U: Lupa Password (OTP 6-Digit Flow)"]):::uStyle
@@ -810,4 +810,4 @@ Berikut adalah daftar rincian endpoint Laravel REST API yang digunakan untuk mel
 
 ---
 
-*Diperbarui: 8 Juni 2026 — Sinkronisasi dengan sistem aktual: hapus fitur Restore Dokter (tidak diimplementasi) dan hapus operasi Edit/Hapus Rekam Medis (by design: rekam medis bersifat immutable setelah diterbitkan). Batasi serah terima obat dan CRUD obat hanya untuk Apoteker (Admin tidak memegang akses). Hapus Restore Obat karena tidak ada di Flutter.*
+*Diperbarui: 11 Juni 2026 — Sinkronisasi dengan sistem aktual: hapus fitur Restore Dokter (tidak diimplementasi) dan hapus operasi Edit/Hapus Rekam Medis (by design: rekam medis bersifat immutable setelah diterbitkan). Batasi serah terima obat dan CRUD obat hanya untuk Apoteker (Admin tidak memegang akses). Hapus Restore Obat karena tidak ada di Flutter. Refaktor arsitektur feature-first diterapkan — modul payment dibubarkan, `PaymentProvider` dan `PaymentRepository` dipindah ke `lib/shared/`, layar pembayaran dipisah menjadi `patient/payment/ui/` dan `admin/payment/ui/`.*

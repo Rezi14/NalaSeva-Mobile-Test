@@ -157,12 +157,12 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
 ### 💳 F4 — Tagihan & Pembayaran
 
 #### F4.1 Melihat Daftar Tagihan
-- Melihat semua tagihan pembayaran miliknya di `payment_list_screen.dart` (IDOR-protected: tidak bisa melihat tagihan pasien lain).
-- Status tagihan yang bisa dilihat: `pending`, `waiting_verification`, `paid`, `failed`.
+- Melihat semua tagihan pembayaran miliknya di `patient_payment_list_screen.dart` (IDOR-protected: tidak bisa melihat tagihan pasien lain).
+- Status tagihan yang bisa dilihat: `pending`, `waiting_verification`, `paid`, `failed`, `cancelled`.
 - **Masa Berlaku Tagihan (2 Jam)**: Jika tagihan berada dalam status `pending` selama $\ge$ 2 jam sejak tagihan dibuat (`createdAt`), client secara dinamis mengubah statusnya menjadi **Kadaluwarsa** ("Resep Kadaluwarsa/Tidak Ditebus"), merubah indikator warna menjadi merah, dan menonaktifkan proses pembayaran.
 
 #### F4.2 Detail Tagihan & Rincian Biaya
-- Melihat rincian di `payment_detail_screen.dart`:
+- Melihat rincian di `patient_payment_detail_screen.dart`:
   - Nomor invoice unik (format: `NS-PAY-YYYYMMDD-XXXXXX`).
   - **Biaya Registrasi:** nilai `registration_fee` dari System Settings (default Rp 10.000 — dapat diubah admin).
   - **Biaya Obat:** total `quantity × harga obat yang dikunci saat resep dibuat`.
@@ -437,10 +437,10 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 
 #### F3.1 Melihat Semua Tagihan Pasien
 - Admin bisa melihat semua tagihan dari semua pasien (tidak terbatas) via `GET payments`.
-- Daftar di `payment_list_screen.dart` menampilkan status: `pending`, `waiting_verification`, `paid`, `failed`.
+- Daftar di `admin_payment_list_screen.dart` menampilkan status: `pending`, `waiting_verification`, `paid`, `failed`, `cancelled`.
 
 #### F3.2 Verifikasi Bukti Transfer (Manual Review)
-- Admin membuka detail tagihan di `payment_detail_screen.dart`, melihat foto bukti transfer yang diunggah pasien.
+- Admin membuka detail tagihan di `admin_payment_detail_screen.dart`, melihat foto bukti transfer yang diunggah pasien.
 - **Jika SETUJU:** Request `POST payments/{id}/verify` dengan `status = 'approved'`. Backend: status → `paid`, catat `paid_at = now()`. Kirim **FCM ke Pasien:** *"Pembayaran Terverifikasi Lunas!"*
 - **Jika TOLAK:** Request `POST payments/{id}/verify` dengan `status = 'rejected'`. Backend: status → `failed`. Pasien diminta upload ulang bukti.
 
@@ -730,4 +730,4 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 ---
 
 *Dokumen ini merupakan spesifikasi fitur resmi per role sistem NalaSeva.*  
-*Diperbarui: 8 Juni 2026 — Sinkronisasi penuh dengan kode aktual Flutter (`ApiClient` base URL dikonfirmasi = `.../api/`). Perbaikan konsistensi: semua path endpoint seragam tanpa prefix `/api/` (karena base URL sudah mengandungnya). Endpoint tambahan dari kode aktual ditambahkan: `GET doctors` & `GET polyclinics` (digunakan pasien saat booking), `GET doctor-schedules?polyclinic_id` (pasien), `GET clinic-holidays` & `GET doctor-leaves?doctor_id` (pasien saat booking), `GET medicines` oleh Dokter. Tabel referensi cepat dipecah per kategori. Skip antrean dikonfirmasi hanya boleh dilakukan oleh Admin.*
+*Diperbarui: 11 Juni 2026 — Sinkronisasi dengan refaktor arsitektur feature-first: nama file layar pembayaran diperbarui (`payment_list_screen.dart` → `patient_payment_list_screen.dart` / `admin_payment_list_screen.dart`; `payment_detail_screen.dart` → `patient_payment_detail_screen.dart` / `admin_payment_detail_screen.dart`) mengikuti pemisahan modul payment ke `patient/payment/ui/` dan `admin/payment/ui/`.*

@@ -13,7 +13,7 @@ Berdasarkan analisis statis kode sumber Flutter (pada direktori `lib/`), berikut
 - **Endpoint yang Tidak Digunakan**: **14**
 - **Endpoint Tidak Terdokumentasi**: **0** (Semua pemanggilan API dalam kode Flutter memiliki padanannya di dokumen API)
 
-Seluruh pemanggilan API dalam aplikasi Flutter terpusat pada file [ApiClient](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/core/api/api_client.dart) dan disalurkan melalui 7 kelas repositori di folder `lib/features/` dan `lib/shared/`.
+Seluruh pemanggilan API dalam aplikasi Flutter terpusat pada file [ApiClient](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/core/api/api_client.dart) dan disalurkan melalui 7 kelas repositori. Enam di antaranya berada di folder `lib/features/{feature}/data/` (auth, admin, doctor, patient, pharmacy), sedangkan `PaymentRepository` dan `PuskesmasProfileRepository` dipindahkan ke `lib/shared/repositories/` setelah refaktor arsitektur feature-first.
 
 ---
 
@@ -175,11 +175,11 @@ Berikut adalah daftar lengkap 83 endpoint beserta status kesesuaian dan penempat
 
 | No | Nama API | URL | Method | Status | Penempatan Kode / Metode Repositori |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 63 | Ambil Semua Transaksi Pembayaran | `/api/payments` | `GET` | **Sesuai** | [PaymentRepository.getMyPayments](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/data/payment_repository.dart#L34) |
-| 64 | Ambil Detail Pembayaran | `/api/payments/{id}` | `GET` | **Sesuai** | [PaymentRepository.getPayment](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/data/payment_repository.dart#L89) |
-| 65 | Upload Bukti Pembayaran | `/api/payments/{id}/upload-proof` | `POST` | **Sesuai** | [PaymentRepository.uploadPaymentProof](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/data/payment_repository.dart#L45) |
-| 66 | Verifikasi Pembayaran Online | `/api/payments/{id}/verify` | `POST` | **Sesuai** | [PaymentRepository.verifyPayment](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/data/payment_repository.dart#L65) |
-| 67 | Verifikasi Pembayaran Tunai | `/api/payments/{id}/cash-pay` | `POST` | **Sesuai** | [PaymentRepository.cashPay](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/data/payment_repository.dart#L78) |
+| 63 | Ambil Semua Transaksi Pembayaran | `/api/payments` | `GET` | **Sesuai** | [PaymentRepository.getMyPayments](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/repositories/payment_repository.dart#L34) |
+| 64 | Ambil Detail Pembayaran | `/api/payments/{id}` | `GET` | **Sesuai** | [PaymentRepository.getPayment](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/repositories/payment_repository.dart#L89) |
+| 65 | Upload Bukti Pembayaran | `/api/payments/{id}/upload-proof` | `POST` | **Sesuai** | [PaymentRepository.uploadPaymentProof](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/repositories/payment_repository.dart#L45) |
+| 66 | Verifikasi Pembayaran Online | `/api/payments/{id}/verify` | `POST` | **Sesuai** | [PaymentRepository.verifyPayment](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/repositories/payment_repository.dart#L65) |
+| 67 | Verifikasi Pembayaran Tunai | `/api/payments/{id}/cash-pay` | `POST` | **Sesuai** | [PaymentRepository.cashPay](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/repositories/payment_repository.dart#L78) |
 
 ---
 

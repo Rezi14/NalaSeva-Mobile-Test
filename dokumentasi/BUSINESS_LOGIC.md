@@ -337,7 +337,7 @@ Map<String, dynamic> _systemSettings
 
 ### 📱 Flutter — [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) (CRUD Jadwal)
 - `createSchedule(data)`, `updateSchedule(id, data)`, `deleteSchedule(id)`, `fetchSchedules()`.
-- UI: [doctor_schedule_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/doctor_schedule_management_screen.dart).
+- UI: [doctor_schedule_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/doctor/ui/doctor_schedule_management_screen.dart).
 
 ---
 
@@ -364,7 +364,7 @@ Map<String, dynamic> _systemSettings
 ### 📱 Flutter — [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) (CRUD Cuti)
 - `fetchDoctorLeaves({doctorId})`: Ambil cuti, opsional filter per dokter.
 - `addDoctorLeave(doctorId, date, reason)`: Tambah cuti, refresh list.
-- UI: [admin_doctor_leaves_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_doctor_leaves_screen.dart).
+- UI: [admin_doctor_leaves_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/doctor/ui/admin_doctor_leaves_screen.dart).
 
 ---
 
@@ -387,7 +387,7 @@ Map<String, dynamic> _systemSettings
 ### 📱 Flutter — [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) (CRUD Libur)
 - `fetchClinicHolidays()`: Ambil semua hari libur klinik.
 - `addClinicHoliday(date, description)`: Tambah hari libur, refresh list.
-- UI: [admin_clinic_holidays_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_clinic_holidays_screen.dart).
+- UI: [admin_clinic_holidays_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/clinic_holiday/ui/admin_clinic_holidays_screen.dart).
 
 ---
 
@@ -407,7 +407,7 @@ Map<String, dynamic> _systemSettings
 
 ### 📱 Flutter — [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) (CRUD Poliklinik)
 - `fetchPolyclinics()`, `createPolyclinic(data)`, `updatePolyclinic(id, data)`, `deletePolyclinic(id)`.
-- UI: [polyclinic_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/polyclinic_management_screen.dart).
+- UI: [polyclinic_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/polyclinic/ui/polyclinic_management_screen.dart).
 
 ---
 
@@ -436,7 +436,7 @@ Map<String, dynamic> _systemSettings
 ### 📱 Flutter — [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) (CRUD Pasien & User)
 - `fetchPatients()`, `createPatient(data)`.
 - `fetchUsers()`, `createUser(data)`, `updateUser(id, data)`, `deleteUser(id)`.
-- UI: [patient_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/patient_management_screen.dart) & [user_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/user_management_screen.dart).
+- UI: [patient_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/patient/ui/patient_management_screen.dart) & [user_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/user/ui/user_management_screen.dart).
 
 ---
 
@@ -465,11 +465,11 @@ Map<String, dynamic> _systemSettings
 
 ---
 
-### 📱 Flutter — [DoctorProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/logic/doctor_provider.dart) + [ExaminationFormScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/ui/examination_form_screen.dart)
+### 📱 Flutter — [DoctorProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/logic/doctor_provider.dart) + [ExaminationFormScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/examination/ui/examination_form_screen.dart)
 - `finishExamination(data)`: Submit rekam medis + resep ke API, lalu refresh `_queues` dan `_medicalRecords`.
 - `fetchHistoryForPatient(patientUserId)`: Lihat riwayat pemeriksaan pasien spesifik.
-- UI: [examination_form_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/ui/examination_form_screen.dart) (input diagnosis, keluhan, resep obat).
-- Admin: [examination_history_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/examination_history_screen.dart) (lihat riwayat pemeriksaan semua pasien).
+- UI: [examination_form_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/examination/ui/examination_form_screen.dart) (input diagnosis, keluhan, resep obat).
+- Admin: [examination_history_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/patient/ui/examination_history_screen.dart) (lihat riwayat pemeriksaan semua pasien).
 
 ---
 
@@ -489,8 +489,8 @@ Mengambil data statistik real-time untuk hari ini:
 
 ### 📱 Flutter — [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) + [AdminDashboard](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_dashboard.dart)
 - `fetchDashboardStats()`: Ambil statistik dari `GET /dashboard-stats` → disimpan ke `DashboardStatsModel? _dashboardStats`.
-- UI: [admin_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_dashboard.dart) (kartu statistik, grafik mingguan antrean).
-- UI: [queue_monitor_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/queue_monitor_screen.dart) (layar monitor antrean real-time / TV Monitor).
+- UI: [admin_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/dashboard/ui/admin_dashboard.dart) (kartu statistik, grafik mingguan antrean).
+- UI: [queue_monitor_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/queue/ui/queue_monitor_screen.dart) (layar monitor antrean real-time / TV Monitor).
 
 ---
 
@@ -508,9 +508,9 @@ Mengambil data statistik real-time untuk hari ini:
 
 ---
 
-### 📱 Flutter — [PuskesmasProfileProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/providers/puskesmas_profile_provider.dart) + [AdminSettingsScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_settings_screen.dart)
+### 📱 Flutter — [PuskesmasProfileProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/providers/puskesmas_profile_provider.dart) + [AdminSettingsScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/settings/ui/admin_settings_screen.dart)
 - `PuskesmasProfileProvider` diakses secara asinkron setelah pengguna berhasil login atau saat restorasi sesi awal terdeteksi sukses.
-- **Map Picker:** [admin_settings_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_settings_screen.dart) mengintegrasikan [MapPickerScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/widgets/map_picker_screen.dart) berbasis OpenStreetMap (`flutter_map` + `latlong2`) untuk memilih koordinat lokasi puskesmas. Default koordinat: Jember (`-8.165143, 113.716255`).
+- **Map Picker:** [admin_settings_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/settings/ui/admin_settings_screen.dart) mengintegrasikan [MapPickerScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/widgets/map_picker_screen.dart) berbasis OpenStreetMap (`flutter_map` + `latlong2`) untuk memilih koordinat lokasi puskesmas. Default koordinat: Jember (`-8.165143, 113.716255`).
 
 ---
 
@@ -565,7 +565,7 @@ Mengambil data statistik real-time untuk hari ini:
 
 ---
 
-### 📱 Flutter — [NotificationScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/notification_screen.dart)
+### 📱 Flutter — [NotificationScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/notification/ui/notification_screen.dart)
 - Layar riwayat notifikasi yang bisa diakses dari dashboard pasien.
 - Menampilkan semua notifikasi yang pernah diterima.
 
@@ -758,7 +758,7 @@ static final Map<String, List<String>> _routePermissions = {
 - [admin_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart)
 - [doctor_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/logic/doctor_provider.dart)
 - [patient_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/logic/patient_provider.dart)
-- [payment_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/logic/payment_provider.dart)
+- [payment_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/providers/payment_provider.dart)
 - [pharmacy_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/logic/pharmacy_provider.dart)
 - [puskesmas_profile_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/providers/puskesmas_profile_provider.dart)
 
@@ -890,12 +890,13 @@ final adminRepository = AdminRepository(apiClient);
 
 ---
 
-### 📱 Flutter — [PaymentProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/logic/payment_provider.dart) + Screens
+### 📱 Flutter — [PaymentProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/providers/payment_provider.dart) + Screens
 - `fetchMyPayments()`: Ambil semua tagihan dari `GET /payments`.
 - `uploadProof(paymentId, filePath)`: Upload bukti via multipart form-data, update item lokal setelah sukses.
 - `verify(paymentId, status)`: Admin verifikasi (`approved`/`rejected`), update item lokal.
 - `payWithCash(paymentId)`: Admin cash-pay, update item lokal.
-- UI: [payment_list_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/ui/payment_list_screen.dart) & [payment_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/ui/payment_detail_screen.dart).
+- UI Pasien: [patient_payment_list_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/payment/ui/patient_payment_list_screen.dart) & [patient_payment_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/payment/ui/patient_payment_detail_screen.dart).
+- UI Admin: [admin_payment_list_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/payment/ui/admin_payment_list_screen.dart) & [admin_payment_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/payment/ui/admin_payment_detail_screen.dart).
 
 ---
 
@@ -928,7 +929,7 @@ final adminRepository = AdminRepository(apiClient);
 - `editMedicine(id, data)`: Edit obat → update di `_medicines` lokal by index.
 - `removeMedicine(id)`: Hapus obat → `_medicines.removeWhere(...)`.
 - `restoreMedicine(id)`: Restore obat → append restored obat ke `_medicines`.
-- UI: [pharmacy_dashboard_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/ui/pharmacy_dashboard_screen.dart), [medicine_inventory_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/ui/medicine_inventory_screen.dart), dan [prescription_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/ui/prescription_detail_screen.dart).
+- UI: [pharmacy_dashboard_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/dashboard/ui/pharmacy_dashboard_screen.dart), [medicine_inventory_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/inventory/ui/medicine_inventory_screen.dart), dan [prescription_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/prescription/ui/prescription_detail_screen.dart).
 
 ---
 
@@ -950,14 +951,14 @@ final adminRepository = AdminRepository(apiClient);
 
 ---
 
-### 📱 Flutter — [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) + [AdminSettingsScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_settings_screen.dart)
+### 📱 Flutter — [AdminProvider](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/logic/admin_provider.dart) + [AdminSettingsScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/settings/ui/admin_settings_screen.dart)
 
 #### 20.4 Integrasi REST API (Flutter)
 - `AdminRepository` mengekspos `getSystemSettings()` dan `updateSystemSettings(Map<String, dynamic> data)`.
 - `AdminProvider` menampung state `_systemSettings` dan mengekspos aksi `fetchSystemSettings()` & `updateSystemSettings()`.
 
 #### 20.5 Antarmuka Pengaturan Dinamis
-- **Sinkronisasi Otomatis**: [AdminSettingsScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_settings_screen.dart) memicu pemuatan konfigurasi pusat dari server saat layar diinisialisasi.
+- **Sinkronisasi Otomatis**: [AdminSettingsScreen](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/settings/ui/admin_settings_screen.dart) memicu pemuatan konfigurasi pusat dari server saat layar diinisialisasi.
 - **Biaya Pendaftaran**: Modal sheet untuk memperbarui biaya pendaftaran dari HP ke database.
 - **Rata-rata Waktu Layanan**: Pilihan durasi slot disinkronkan ke server.
 - **Profil Puskesmas**: Termasuk update nama, alamat, kontak, dan **koordinat lokasi** via `MapPickerScreen` (OpenStreetMap).
@@ -1004,7 +1005,7 @@ Kelas `AppDialogs` menyediakan 3 jenis dialog seragam yang responsif dan konsist
 ### 📱 Flutter — Fitur Khusus dan Modul Pembantu
 
 #### 22.1 QR Scanner Check-In (Admin)
-- **File**: [qr_scanner_page.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/widgets/qr_scanner_page.dart)
+- **File**: [qr_scanner_page.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/queue/ui/qr_scanner_page.dart)
 - **Library**: `mobile_scanner`
 - Memindai QR Code tiket antrean milik pasien untuk memverifikasi kedatangan secara instan.
 - **Format QR yang Didukung**:
@@ -1025,9 +1026,9 @@ Kelas `AppDialogs` menyediakan 3 jenis dialog seragam yang responsif dan konsist
   - `dart.library.html` → Memanggil API browser `SpeechSynthesis`.
   - `dart.library.io` → Memanggil package native `flutter_tts`.
 - Mengekspos `TtsHelper.speak(text)` untuk membacakan nomor panggilan pasien secara lisan pada:
-  1. **Layar TV Monitor Puskesmas** ([queue_monitor_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/queue_monitor_screen.dart)) secara otomatis ketika status antrean berubah menjadi `examining`.
-  2. **Halaman Detail Antrean Admin** ([admin_booking_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_booking_detail_screen.dart)) ketika admin menekan tombol panggil atau panggil ulang (*recall*).
-  3. **Halaman Detail Resep Apoteker** ([prescription_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/ui/prescription_detail_screen.dart)) ketika apoteker menekan tombol panggilan suara untuk mengumumkan obat siap diambil.
+  1. **Layar TV Monitor Puskesmas** ([queue_monitor_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/queue/ui/queue_monitor_screen.dart)) secara otomatis ketika status antrean berubah menjadi `examining`.
+  2. **Halaman Detail Antrean Admin** ([admin_booking_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/queue/ui/admin_booking_detail_screen.dart)) ketika admin menekan tombol panggil atau panggil ulang (*recall*).
+  3. **Halaman Detail Resep Apoteker** ([prescription_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/prescription/ui/prescription_detail_screen.dart)) ketika apoteker menekan tombol panggilan suara untuk mengumumkan obat siap diambil.
 
 #### 22.4 Map Picker (Lokasi Puskesmas)
 - **File**: [map_picker_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/widgets/map_picker_screen.dart)
@@ -1324,55 +1325,96 @@ Aplikasi dibangun menggunakan sekumpulan library pihak ketiga berikut:
 
 ## 25. Daftar Lengkap Halaman UI (UI Screens)
 
-Berikut adalah pembagian seluruh berkas halaman antarmuka (UI Screens) yang diimplementasikan di dalam proyek Flutter:
+Berikut adalah pembagian seluruh berkas halaman antarmuka (UI Screens) yang diimplementasikan di dalam proyek Flutter berdasarkan **arsitektur feature-first** (setiap fitur memiliki sub-folder `ui/` tersendiri per sub-fitur):
 
 ### 🔑 Modul Autentikasi (`lib/features/auth/ui/`)
 - **[login_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/ui/login_screen.dart)**: Halaman login pengguna (Email & Password).
 - **[register_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/ui/register_screen.dart)**: Form pendaftaran pasien baru (NIK, nama, tanggal lahir, jenis kelamin, alamat, telepon).
 - **[forgot_password_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/auth/ui/forgot_password_screen.dart)**: Alur pemulihan kata sandi dengan OTP (Request OTP via Email & NIK → Reset Password).
 
-### 👑 Modul Admin (`lib/features/admin/ui/`)
-- **[admin_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_dashboard.dart)**: Pusat visualisasi data statistik harian, jalan pintas menu, dan grafik mingguan.
-- **[queue_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/queue_management_screen.dart)**: Pengelolaan antrean hari ini (Check-in, Skip/Geser Belakang, Recall).
-- **[admin_booking_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_booking_detail_screen.dart)**: Detail spesifik tiket antrean dari sisi admin dengan opsi tindakan operasional.
-- **[doctor_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/doctor_management_screen.dart)**: CRUD data dokter puskesmas terintegrasi.
-- **[doctor_schedule_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/doctor_schedule_management_screen.dart)**: Pengelolaan jam praktik dokter dan pendeteksian overlap jadwal.
-- **[admin_doctor_leaves_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_doctor_leaves_screen.dart)**: CRUD data cuti dokter dan pembatalan tiket terdampak otomatis.
-- **[admin_clinic_holidays_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_clinic_holidays_screen.dart)**: CRUD hari libur puskesmas dan pembatalan massal tiket antrean.
-- **[polyclinic_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/polyclinic_management_screen.dart)**: CRUD poliklinik dan kode antrean.
-- **[patient_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/patient_management_screen.dart)**: CRUD data pasien oleh admin.
-- **[user_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/user_management_screen.dart)**: CRUD akun user dasar beserta penentuan role.
-- **[examination_history_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/examination_history_screen.dart)**: Monitoring daftar riwayat pemeriksaan rekam medis seluruh pasien.
-- **[queue_monitor_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/queue_monitor_screen.dart)**: Tampilan visual TV Monitor antrean publik (suara panggil TTS aktif).
-- **[admin_settings_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/ui/admin_settings_screen.dart)**: Konfigurasi parameters global (`registration_fee`, `slot_duration_minutes`, profil puskesmas, dan map picker lokasi).
+### 👑 Modul Admin — Sub-Fitur Terstruktur (`lib/features/admin/`)
+#### Dashboard (`dashboard/ui/`)
+- **[admin_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/dashboard/ui/admin_dashboard.dart)**: Pusat visualisasi data statistik harian, jalan pintas menu, dan grafik mingguan antrean.
 
-### 🩺 Modul Dokter (`lib/features/doctor/ui/`)
-- **[doctor_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/ui/doctor_dashboard.dart)**: Menampilkan antrean pasien aktif dokter terkait dan toggle status online/offline.
-- **[examination_form_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/ui/examination_form_screen.dart)**: Form input hasil pemeriksaan pasien (Keluhan, Diagnosis, Tindakan, dan Resep obat).
-- **[doctor_profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/ui/doctor_profile_screen.dart)**: Tampilan profil detail dokter terautentikasi.
-- **[doctor_edit_profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/ui/doctor_edit_profile_screen.dart)**: Formulir perubahan data personal dokter.
+#### Manajemen Antrean (`queue/ui/`)
+- **[queue_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/queue/ui/queue_management_screen.dart)**: Pengelolaan antrean hari ini (Check-in, Skip/Geser Belakang, Recall).
+- **[admin_booking_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/queue/ui/admin_booking_detail_screen.dart)**: Detail spesifik tiket antrean dari sisi admin dengan opsi tindakan operasional dan TTS panggil.
+- **[queue_monitor_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/queue/ui/queue_monitor_screen.dart)**: Tampilan visual TV Monitor antrean publik di ruang tunggu (suara panggil TTS aktif).
+- **[qr_scanner_page.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/queue/ui/qr_scanner_page.dart)**: Scanner QR Code tiket antrean pasien untuk proses check-in instan.
 
-### 👤 Modul Pasien (`lib/features/patient/ui/`)
-- **[patient_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/patient_dashboard.dart)**: Dashboard pasien menampilkan status antrean hari ini, menu navigasi, dan profil ringkas puskesmas.
-- **[booking_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/booking_screen.dart)**: Alur pemesanan tiket antrean puskesmas secara mandiri.
-- **[booking_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/booking_detail_screen.dart)**: Tiket antrean digital pasien yang dilengkapi dengan QR Code.
-- **[patient_history_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/patient_history_screen.dart)**: Layar riwayat rekam medis pasien terintegrasi dengan filter pencarian per rentang bulan.
-- **[medical_history_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/medical_history_screen.dart)**: Halaman ringkas daftar rekam medis pemeriksaan pasien.
-- **[medical_record_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/medical_record_detail_screen.dart)**: Informasi detail hasil diagnosa dokter dan rincian obat yang wajib ditebus.
-- **[notification_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/notification_screen.dart)**: Pusat kotak masuk notifikasi aktivitas antrean dan status pembayaran pasien.
-- **[profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/profile_screen.dart)**: Rincian akun pasien terdaftar.
-- **[edit_profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/ui/edit_profile_screen.dart)**: Halaman pengeditan data profil pasien.
+#### Manajemen Dokter (`doctor/ui/`)
+- **[doctor_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/doctor/ui/doctor_management_screen.dart)**: CRUD data dokter puskesmas terintegrasi.
+- **[doctor_schedule_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/doctor/ui/doctor_schedule_management_screen.dart)**: Pengelolaan jam praktik dokter dan pendeteksian overlap jadwal.
+- **[admin_doctor_leaves_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/doctor/ui/admin_doctor_leaves_screen.dart)**: CRUD data cuti dokter dan pembatalan tiket terdampak otomatis.
 
-### 💳 Modul Pembayaran (`lib/features/payment/ui/`)
-- **[payment_list_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/ui/payment_list_screen.dart)**: Halaman daftar tagihan medis yang berstatus *pending*, *waiting verification*, atau *paid*.
-- **[payment_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/payment/ui/payment_detail_screen.dart)**: Rincian total biaya tagihan (registrasi + obat-obatan), opsi upload bukti bayar bagi pasien, serta aksi verifikasi/bayar tunai bagi admin.
+#### Manajemen Hari Libur (`clinic_holiday/ui/`)
+- **[admin_clinic_holidays_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/clinic_holiday/ui/admin_clinic_holidays_screen.dart)**: CRUD hari libur puskesmas dan pembatalan massal tiket antrean.
 
-### 💊 Modul Apotek (`lib/features/pharmacy/ui/`)
-- **[pharmacy_dashboard_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/ui/pharmacy_dashboard_screen.dart)**: Dashboard utama apoteker menampilkan antrean resep obat siap serah.
-- **[prescription_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/ui/prescription_detail_screen.dart)**: Rincian daftar obat resep pasien untuk divalidasi dan diserahkan (*Dispense*).
-- **[medicine_inventory_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/ui/medicine_inventory_screen.dart)**: Layar pengelolaan stok obat (CRUD obat, stok, dan harga).
+#### Manajemen Pasien & Rekam Medis (`patient/ui/`)
+- **[patient_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/patient/ui/patient_management_screen.dart)**: CRUD data pasien oleh admin.
+- **[examination_history_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/patient/ui/examination_history_screen.dart)**: Monitoring daftar riwayat pemeriksaan rekam medis seluruh pasien.
+
+#### Manajemen User (`user/ui/`)
+- **[user_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/user/ui/user_management_screen.dart)**: CRUD akun user dasar beserta penentuan role.
+
+#### Manajemen Poliklinik (`polyclinic/ui/`)
+- **[polyclinic_management_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/polyclinic/ui/polyclinic_management_screen.dart)**: CRUD poliklinik dan kode awalan nomor antrean.
+
+#### Pembayaran — Sisi Admin (`payment/ui/`)
+- **[admin_payment_list_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/payment/ui/admin_payment_list_screen.dart)**: Daftar semua tagihan medis pasien yang perlu diverifikasi atau diproses oleh kasir.
+- **[admin_payment_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/payment/ui/admin_payment_detail_screen.dart)**: Aksi verifikasi bukti transfer (approve/reject) dan pembayaran tunai (cash pay).
+
+#### Pengaturan Sistem (`settings/ui/`)
+- **[admin_settings_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/settings/ui/admin_settings_screen.dart)**: Konfigurasi parameter global (`registration_fee`, `slot_duration_minutes`, profil puskesmas, dan map picker koordinat lokasi).
+
+### 🩺 Modul Dokter — Sub-Fitur Terstruktur (`lib/features/doctor/`)
+#### Dashboard (`dashboard/ui/`)
+- **[doctor_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/dashboard/ui/doctor_dashboard.dart)**: Menampilkan antrean pasien aktif dokter terkait dan toggle status online/offline.
+
+#### Pemeriksaan (`examination/ui/`)
+- **[examination_form_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/examination/ui/examination_form_screen.dart)**: Form input hasil pemeriksaan pasien (Keluhan, Diagnosis, Tindakan, dan Resep obat terstruktur).
+
+#### Profil Dokter (`profile/ui/`)
+- **[doctor_profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/profile/ui/doctor_profile_screen.dart)**: Tampilan profil detail dokter terautentikasi.
+- **[doctor_edit_profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/profile/ui/doctor_edit_profile_screen.dart)**: Formulir perubahan data personal dokter.
+
+### 👤 Modul Pasien — Sub-Fitur Terstruktur (`lib/features/patient/`)
+#### Dashboard (`dashboard/ui/`)
+- **[patient_dashboard.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/dashboard/ui/patient_dashboard.dart)**: Dashboard pasien menampilkan status antrean hari ini, menu navigasi, dan profil ringkas puskesmas.
+
+#### Booking Antrean (`booking/ui/`)
+- **[booking_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/booking/ui/booking_screen.dart)**: Alur pemesanan tiket antrean puskesmas secara mandiri dengan validasi multi-layer.
+- **[booking_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/booking/ui/booking_detail_screen.dart)**: Tiket antrean digital pasien yang dilengkapi dengan QR Code unik.
+
+#### Riwayat Rekam Medis (`history/ui/`)
+- **[patient_history_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/history/ui/patient_history_screen.dart)**: Layar riwayat rekam medis pasien terintegrasi dengan filter pencarian per rentang bulan.
+- **[medical_history_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/history/ui/medical_history_screen.dart)**: Halaman ringkas daftar rekam medis pemeriksaan pasien.
+- **[medical_record_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/history/ui/medical_record_detail_screen.dart)**: Informasi detail hasil diagnosa dokter dan rincian obat yang wajib ditebus.
+
+#### Notifikasi (`notification/ui/`)
+- **[notification_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/notification/ui/notification_screen.dart)**: Pusat kotak masuk notifikasi aktivitas antrean dan status pembayaran pasien.
+
+#### Profil Pasien (`profile/ui/`)
+- **[profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/profile/ui/profile_screen.dart)**: Rincian akun pasien terdaftar.
+- **[edit_profile_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/profile/ui/edit_profile_screen.dart)**: Halaman pengeditan data profil pasien.
+
+#### Pembayaran — Sisi Pasien (`payment/ui/`)
+- **[patient_payment_list_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/payment/ui/patient_payment_list_screen.dart)**: Halaman daftar tagihan medis pasien yang berstatus *pending*, *waiting verification*, atau *paid*.
+- **[patient_payment_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/payment/ui/patient_payment_detail_screen.dart)**: Rincian total biaya tagihan (registrasi + obat-obatan) dan opsi upload bukti transfer bank/QRIS.
+
+### 💊 Modul Apotek — Sub-Fitur Terstruktur (`lib/features/pharmacy/`)
+#### Dashboard Apotek (`dashboard/ui/`)
+- **[pharmacy_dashboard_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/dashboard/ui/pharmacy_dashboard_screen.dart)**: Dashboard utama apoteker menampilkan antrean resep obat yang siap diserahkan.
+
+#### Resep & Penyerahan Obat (`prescription/ui/`)
+- **[prescription_detail_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/prescription/ui/prescription_detail_screen.dart)**: Rincian daftar obat resep pasien untuk divalidasi stok dan diserahkan (*Dispense*), disertai tombol TTS panggilan suara apotek.
+
+#### Inventaris Obat (`inventory/ui/`)
+- **[medicine_inventory_screen.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/inventory/ui/medicine_inventory_screen.dart)**: Layar pengelolaan stok obat (CRUD obat, stok, dan harga satuan).
+
+> **Catatan Arsitektur**: Modul **Pembayaran** (`payment`) tidak lagi berdiri sebagai feature terpisah. `PaymentProvider` kini berada di `lib/shared/providers/payment_provider.dart` dan `PaymentRepository` di `lib/shared/repositories/payment_repository.dart`. Layar pembayaran dipisah menjadi dua: layar sisi pasien di `patient/payment/ui/` dan layar sisi admin di `admin/payment/ui/`.
 
 ---
 
 *Dokumen ini mencakup **seluruh** logika bisnis dari kedua project NalaSeva.*  
-*Diperbarui: 4 Juni 2026 — Penambahan dokumentasi fitur Auto Logout (`SessionTimeoutListener`) yang sebelumnya belum terdokumentasi.*
+*Diperbarui: 11 Juni 2026 — Pembaruan jalur file (path) seluruh UI Screens mengikuti struktur folder feature-first yang baru. Modul payment dibubarkan dan dipindah ke `lib/shared/` (provider/repo) serta dibagi ke `patient/payment/ui/` dan `admin/payment/ui/`.*

@@ -501,4 +501,4 @@ flowchart TD
 ---
 
 *Seluruh alur bisnis di atas dirancang untuk menjamin validitas operasional pelayanan medis, meminimalisir kesalahan operasional secara fisik, serta meningkatkan akurasi data rekam medis dan transaksi persediaan obat.*  
-*Diperbarui: 3 Juni 2026 — Sesuai dengan Sistem Produksi Flutter (`nalaseva 3`)*
+*Diperbarui: 11 Juni 2026 — Sesuai dengan Sistem Produksi Flutter (`nalaseva 3`). Struktur folder fitur-pertama (feature-first) telah diterapkan; nama file layar tidak berubah, hanya lokasi folder yang bergerak ke sub-fitur masing-masing.*

@@ -8,37 +8,37 @@ import '../../features/auth/ui/register_screen.dart';
 import '../../features/auth/ui/forgot_password_screen.dart';
 
 // Admin
-import '../../features/admin/ui/admin_dashboard.dart';
-import '../../features/admin/ui/admin_settings_screen.dart';
-import '../../features/admin/ui/user_management_screen.dart';
-import '../../features/admin/ui/polyclinic_management_screen.dart';
-import '../../features/admin/ui/doctor_management_screen.dart';
-import '../../features/admin/ui/doctor_schedule_management_screen.dart';
-import '../../features/admin/ui/queue_management_screen.dart';
-import '../../features/admin/ui/patient_management_screen.dart';
-import '../../features/admin/ui/examination_history_screen.dart';
-import '../../features/admin/ui/queue_monitor_screen.dart';
-import '../../features/admin/ui/admin_clinic_holidays_screen.dart';
-import '../../features/admin/ui/admin_doctor_leaves_screen.dart';
-import '../../features/admin/widgets/qr_scanner_page.dart';
+import '../../features/admin/dashboard/ui/admin_dashboard.dart';
+import '../../features/admin/settings/ui/admin_settings_screen.dart';
+import '../../features/admin/user/ui/user_management_screen.dart';
+import '../../features/admin/polyclinic/ui/polyclinic_management_screen.dart';
+import '../../features/admin/doctor/ui/doctor_management_screen.dart';
+import '../../features/admin/doctor/ui/doctor_schedule_management_screen.dart';
+import '../../features/admin/queue/ui/queue_management_screen.dart';
+import '../../features/admin/patient/ui/patient_management_screen.dart';
+import '../../features/admin/patient/ui/examination_history_screen.dart';
+import '../../features/admin/queue/ui/queue_monitor_screen.dart';
+import '../../features/admin/clinic_holiday/ui/admin_clinic_holidays_screen.dart';
+import '../../features/admin/doctor/ui/admin_doctor_leaves_screen.dart';
+import '../../features/admin/queue/ui/qr_scanner_page.dart';
 
 // Doctor
-import '../../features/doctor/ui/doctor_dashboard.dart';
-import '../../features/doctor/ui/examination_form_screen.dart';
-import '../../features/doctor/ui/doctor_profile_screen.dart';
-import '../../features/doctor/ui/doctor_edit_profile_screen.dart';
+import '../../features/doctor/dashboard/ui/doctor_dashboard.dart';
+import '../../features/doctor/examination/ui/examination_form_screen.dart';
+import '../../features/doctor/profile/ui/doctor_profile_screen.dart';
+import '../../features/doctor/profile/ui/doctor_edit_profile_screen.dart';
 
 // Patient
-import '../../features/patient/ui/patient_dashboard.dart';
-import '../../features/patient/ui/booking_screen.dart';
-import '../../features/patient/ui/profile_screen.dart';
-import '../../features/patient/ui/patient_history_screen.dart';
-import '../../features/patient/ui/notification_screen.dart';
-import '../../features/patient/ui/edit_profile_screen.dart';
+import '../../features/patient/dashboard/ui/patient_dashboard.dart';
+import '../../features/patient/booking/ui/booking_screen.dart';
+import '../../features/patient/profile/ui/profile_screen.dart';
+import '../../features/patient/history/ui/patient_history_screen.dart';
+import '../../features/patient/notification/ui/notification_screen.dart';
+import '../../features/patient/profile/ui/edit_profile_screen.dart';
 
-import '../../features/admin/ui/admin_payment_list_screen.dart';
-import '../../features/patient/ui/patient_payment_list_screen.dart';
-import '../../features/pharmacy/ui/pharmacy_dashboard_screen.dart';
+import '../../features/admin/payment/ui/admin_payment_list_screen.dart';
+import '../../features/patient/payment/ui/patient_payment_list_screen.dart';
+import '../../features/pharmacy/dashboard/ui/pharmacy_dashboard_screen.dart';
 
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
