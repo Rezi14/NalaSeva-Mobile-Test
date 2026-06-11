@@ -20,6 +20,7 @@ class AuthProvider extends ChangeNotifier {
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  bool get isAdmin => _user?.role == 'admin';
 
   Future<void> login(String email, String password) async {
     _isLoading = true;
@@ -52,18 +53,10 @@ class AuthProvider extends ChangeNotifier {
         // Run FCM setup in background to avoid blocking login flow
         Future.microtask(() async {
           try {
+            // Selalu inisialisasi FCM agar listener dan handler terdaftar
+            await _fcmService.initialize();
             final token = await _fcmService.getFCMToken();
-            final hasPermission = await _fcmService.hasNotificationPermission();
-
-            if (token == null || !hasPermission) {
-              // Jika token null atau belum ada izin, panggil initialize untuk memicu popup izin
-              await _fcmService.initialize();
-              final newToken = await _fcmService.getFCMToken();
-              if (newToken != null) {
-                await _repository.updateFcmToken(newToken);
-              }
-            } else {
-              // Jika token & izin sudah siap, langsung perbarui di backend
+            if (token != null) {
               await _repository.updateFcmToken(token);
             }
           } catch (e) {
@@ -226,18 +219,10 @@ class AuthProvider extends ChangeNotifier {
             // Run FCM setup in background to avoid blocking app start checkAuth
             Future.microtask(() async {
               try {
+                // Selalu inisialisasi FCM agar listener dan handler terdaftar
+                await _fcmService.initialize();
                 final tokenStr = await _fcmService.getFCMToken();
-                final hasPermission = await _fcmService.hasNotificationPermission();
-
-                if (tokenStr == null || !hasPermission) {
-                  // Jika token null atau belum ada izin, panggil initialize untuk memicu popup izin
-                  await _fcmService.initialize();
-                  final newToken = await _fcmService.getFCMToken();
-                  if (newToken != null) {
-                    await _repository.updateFcmToken(newToken);
-                  }
-                } else {
-                  // Jika token & izin sudah siap, langsung perbarui di backend
+                if (tokenStr != null) {
                   await _repository.updateFcmToken(tokenStr);
                 }
               } catch (e) {

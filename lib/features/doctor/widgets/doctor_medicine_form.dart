@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
-
+import '../../pharmacy/logic/pharmacy_provider.dart';
+import '../../../shared/models/medicine_model.dart';
 
 class DoctorMedicineForm extends StatefulWidget {
   final List<Map<String, dynamic>> medicines;
@@ -18,14 +20,21 @@ class DoctorMedicineForm extends StatefulWidget {
 }
 
 class _DoctorMedicineFormState extends State<DoctorMedicineForm> {
-  final _medNameController = TextEditingController();
+  MedicineModel? _selectedMedicine;
   final _medDoseController = TextEditingController();
   final _medQtyController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PharmacyProvider>().fetchMedicines();
+    });
+  }
+
+  @override
   void dispose() {
-    _medNameController.dispose();
     _medDoseController.dispose();
     _medQtyController.dispose();
     super.dispose();
@@ -35,14 +44,46 @@ class _DoctorMedicineFormState extends State<DoctorMedicineForm> {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
+    if (_selectedMedicine == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Harap pilih obat terlebih dahulu')),
+      );
+      return;
+    }
+
+    final qty = int.tryParse(_medQtyController.text) ?? 0;
+    if (qty > _selectedMedicine!.stock) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Stok tidak mencukupi! Stok ${_selectedMedicine!.name} saat ini hanya ${_selectedMedicine!.stock} ${_selectedMedicine!.unit}',
+          ),
+          backgroundColor: AppTheme.errorColor,
+        ),
+      );
+      return;
+    }
+
+    // Cek apakah obat sudah ada di list
+    final existIndex = widget.medicines.indexWhere((m) => m['medicine_id'] == _selectedMedicine!.id);
+    if (existIndex != -1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${_selectedMedicine!.name} sudah ada dalam resep obat!'),
+          backgroundColor: AppTheme.warningColor,
+        ),
+      );
+      return;
+    }
 
     setState(() {
       widget.medicines.add({
-        'name': _medNameController.text,
-        'dose': _medDoseController.text,
-        'qty': _medQtyController.text,
+        'medicine_id': _selectedMedicine!.id,
+        'name': _selectedMedicine!.name,
+        'dose': _medDoseController.text.trim(),
+        'qty': _medQtyController.text.trim(),
       });
-      _medNameController.clear();
+      _selectedMedicine = null;
       _medDoseController.clear();
       _medQtyController.clear();
     });
@@ -121,11 +162,11 @@ class _DoctorMedicineFormState extends State<DoctorMedicineForm> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              m['name'],
+                              m['name'] ?? '',
                               style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.primaryColor),
                             ),
                             Text(
-                              'Dosis: ${m['dose']}  •  Jumlah: ${m['qty']} Tab',
+                              'Aturan Pakai: ${m['dose']}  •  Jumlah: ${m['qty']} Tab',
                               style: GoogleFonts.inter(fontSize: 11, color: AppTheme.primaryColor.withValues(alpha: 0.8)),
                             ),
                           ],
@@ -152,66 +193,101 @@ class _DoctorMedicineFormState extends State<DoctorMedicineForm> {
           ),
           const SizedBox(height: 12),
           
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                // Medicine Name input
-                TextFormField(
-                  controller: _medNameController,
-                  style: GoogleFonts.inter(fontSize: 13),
-                  decoration: InputDecoration(
-                    hintText: 'Nama Obat (contoh: Paracetamol 500mg)',
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          Consumer<PharmacyProvider>(
+            builder: (context, pharmacyProvider, child) {
+              if (pharmacyProvider.isLoading && pharmacyProvider.medicines.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
                   ),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Nama obat tidak boleh kosong' : null,
-                ),
-                const SizedBox(height: 10),
-                
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                );
+              }
+
+              // Hanya tampilkan obat yang stoknya > 0
+              final availableMedicines = pharmacyProvider.medicines.where((m) => m.stock > 0).toList();
+
+              return Form(
+                key: _formKey,
+                child: Column(
                   children: [
-                    // Dosage input
-                    Expanded(
-                      flex: 2,
-                      child: TextFormField(
-                        controller: _medDoseController,
-                        style: GoogleFonts.inter(fontSize: 13),
-                        decoration: InputDecoration(
-                          hintText: 'Dosis (contoh: 3 x 1)',
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                        ),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Isi dosis' : null,
+                    // Medicine Picker Dropdown
+                    DropdownButtonFormField<MedicineModel>(
+                      initialValue: _selectedMedicine,
+                      hint: Text('Pilih Obat dari Database', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey)),
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                       ),
+                      items: availableMedicines.map((m) {
+                        return DropdownMenuItem<MedicineModel>(
+                          value: m,
+                          child: Text(
+                            '${m.name} (Stok: ${m.stock} ${m.unit})',
+                            style: GoogleFonts.inter(fontSize: 13),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedMedicine = val;
+                        });
+                      },
+                      validator: (v) => v == null ? 'Pilih obat' : null,
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(height: 10),
                     
-                    // Quantity input
-                    Expanded(
-                      child: TextFormField(
-                        controller: _medQtyController,
-                        keyboardType: TextInputType.number,
-                        style: GoogleFonts.inter(fontSize: 13),
-                        decoration: InputDecoration(
-                          hintText: 'Jml (Tab)',
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Dosage input
+                        Expanded(
+                          flex: 2,
+                          child: TextFormField(
+                            controller: _medDoseController,
+                            style: GoogleFonts.inter(fontSize: 13),
+                            decoration: InputDecoration(
+                              hintText: 'Dosis (contoh: 3 x 1)',
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                            ),
+                            validator: (v) => v == null || v.trim().isEmpty ? 'Isi dosis' : null,
+                          ),
                         ),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Isi jml' : null,
-                      ),
+                        const SizedBox(width: 10),
+                        
+                        // Quantity input
+                        Expanded(
+                          child: TextFormField(
+                            controller: _medQtyController,
+                            keyboardType: TextInputType.number,
+                            style: GoogleFonts.inter(fontSize: 13),
+                            decoration: InputDecoration(
+                              hintText: 'Jml (Tab)',
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return 'Isi jml';
+                              final qty = int.tryParse(v);
+                              if (qty == null || qty <= 0) return 'Tidak valid';
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
           const SizedBox(height: 14),
           
@@ -232,3 +308,4 @@ class _DoctorMedicineFormState extends State<DoctorMedicineForm> {
     );
   }
 }
+

@@ -6,7 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import '../router/app_router.dart';
 import '../../features/auth/logic/auth_provider.dart';
-import '../../features/payment/logic/payment_provider.dart';
+import '../../shared/providers/payment_provider.dart';
 import '../../features/patient/logic/patient_provider.dart';
 import '../../features/pharmacy/logic/pharmacy_provider.dart';
 import '../../features/doctor/logic/doctor_provider.dart';

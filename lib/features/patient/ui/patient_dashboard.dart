@@ -192,6 +192,13 @@ class _PatientDashboardState extends State<PatientDashboard> {
                                 bgColor: AppTheme.accentColor.withValues(alpha: 0.1),
                                 onTap: () => Navigator.pushNamed(context, '/patient/history'),
                               ),
+                              ServiceCard(
+                                label: 'Pembayaran',
+                                icon: Icons.receipt_long_rounded,
+                                color: AppTheme.successColor,
+                                bgColor: AppTheme.successColor.withValues(alpha: 0.1),
+                                onTap: () => Navigator.pushNamed(context, '/payment/list'),
+                              ),
                             ],
                           ),
                         ],

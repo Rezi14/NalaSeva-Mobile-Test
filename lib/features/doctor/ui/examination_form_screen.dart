@@ -7,7 +7,7 @@ import '../../auth/logic/auth_provider.dart';
 import '../../../shared/models/queue_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_dialogs.dart';
-import '../widgets/doctor_history_row.dart';
+import '../widgets/doctor_medical_history_card.dart';
 import '../widgets/doctor_patient_info_card.dart';
 import '../widgets/doctor_medical_text_area.dart';
 import '../widgets/doctor_medicine_form.dart';
@@ -118,14 +118,22 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
         }).join("\n");
       }
 
+      // Map Flutter _medicines structure to backend prescription_items format
+      final List<Map<String, dynamic>> prescriptionItems = _medicines.map((m) {
+        return {
+          'medicine_id': m['medicine_id'],
+          'quantity': int.tryParse(m['qty'].toString()) ?? 1,
+          'instruction': m['dose'],
+        };
+      }).toList();
 
-      
       await provider.finishExamination({
         'queue_id': freshQueue.id,
         'doctor_id': doctorId,
         'complaint': _complaintController.text,
         'diagnosis': _diagnosisController.text,
         'treatment': formattedTreatment,
+        'prescription_items': prescriptionItems,
       });
 
       if (mounted && provider.error == null) {
@@ -258,91 +266,9 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                                 ? '${exam.createdAt!.day}/${exam.createdAt!.month}/${exam.createdAt!.year}' 
                                 : '-';
 
-                            return Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.grey.shade200),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.calendar_today_rounded, size: 14, color: AppTheme.primaryColor),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            dateStr,
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 13,
-                                              color: AppTheme.primaryColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        'Poli: ${exam.queue?.polyclinic.name ?? "-"}',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  const Divider(),
-                                  const SizedBox(height: 12),
-                                  DoctorHistoryRow(label: 'Keluhan:', value: exam.complaint),
-                                  const SizedBox(height: 12),
-                                  DoctorHistoryRow(label: 'Diagnosa:', value: exam.diagnosis),
-                                  const SizedBox(height: 12),
-                                  DoctorHistoryRow(label: 'Tindakan & Resep:', value: exam.treatment),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Status Obat: ',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                          color: Colors.grey.shade700,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: exam.medicineDeliveryStatus == 'Obat Diterima'
-                                              ? AppTheme.successColor.withValues(alpha: 0.1)
-                                              : (exam.medicineDeliveryStatus == 'Resep Kadaluwarsa/Tidak Ditebus'
-                                                  ? AppTheme.errorColor.withValues(alpha: 0.1)
-                                                  : AppTheme.warningColor.withValues(alpha: 0.1)),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          exam.medicineDeliveryStatus,
-                                          style: GoogleFonts.plusJakartaSans(
-                                            color: exam.medicineDeliveryStatus == 'Obat Diterima'
-                                                ? AppTheme.successColor
-                                                : (exam.medicineDeliveryStatus == 'Resep Kadaluwarsa/Tidak Ditebus'
-                                                    ? AppTheme.errorColor
-                                                    : AppTheme.warningColor),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 11,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                            return DoctorMedicalHistoryCard(
+                              examination: exam,
+                              formattedDate: dateStr,
                             );
                           },
                         );

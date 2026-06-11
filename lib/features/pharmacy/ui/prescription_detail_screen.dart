@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/tts_helper.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/responsive_helper.dart';
+import '../widgets/prescription_item_row.dart';
 
 class PrescriptionDetailScreen extends StatefulWidget {
   final PaymentModel payment;
@@ -357,59 +358,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                       child: Text('Resep kosong / tidak ada obat yang diresepkan'),
                     )
                   ] else ...[
-                    ...prescriptionItems.map((item) {
-                      final name = item.medicine?.name ?? 'Obat';
-                      final qty = item.quantity;
-                      final unit = item.medicine?.unit ?? 'tablet';
-                      final instruction = item.instruction;
-
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              height: 36,
-                              width: 36,
-                              decoration: BoxDecoration(
-                                color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.medication_rounded,
-                                color: AppTheme.primaryColor,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    name,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Dosis: $instruction',
-                                    style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              '$qty $unit',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: AppTheme.secondaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    })
+                    ...prescriptionItems.map((item) => PrescriptionItemRow(item: item))
                   ]
                 ],
               ),

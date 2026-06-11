@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
-import '../logic/payment_provider.dart';
-import '../../../shared/models/payment_model.dart';
+import '../../../shared/providers/payment_provider.dart';
 import '../../../core/theme/app_theme.dart';
-import 'payment_detail_screen.dart';
-import '../../admin/widgets/admin_bottom_nav.dart';
-import '../../auth/logic/auth_provider.dart';
+import 'patient_payment_detail_screen.dart';
 import '../../../core/utils/responsive_helper.dart';
+import '../widgets/patient_payment_card.dart';
 
-class PaymentListScreen extends StatefulWidget {
-  const PaymentListScreen({super.key});
+class PatientPaymentListScreen extends StatefulWidget {
+  const PatientPaymentListScreen({super.key});
 
   @override
-  State<PaymentListScreen> createState() => _PaymentListScreenState();
+  State<PatientPaymentListScreen> createState() => _PatientPaymentListScreenState();
 }
 
-class _PaymentListScreenState extends State<PaymentListScreen> {
+class _PatientPaymentListScreenState extends State<PatientPaymentListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String? _selectedStatusFilter;
@@ -38,54 +35,7 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
     super.dispose();
   }
 
-  String _formatCurrency(double amount) {
-    return NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp',
-      decimalDigits: 0,
-    ).format(amount);
-  }
 
-  Color _getStatusColor(PaymentModel payment) {
-    if (payment.status == 'pending' && payment.createdAt != null) {
-      final diff = DateTime.now().difference(payment.createdAt!);
-      if (diff.inHours >= 2) {
-        return AppTheme.errorColor;
-      }
-    }
-    switch (payment.status) {
-      case 'paid':
-        return AppTheme.successColor;
-      case 'waiting_verification':
-        return AppTheme.warningColor;
-      case 'failed':
-      case 'cancelled':
-        return AppTheme.errorColor;
-      default:
-        return AppTheme.secondaryColor;
-    }
-  }
-
-  String _getStatusText(PaymentModel payment) {
-    if (payment.status == 'pending' && payment.createdAt != null) {
-      final diff = DateTime.now().difference(payment.createdAt!);
-      if (diff.inHours >= 2) {
-        return 'Kadaluwarsa';
-      }
-    }
-    switch (payment.status) {
-      case 'paid':
-        return 'Lunas';
-      case 'waiting_verification':
-        return 'Menunggu Verifikasi';
-      case 'failed':
-        return 'Gagal';
-      case 'cancelled':
-        return 'Batal / Kadaluwarsa';
-      default:
-        return 'Belum Bayar';
-    }
-  }
 
   Widget _filterChip({required String label, required String? status}) {
     final isSelected = _selectedStatusFilter == status;
@@ -118,7 +68,6 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin = context.watch<AuthProvider>().user?.role == 'admin';
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -183,9 +132,7 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                isAdmin
-                                                    ? 'Manajemen Pembayaran'
-                                                    : 'Riwayat Pembayaran',
+                                                'Riwayat Pembayaran',
                                                 style: GoogleFonts.plusJakartaSans(
                                                   fontSize: 24,
                                                   fontWeight: FontWeight.bold,
@@ -193,9 +140,7 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                                                 ),
                                               ),
                                               Text(
-                                                isAdmin
-                                                    ? 'Kelola riwayat & tagihan pembayaran pasien'
-                                                    : 'Pantau tagihan & pembayaran Anda',
+                                                'Pantau tagihan & pembayaran Anda',
                                                 style: GoogleFonts.plusJakartaSans(
                                                   fontSize: 13,
                                                   color: Colors.grey,
@@ -427,8 +372,6 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                             itemCount: filteredPayments.length,
                             itemBuilder: (context, index) {
                               final payment = filteredPayments[index];
-                              final queueDate = payment.queue?.date ?? '';
-                              final polyClinicName = payment.queue?.polyclinic.name ?? 'Poli Puskesmas';
 
                               return AnimationConfiguration.staggeredList(
                                 position: index,
@@ -436,117 +379,26 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                                 child: SlideAnimation(
                                   verticalOffset: 50.0,
                                   child: FadeInAnimation(
-                                    child: GestureDetector(
+                                    child: PatientPaymentCard(
+                                      payment: payment,
                                       onTap: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => PaymentDetailScreen(payment: payment),
+                                            builder: (context) => PatientPaymentDetailScreen(payment: payment),
                                           ),
                                         );
                                       },
-                                      child: Container(
-                                        margin: const EdgeInsets.only(bottom: 16),
-                                        padding: const EdgeInsets.all(20),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(20),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withValues(alpha: 0.05),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 4),
-                                            )
-                                          ],
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    payment.transactionNumber,
-                                                    style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.grey[800],
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                                  decoration: BoxDecoration(
-                                                    color: _getStatusColor(payment).withValues(alpha: 0.1),
-                                                    borderRadius: BorderRadius.circular(10),
-                                                  ),
-                                                  child: Text(
-                                                    _getStatusText(payment),
-                                                    style: TextStyle(
-                                                      color: _getStatusColor(payment),
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const Divider(height: 24),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      polyClinicName,
-                                                      style: const TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      queueDate.isNotEmpty
-                                                          ? DateFormat('dd MMMM yyyy').format(DateTime.parse(queueDate))
-                                                          : 'Kunjungan Hari Ini',
-                                                      style: TextStyle(
-                                                        color: Colors.grey[500],
-                                                        fontSize: 13,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Text(
-                                                  _formatCurrency(payment.totalAmount),
-                                                  style: const TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight: FontWeight.w900,
-                                                    color: AppTheme.secondaryColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
                                     ),
                                   ),
                                 ),
                               );
                             },
-                          ),
-                        );
-                      },
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ),
-                // Bottom Navigation
-                if (isAdmin)
-                  FadeInUp(
-                    duration: const Duration(milliseconds: 500),
-                    child: const AdminBottomNav(activeIndex: 3),
                   ),
                 ],
               ),

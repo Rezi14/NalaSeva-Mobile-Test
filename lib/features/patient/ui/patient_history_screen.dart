@@ -3,13 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:intl/intl.dart';
 import '../../../core/utils/responsive_helper.dart';
 import '../logic/patient_provider.dart';
 import 'medical_record_detail_screen.dart';
 import '../../../shared/models/queue_model.dart';
 import '../../../shared/models/examination_model.dart';
 import '../../../core/theme/app_theme.dart';
+import 'patient_payment_list_screen.dart';
+import '../widgets/patient_history_card.dart';
 
 class PatientHistoryScreen extends StatefulWidget {
   const PatientHistoryScreen({super.key});
@@ -307,7 +308,34 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                                         child: FadeInAnimation(child: widget),
                                       ),
                                       children: allExams.asMap().entries.map((entry) {
-                                        return _recordCard(entry.value, provider.myQueues);
+                                        final exam = entry.value;
+                                        final queue = provider.myQueues.cast<QueueModel?>().firstWhere(
+                                          (q) => q?.id == exam.queueId,
+                                          orElse: () => null,
+                                        );
+                                        return PatientHistoryCard(
+                                          examination: exam,
+                                          queues: provider.myQueues,
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => MedicalRecordDetailScreen(
+                                                  queue: queue,
+                                                  examination: exam,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          onViewBills: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => const PatientPaymentListScreen(),
+                                              ),
+                                            );
+                                          },
+                                        );
                                       }).toList(),
                                     ),
                                   ),
@@ -392,114 +420,5 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
     );
   }
 
-  Widget _recordCard(ExaminationModel exam, List<QueueModel> queues) {
-    final queue = queues.cast<QueueModel?>().firstWhere(
-      (q) => q?.id == exam.queueId,
-      orElse: () => null,
-    );
-    final dateStr = exam.createdAt != null
-        ? DateFormat('dd MMM yyyy').format(exam.createdAt!.toLocal())
-        : '-';
 
-    // Format doctor name cleanly to avoid double "Dr." prefix
-    final rawDocName = exam.doctorName.trim();
-    final formattedDocName = (rawDocName.toLowerCase().startsWith('dr.') || rawDocName.toLowerCase().startsWith('dr. '))
-        ? rawDocName
-        : 'Dr. $rawDocName';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: AppTheme.secondaryColor.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.secondaryColor.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.secondaryColor.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MedicalRecordDetailScreen(
-                  queue: queue,
-                  examination: exam,
-                ),
-              ),
-            );
-          },
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.secondaryColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(
-                    Icons.medical_information_rounded,
-                    color: AppTheme.primaryColor,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        dateStr,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        exam.diagnosis,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        formattedDocName,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppTheme.secondaryColor,
-                  size: 22,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

@@ -6,7 +6,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../../core/utils/responsive_helper.dart';
 import '../logic/patient_provider.dart';
 import '../../auth/logic/auth_provider.dart';
-import '../../payment/logic/payment_provider.dart';
+import '../../../shared/providers/payment_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/models/doctor_model.dart';
 import '../../../shared/models/schedule_model.dart';

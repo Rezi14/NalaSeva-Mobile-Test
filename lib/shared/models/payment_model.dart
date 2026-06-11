@@ -12,6 +12,7 @@ class PaymentModel {
   final double totalAmount;
   final String paymentMethod;
   final String? paymentProof;
+  final String? paymentProofUrl;
   final String status;
   final DateTime? paidAt;
   final DateTime? dispensedAt;
@@ -29,6 +30,7 @@ class PaymentModel {
     required this.totalAmount,
     required this.paymentMethod,
     this.paymentProof,
+    this.paymentProofUrl,
     required this.status,
     this.paidAt,
     this.dispensedAt,
@@ -54,6 +56,7 @@ class PaymentModel {
           : (json['total_amount']?.toDouble() ?? 0.0),
       paymentMethod: json['payment_method'] ?? 'transfer_bank',
       paymentProof: json['payment_proof'],
+      paymentProofUrl: json['payment_proof_url'],
       status: json['status'] ?? 'pending',
       paidAt: DateTimeParser.parseDateTime(json['paid_at']?.toString()),
       dispensedAt: DateTimeParser.parseDateTime(json['dispensed_at']?.toString()),
@@ -74,6 +77,7 @@ class PaymentModel {
       'total_amount': totalAmount,
       'payment_method': paymentMethod,
       'payment_proof': paymentProof,
+      'payment_proof_url': paymentProofUrl,
       'status': status,
       'paid_at': paidAt?.toIso8601String(),
       'dispensed_at': dispensedAt?.toIso8601String(),

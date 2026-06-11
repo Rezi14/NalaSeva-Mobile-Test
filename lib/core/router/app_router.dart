@@ -36,8 +36,8 @@ import '../../features/patient/ui/patient_history_screen.dart';
 import '../../features/patient/ui/notification_screen.dart';
 import '../../features/patient/ui/edit_profile_screen.dart';
 
-// Payment & Pharmacy
-import '../../features/payment/ui/payment_list_screen.dart';
+import '../../features/admin/ui/admin_payment_list_screen.dart';
+import '../../features/patient/ui/patient_payment_list_screen.dart';
 import '../../features/pharmacy/ui/pharmacy_dashboard_screen.dart';
 
 class AppRouter {
@@ -119,7 +119,13 @@ class AppRouter {
     pharmacyProfile: (context) => const ProfileScreen(),
     pharmacyEditProfile: (context) => const EditProfileScreen(),
     tvMonitor: (context) => const QueueMonitorScreen(),
-    paymentList: (context) => const PaymentListScreen(),
+    paymentList: (context) {
+      final user = Provider.of<AuthProvider>(context, listen: false).user;
+      if (user?.role == 'admin') {
+        return const AdminPaymentListScreen();
+      }
+      return const PatientPaymentListScreen();
+    },
     pharmacyHome: (context) => const PharmacyDashboardScreen(),
   };
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../data/payment_repository.dart';
-import '../../../shared/models/payment_model.dart';
+import '../repositories/payment_repository.dart';
+import '../models/payment_model.dart';
 
 class PaymentProvider extends ChangeNotifier {
   final PaymentRepository _repository;

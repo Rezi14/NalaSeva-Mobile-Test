@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import '../../../core/api/api_client.dart';
-import '../../../shared/models/payment_model.dart';
-import '../../../core/utils/error_parser.dart';
+import '../../core/api/api_client.dart';
+import '../models/payment_model.dart';
+import '../../core/utils/error_parser.dart';
 
 class PaymentRepository {
   final ApiClient _apiClient;
