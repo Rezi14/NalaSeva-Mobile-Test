@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../shared/models/medicine_model.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/responsive_helper.dart';
 
 class MedicineInventoryCard extends StatelessWidget {
   final MedicineModel medicine;
@@ -26,13 +27,18 @@ class MedicineInventoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lowStock = medicine.stock <= 20;
+    
+    final cardRadius = ResponsiveHelper.radiusCard(context);
+    final cardPadding = ResponsiveHelper.paddingCard(context);
+    final textBodySize = ResponsiveHelper.fontSizeBody(context);
+    final textCaptionSize = ResponsiveHelper.fontSizeCaption(context);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(cardPadding),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(cardRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -64,21 +70,27 @@ class MedicineInventoryCard extends StatelessWidget {
               children: [
                 Text(
                   medicine.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    fontSize: textBodySize + 2,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     Text(
                       'Harga: ',
-                      style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                      style: TextStyle(
+                        color: Colors.grey[500], 
+                        fontSize: textCaptionSize,
+                      ),
                     ),
                     Text(
                       _formatCurrency(medicine.price),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppTheme.secondaryColor,
-                        fontSize: 13,
+                        fontSize: textCaptionSize,
                       ),
                     ),
                   ],
@@ -93,14 +105,18 @@ class MedicineInventoryCard extends StatelessWidget {
                 '${medicine.stock} ${medicine.unit}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                  fontSize: textBodySize + 1,
                   color: lowStock ? AppTheme.errorColor : Colors.grey[800],
                 ),
               ),
               if (lowStock)
-                const Text(
+                Text(
                   'Hampir Habis!',
-                  style: TextStyle(color: AppTheme.errorColor, fontSize: 10, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: AppTheme.errorColor, 
+                    fontSize: textCaptionSize - 2, 
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               Row(
                 mainAxisSize: MainAxisSize.min,

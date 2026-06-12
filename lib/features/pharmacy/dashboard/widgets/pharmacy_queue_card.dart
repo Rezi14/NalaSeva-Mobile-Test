@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/models/payment_model.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/responsive_helper.dart';
+import '../../../../shared/constants/app_constants.dart';
 
 class PharmacyQueueCard extends StatelessWidget {
   final PaymentModel payment;
@@ -62,33 +64,42 @@ class PharmacyQueueCard extends StatelessWidget {
     final isPriority = payment.queue?.patient.isElderly ?? false;
     final itemsCount = payment.examination?.prescriptionItems.length ?? 0;
 
+    // Gunakan QueueStatus enum dari app_constants
+    final queueStatus = payment.queue?.status ?? QueueStatus.unknown;
+
+    final cardRadius = ResponsiveHelper.radiusCard(context);
+    final cardPadding = ResponsiveHelper.paddingCard(context);
+    final textBodySize = ResponsiveHelper.fontSizeBody(context);
+    final textCaptionSize = ResponsiveHelper.fontSizeCaption(context);
+    final smallRadius = ResponsiveHelper.radiusSmall(context);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(cardRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 16,
             offset: const Offset(0, 6),
-          )
+          ),
         ],
         border: Border.all(
-          color: isPriority 
-              ? Colors.orange.withValues(alpha: 0.4) 
+          color: isPriority
+              ? Colors.orange.withValues(alpha: 0.4)
               : Colors.grey.shade100,
           width: 1.5,
         ),
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(cardRadius),
         child: InkWell(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(cardRadius),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(18.0),
+            padding: EdgeInsets.all(cardPadding),
             child: Row(
               children: [
                 Container(
@@ -120,7 +131,7 @@ class PharmacyQueueCard extends StatelessWidget {
                               patientName,
                               style: GoogleFonts.outfit(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: textBodySize + 2,
                                 color: Colors.black87,
                               ),
                             ),
@@ -128,17 +139,22 @@ class PharmacyQueueCard extends StatelessWidget {
                           if (isPriority) ...[
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.orange.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(
+                                  smallRadius,
+                                ),
                               ),
                               child: Text(
                                 'Lansia',
                                 style: GoogleFonts.plusJakartaSans(
                                   color: Colors.orange.shade700,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 10,
+                                  fontSize: textCaptionSize - 1,
                                 ),
                               ),
                             ),
@@ -150,7 +166,7 @@ class PharmacyQueueCard extends StatelessWidget {
                         polyName,
                         style: GoogleFonts.plusJakartaSans(
                           color: Colors.grey[600],
-                          fontSize: 13,
+                          fontSize: textCaptionSize,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -159,32 +175,44 @@ class PharmacyQueueCard extends StatelessWidget {
                         runSpacing: 4,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(8),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.08,
+                              ),
+                              borderRadius: BorderRadius.circular(smallRadius),
                             ),
                             child: Text(
-                              'Siap Disiapkan',
+                              queueStatus == QueueStatus.completed
+                                  ? 'Siap Layani (${queueStatus.displayName})'
+                                  : 'Siap Disiapkan',
                               style: GoogleFonts.plusJakartaSans(
                                 color: AppTheme.primaryColor,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: textCaptionSize - 1,
                               ),
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.blue.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(smallRadius),
                             ),
                             child: Text(
-                              itemsCount > 0 ? '$itemsCount Resep' : 'Tanpa Obat',
+                              itemsCount > 0
+                                  ? '$itemsCount Resep'
+                                  : 'Tanpa Obat',
                               style: GoogleFonts.plusJakartaSans(
                                 color: Colors.blue.shade700,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: textCaptionSize - 1,
                               ),
                             ),
                           ),

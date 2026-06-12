@@ -534,6 +534,7 @@ Mengambil data statistik real-time untuk hari ini:
 | Rekam medis selesai dibuat | Pasien terkait | "Tagihan Baru Diterbitkan" + nominal total |
 | Admin verifikasi transfer → `paid` | Pasien terkait | "Pembayaran Terverifikasi Lunas!" |
 | Admin cash-pay → `paid` | Pasien terkait | "Pembayaran Lunas (Tunai)!" |
+| Apoteker panggil resep | Pasien terkait | "Panggilan kepada pasien {nama}, silakan mengambil obat Anda di loket Apotek." (payload `type: 'prescription_called'`) |
 | Apoteker serahkan obat | Pasien terkait | "Obat Selesai Diserahkan" |
 
 ---
@@ -697,6 +698,7 @@ Validator sisi client yang digunakan oleh **Admin** saat check-in (termasuk via 
 | Endpoint | Deskripsi |
 |----------|-----------|
 | `GET /pharmacy/queues` | Lihat antrean resep yang lunas & belum diserahkan |
+| `POST /pharmacy/queues/{id}/call` | Panggil pasien resep ke loket apotek |
 
 #### 15.7 Route Apoteker Only (role:pharmacist)
 | Endpoint | Deskripsi |
@@ -813,7 +815,8 @@ Future<void> _performAction(Future<void> Function() action) async {
 **PharmacyProvider:**
 - `fetchPharmacyQueues()`: Mengambil seluruh antrean resep yang telah berstatus lunas (`paid`) dan siap diserahkan.
 - `fetchMedicines()`: Mengambil daftar obat-obatan yang terdaftar dari server untuk inventaris apotek.
-- `dispense(paymentId)`: Menyerahkan obat kepada pasien dan secara optimistik menghapus antrean resep tersebut dari list lokal `_queues` tanpa harus melakukan refetch data penuh ke server.
+- `dispense(paymentId)`: Serahkan obat kepada pasien dan secara optimistik menghapus antrean resep tersebut dari list lokal `_queues` tanpa harus melakukan refetch data penuh ke server.
+- `callPatient(paymentId)`: Memicu panggilan resep pasien apotek ke API `POST /pharmacy/queues/{id}/call`.
 - `createMedicine(data)` / `editMedicine(id, data)` / `removeMedicine(id)` / `restoreMedicine(id)`: Melakukan CRUD data inventaris obat dan memanipulasi list lokal `_medicines` untuk sinkronisasi state instan.
 
 **PaymentProvider:**
@@ -881,6 +884,7 @@ final adminRepository = AdminRepository(apiClient);
   - Jika tidak lolos, dialog notifikasi error ditampilkan dan upload dibatalkan.
 - Setelah bukti berhasil diunggah, status pembayaran berubah otomatis menjadi `waiting_verification` (menunggu verifikasi).
 - Bukti transfer disimpan secara aman di storage direktori `payment_proofs/`.
+- **Load Gambar Bukti (`proof-image`)**: File bukti transfer bank/QRIS yang tersimpan di server dimuat secara langsung oleh Flutter client menggunakan endpoint `GET /api/payments/{id}/proof-image` untuk merender gambar bukti bayar.
 
 
 #### 18.3 Verifikasi Admin (Cash / Transfer)

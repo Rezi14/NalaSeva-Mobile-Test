@@ -70,147 +70,179 @@ class _PharmacyDashboardScreenState extends State<PharmacyDashboardScreen> {
                       color: Colors.white,
                       child: SafeArea(
                         bottom: false,
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            InkWell(
-                              onTap: () => Navigator.pushNamed(context, '/pharmacy/profile'),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 48,
-                                      height: 48,
-                                      decoration: const BoxDecoration(
-                                        color: AppTheme.primaryColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        initials,
-                                        style: GoogleFonts.plusJakartaSans(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                          child: ResponsiveCenter(
+                            maxWidth: 950,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () => Navigator.pushNamed(context, '/pharmacy/profile'),
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 44,
+                                            height: 44,
+                                            decoration: const BoxDecoration(
+                                              color: AppTheme.primaryColor,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              initials,
+                                              style: GoogleFonts.plusJakartaSans(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  _getGreeting(),
+                                                  style: GoogleFonts.inter(
+                                                    color: Colors.grey.shade500,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  user?.name ?? 'Apoteker',
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: GoogleFonts.plusJakartaSans(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _getGreeting(),
-                                          style: GoogleFonts.inter(
-                                            color: Colors.grey.shade600,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                        Text(
-                                          user?.name ?? 'Apoteker',
-                                          style: GoogleFonts.plusJakartaSans(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(),
+                              ],
                             ),
-                            const SizedBox(),
-                          ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-
-                const Divider(height: 1),
 
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Active Duty Info Card (Matching QueueStatusCard layout of patient)
                       FadeInUp(
                         duration: const Duration(milliseconds: 600),
                         delay: const Duration(milliseconds: 200),
                         child: Container(
-                          padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF0F9B8E), Color(0xFF059669)],
+                              colors: [AppTheme.primaryColor, Color(0xFF047857)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(ResponsiveHelper.radiusCard(context)),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF0F9B8E).withValues(alpha: 0.2),
-                                blurRadius: 16,
+                                color: AppTheme.primaryColor.withValues(alpha: 0.25),
+                                blurRadius: 20,
                                 offset: const Offset(0, 8),
                               )
                             ],
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'INFORMASI TUGAS',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1,
-                                    ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(ResponsiveHelper.radiusCard(context)),
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  right: -24,
+                                  bottom: -24,
+                                  child: Icon(
+                                    Icons.local_pharmacy_rounded,
+                                    size: 140,
+                                    color: Colors.white.withValues(alpha: 0.08),
                                   ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white24,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      'ONLINE',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(ResponsiveHelper.paddingCard(context)),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'INFORMASI TUGAS',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              color: Colors.white70,
+                                              fontSize: ResponsiveHelper.fontSizeCaption(context),
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 1,
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white24,
+                                              borderRadius: BorderRadius.circular(ResponsiveHelper.radiusSmall(context)),
+                                            ),
+                                            child: Text(
+                                              'ONLINE',
+                                              style: GoogleFonts.plusJakartaSans(
+                                                color: Colors.white,
+                                                fontSize: ResponsiveHelper.fontSizeCaption(context) - 2,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        provider.queues.isEmpty ? 'Semua Resep Selesai' : 'Antrean Resep Aktif',
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white,
+                                          fontSize: ResponsiveHelper.fontSizeHeading(context) + 4,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Padding(
+                                        padding: const EdgeInsets.only(right: 60.0),
+                                        child: Text(
+                                          provider.queues.isEmpty
+                                              ? 'Tidak ada antrean resep aktif saat ini. Semua obat telah berhasil diserahkan.'
+                                              : 'Terdapat ${provider.queues.length} antrean resep terkonfirmasi lunas yang siap disiapkan untuk pasien hari ini.',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            color: Colors.white.withValues(alpha: 0.8),
+                                            fontSize: ResponsiveHelper.fontSizeBody(context),
+                                            height: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Apotek Siaga',
-                                style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Terdapat ${provider.queues.length} antrean resep terkonfirmasi lunas yang siap disiapkan untuk pasien hari ini.',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                  fontSize: 13,
-                                  height: 1.5,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

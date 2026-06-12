@@ -113,4 +113,13 @@ class PharmacyRepository {
       throw _errorMessage(e, 'Gagal mengambil detail obat');
     }
   }
+
+  Future<void> callPrescriptionPatient(int paymentId) async {
+    try {
+      final response = await _apiClient.dio.post('pharmacy/queues/$paymentId/call');
+      _checkResponse(response, 'Gagal memanggil pasien ke apotek');
+    } on DioException catch (e) {
+      throw _errorMessage(e, 'Gagal memanggil pasien ke apotek');
+    }
+  }
 }

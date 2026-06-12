@@ -200,9 +200,40 @@ class AuthProvider extends ChangeNotifier {
   Future<void> checkAuth() async {
     final token = await _storage.read(key: 'access_token');
     if (token != null) {
+      final savedRole = await _storage.read(key: 'user_role');
+      if (savedRole == 'patient') {
+        try {
+          await _repository.logout().timeout(const Duration(seconds: 2));
+        } catch (e) {
+          debugPrint('Silent API logout failed for patient on start: $e');
+        } finally {
+          _user = null;
+          await _storage.delete(key: 'access_token');
+          await _storage.delete(key: 'user_role');
+          await _storage.delete(key: 'patient_id');
+          await _storage.delete(key: 'doctor_id');
+        }
+        notifyListeners();
+        return;
+      }
       try {
         _user = await _repository.getProfile();
         if (_user != null) {
+          if (_user!.role == 'patient') {
+            try {
+              await _repository.logout().timeout(const Duration(seconds: 2));
+            } catch (e) {
+              debugPrint('Silent API logout failed for patient on start: $e');
+            } finally {
+              _user = null;
+              await _storage.delete(key: 'access_token');
+              await _storage.delete(key: 'user_role');
+              await _storage.delete(key: 'patient_id');
+              await _storage.delete(key: 'doctor_id');
+            }
+            notifyListeners();
+            return;
+          }
           await _storage.write(key: 'user_role', value: _user!.role);
           if (_user!.patientId != null) {
             await _storage.write(key: 'patient_id', value: _user!.patientId.toString());

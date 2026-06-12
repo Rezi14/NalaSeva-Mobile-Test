@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/models/prescription_item_model.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/responsive_helper.dart';
 
 class PrescriptionItemRow extends StatelessWidget {
   final PrescriptionItemModel item;
@@ -16,6 +17,8 @@ class PrescriptionItemRow extends StatelessWidget {
     final qty = item.quantity;
     final unit = item.medicine?.unit ?? 'tablet';
     final instruction = item.instruction;
+    
+    final textBodySize = ResponsiveHelper.fontSizeBody(context);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -42,21 +45,27 @@ class PrescriptionItemRow extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: textBodySize + 2,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Dosis: $instruction',
-                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: textBodySize,
+                  ),
                 ),
               ],
             ),
           ),
           Text(
             '$qty $unit',
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              fontSize: textBodySize + 2,
               color: AppTheme.secondaryColor,
             ),
           ),

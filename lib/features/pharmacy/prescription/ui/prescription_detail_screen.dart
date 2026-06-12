@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:animate_do/animate_do.dart';
 import '../../../../shared/models/payment_model.dart';
 import '../../logic/pharmacy_provider.dart';
 import '../../../auth/logic/auth_provider.dart';
@@ -8,7 +9,9 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/tts_helper.dart';
 import '../../../../core/utils/app_dialogs.dart';
 import '../../../../core/utils/responsive_helper.dart';
+import '../../../../shared/widgets/web_image_widget.dart';
 import '../widgets/prescription_item_row.dart';
+import '../../../../shared/constants/app_constants.dart';
 
 class PrescriptionDetailScreen extends StatefulWidget {
   final PaymentModel payment;
@@ -28,11 +31,16 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
 
     try {
       await TtsHelper.speak(announcement);
+      
+      if (mounted) {
+        await context.read<PharmacyProvider>().callPatient(widget.payment.id);
+      }
+
       if (mounted) {
         AppDialogs.showNotificationDialog(
           context,
           'Panggilan Suara',
-          'Memanggil suara loket: "$announcement"',
+          'Memanggil suara loket: "$announcement" dan mengirim notifikasi ke pasien.',
         );
       }
     } catch (e) {
@@ -47,9 +55,8 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
     }
   }
 
-  void _showPaymentProofDialog(String proofPath) {
-    // Generate absolute URL for Laravel storage
-    final absoluteUrl = 'https://nalaseva-api.up.railway.app/storage/$proofPath';
+  void _showPaymentProofDialog() {
+    final absoluteUrl = 'https://nalaseva-api.up.railway.app/api/payments/${widget.payment.id}/proof-image';
 
     showDialog(
       context: context,
@@ -79,29 +86,11 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                 SizedBox(height: padding * 0.8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(btnR),
-                  child: Image.network(
-                    absoluteUrl,
+                  child: createWebImage(
+                    imageUrl: absoluteUrl,
                     fit: BoxFit.contain,
                     height: 380,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 240,
-                        color: Colors.grey[100],
-                        width: double.infinity,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.broken_image_rounded, size: 56, color: Colors.grey[400]),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Gagal memuat bukti bayar\n(Mungkin dalam lingkungan lokal)',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                    width: double.infinity,
                   ),
                 ),
                 SizedBox(height: padding),
@@ -185,35 +174,97 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
     final gender = patient?.gender ?? '-';
 
     final prescriptionItems = widget.payment.examination?.prescriptionItems ?? [];
+    
+    final pagePadding = ResponsiveHelper.paddingPage(context);
+    final cardPadding = ResponsiveHelper.paddingCard(context);
+    final cardRadius = ResponsiveHelper.radiusCard(context);
+    final textBodySize = ResponsiveHelper.fontSizeBody(context);
+    final textHeadingSize = ResponsiveHelper.fontSizeHeading(context);
+    final smallRadius = ResponsiveHelper.radiusSmall(context);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: const Text('Rincian Penyiapan Resep'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: AppTheme.primaryColor,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Column(
+        children: [
+          // Premium Header with smooth bottom-up stagger
+          FadeIn(
+            duration: const Duration(milliseconds: 400),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  child: ResponsiveCenter(
+                    maxWidth: 800,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            size: 20,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          color: AppTheme.primaryColor,
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Rincian Resep',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Penyiapan dan penyerahan resep obat',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(pagePadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             // Patient Details Card (With Integrated Payment Proof inside as requested!)
-            const Text(
+            Text(
               'Profil Informasi Pasien',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: textHeadingSize,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.primaryColor,
               ),
             ),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(cardPadding),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: AppTheme.cardColor,
+                borderRadius: BorderRadius.circular(cardRadius),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -227,34 +278,34 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                 children: [
                   Text(
                     patientName,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: textBodySize + 6, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('NIK:', style: TextStyle(color: Colors.grey[600])),
-                      Text(nationalId, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text('NIK:', style: TextStyle(color: Colors.grey[600], fontSize: textBodySize)),
+                      Text(nationalId, style: TextStyle(fontWeight: FontWeight.bold, fontSize: textBodySize)),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Usia:', style: TextStyle(color: Colors.grey[600])),
-                      Text('$age Tahun ($gender)', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text('Usia:', style: TextStyle(color: Colors.grey[600], fontSize: textBodySize)),
+                      Text('$age Tahun ($gender)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: textBodySize)),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Alamat:', style: TextStyle(color: Colors.grey[600])),
+                      Text('Alamat:', style: TextStyle(color: Colors.grey[600], fontSize: textBodySize)),
                       Expanded(
                         child: Text(
                           address,
                           textAlign: TextAlign.end,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: textBodySize),
                         ),
                       ),
                     ],
@@ -265,22 +316,22 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Status Pembayaran:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: textBodySize),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: AppTheme.successColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(smallRadius),
                         ),
-                        child: const Text(
-                          'Lunas',
+                        child: Text(
+                          'Lunas (${QueueStatus.completed.displayName})',
                           style: TextStyle(
                             color: AppTheme.successColor,
                             fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                            fontSize: textBodySize - 1,
                           ),
                         ),
                       ),
@@ -306,7 +357,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        onPressed: () => _showPaymentProofDialog(widget.payment.paymentProof!),
+                        onPressed: () => _showPaymentProofDialog(),
                       ),
                     ),
                   ] else ...[
@@ -338,10 +389,10 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
             ),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(cardPadding),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: AppTheme.cardColor,
+                borderRadius: BorderRadius.circular(cardRadius),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -438,10 +489,12 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                 ],
               ],
             ),
-            const SizedBox(height: 40),
-          ],
+            ],
         ),
       ),
-    );
+    ),
+  ],
+),
+);
   }
 }
