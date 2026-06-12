@@ -58,7 +58,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
     final examining = provider.queues.where((q) => q.status == QueueStatus.examining).length;
     final cancelled = provider.queues.where((q) => q.status == QueueStatus.cancelled).length;
     
-    final hasActiveFilter = _selectedStatusFilter != null || _selectedPolyclinicId != null;
+    final hasActiveFilter = _selectedStatusFilter != QueueStatus.booked.value || _selectedPolyclinicId != null;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -359,7 +359,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                                            setState(() {
                                              _searchController.clear();
                                              _searchQuery = '';
-                                             _selectedStatusFilter = null;
+                                             _selectedStatusFilter = QueueStatus.booked.value;
                                              _selectedPolyclinicId = null;
                                            });
                                          },
@@ -439,7 +439,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
-            final hasActiveFilter = _selectedStatusFilter != null || _selectedPolyclinicId != null;
+            final hasActiveFilter = _selectedStatusFilter != QueueStatus.booked.value || _selectedPolyclinicId != null;
             return SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -463,11 +463,11 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                           TextButton(
                             onPressed: () {
                               setState(() {
-                                _selectedStatusFilter = null;
+                                _selectedStatusFilter = QueueStatus.booked.value;
                                 _selectedPolyclinicId = null;
                               });
                               setSheetState(() {
-                                _selectedStatusFilter = null;
+                                _selectedStatusFilter = QueueStatus.booked.value;
                                 _selectedPolyclinicId = null;
                               });
                             },
