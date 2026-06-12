@@ -19,13 +19,12 @@ Seluruh pemanggilan API dalam aplikasi Flutter terpusat pada file [ApiClient](fi
 
 ## 📌 Daftar Endpoint yang Tidak Digunakan di Aplikasi Flutter
 
-Berikut adalah daftar **14 endpoint** yang dideklarasikan di backend/dokumentasi API, namun **tidak dipanggil atau tidak digunakan** di dalam aplikasi Flutter:
+Berikut adalah daftar **13 endpoint** yang dideklarasikan di backend/dokumentasi API, namun **tidak dipanggil atau tidak digunakan** di dalam aplikasi Flutter:
 
 | No | Nama Endpoint | URL | Method | Keterangan / Alasan |
 | :--- | :--- | :--- | :--- | :--- |
 | **17** | Pulihkan Poliklinik Terhapus | `/api/polyclinics/{id}/restore` | `POST` | Fitur pemulihan data poliklinik yang di-*soft delete* belum diimplementasikan di antarmuka Admin. |
 | **23** | Pulihkan Akun Dokter Terhapus | `/api/doctors/{id}/restore` | `POST` | Fitur pemulihan dokter belum dipasang pada repositori Flutter. |
-| **24** | Ambil Profil Dokter Aktif | `/api/doctors/profile` | `GET` | Profil dokter sudah dicakup oleh profil umum di `/api/auth/profile` (No. 6). |
 | **31** | Pulihkan Jadwal Terhapus | `/api/doctor-schedules/{id}/restore` | `POST` | Pemulihan jadwal praktik dokter yang di-*soft delete* belum dipanggil dari aplikasi. |
 | **35** | Perbarui Hari Libur Klinik | `/api/clinic-holidays/{id}` | `PUT`/`PATCH` | Aplikasi Admin hanya mengizinkan penambahan dan penghapusan hari libur, tidak ada fitur ubah/edit. |
 | **40** | Perbarui Pengajuan Cuti Dokter | `/api/doctor-leaves/{id}` | `PUT`/`PATCH` | Aplikasi Admin hanya mengizinkan pengajuan baru dan pembatalan cuti dokter, tidak ada fitur ubah/edit. |
@@ -96,7 +95,7 @@ Berikut adalah daftar lengkap 83 endpoint beserta status kesesuaian dan penempat
 | 21 | Perbarui Akun Dokter | `/api/doctors/{id}` | `PUT` / `PATCH` | **Sesuai** | [AdminRepository.updateDoctor](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/data/admin_repository.dart#L91) |
 | 22 | Hapus Akun Dokter | `/api/doctors/{id}` | `DELETE` | **Sesuai** | [AdminRepository.deleteDoctor](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/data/admin_repository.dart#L99) |
 | 23 | Pulihkan Akun Dokter Terhapus | `/api/doctors/{id}/restore` | `POST` | **Tidak Digunakan** | - |
-| 24 | Ambil Profil Dokter Aktif | `/api/doctors/profile` | `GET` | **Tidak Digunakan** | - |
+| 24 | Ambil Profil Dokter Aktif | `/api/doctors/profile` | `GET` | **Dihapus** | Telah dihapus dari backend API karena redundan dengan `/api/auth/profile`. |
 | 25 | Perbarui Status Online Dokter | `/api/doctors/me/status` | `PATCH` | **Sesuai** | [DoctorRepository.updateOnlineStatus](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/data/doctor_repository.dart#L66) |
 | 26 | Ambil Semua Jadwal Dokter | `/api/doctor-schedules` | `GET` | **Sesuai** | [PatientRepository.getDoctorSchedules](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/data/patient_repository.dart#L86)<br>[AdminRepository.getSchedules](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/data/admin_repository.dart#L206) |
 | 27 | Ambil Detail Jadwal | `/api/doctor-schedules/{id}` | `GET` | **Sesuai** | [PatientRepository.getDoctorScheduleDetail](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/patient/data/patient_repository.dart#L194)<br>[AdminRepository.getSchedule](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/admin/data/admin_repository.dart#L395) |

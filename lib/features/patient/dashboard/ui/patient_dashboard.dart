@@ -37,8 +37,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
       ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
       : 'PS';
 
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -170,13 +168,13 @@ class _PatientDashboardState extends State<PatientDashboard> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          GridView.count(
+                           GridView.count(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            crossAxisCount: screenWidth >= 600 ? 4 : 2,
+                            crossAxisCount: !ResponsiveHelper.isMobile(context) ? 4 : 2,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: screenWidth >= 600 ? 1.8 : 1.5,
+                            childAspectRatio: !ResponsiveHelper.isMobile(context) ? 1.8 : 1.5,
                             children: [
                               ServiceCard(
                                 label: 'Ambil Antrean',

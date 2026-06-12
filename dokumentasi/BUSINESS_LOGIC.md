@@ -671,7 +671,6 @@ Validator sisi client yang digunakan oleh **Admin** saat check-in (termasuk via 
 #### 15.4 Route Dokter Only (role:doctor)
 | Endpoint | Deskripsi |
 |----------|-----------|
-| `GET /doctors/profile` | Lihat profil dokter sendiri |
 | `PATCH /doctors/me/status` | Update status online/offline |
 
 #### 15.5 Route Admin Only (role:admin)

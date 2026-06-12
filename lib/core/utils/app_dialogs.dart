@@ -331,4 +331,47 @@ class AppDialogs {
     };
     return map[raw] ?? raw;
   }
+
+  // ─── Loading Dialog ────────────────────────────────────────────────────────
+  static void showLoadingDialog(BuildContext context, {String message = 'Memproses...'}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => PopScope(
+        canPop: false,
+        child: Center(
+          child: Card(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(ResponsiveHelper.radiusDialog(ctx)),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(ResponsiveHelper.paddingDialog(ctx)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    message,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.bold,
+                      fontSize: ResponsiveHelper.fontSizeBody(ctx),
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static void hideLoadingDialog(BuildContext context) {
+    Navigator.of(context).pop();
+  }
 }

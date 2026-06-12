@@ -378,11 +378,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Color _statusColor(QueueStatus status) {
     switch (status) {
       case QueueStatus.booked:
-        return AppTheme.secondaryColor;
+        return AppTheme.warningColor;
       case QueueStatus.waiting:
-        return Colors.orange;
+        return AppTheme.accentColor;
       case QueueStatus.examining:
-        return AppTheme.primaryColor;
+        return AppTheme.secondaryColor;
       default:
         return AppTheme.primaryColor;
     }

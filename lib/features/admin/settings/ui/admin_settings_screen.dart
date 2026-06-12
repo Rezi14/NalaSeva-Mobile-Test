@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -724,15 +724,9 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                           final lat = double.tryParse(latController.text);
                           final lng = double.tryParse(lngController.text);
 
-                          try {
+                           try {
                             // Tampilkan loading dialog
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
+                            AppDialogs.showLoadingDialog(context, message: 'Menyimpan profil...');
 
                             await provider.updatePuskesmasProfile(
                               name: nameController.text,
@@ -756,7 +750,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                             });
 
                             if (context.mounted) {
-                              Navigator.pop(context); // Tutup loading dialog
+                              AppDialogs.hideLoadingDialog(context); // Tutup loading dialog
                               Navigator.pop(context); // Tutup bottom sheet
                               AppDialogs.showNotificationDialog(
                                 context,
@@ -766,7 +760,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              Navigator.pop(context); // Tutup loading dialog
+                              AppDialogs.hideLoadingDialog(context); // Tutup loading dialog
                               AppDialogs.showNotificationDialog(
                                 context,
                                 'Kesalahan',
@@ -1239,20 +1233,14 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                       }
 
                       try {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
+                        AppDialogs.showLoadingDialog(context, message: 'Menyimpan biaya...');
 
                         await context.read<AdminProvider>().updateSystemSettings({
                           'registration_fee': input,
                         });
 
                         if (context.mounted) {
-                          Navigator.pop(context); // Tutup loading dialog
+                          AppDialogs.hideLoadingDialog(context); // Tutup loading dialog
                           Navigator.pop(context); // Tutup bottom sheet
                           AppDialogs.showNotificationDialog(
                             context,
@@ -1262,7 +1250,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                         }
                       } catch (e) {
                         if (context.mounted) {
-                          Navigator.pop(context); // Tutup loading
+                          AppDialogs.hideLoadingDialog(context); // Tutup loading dialog
                           AppDialogs.showNotificationDialog(
                             context,
                             'Kesalahan',

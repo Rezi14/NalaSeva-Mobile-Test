@@ -46,7 +46,10 @@ class _DoctorMedicineFormState extends State<DoctorMedicineForm> {
     }
     if (_selectedMedicine == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Harap pilih obat terlebih dahulu')),
+        const SnackBar(
+          content: Text('Harap pilih obat terlebih dahulu'),
+          backgroundColor: AppTheme.warningColor,
+        ),
       );
       return;
     }
