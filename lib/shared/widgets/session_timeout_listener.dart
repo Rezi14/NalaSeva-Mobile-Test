@@ -75,7 +75,7 @@ class _SessionTimeoutListenerState extends State<SessionTimeoutListener> {
                     children: [
                       Text(
                         'Sesi Telah Berakhir',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: Colors.white,
@@ -84,7 +84,7 @@ class _SessionTimeoutListenerState extends State<SessionTimeoutListener> {
                       const SizedBox(height: 2),
                       Text(
                         'Sesi Anda telah berakhir karena tidak ada aktivitas.',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: Colors.white.withValues(alpha: 0.9),
                         ),

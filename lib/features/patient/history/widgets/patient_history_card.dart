@@ -25,7 +25,6 @@ class PatientHistoryCard extends StatelessWidget {
         ? DateFormat('dd MMM yyyy').format(examination.createdAt!.toLocal())
         : '-';
 
-    // Format doctor name cleanly to avoid double "Dr." prefix
     final rawDocName = examination.doctorName.trim();
     final formattedDocName = (rawDocName.toLowerCase().startsWith('dr.') || rawDocName.toLowerCase().startsWith('dr. '))
         ? rawDocName
@@ -34,14 +33,13 @@ class PatientHistoryCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppTheme.secondaryColor.withValues(alpha: 0.04),
+        gradient: AppTheme.backgroundGradient,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.secondaryColor.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.secondaryColor.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: AppTheme.primaryColor.withValues(alpha: 0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -61,12 +59,12 @@ class PatientHistoryCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppTheme.secondaryColor.withValues(alpha: 0.08),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
                         Icons.medical_information_rounded,
-                        color: AppTheme.primaryColor,
+                        color: Colors.white,
                         size: 24,
                       ),
                     ),
@@ -77,19 +75,19 @@ class PatientHistoryCard extends StatelessWidget {
                         children: [
                           Text(
                             dateStr,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.poppins(
                               fontSize: 11,
-                              color: Colors.grey.shade500,
+                              color: Colors.white.withValues(alpha: 0.7),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             examination.diagnosis,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 15,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Colors.white, 
                             ),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
@@ -97,9 +95,9 @@ class PatientHistoryCard extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             formattedDocName,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: Colors.grey.shade500,
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -109,38 +107,12 @@ class PatientHistoryCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     const Icon(
                       Icons.chevron_right_rounded,
-                      color: AppTheme.secondaryColor,
-                      size: 22,
+                      color: Colors.white70, 
+                      size: 24,
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                const Divider(height: 1),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: onViewBills,
-                    icon: const Icon(Icons.receipt_long_rounded, size: 16),
-                    label: Text(
-                      'Lihat Tagihan',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.successColor,
-                      side: BorderSide(
-                        color: AppTheme.successColor.withValues(alpha: 0.5),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 14),
               ],
             ),
           ),

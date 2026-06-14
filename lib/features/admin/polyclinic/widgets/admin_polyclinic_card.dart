@@ -22,12 +22,10 @@ class AdminPolyclinicCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasPatient = examiningQueue.id != 0;
 
-    // Premium Color Palette by index (Emerald Green, Royal Blue, Accent Blue solid theme)
     final List<List<Color>> themeColors = [
-      // [Primary Accent, Secondary Bright Accent, Deep Card BG, Glow Shadow]
-      [AppTheme.primaryColor, AppTheme.accentColor, const Color(0xFF1E293B), AppTheme.primaryColor.withValues(alpha: 0.2)], // Emerald Green
-      [AppTheme.secondaryColor, AppTheme.accentColor, const Color(0xFF1E293B), AppTheme.secondaryColor.withValues(alpha: 0.2)], // Royal Blue
-      [AppTheme.accentColor, AppTheme.secondaryColor, const Color(0xFF1E293B), AppTheme.accentColor.withValues(alpha: 0.2)], // Blue
+      [AppTheme.primaryColor, AppTheme.accentColor, const Color(0xFF1E293B), AppTheme.primaryColor.withValues(alpha: 0.2)], 
+      [AppTheme.secondaryColor, AppTheme.accentColor, const Color(0xFF1E293B), AppTheme.secondaryColor.withValues(alpha: 0.2)], 
+      [AppTheme.accentColor, AppTheme.secondaryColor, const Color(0xFF1E293B), AppTheme.accentColor.withValues(alpha: 0.2)], 
     ];
 
     final colorSet = themeColors[index % themeColors.length];
@@ -37,7 +35,6 @@ class AdminPolyclinicCard extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Dynamic adaptive metrics based on constraints
         final double cardHeight = constraints.maxHeight;
         final double cardWidth = constraints.maxWidth;
 
@@ -83,7 +80,6 @@ class AdminPolyclinicCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(21.5),
             child: Column(
               children: [
-                // Header Card Poliklinik - Elegant Solid BG
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: headerPaddingH, vertical: headerPaddingV),
                   decoration: BoxDecoration(
@@ -92,7 +88,6 @@ class AdminPolyclinicCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Icon + Name
                       Expanded(
                         child: Row(
                           children: [
@@ -114,7 +109,7 @@ class AdminPolyclinicCard extends StatelessWidget {
                                 polyclinic.name.toUpperCase(),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: polyFontSize,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -126,7 +121,6 @@ class AdminPolyclinicCard extends StatelessWidget {
                         ),
                       ),
                       
-                      // Pulse Status Dot
                       if (hasPatient)
                         _PulseDot(color: accentColor)
                       else
@@ -142,7 +136,6 @@ class AdminPolyclinicCard extends StatelessWidget {
                   ),
                 ),
 
-                // Body Card - Antrean Sekarang
                 Expanded(
                   child: Container(
                     decoration: const BoxDecoration(
@@ -166,7 +159,7 @@ class AdminPolyclinicCard extends StatelessWidget {
                               ),
                               child: Text(
                                 'ANTREAN SEKARANG',
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: badgeFontSize,
                                   fontWeight: FontWeight.w700,
                                   color: hasPatient ? accentColor : Colors.grey.shade500,
@@ -177,7 +170,7 @@ class AdminPolyclinicCard extends StatelessWidget {
                             SizedBox(height: spaceAfterBadge),
                             Text(
                               examiningQueue.queueNumber,
-                              style: GoogleFonts.orbitron(
+                              style: GoogleFonts.poppins(
                                 fontSize: queueNumberFontSize,
                                 fontWeight: FontWeight.bold,
                                 color: hasPatient ? Colors.white : Colors.grey.shade700,
@@ -190,7 +183,7 @@ class AdminPolyclinicCard extends StatelessWidget {
                               textAlign: TextAlign.center,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontSize: nameFontSize,
                                 fontWeight: FontWeight.bold,
                                 color: hasPatient ? Colors.white.withValues(alpha: 0.9) : Colors.grey.shade600,
@@ -206,7 +199,6 @@ class AdminPolyclinicCard extends StatelessWidget {
 
                 const Divider(height: 1, color: Color(0xFF334155)),
 
-                // Footer Card - Antrean Berikutnya (Waiting List)
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: footerPaddingH, vertical: footerPaddingV),
                   decoration: const BoxDecoration(
@@ -216,7 +208,7 @@ class AdminPolyclinicCard extends StatelessWidget {
                     children: [
                       Text(
                         'Berikutnya: ',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: footerLabelFontSize, 
                           fontWeight: FontWeight.w600,
                           color: Colors.grey.shade400,
@@ -227,7 +219,7 @@ class AdminPolyclinicCard extends StatelessWidget {
                         child: waitingList.isEmpty
                             ? Text(
                                 'Tidak ada antrean menunggu',
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: footerLabelFontSize,
                                   color: Colors.grey.shade600,
                                   fontStyle: FontStyle.italic,
@@ -249,7 +241,7 @@ class AdminPolyclinicCard extends StatelessWidget {
                                     ),
                                     child: Text(
                                       q.queueNumber,
-                                      style: GoogleFonts.orbitron(
+                                      style: GoogleFonts.poppins(
                                         fontSize: footerNumberFontSize,
                                         fontWeight: FontWeight.bold,
                                         color: accentColor,
@@ -270,7 +262,6 @@ class AdminPolyclinicCard extends StatelessWidget {
     );
   }
 
-  // Get poly icon dynamically based on name
   IconData _getPolyIcon(String name) {
     final lowerName = name.toLowerCase();
     if (lowerName.contains('umum')) {

@@ -59,10 +59,10 @@ class QueueStatusCard extends StatelessWidget {
               child: const Icon(Icons.info_outline_rounded, color: AppTheme.accentColor),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Anda belum memiliki antrean aktif saat ini.',
-                style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+                style: GoogleFonts.poppins(color: Colors.grey, fontWeight: FontWeight.w500),
               ),
             ),
           ],
@@ -102,13 +102,17 @@ class QueueStatusCard extends StatelessWidget {
         duration: const Duration(milliseconds: 500),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isCalled
-              ? const Color(0xFFDC2626) // Solid Premium Red
-              : AppTheme.primaryColor,  // Solid Emerald Green
+          gradient: isCalled
+              ? const LinearGradient(
+                  colors: [Color(0xFFDC2626), Color(0xFF991B1B)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : AppTheme.backgroundGradient,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: (isCalled ? AppTheme.errorColor : AppTheme.primaryColor).withValues(alpha: 0.3),
+              color: (isCalled ? const Color(0xFFDC2626) : AppTheme.primaryColor).withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -133,7 +137,7 @@ class QueueStatusCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         'PANGGILAN: MASUK RUANG PERIKSA!',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -153,7 +157,7 @@ class QueueStatusCard extends StatelessWidget {
                   children: [
                     Text(
                       isCalled ? 'Status Antrean: PEMERIKSAAN' : 'Antrean Anda',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         color: Colors.white.withValues(alpha: isCalled ? 0.95 : 0.8),
                         fontSize: 12,
                         fontWeight: isCalled ? FontWeight.bold : FontWeight.normal,
@@ -162,14 +166,14 @@ class QueueStatusCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       q.polyclinic.name,
-                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(

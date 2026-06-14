@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AdminMiniStatCard extends StatelessWidget {
   final String label;
@@ -21,13 +20,17 @@ class AdminMiniStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       width: width,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
-        border: border ? Border.all(color: Colors.grey.shade200) : null,
+        border: border
+            ? Border.all(color: const Color(0xFFDCEEE7))
+            : null,
       ),
       child: Column(
         children: [
@@ -35,7 +38,7 @@ class AdminMiniStatCard extends StatelessWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               label,
-              style: GoogleFonts.plusJakartaSans(
+              style: theme.textTheme.bodyMedium?.copyWith(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
                 color: Colors.grey,
@@ -47,7 +50,7 @@ class AdminMiniStatCard extends StatelessWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               value,
-              style: GoogleFonts.plusJakartaSans(
+              style: theme.textTheme.titleLarge?.copyWith(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: textColor,

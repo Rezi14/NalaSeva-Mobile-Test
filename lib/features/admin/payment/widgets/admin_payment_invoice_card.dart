@@ -16,10 +16,8 @@ class AdminPaymentInvoiceCard extends StatelessWidget {
 
   String _formatCurrency(double amount) {
     return NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp',
-      decimalDigits: 0,
-    ).format(amount);
+            locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
+        .format(amount);
   }
 
   @override
@@ -29,10 +27,10 @@ class AdminPaymentInvoiceCard extends StatelessWidget {
       children: [
         Text(
           'Rincian Biaya Layanan',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppTheme.primaryColor,
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 12),
@@ -41,12 +39,13 @@ class AdminPaymentInvoiceCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFDCEEE7), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: AppTheme.primaryColor.withValues(alpha: 0.06),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
-              )
+              ),
             ],
           ),
           child: Column(
@@ -56,27 +55,39 @@ class AdminPaymentInvoiceCard extends StatelessWidget {
                 children: [
                   Text(
                     'Biaya Layanan Puskesmas',
-                    style: GoogleFonts.inter(fontSize: 14),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
                   ),
                   Text(
                     _formatCurrency(payment.registrationFee),
-                    style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
                 ],
               ),
               const Divider(height: 24),
-
               if (prescriptionItems.isNotEmpty) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Biaya Resep Obat',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
                     Text(
                       _formatCurrency(payment.medicineFee),
-                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppTheme.secondaryColor),
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryColor,
+                      ),
                     ),
                   ],
                 ),
@@ -87,19 +98,26 @@ class AdminPaymentInvoiceCard extends StatelessWidget {
                   final qty = item.quantity;
                   final total = price * qty;
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0, left: 12.0),
+                    padding:
+                        const EdgeInsets.only(bottom: 8.0, left: 12.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Text(
                             '$name ($qty x ${_formatCurrency(price)})',
-                            style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 13),
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey.shade600,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                         Text(
                           _formatCurrency(total),
-                          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 13),
+                          style: GoogleFonts.poppins(
+                            color: Colors.grey.shade700,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -107,20 +125,23 @@ class AdminPaymentInvoiceCard extends StatelessWidget {
                 }),
                 const Divider(height: 24),
               ],
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Total Pembayaran',
-                    style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w900),
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black87,
+                    ),
                   ),
                   Text(
                     _formatCurrency(payment.totalAmount),
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      color: AppTheme.secondaryColor,
+                      color: AppTheme.primaryColor,
                     ),
                   ),
                 ],

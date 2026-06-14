@@ -4,7 +4,7 @@ import '../theme/app_theme.dart';
 import 'responsive_helper.dart';
 
 class AppDialogs {
-  // ─── Notification / Error Dialog ─────────────────────────────────────────
+  //notif/error dialog
   static void showNotificationDialog(
     BuildContext context,
     String title,
@@ -47,7 +47,6 @@ class AppDialogs {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title row
                 Row(
                   children: [
                     Icon(
@@ -59,7 +58,7 @@ class AppDialogs {
                     Expanded(
                       child: Text(
                         title,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
                           fontSize: headingSize,
                           color: isError ? AppTheme.errorColor : AppTheme.successColor,
@@ -69,13 +68,12 @@ class AppDialogs {
                   ],
                 ),
                 SizedBox(height: padding * 0.6),
-                // Content
                 Text(
                   message,
-                  style: GoogleFonts.inter(fontSize: bodySize, color: Colors.black87, height: 1.5),
+                  style: GoogleFonts.poppins(fontSize: bodySize, color: Colors.black87, height: 1.5),
                 ),
                 SizedBox(height: padding),
-                // Action button
+                
                 SizedBox(
                   width: double.infinity,
                   height: btnHeight,
@@ -91,7 +89,7 @@ class AppDialogs {
                     ),
                     child: Text(
                       'OK',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: ResponsiveHelper.fontSizeButton(ctx),
                       ),
@@ -106,7 +104,7 @@ class AppDialogs {
     );
   }
 
-  // ─── Success Dialog ───────────────────────────────────────────────────────
+// success dialog
   static Future<void> showSuccessDialog(
     BuildContext context,
     String title,
@@ -152,7 +150,7 @@ class AppDialogs {
                         Expanded(
                           child: Text(
                             title,
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.bold,
                               fontSize: headingSize,
                               color: AppTheme.successColor,
@@ -164,7 +162,7 @@ class AppDialogs {
                     SizedBox(height: padding * 0.6),
                     Text(
                       message,
-                      style: GoogleFonts.inter(fontSize: bodySize, color: Colors.black87, height: 1.5),
+                      style: GoogleFonts.poppins(fontSize: bodySize, color: Colors.black87, height: 1.5),
                     ),
                     SizedBox(height: padding),
                     SizedBox(
@@ -185,7 +183,7 @@ class AppDialogs {
                         ),
                         child: Text(
                           'OK',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold,
                             fontSize: ResponsiveHelper.fontSizeButton(ctx),
                           ),
@@ -202,7 +200,7 @@ class AppDialogs {
     );
   }
 
-  // ─── Confirmation Dialog ──────────────────────────────────────────────────
+// confirm dialog
   static Future<bool?> showConfirmationDialog(
     BuildContext context,
     String title,
@@ -223,7 +221,6 @@ class AppDialogs {
         final maxWidth    = ResponsiveHelper.dialogMaxWidth(ctx);
         final maxHeight   = ResponsiveHelper.dialogMaxHeight(ctx);
 
-        // Normalize confirm label
         final resolvedConfirm = _resolveLabel(confirmText);
         final resolvedCancel  = cancelText == 'BATAL' ? 'Batal' : cancelText;
 
@@ -244,7 +241,7 @@ class AppDialogs {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: headingSize,
                         color: Colors.black87,
@@ -253,7 +250,7 @@ class AppDialogs {
                     SizedBox(height: padding * 0.6),
                     Text(
                       message,
-                      style: GoogleFonts.inter(fontSize: bodySize, color: Colors.black87, height: 1.5),
+                      style: GoogleFonts.poppins(fontSize: bodySize, color: Colors.black87, height: 1.5),
                     ),
                     SizedBox(height: padding),
                     Row(
@@ -271,7 +268,7 @@ class AppDialogs {
                               ),
                               child: Text(
                                 resolvedCancel,
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   color: Colors.grey.shade700,
                                   fontWeight: FontWeight.bold,
                                   fontSize: ResponsiveHelper.fontSizeButton(ctx),
@@ -298,7 +295,7 @@ class AppDialogs {
                               ),
                               child: Text(
                                 resolvedConfirm,
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.bold,
                                   fontSize: ResponsiveHelper.fontSizeButton(ctx),
                                 ),
@@ -318,7 +315,7 @@ class AppDialogs {
     );
   }
 
-  // ─── Helpers ─────────────────────────────────────────────────────────────
+  //helper
   static String _resolveLabel(String raw) {
     const map = {
       'YA, DAFTAR'   : 'Daftar',
@@ -332,7 +329,7 @@ class AppDialogs {
     return map[raw] ?? raw;
   }
 
-  // ─── Loading Dialog ────────────────────────────────────────────────────────
+  //loading dialog
   static void showLoadingDialog(BuildContext context, {String message = 'Memproses...'}) {
     showDialog(
       context: context,
@@ -356,7 +353,7 @@ class AppDialogs {
                   const SizedBox(height: 16),
                   Text(
                     message,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: ResponsiveHelper.fontSizeBody(ctx),
                       color: Colors.black87,

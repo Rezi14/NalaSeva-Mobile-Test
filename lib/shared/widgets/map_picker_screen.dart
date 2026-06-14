@@ -40,7 +40,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       appBar: AppBar(
         title: Text(
           'Pilih Lokasi Puskesmas',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             fontSize: 18,
             color: Colors.black87,
@@ -105,7 +105,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     Expanded(
                       child: Text(
                         'Ketuk di mana saja pada peta untuk meletakkan Pin Lokasi Puskesmas secara presisi.',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: Colors.black87,
                           height: 1.3,
@@ -139,7 +139,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       children: [
                         Text(
                           'Koordinat Terpilih',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey.shade500,
@@ -156,7 +156,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                   Expanded(
                                     child: Text(
                                       'Lat: ${_selectedLocation.latitude.toStringAsFixed(6)}',
-                                      style: GoogleFonts.inter(
+                                      style: GoogleFonts.poppins(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black87,
@@ -176,7 +176,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                   Expanded(
                                     child: Text(
                                       'Lng: ${_selectedLocation.longitude.toStringAsFixed(6)}',
-                                      style: GoogleFonts.inter(
+                                      style: GoogleFonts.poppins(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black87,
@@ -210,7 +210,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                   ),
                   child: Text(
                     'GUNAKAN LOKASI INI',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                     ),

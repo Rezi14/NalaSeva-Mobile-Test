@@ -23,7 +23,7 @@ class _LoginInputDecoration {
   static InputDecoration get({required String hintText, required IconData icon}) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: GoogleFonts.plusJakartaSans(color: Colors.grey.shade400, fontSize: 14),
+      hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 14),
       prefixIcon: Icon(icon, color: AppTheme.primaryColor, size: 20),
       filled: true,
       fillColor: Colors.grey.shade50,
@@ -101,7 +101,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                     children: [
                       Text(
                         'Jadwalkan Cuti Dokter',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
@@ -110,7 +110,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                       const SizedBox(height: 16),
                       Text(
                         'Pilih Dokter',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -134,7 +134,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                                 value: doc,
                                 child: Text(
                                   doc.name,
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: Colors.black87,
@@ -155,7 +155,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                       const SizedBox(height: 20),
                       Text(
                         'Tanggal Mulai Cuti',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -200,7 +200,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                             children: [
                               Text(
                                 DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(selectedDate),
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   color: Colors.black87,
                                   fontWeight: FontWeight.w500,
@@ -214,7 +214,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                       const SizedBox(height: 20),
                       Text(
                         'Alasan Cuti',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -223,7 +223,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: reasonController,
-                        style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                        style: GoogleFonts.poppins(fontSize: 14),
                         decoration: _LoginInputDecoration.get(
                           hintText: 'Contoh: Menghadiri Seminar Medis',
                           icon: Icons.notes_rounded,
@@ -247,8 +247,8 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                                     context,
                                     'Batalkan Cuti Dokter?',
                                     'Apakah Anda yakin ingin membatalkan pengisian jadwal cuti ini?',
-                                    confirmText: 'YA, BATALKAN',
-                                    cancelText: 'KEMBALI',
+                                    confirmText: 'Batalkan',
+                                    cancelText: 'Kembali',
                                     isDestructive: true,
                                   );
                                   if ((confirm ?? false) && context.mounted) {
@@ -267,7 +267,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                               ),
                               child: Text(
                                 'Batal',
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.grey.shade700,
                                 ),
@@ -281,14 +281,13 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                                   ? null
                                   : () async {
                                       if (!formKey.currentState!.validate()) return;
-                                      
                                       final provider = context.read<AdminProvider>();
                                       final confirm = await AppDialogs.showConfirmationDialog(
                                         context,
                                         'Jadwal Cuti Dokter?',
                                         'Apakah Anda yakin ingin mendaftarkan cuti untuk dokter ini?',
-                                        confirmText: 'YA, DAFTARKAN',
-                                        cancelText: 'BATAL',
+                                        confirmText: 'Daftarkan',
+                                        cancelText: 'Batal',
                                       );
                                       if (!(confirm ?? false)) return;
 
@@ -336,7 +335,7 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
                                     )
                                   : Text(
                                       'Simpan',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: GoogleFonts.poppins(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -368,13 +367,12 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
       matchedDoctor = provider.doctors.firstWhere((d) => d.id == doctorId);
     } catch (_) {}
     final doctorName = matchedDoctor?.name ?? 'dokter ini';
-
     final confirmed = await AppDialogs.showConfirmationDialog(
       context,
       'Hapus Data Cuti?',
       'Apakah Anda yakin ingin menghapus jadwal cuti $doctorName? Tindakan ini tidak dapat dibatalkan.',
-      confirmText: 'YA, HAPUS',
-      cancelText: 'BATAL',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
       isDestructive: true,
     );
     if (!(confirmed ?? false) || !context.mounted) return;
@@ -401,177 +399,177 @@ class _AdminDoctorLeavesScreenState extends State<AdminDoctorLeavesScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
-
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Colors.white,
       body: ResponsiveCenter(
         maxWidth: 800,
         child: Column(
           children: [
-          // Header
-          FadeIn(
-            duration: const Duration(milliseconds: 400),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
+            FadeIn(
+              duration: const Duration(milliseconds: 400),
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: AppTheme.backgroundGradient,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Cuti Dokter',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            Text(
-                              'Kelola jadwal cuti dokter Puskesmas',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Cuti Dokter',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white, 
+                                ),
+                              ),
+                              Text(
+                                'Kelola jadwal cuti dokter Puskesmas',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.white.withValues(alpha: 0.8), 
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Main list
-          Expanded(
-            child: provider.isLoading && provider.doctorLeaves.isEmpty
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
-                : provider.doctorLeaves.isEmpty
-                    ? Center(
-                        child: AnimationConfiguration.staggeredList(
-                          position: 0,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            verticalOffset: 50.0,
-                            child: FadeInAnimation(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(24),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                                      shape: BoxShape.circle,
+            // Main list
+            Expanded(
+              child: provider.isLoading && provider.doctorLeaves.isEmpty
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
+                  : provider.doctorLeaves.isEmpty
+                      ? Center(
+                          child: AnimationConfiguration.staggeredList(
+                            position: 0,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 50.0,
+                              child: FadeInAnimation(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.person_off_rounded,
+                                        size: 72,
+                                        color: AppTheme.primaryColor,
+                                      ),
                                     ),
-                                    child: const Icon(
-                                      Icons.person_off_rounded,
-                                      size: 72,
-                                      color: AppTheme.primaryColor,
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      'Tidak Ada Dokter Cuti',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Text(
-                                    'Tidak Ada Dokter Cuti',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Seluruh dokter aktif bertugas di poliklinik.',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Seluruh dokter aktif bertugas di poliklinik.',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        color: AppTheme.primaryColor,
-                        onRefresh: () => provider.fetchDoctorLeaves(),
-                        child: AnimationLimiter(
-                          child: ListView.builder(
-                            padding: const EdgeInsets.all(24),
-                            itemCount: provider.doctorLeaves.length,
-                            itemBuilder: (context, index) {
-                              final leave = provider.doctorLeaves[index];
-                              final doctorId = int.tryParse(leave['doctor_id']?.toString() ?? '') ?? 0;
-                              final dateStr = leave['leave_date']?.toString() ?? '';
-                              final reason = leave['reason']?.toString() ?? 'Cuti Tahunan';
-                              
-                              // Find doctor info
-                              DoctorModel? matchedDoctor;
-                              try {
-                                matchedDoctor = provider.doctors.firstWhere((d) => d.id == doctorId);
-                              } catch (e) {
-                                debugPrint('AdminDoctorLeavesScreen: doctor dengan id $doctorId tidak ditemukan: $e');
-                              }
+                        )
+                      : RefreshIndicator(
+                          color: AppTheme.primaryColor,
+                          onRefresh: () => provider.fetchDoctorLeaves(),
+                          child: AnimationLimiter(
+                            child: ListView.builder(
+                              padding: const EdgeInsets.all(24),
+                              itemCount: provider.doctorLeaves.length,
+                              itemBuilder: (context, index) {
+                                final leave = provider.doctorLeaves[index];
+                                final doctorId = int.tryParse(leave['doctor_id']?.toString() ?? '') ?? 0;
+                                final dateStr = leave['leave_date']?.toString() ?? '';
+                                final reason = leave['reason']?.toString() ?? 'Cuti Tahunan';
+                                
+                                // Find doctor info
+                                DoctorModel? matchedDoctor;
+                                try {
+                                  matchedDoctor = provider.doctors.firstWhere((d) => d.id == doctorId);
+                                } catch (e) {
+                                  debugPrint('AdminDoctorLeavesScreen: doctor dengan id $doctorId tidak ditemukan: $e');
+                                }
 
-                              final doctorName = matchedDoctor?.name ?? 'Dokter ID: $doctorId';
-                              final polyclinicName = matchedDoctor?.polyclinic?.name ?? 'Poliklinik';
+                                final doctorName = matchedDoctor?.name ?? 'Dokter ID: $doctorId';
+                                final polyclinicName = matchedDoctor?.polyclinic?.name ?? 'Poliklinik';
 
-                              final parsedDate = DateTimeParser.parseDateOnly(dateStr);
-
-                              final formattedDate = parsedDate != null
-                                  ? DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(parsedDate)
-                                  : dateStr;
-
-                              return AnimationConfiguration.staggeredList(
-                                position: index,
-                                duration: const Duration(milliseconds: 375),
-                                child: SlideAnimation(
-                                  verticalOffset: 50.0,
-                                  child: FadeInAnimation(
-                                    child: AdminDoctorLeaveCard(
-                                      doctorName: doctorName,
-                                      polyclinicName: polyclinicName,
-                                      reason: reason,
-                                      formattedDate: formattedDate,
-                                      onDelete: () => _deleteLeave(context, leave),
+                                final parsedDate = DateTimeParser.parseDateOnly(dateStr);
+                                final formattedDate = parsedDate != null
+                                    ? DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(parsedDate)
+                                    : dateStr;
+                                return AnimationConfiguration.staggeredList(
+                                  position: index,
+                                  duration: const Duration(milliseconds: 375),
+                                  child: SlideAnimation(
+                                    verticalOffset: 50.0,
+                                    child: FadeInAnimation(
+                                      child: AdminDoctorLeaveCard(
+                                        doctorName: doctorName,
+                                        polyclinicName: polyclinicName,
+                                        reason: reason,
+                                        formattedDate: formattedDate,
+                                        onDelete: () => _deleteLeave(context, leave),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
-    ),
+
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddLeaveSheet(context),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_rounded),
+        icon: const Icon(Icons.event_note_rounded, size: 22),
         label: Text(
-          'JADWALKAN CUTI',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+          'Buat Cuti', 
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold, 
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );

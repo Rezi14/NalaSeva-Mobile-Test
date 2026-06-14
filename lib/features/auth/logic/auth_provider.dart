@@ -31,7 +31,7 @@ class AuthProvider extends ChangeNotifier {
       _user = result['user'];
       await _storage.write(key: 'access_token', value: result['token']);
       
-      // Fetch full profile with full relationship properties (patient, doctor, etc.)
+      // Fetch full profile 
       try {
         final fullProfile = await _repository.getProfile();
         _user = fullProfile;

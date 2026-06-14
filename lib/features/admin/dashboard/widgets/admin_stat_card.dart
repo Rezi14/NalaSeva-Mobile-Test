@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AdminStatCard extends StatelessWidget {
   final String label;
@@ -17,6 +16,8 @@ class AdminStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Expanded(
       child: Card(
         margin: EdgeInsets.zero,
@@ -45,7 +46,7 @@ class AdminStatCard extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -56,7 +57,7 @@ class AdminStatCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     value,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: theme.textTheme.titleLarge?.copyWith(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

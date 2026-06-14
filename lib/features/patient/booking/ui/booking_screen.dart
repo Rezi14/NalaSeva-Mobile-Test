@@ -92,7 +92,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                         children: [
                                           Text(
                                             'Ambil Antrean',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black87,
@@ -101,7 +101,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                           const SizedBox(height: 4),
                                           Text(
                                             'Daftar antrean poliklinik secara online',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 13,
                                               color: Colors.grey,
                                             ),
@@ -145,7 +145,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   value: p.id,
                                   child: Text(
                                     p.name,
-                                    style: GoogleFonts.inter(fontSize: 14),
+                                    style: GoogleFonts.poppins(fontSize: 14),
                                   ),
                                 ),
                               )
@@ -201,7 +201,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   s.id, // Using schedule ID for more precision
                               child: Text(
                                 "$doctorName (${s.dayOfWeek}, $startStr - $endStr | $quotaText)",
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.poppins(
                                   fontSize: 12,
                                   color: Colors.black87,
                                   fontWeight: FontWeight.normal,
@@ -346,7 +346,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                             : _formatIndonesianDate(
                                                 selectedDate,
                                               ),
-                                        style: GoogleFonts.inter(
+                                        style: GoogleFonts.poppins(
                                           color: selectedDoctorId == null
                                               ? Colors.grey.shade400
                                               : Colors.black87,
@@ -358,7 +358,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           'Klik untuk mengganti tanggal kunjungan',
-                                          style: GoogleFonts.inter(
+                                          style: GoogleFonts.poppins(
                                             color: Colors.grey,
                                             fontSize: 11,
                                           ),
@@ -403,7 +403,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                     children: [
                                       Text(
                                         'Layanan Antrean Prioritas',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14,
                                           color: Colors.amber.shade900,
@@ -412,7 +412,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                       const SizedBox(height: 2),
                                       Text(
                                         'Anda terdeteksi sebagai lansia (usia >= 60 tahun). Antrean Anda akan secara otomatis didahulukan oleh sistem.',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.amber.shade800,
                                         ),
@@ -446,7 +446,7 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.plusJakartaSans(
+      style: GoogleFonts.poppins(
         fontSize: 16,
         fontWeight: FontWeight.bold,
         color: Colors.black87,
@@ -476,8 +476,8 @@ class _BookingScreenState extends State<BookingScreen> {
         child: provider.isLoading
             ? const CircularProgressIndicator(color: Colors.white)
             : Text(
-                'KONFIRMASI PENDAFTARAN',
-                style: GoogleFonts.plusJakartaSans(
+                'Konfirmasi Pendaftaran',
+                style: GoogleFonts.poppins(
                   fontWeight: FontWeight.bold,
                   color: canSubmit ? Colors.white : Colors.grey,
                 ),

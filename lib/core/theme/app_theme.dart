@@ -2,43 +2,63 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Colors
-  static const Color primaryColor = Color(0xFF059669); // Emerald Green
-  static const Color accentColor = Color(0xFF3B82F6); // Blue
-  static const Color secondaryColor = Color(0xFF1D4ED8); // Royal Blue
-  static const Color backgroundColor = Color(0xFFF8FAFC); // Slate 50
-  static const Color cardColor = Colors.white;
-  static const Color errorColor = Color(0xFFEF4444); // Bright Scarlet Red (Errors / Toast alerts)
-  static const Color successColor = Color(0xFF10B981);
-  static const Color warningColor = Color(0xFFF59E0B); // Amber / Orange
-  static const Color editColor = Color(0xFFF59E0B); // Yellow/Amber
-  static const Color deleteColor = Color(0xFFB91C1C); // Deep Burgundy / Crimson Red (Destructive Delete action)
-  static const Color cancelColor = Color(0xFFF43F5E); // Vibrant Coral / Rose Red (Cancel Status)
+  static const Color primaryColor   = Color(0xFF1B5E42);
+  static const Color accentColor    = Color(0xFF2D8C6B);
+  static const Color secondaryColor = Color(0xFF4CAF87);
+  static const Color backgroundColor = Color(0xFFF1F8F5);
+  static const Color cardColor      = Colors.white;
+  static const Color errorColor     = Color(0xFFEF4444);
+  static const Color successColor   = Color(0xFF2D8C6B);
+  static const Color warningColor   = Color(0xFFF59E0B);
+  static const Color editColor      = Color(0xFFF59E0B);
+  static const Color deleteColor    = Color(0xFFB91C1C);
+  static const Color cancelColor    = Color(0xFFF43F5E);
 
-  // Text Styles
-  static final TextTheme _textTheme = GoogleFonts.outfitTextTheme().copyWith(
-    displayLarge: GoogleFonts.outfit(
+  static const LinearGradient backgroundGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF6BCB9E),
+      Color(0xFF4CAF87),
+      Color(0xFF3B9E8A),
+      Color(0xFFB2D8D0),
+    ],
+    stops: [0.0, 0.35, 0.65, 1.0],
+  );
+
+  static final TextTheme _textTheme = GoogleFonts.poppinsTextTheme().copyWith(
+    displayLarge: GoogleFonts.poppins(
       fontSize: 32,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    ),
+    displayMedium: GoogleFonts.poppins(
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+      color: Colors.white,
+    ),
+    headlineMedium: GoogleFonts.poppins(
+      fontSize: 22,
       fontWeight: FontWeight.bold,
       color: primaryColor,
     ),
-    displayMedium: GoogleFonts.outfit(
-      fontSize: 24,
+    titleLarge: GoogleFonts.poppins(
+      fontSize: 20,
       fontWeight: FontWeight.w600,
       color: primaryColor,
     ),
-    titleLarge: GoogleFonts.outfit(
-      fontSize: 20,
-      fontWeight: FontWeight.w600,
-      color: Colors.black87,
-    ),
-    bodyLarge: GoogleFonts.outfit(
+    bodyLarge: GoogleFonts.poppins(
       fontSize: 16,
-      color: Colors.black87,
+      color: primaryColor,
     ),
-    bodyMedium: GoogleFonts.outfit(
+    bodyMedium: GoogleFonts.poppins(
       fontSize: 14,
       color: Colors.black54,
+    ),
+    labelLarge: GoogleFonts.poppins(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: Colors.white,
     ),
   );
 
@@ -54,44 +74,75 @@ class AppTheme {
         surface: backgroundColor,
         error: errorColor,
       ),
-      scaffoldBackgroundColor: backgroundColor,
+
+      scaffoldBackgroundColor: Colors.transparent,
       textTheme: _textTheme,
-      appBarTheme: const AppBarTheme(
+
+      fontFamily: GoogleFonts.poppins().fontFamily,
+      appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: TextStyle(
-          color: primaryColor,
+        titleTextStyle: GoogleFonts.poppins(
+          color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(color: primaryColor),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 56),
+          textStyle: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          elevation: 2,
+          elevation: 0,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          textStyle: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Colors.white.withValues(alpha: 0.9),
+        hintStyle: GoogleFonts.poppins(
+          fontSize: 14,
+          color: Colors.grey.shade400,
+        ),
+        labelStyle: GoogleFonts.poppins(
+          fontSize: 14,
+          color: Colors.grey.shade600,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFFCDE8DE), width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFFCDE8DE), width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: primaryColor, width: 2),
+          borderSide: const BorderSide(color: accentColor, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: errorColor, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: errorColor, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
@@ -99,8 +150,8 @@ class AppTheme {
         color: cardColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Color(0xFFDCEEE7), width: 1),
         ),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
@@ -118,19 +169,17 @@ class AppTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: Colors.white,
         elevation: 8,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
-        titleTextStyle: TextStyle(
-          fontFamily: 'PlusJakartaSans',
+        titleTextStyle: GoogleFonts.poppins(
           fontSize: 17,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: AppTheme.primaryColor,
         ),
-        contentTextStyle: TextStyle(
-          fontFamily: 'Inter',
+        contentTextStyle: GoogleFonts.poppins(
           fontSize: 13,
-          color: Colors.black87,
+          color: AppTheme.primaryColor,
           height: 1.5,
         ),
       ),
@@ -139,5 +188,5 @@ class AppTheme {
 }
 
 extension ColorExtension on Color {
-  static const Color blackDE = Color(0xDE000000);
+  static const Color greenDE = Color(0xFF1B5E42);
 }

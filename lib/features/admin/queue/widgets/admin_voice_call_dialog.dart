@@ -76,7 +76,7 @@ class AdminVoiceCallDialog {
                             SizedBox(height: padding),
                             Text(
                               'PANGGILAN SUARA',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontSize: fCap,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.primaryColor,
@@ -86,7 +86,7 @@ class AdminVoiceCallDialog {
                             const SizedBox(height: 6),
                             Text(
                               queue.queueNumber,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontSize: qNumSz,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.black87,
@@ -96,7 +96,7 @@ class AdminVoiceCallDialog {
                             Text(
                               queue.patient.fullName,
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontSize: fBody,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey.shade700,
@@ -106,7 +106,7 @@ class AdminVoiceCallDialog {
                             Text(
                               '🔊 "Memanggil nomor antrean ${queue.queueNumber}, ${queue.patient.fullName}, ke Ruang Pemeriksaan ${queue.polyclinic.name}..."',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.poppins(
                                 fontSize: fCap,
                                 color: Colors.grey.shade500,
                                 fontStyle: FontStyle.italic,
@@ -165,7 +165,7 @@ class AdminVoiceCallDialog {
                                 ),
                                 child: Text(
                                   'PANGGIL & MASUKKAN',
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.poppins(
                                     fontWeight: FontWeight.bold,
                                     fontSize: ResponsiveHelper.fontSizeButton(ctx),
                                   ),
@@ -177,7 +177,7 @@ class AdminVoiceCallDialog {
                               onPressed: () => Navigator.pop(ctx),
                               child: Text(
                                 'Batal',
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   color: Colors.grey.shade600,
                                   fontWeight: FontWeight.bold,
                                   fontSize: fBody,

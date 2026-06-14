@@ -84,30 +84,31 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   Widget _filterChip({required String label, required String? role}) {
     final isSelected = _selectedRoleFilter == role;
-    return ChoiceChip(
-      label: Text(
-        label,
-        style: GoogleFonts.plusJakartaSans(
-          fontSize: 12,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Colors.white : Colors.black87,
+    return GestureDetector(
+      onTap: () => setState(
+          () => _selectedRoleFilter = isSelected ? null : role),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isSelected
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.5),
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: isSelected ? AppTheme.primaryColor : Colors.white,
+          ),
         ),
       ),
-      selected: isSelected,
-      selectedColor: AppTheme.primaryColor,
-      backgroundColor: Colors.grey.shade100,
-      checkmarkColor: Colors.white,
-      side: BorderSide(
-        color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      onSelected: (selected) {
-        setState(() {
-          _selectedRoleFilter = selected ? role : null;
-        });
-      },
     );
   }
 
@@ -118,21 +119,30 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: AppTheme.backgroundColor,
+        backgroundColor: Colors.white,
         floatingActionButton: ResponsiveCenter(
           maxWidth: 950,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Align(
             alignment: Alignment.bottomRight,
-            child: FloatingActionButton(
+            child: FloatingActionButton.extended(
               onPressed: () => _showUserForm(context),
               backgroundColor: AppTheme.primaryColor,
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+              icon: const Icon(Icons.person_add_rounded, color: Colors.white, size: 24),
+              label: const Text(
+                'Tambah Baru',
+                style: TextStyle(
+                  color: Colors.white, 
+                  fontSize: 16, 
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ),
+
         body: Consumer<AdminProvider>(
           builder: (context, provider, child) {
             final filteredUsers = provider.users.where((user) {
@@ -148,15 +158,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               maxWidth: 950,
               child: Column(
                 children: [
-                // Premium Header Block
                 FadeIn(
                   duration: const Duration(milliseconds: 400),
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: Colors.white,
+                      gradient: AppTheme.backgroundGradient,
                       borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(24),
-                        bottomRight: Radius.circular(24),
+                        bottomLeft: Radius.circular(28),
+                        bottomRight: Radius.circular(28),
                       ),
                     ),
                     child: SafeArea(
@@ -175,36 +184,49 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   child: FadeInAnimation(
                                     child: Row(
                                       children: [
-                                        IconButton(
-                                          onPressed: () {
-                                            if (Navigator.canPop(context)) {
-                                              Navigator.pop(context);
-                                            } else {
-                                              Navigator.pushReplacementNamed(context, '/admin/home');
-                                            }
-                                          },
-                                          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
+                                        Container(
+                                          width: 44,
+                                          height: 44,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(alpha: 0.25),
+                                            borderRadius: BorderRadius.circular(14),
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () {
+                                              if (Navigator.canPop(context)) {
+                                                Navigator.pop(context);
+                                              } else {
+                                                Navigator.pushReplacementNamed(context, '/admin/home');
+                                              }
+                                            },
+                                            icon: const Icon(
+                                              Icons.arrow_back_ios_new_rounded,
+                                              size: 18,
+                                              color: Colors.white,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                          ),
                                         ),
                                         const SizedBox(width: 16),
+
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 'Manajemen Pengguna',
-                                                style: GoogleFonts.plusJakartaSans(
-                                                  fontSize: 24,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 22,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.black87,
+                                                  color: Colors.white,
                                                 ),
                                               ),
                                               Text(
                                                 'Kelola akun, hak akses & profil pengguna sistem',
-                                                style: GoogleFonts.plusJakartaSans(
+                                                style: GoogleFonts.poppins(
                                                   fontSize: 13,
-                                                  color: Colors.grey,
+                                                  color: Colors.white.withValues(alpha: 0.8),
                                                 ),
                                               ),
                                             ],
@@ -216,7 +238,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              // Search Input Column
+                              // Search 
                               AnimationConfiguration.staggeredList(
                                 position: 1,
                                 duration: const Duration(milliseconds: 375),
@@ -229,13 +251,13 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                           child: TextField(
                                             controller: _searchController,
                                             onChanged: (val) => setState(() => _searchQuery = val),
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 14,
-                                              color: Colors.black87,
+                                              color: Colors.white,
                                             ),
                                             decoration: InputDecoration(
                                               hintText: 'Cari nama atau email...',
-                                              hintStyle: GoogleFonts.plusJakartaSans(
+                                              hintStyle: GoogleFonts.poppins(
                                                 color: Colors.grey.shade400,
                                                 fontSize: 14,
                                               ),
@@ -250,7 +272,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                                     )
                                                   : null,
                                               filled: true,
-                                              fillColor: Colors.grey.shade100,
+                                              fillColor: Colors.white.withValues(alpha: 0.9),
                                               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                                               border: OutlineInputBorder(
                                                 borderRadius: BorderRadius.circular(12),
@@ -269,7 +291,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              // Filter horizontal ChoiceChips
+                              // Filter 
                               AnimationConfiguration.staggeredList(
                                 position: 2,
                                 duration: const Duration(milliseconds: 375),
@@ -303,7 +325,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     ),
                   ),
                 ),
-                // Rest of the List in Expanded
+
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: provider.fetchUsers,
@@ -325,7 +347,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   Text(
                                     provider.error!,
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.grey[700]),
+                                    style: GoogleFonts.poppins(color: Colors.grey[700]),
                                   ),
                                   const SizedBox(height: 16),
                                   ElevatedButton(
@@ -346,7 +368,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
                               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                gradient: AppTheme.backgroundGradient,
                                 borderRadius: BorderRadius.circular(24),
                                 border: Border.all(color: Colors.grey.shade100),
                                 boxShadow: [
@@ -375,10 +397,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   const SizedBox(height: 24),
                                   Text(
                                     isFiltering ? 'Hasil Tidak Ditemukan' : 'Tidak Ada Pengguna',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.poppins(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                      color: Colors.white,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -387,7 +409,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                     isFiltering
                                         ? 'Tidak ada data akun pengguna yang cocok dengan pencarian atau filter aktif Anda. Silakan coba atur ulang pencarian.'
                                         : 'Belum ada data akun pengguna yang terdaftar di dalam sistem saat ini.',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.poppins(
                                       fontSize: 13,
                                       color: Colors.grey.shade600,
                                       height: 1.5,
@@ -407,7 +429,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                       icon: const Icon(Icons.refresh_rounded, size: 18),
                                       label: Text(
                                         'Reset Pencarian & Filter',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -446,7 +468,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                       margin: const EdgeInsets.only(bottom: 16),
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        gradient: AppTheme.backgroundGradient,
                                         borderRadius: BorderRadius.circular(20),
                                         boxShadow: [
                                           BoxShadow(
@@ -456,11 +478,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                           )
                                         ],
                                       ),
-                                      child: Row(
+                                      child: 
+                                      Row(
                                         children: [
                                           CircleAvatar(
                                             radius: 26,
-                                            backgroundColor: roleColor.withValues(alpha: 0.1),
+                                            backgroundColor: Colors.white,
                                             child: Icon(
                                               _getRoleIcon(user.role),
                                               color: roleColor,
@@ -477,53 +500,59 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                                     Expanded(
                                                       child: Text(
                                                         user.name,
-                                                        style: GoogleFonts.plusJakartaSans(
+                                                        style: GoogleFonts.poppins(
                                                           fontWeight: FontWeight.bold,
                                                           fontSize: 15,
-                                                          color: Colors.black87,
+                                                          color: Colors.white,
                                                         ),
                                                       ),
                                                     ),
                                                     if (isSelf)
-                                                      Container(
-                                                        margin: const EdgeInsets.only(left: 8),
-                                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                                        decoration: BoxDecoration(
-                                                          color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                                                          borderRadius: BorderRadius.circular(8),
-                                                        ),
-                                                        child: Text(
-                                                          'ANDA',
-                                                          style: GoogleFonts.plusJakartaSans(
-                                                            fontSize: 9,
-                                                            fontWeight: FontWeight.w900,
-                                                            color: AppTheme.primaryColor,
+                                                      Transform.translate(
+                                                        offset: const Offset(40, 0),
+                                                        child: Container(
+                                                          padding: const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 10,
+                                                          ),
+                                                          decoration: BoxDecoration(
+                                                            color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                                                            borderRadius: BorderRadius.circular(8),
+                                                          ),
+                                                          child: Text(
+                                                            'Anda',
+                                                            style: GoogleFonts.poppins(
+                                                              fontSize: 9,
+                                                              fontWeight: FontWeight.w900,
+                                                              color: AppTheme.primaryColor,
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
                                                   ],
                                                 ),
                                                 const SizedBox(height: 4),
+                                                
                                                 Text(
                                                   user.email,
-                                                  style: GoogleFonts.plusJakartaSans(
+                                                  style: GoogleFonts.poppins(
                                                     fontSize: 13,
-                                                    color: Colors.grey.shade600,
+                                                    color: Colors.white.withValues(alpha: 0.8),
                                                   ),
                                                 ),
                                                 const SizedBox(height: 8),
                                                 Container(
                                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                                   decoration: BoxDecoration(
-                                                    color: roleColor.withValues(alpha: 0.1),
+                                                    color: Colors.white.withValues(alpha: 0.15),
                                                     borderRadius: BorderRadius.circular(8),
                                                   ),
                                                   child: Text(
                                                     _getRoleDisplayName(user.role),
-                                                    style: GoogleFonts.plusJakartaSans(
+                                                    style: GoogleFonts.poppins(
                                                       fontSize: 10,
                                                       fontWeight: FontWeight.bold,
-                                                      color: roleColor,
+                                                      color: Colors.white,
                                                     ),
                                                   ),
                                                 ),
@@ -531,19 +560,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                             ),
                                           ),
                                           const SizedBox(width: 8),
-                                          // Action Buttons
                                           Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               IconButton(
-                                                icon: const Icon(Icons.edit_rounded, color: AppTheme.editColor, size: 22),
+                                                icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 22),
                                                 onPressed: () => _showUserForm(context, user: user),
                                                 constraints: const BoxConstraints(),
                                                 padding: const EdgeInsets.all(8),
                                               ),
-                                              if (!isSelf) // Cannot delete self
+                                              if (!isSelf)
                                                 IconButton(
-                                                  icon: const Icon(Icons.delete_outline_rounded, color: AppTheme.errorColor, size: 22),
+                                                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 22),
                                                   onPressed: () => _confirmDeleteUser(context, user),
                                                   constraints: const BoxConstraints(),
                                                   padding: const EdgeInsets.all(8),
@@ -577,8 +605,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       context,
       'Hapus Akun Pengguna',
       'Apakah Anda yakin ingin menghapus akun ${user.name}? Tindakan ini tidak dapat dibatalkan.',
-      confirmText: 'YA, HAPUS',
-      cancelText: 'BATAL',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
       isDestructive: true,
     );
 
@@ -636,19 +664,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 const SizedBox(height: 20),
                 Text(
                   isEdit ? 'Edit Akun Pengguna' : 'Tambah Pengguna Baru',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: AppTheme.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 24),
                 TextFormField(
                   controller: nameController,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                  style: GoogleFonts.poppins(fontSize: 14),
                   decoration: InputDecoration(
                     labelText: 'Nama Lengkap',
-                    labelStyle: GoogleFonts.plusJakartaSans(fontSize: 14),
+                    labelStyle: GoogleFonts.poppins(fontSize: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     prefixIcon: const Icon(Icons.person_outline_rounded),
                   ),
@@ -657,10 +685,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: emailController,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                  style: GoogleFonts.poppins(fontSize: 14),
                   decoration: InputDecoration(
                     labelText: 'Alamat Email',
-                    labelStyle: GoogleFonts.plusJakartaSans(fontSize: 14),
+                    labelStyle: GoogleFonts.poppins(fontSize: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     prefixIcon: const Icon(Icons.mail_outline_rounded),
                   ),
@@ -670,10 +698,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 if (!isEdit) ...[
                   TextFormField(
                     controller: passwordController,
-                    style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                    style: GoogleFonts.poppins(fontSize: 14),
                     decoration: InputDecoration(
                       labelText: 'Kata Sandi',
-                      labelStyle: GoogleFonts.plusJakartaSans(fontSize: 14),
+                      labelStyle: GoogleFonts.poppins(fontSize: 14),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       prefixIcon: const Icon(Icons.lock_outline_rounded),
                     ),
@@ -684,10 +712,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 ],
                 TextFormField(
                   controller: phoneController,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                  style: GoogleFonts.poppins(fontSize: 14),
                   decoration: InputDecoration(
                     labelText: 'Nomor HP (Opsional)',
-                    labelStyle: GoogleFonts.plusJakartaSans(fontSize: 14),
+                    labelStyle: GoogleFonts.poppins(fontSize: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     prefixIcon: const Icon(Icons.phone_outlined),
                   ),
@@ -696,11 +724,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: addressController,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                  style: GoogleFonts.poppins(fontSize: 14),
                   maxLines: 2,
                   decoration: InputDecoration(
                     labelText: 'Alamat Lengkap (Opsional)',
-                    labelStyle: GoogleFonts.plusJakartaSans(fontSize: 14),
+                    labelStyle: GoogleFonts.poppins(fontSize: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     prefixIcon: const Icon(Icons.location_on_outlined),
                   ),
@@ -708,10 +736,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   initialValue: selectedRole,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 14, color: Colors.black87),
+                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Peran (Role)',
-                    labelStyle: GoogleFonts.plusJakartaSans(fontSize: 14),
+                    labelStyle: GoogleFonts.poppins(fontSize: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     prefixIcon: const Icon(Icons.admin_panel_settings_outlined),
                   ),
@@ -748,8 +776,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               isEdit
                                   ? 'Apakah Anda yakin ingin membatalkan perubahan data pengguna? Perubahan yang belum disimpan akan hilang.'
                                   : 'Apakah Anda yakin ingin membatalkan pendaftaran pengguna baru? Data yang sudah dimasukkan akan hilang.',
-                              confirmText: 'YA, BATALKAN',
-                              cancelText: 'KEMBALI',
+                              confirmText: 'Batalkan',
+                              cancelText: 'Kembali',
                               isDestructive: true,
                             );
                             if ((confirm ?? false) && context.mounted) {
@@ -768,7 +796,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         ),
                         child: Text(
                           'Batal',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold,
                             color: Colors.grey.shade700,
                           ),
@@ -816,8 +844,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           ),
                         ),
                         child: Text(
-                          isEdit ? 'Update' : 'Simpan',
-                          style: GoogleFonts.plusJakartaSans(
+                          isEdit ? 'Perbarui' : 'Simpan',
+                          style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),

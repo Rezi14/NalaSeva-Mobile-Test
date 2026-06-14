@@ -49,7 +49,6 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Fullscreen Mobile Scanner
           Positioned.fill(
             child: MobileScanner(
               controller: _controller,
@@ -129,14 +128,12 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
             ),
           ),
 
-          // Custom Premium Glassmorphic Mask & Neon Border Overlay
           Positioned.fill(
             child: CustomPaint(
               painter: ScannerOverlayPainter(),
             ),
           ),
 
-          // Animated Scanner Laser Line
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) {
@@ -170,7 +167,6 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
             },
           ),
 
-          // Floating Top Control Bar (Glassmorphic)
           Positioned(
             top: 48,
             left: 24,
@@ -178,7 +174,6 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Back Button
                 ClipOval(
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -197,10 +192,10 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
                     ),
                   ),
                 ),
-                // Top Center Title
+
                 Text(
-                  'Scan Absensi',
-                  style: GoogleFonts.plusJakartaSans(
+                  'Scan Antrean',
+                  style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -213,10 +208,10 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
                     ],
                   ),
                 ),
-                // Control Action Buttons
+                // Control btn
                 Row(
                   children: [
-                    // Flash Button
+                    // Flash 
                     ClipOval(
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -238,7 +233,7 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // Switch Camera Button
+                    // Switch Camera 
                     ClipOval(
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -276,7 +271,7 @@ class _QRScannerPageState extends State<QRScannerPage> with SingleTickerProvider
                     _isScanning 
                         ? 'Arahkan kamera ke QR Code Pasien' 
                         : 'Memproses tiket antrean...',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -359,7 +354,6 @@ class ScannerOverlayPainter extends CustomPainter {
       paint,
     );
 
-    // Neon glowing corners
     final borderPaint = Paint()
       ..color = AppTheme.primaryColor
       ..style = PaintingStyle.stroke
@@ -369,7 +363,6 @@ class ScannerOverlayPainter extends CustomPainter {
     final double cornerLength = 32.0;
     final double radius = 24.0;
 
-    // Top Left Corner
     final topLeftPath = Path()
       ..moveTo(cutoutLeft, cutoutTop + cornerLength)
       ..lineTo(cutoutLeft, cutoutTop + radius)
@@ -377,7 +370,6 @@ class ScannerOverlayPainter extends CustomPainter {
       ..lineTo(cutoutLeft + cornerLength, cutoutTop);
     canvas.drawPath(topLeftPath, borderPaint);
 
-    // Top Right Corner
     final topRightPath = Path()
       ..moveTo(cutoutLeft + cutoutWidth - cornerLength, cutoutTop)
       ..lineTo(cutoutLeft + cutoutWidth - radius, cutoutTop)
@@ -385,7 +377,6 @@ class ScannerOverlayPainter extends CustomPainter {
       ..lineTo(cutoutLeft + cutoutWidth, cutoutTop + cornerLength);
     canvas.drawPath(topRightPath, borderPaint);
 
-    // Bottom Left Corner
     final bottomLeftPath = Path()
       ..moveTo(cutoutLeft, cutoutTop + cutoutHeight - cornerLength)
       ..lineTo(cutoutLeft, cutoutTop + cutoutHeight - radius)
@@ -393,7 +384,6 @@ class ScannerOverlayPainter extends CustomPainter {
       ..lineTo(cutoutLeft + cornerLength, cutoutTop + cutoutHeight);
     canvas.drawPath(bottomLeftPath, borderPaint);
 
-    // Bottom Right Corner
     final bottomRightPath = Path()
       ..moveTo(cutoutLeft + cutoutWidth - cornerLength, cutoutTop + cutoutHeight)
       ..lineTo(cutoutLeft + cutoutWidth - radius, cutoutTop + cutoutHeight)

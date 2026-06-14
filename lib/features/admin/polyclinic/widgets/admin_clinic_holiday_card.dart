@@ -21,15 +21,9 @@ class AdminClinicHolidayCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: AppTheme.backgroundGradient,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -38,12 +32,12 @@ class AdminClinicHolidayCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: Colors.white.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.event_busy_rounded,
-                color: Colors.red.shade400,
+                color: Colors.white,
                 size: 24,
               ),
             ),
@@ -54,18 +48,18 @@ class AdminClinicHolidayCard extends StatelessWidget {
                 children: [
                   Text(
                     description,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black87,
+                      fontSize: 15,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     formattedDate,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
-                      color: Colors.grey,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.72),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -73,17 +67,16 @@ class AdminClinicHolidayCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            // Tombol Hapus
             IconButton(
               onPressed: onDelete,
-              icon: const Icon(
+              icon: Icon(
                 Icons.delete_outline_rounded,
-                color: AppTheme.errorColor,
+                color: Colors.white.withValues(alpha: 0.9),
                 size: 22,
               ),
               tooltip: 'Hapus Hari Libur',
               style: IconButton.styleFrom(
-                backgroundColor: AppTheme.errorColor.withValues(alpha: 0.08),
+                backgroundColor: Colors.white.withValues(alpha: 0.15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

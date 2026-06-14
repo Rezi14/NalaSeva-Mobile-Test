@@ -227,7 +227,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
     final isCompactHeader = screenWidth < 680;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // Premium Dark Theme (Deep Slate)
+      backgroundColor: const Color(0xFF0F172A), 
       body: SafeArea(
         child: Stack(
           children: [
@@ -287,7 +287,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                                         'NALASEVA MONITOR ANTREAN',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
@@ -298,7 +298,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                                         'Monitoring antrean real-time & otomatis',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.inter(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 10,
                                           color: Colors.grey.shade400,
                                         ),
@@ -317,7 +317,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                                     '$_currentDate WIB',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.inter(
+                                    style: GoogleFonts.poppins(
                                       fontSize: 11,
                                       color: Colors.grey.shade400,
                                     ),
@@ -325,7 +325,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                                 ),
                                 Text(
                                   _currentTime,
-                                  style: GoogleFonts.shareTechMono(
+                                  style: GoogleFonts.poppins(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.primaryColor,
@@ -338,7 +338,6 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Logo & Title
                             Expanded(
                               child: Row(
                                 children: [
@@ -376,7 +375,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                                           'NALASEVA MONITOR ANTREAN',
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: GoogleFonts.plusJakartaSans(
+                                          style: GoogleFonts.poppins(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
@@ -387,7 +386,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                                           'Monitoring antrean real-time & otomatis',
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: GoogleFonts.inter(
+                                          style: GoogleFonts.poppins(
                                             fontSize: 12,
                                             color: Colors.grey.shade400,
                                           ),
@@ -405,7 +404,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                               children: [
                                 Text(
                                   _currentTime,
-                                  style: GoogleFonts.shareTechMono(
+                                  style: GoogleFonts.poppins(
                                     fontSize: 26,
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.primaryColor,
@@ -413,7 +412,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                                 ),
                                 Text(
                                   '$_currentDate WIB',
-                                  style: GoogleFonts.inter(
+                                  style: GoogleFonts.poppins(
                                     fontSize: 12,
                                     color: Colors.grey.shade400,
                                   ),
@@ -484,7 +483,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
 
                             // VERTICAL DIVIDER
                             VerticalDivider(
-                              color: const Color(0xFF334155), // Slate border
+                              color: const Color(0xFF334155), 
                               width: 2,
                               thickness: 2,
                             ),
@@ -509,7 +508,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                                             const SizedBox(width: 12),
                                             Text(
                                               'ANTREAN APOTEK',
-                                              style: GoogleFonts.plusJakartaSans(
+                                              style: GoogleFonts.poppins(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.white,
@@ -561,11 +560,11 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
               ],
             ),
 
-            // Premium Fullscreen Voice Call Overlay
+            // Fullscreen Voice Call Overlay
             if (_showCallOverlay && _calledQueue != null)
               _buildCallOverlay(_calledQueue!),
 
-            // Premium Fullscreen Error / Authentication Overlay
+            // Fullscreen Error / Authentication Overlay
             if (_errorMessage != null)
               _buildErrorOverlay(),
           ],
@@ -581,7 +580,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
     final screenHeight = mediaQuery.size.height;
     
     return Container(
-      color: Colors.black.withValues(alpha: 0.95), // Gelap total agar pop-up sangat stand out
+      color: Colors.black.withValues(alpha: 0.95), 
       child: Center(
         child: ZoomIn(
           duration: const Duration(milliseconds: 500),
@@ -613,7 +612,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                   SizedBox(height: (screenHeight * 0.05).clamp(12.0, 36.0)),
                   Text(
                     'PANGGILAN PASIEN',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontSize: (screenHeight * 0.035).clamp(12.0, 18.0),
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primaryColor,
@@ -623,7 +622,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                   SizedBox(height: (screenHeight * 0.03).clamp(8.0, 24.0)),
                   Text(
                     q.queueNumber,
-                    style: GoogleFonts.orbitron(
+                    style: GoogleFonts.poppins(
                       fontSize: (screenHeight * 0.15).clamp(48.0, 84.0),
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -634,7 +633,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                   Text(
                     q.patient.fullName.toUpperCase(),
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontSize: (screenHeight * 0.05).clamp(18.0, 28.0),
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -651,7 +650,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                     child: Text(
                       q.polyclinic.name.toUpperCase(),
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.poppins(
                         fontSize: (screenHeight * 0.035).clamp(14.0, 20.0),
                         fontWeight: FontWeight.bold,
                         color: AppTheme.primaryColor,
@@ -710,7 +709,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                 SizedBox(height: (screenHeight * 0.03).clamp(12.0, 24.0)),
                 Text(
                   'AUTENTIKASI DIPERLUKAN',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.poppins(
                     fontSize: (screenHeight * 0.035).clamp(16.0, 20.0),
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -721,7 +720,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
                 Text(
                   _errorMessage ?? '',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.poppins(
                     fontSize: (screenHeight * 0.024).clamp(12.0, 14.0),
                     color: Colors.white70,
                     height: 1.5,
@@ -778,7 +777,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
         const SizedBox(width: 8),
         Text(
           title,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.poppins(
             fontSize: 14,
             fontWeight: FontWeight.bold,
             color: color,
@@ -799,7 +798,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
       child: Center(
         child: Text(
           text,
-          style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 13),
+          style: GoogleFonts.poppins(color: Colors.grey.shade500, fontSize: 13),
         ),
       ),
     );
@@ -823,7 +822,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
           Expanded(
             child: Text(
               patientName,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
                 color: Colors.white,
@@ -838,7 +837,7 @@ class _QueueMonitorScreenState extends State<QueueMonitorScreen> {
             ),
             child: Text(
               qNumber,
-              style: GoogleFonts.orbitron(
+              style: GoogleFonts.poppins(
                 color: color,
                 fontWeight: FontWeight.bold,
                 fontSize: 13,

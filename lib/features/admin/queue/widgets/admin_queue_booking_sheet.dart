@@ -28,7 +28,8 @@ class AdminQueueBookingSheet extends StatefulWidget {
   }
 
   @override
-  State<AdminQueueBookingSheet> createState() => _AdminQueueBookingSheetState();
+  State<AdminQueueBookingSheet> createState() =>
+      _AdminQueueBookingSheetState();
 }
 
 class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
@@ -63,24 +64,31 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
     }
   }
 
-  String _dateKey(DateTime date) {
-    return DateFormat('yyyy-MM-dd').format(date);
-  }
+  String _dateKey(DateTime date) => DateFormat('yyyy-MM-dd').format(date);
 
-  bool _isBlockedByClinicHoliday(List<Map<String, dynamic>> holidays, DateTime date) {
+  bool _isBlockedByClinicHoliday(
+      List<Map<String, dynamic>> holidays, DateTime date) {
     final targetDate = _dateKey(date);
-    return holidays.any((holiday) => _dateKey(DateTime.parse(holiday['holiday_date'].toString())).compareTo(targetDate) == 0);
+    return holidays.any((holiday) =>
+        _dateKey(DateTime.parse(holiday['holiday_date'].toString()))
+            .compareTo(targetDate) ==
+        0);
   }
 
-  bool _isBlockedByDoctorLeave(List<Map<String, dynamic>> leaves, int doctorId, DateTime date) {
+  bool _isBlockedByDoctorLeave(
+      List<Map<String, dynamic>> leaves, int doctorId, DateTime date) {
     final targetDate = _dateKey(date);
     return leaves.any((leave) {
-      final leaveDoctorId = int.tryParse(leave['doctor_id']?.toString() ?? '') ?? 0;
+      final leaveDoctorId =
+          int.tryParse(leave['doctor_id']?.toString() ?? '') ?? 0;
       if (leaveDoctorId != doctorId) return false;
       final leaveDateRaw = leave['leave_date']?.toString() ?? '';
       if (leaveDateRaw.isEmpty) return false;
-      final leaveDate = DateTime.tryParse(leaveDateRaw.replaceAll(' ', 'T'));
-      final normalized = leaveDate != null ? _dateKey(leaveDate) : leaveDateRaw.split('T').first.split(' ').first;
+      final leaveDate =
+          DateTime.tryParse(leaveDateRaw.replaceAll(' ', 'T'));
+      final normalized = leaveDate != null
+          ? _dateKey(leaveDate)
+          : leaveDateRaw.split('T').first.split(' ').first;
       return normalized == targetDate;
     });
   }
@@ -89,31 +97,32 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
     final polyclinics = provider.polyclinics;
-    
-    // Filter schedules based on polyclinic and selected date's day of week
+
     List<ScheduleModel> availableSchedules = [];
     if (_selectedPolyId != null && _selectedDate != null) {
       final dayStr = _getIndonesianDay(_selectedDate!);
       availableSchedules = provider.schedules.where((s) {
-        // Find doctor to check polyclinic
         final doc = provider.doctors.firstWhere(
           (d) => d.id == s.doctorId,
-          orElse: () => s.doctor ?? DoctorModel(id: s.doctorId, userId: 0),
+          orElse: () =>
+              s.doctor ?? DoctorModel(id: s.doctorId, userId: 0),
         );
-        return doc.polyclinicId == _selectedPolyId && s.dayOfWeek == dayStr;
+        return doc.polyclinicId == _selectedPolyId &&
+            s.dayOfWeek == dayStr;
       }).toList();
     }
 
     final sheetH = ResponsiveHelper.sheetMaxHeight(context);
-    final pad    = ResponsiveHelper.paddingDialog(context);
+    final pad = ResponsiveHelper.paddingDialog(context);
     final headSz = ResponsiveHelper.fontSizeHeading(context);
-    final btnH   = ResponsiveHelper.buttonHeight(context);
-    final btnR   = ResponsiveHelper.radiusButton(context);
+    final btnH = ResponsiveHelper.buttonHeight(context);
+    final btnR = ResponsiveHelper.radiusButton(context);
 
     return Container(
       constraints: BoxConstraints(maxHeight: sheetH),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(pad, pad, pad, MediaQuery.of(context).viewInsets.bottom + pad),
+        padding: EdgeInsets.fromLTRB(
+            pad, pad, pad, MediaQuery.of(context).viewInsets.bottom + pad),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -123,27 +132,33 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
               children: [
                 Text(
                   'Daftar Antrean Manual',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.poppins(
                     fontSize: headSz,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: AppTheme.primaryColor,
                   ),
                 ),
                 SizedBox(height: pad),
+
                 // Patient Summary Card
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                    color:
+                        AppTheme.primaryColor.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.1)),
+                    border: Border.all(
+                        color:
+                            AppTheme.primaryColor.withValues(alpha: 0.1)),
                   ),
                   child: Row(
                     children: [
                       CircleAvatar(
                         radius: 20,
-                        backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-                        child: const Icon(Icons.person, color: AppTheme.primaryColor),
+                        backgroundColor:
+                            AppTheme.primaryColor.withValues(alpha: 0.1),
+                        child: const Icon(Icons.person,
+                            color: AppTheme.primaryColor),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -152,15 +167,15 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                           children: [
                             Text(
                               widget.patient.name,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
-                                color: Colors.black87,
+                                color: AppTheme.primaryColor,
                               ),
                             ),
                             Text(
                               'NIK: ${widget.patient.nationalId ?? "-"}',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontSize: 12,
                                 color: Colors.grey.shade600,
                               ),
@@ -172,36 +187,56 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                
-                // Polyclinic Dropdown
+
+                // Poliklinik
                 Text(
                   'Poliklinik Tujuan',
-                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black54),
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<int>(
                   initialValue: _selectedPolyId,
+                  style: GoogleFonts.poppins(
+                      fontSize: 14, color: AppTheme.primaryColor),
                   decoration: InputDecoration(
                     hintText: 'Pilih Poliklinik',
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            BorderSide(color: Colors.grey.shade300)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            BorderSide(color: Colors.grey.shade300)),
                   ),
-                  items: polyclinics.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))).toList(),
-                  onChanged: (v) {
-                    setState(() {
-                      _selectedPolyId = v;
-                      _selectedSchedule = null; // Reset schedule
-                    });
-                  },
-                  validator: (v) => v == null ? 'Poliklinik wajib dipilih' : null,
+                  items: polyclinics
+                      .map((p) => DropdownMenuItem(
+                            value: p.id,
+                            child: Text(p.name,
+                                style: GoogleFonts.poppins(fontSize: 14)),
+                          ))
+                      .toList(),
+                  onChanged: (v) => setState(() {
+                    _selectedPolyId = v;
+                    _selectedSchedule = null;
+                  }),
+                  validator: (v) =>
+                      v == null ? 'Poliklinik wajib dipilih' : null,
                 ),
                 const SizedBox(height: 20),
 
-                // Date Picker
+                // Tanggal
                 Text(
                   'Tanggal Kunjungan',
-                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black54),
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 8),
                 InkWell(
@@ -210,29 +245,29 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                       context: context,
                       initialDate: _selectedDate ?? DateTime.now(),
                       firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 30)),
-                      builder: (context, child) {
-                        return Theme(
-                          data: Theme.of(context).copyWith(
-                            colorScheme: const ColorScheme.light(
-                              primary: AppTheme.primaryColor,
-                              onPrimary: Colors.white,
-                              onSurface: Colors.black87,
-                            ),
+                      lastDate:
+                          DateTime.now().add(const Duration(days: 30)),
+                      builder: (context, child) => Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: const ColorScheme.light(
+                            primary: AppTheme.primaryColor,
+                            onPrimary: Colors.white,
+                            onSurface: Colors.black87,
                           ),
-                          child: child!,
-                        );
-                      },
+                        ),
+                        child: child!,
+                      ),
                     );
                     if (picked != null) {
                       setState(() {
                         _selectedDate = picked;
-                        _selectedSchedule = null; // Reset schedule
+                        _selectedSchedule = null;
                       });
                     }
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey.shade300),
                       borderRadius: BorderRadius.circular(12),
@@ -243,63 +278,99 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                         Text(
                           _selectedDate == null
                               ? 'Pilih Tanggal Kunjungan'
-                              : DateFormat('EEEE, dd MMMM yyyy', 'id_ID').format(_selectedDate!),
-                          style: TextStyle(color: _selectedDate == null ? Colors.grey : Colors.black87),
+                              : DateFormat('EEEE, dd MMMM yyyy', 'id_ID')
+                                  .format(_selectedDate!),
+                          style: GoogleFonts.poppins(
+                            color: _selectedDate == null
+                                ? Colors.grey.shade400
+                                : AppTheme.primaryColor,
+                            fontWeight: _selectedDate == null
+                                ? FontWeight.w400
+                                : FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
-                        const Icon(Icons.calendar_today_rounded, size: 18, color: AppTheme.primaryColor),
+                        const Icon(Icons.calendar_today_rounded,
+                            size: 18, color: AppTheme.primaryColor),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
 
-                // Schedule Selection (Dropdown)
-                if (_selectedPolyId != null && _selectedDate != null) ...[
+                // Jadwal Dokter
+                if (_selectedPolyId != null &&
+                    _selectedDate != null) ...[
                   Text(
                     'Jadwal Dokter',
-                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black54),
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<ScheduleModel>(
                     initialValue: _selectedSchedule,
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, color: AppTheme.primaryColor),
                     decoration: InputDecoration(
-                      hintText: availableSchedules.isEmpty ? 'Tidak ada jadwal pada hari ini' : 'Pilih Dokter & Jam',
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+                      hintText: availableSchedules.isEmpty
+                          ? 'Tidak ada jadwal pada hari ini'
+                          : 'Pilih Dokter & Jam',
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Colors.grey.shade300)),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Colors.grey.shade300)),
                     ),
                     items: availableSchedules.map((s) {
-                      final doc = provider.doctors.firstWhere((d) => d.id == s.doctorId, orElse: () => s.doctor!);
-                      final startLabel = s.startTime.length >= 5 ? s.startTime.substring(0,5) : s.startTime;
-                      final endLabel = s.endTime.length >= 5 ? s.endTime.substring(0,5) : s.endTime;
+                      final doc = provider.doctors.firstWhere(
+                          (d) => d.id == s.doctorId,
+                          orElse: () => s.doctor!);
+                      final startLabel = s.startTime.length >= 5
+                          ? s.startTime.substring(0, 5)
+                          : s.startTime;
+                      final endLabel = s.endTime.length >= 5
+                          ? s.endTime.substring(0, 5)
+                          : s.endTime;
                       return DropdownMenuItem(
                         value: s,
-                        child: Text('${doc.name} ($startLabel - $endLabel)'),
+                        child: Text(
+                            '${doc.name} ($startLabel - $endLabel)',
+                            style: GoogleFonts.poppins(fontSize: 14)),
                       );
                     }).toList(),
-                    onChanged: availableSchedules.isEmpty ? null : (v) {
-                      setState(() {
-                        _selectedSchedule = v;
-                      });
-                    },
-                    validator: (v) => v == null ? 'Jadwal dokter wajib dipilih' : null,
+                    onChanged: availableSchedules.isEmpty
+                        ? null
+                        : (v) => setState(() => _selectedSchedule = v),
+                    validator: (v) =>
+                        v == null ? 'Jadwal dokter wajib dipilih' : null,
                   ),
                   const SizedBox(height: 24),
                 ],
 
+                // btn
                 Row(
                   children: [
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () async {
-                          final hasValue = _selectedPolyId != null || _selectedDate != null || _selectedSchedule != null;
+                          final hasValue = _selectedPolyId != null ||
+                              _selectedDate != null ||
+                              _selectedSchedule != null;
                           if (hasValue) {
-                            final confirm = await AppDialogs.showConfirmationDialog(
+                            final confirm =
+                                await AppDialogs.showConfirmationDialog(
                               context,
                               'Batalkan Pendaftaran?',
-                              'Apakah Anda yakin ingin membatalkan pengisian data antrean manual ini?',
-                              confirmText: 'YA, BATALKAN',
-                              cancelText: 'KEMBALI',
+                              'Apakah Anda yakin ingin membatalkan pengisian data antrean?',
+                              confirmText: 'Batalkan',
+                              cancelText: 'Kembali',
                               isDestructive: true,
                             );
                             if ((confirm ?? false) && context.mounted) {
@@ -313,106 +384,129 @@ class _AdminQueueBookingSheetState extends State<AdminQueueBookingSheet> {
                           side: const BorderSide(color: Colors.grey),
                           minimumSize: Size(double.infinity, btnH),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(btnR),
-                          ),
+                              borderRadius: BorderRadius.circular(btnR)),
                         ),
                         child: Text(
                           'Batal',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade700,
-                          ),
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade700),
                         ),
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: provider.isLoading || _selectedSchedule == null ? null : () async {
-                          if (!(_formKey.currentState?.validate() ?? false)) return;
+                        onPressed: provider.isLoading ||
+                                _selectedSchedule == null
+                            ? null
+                            : () async {
+                                if (!(_formKey.currentState?.validate() ??
+                                    false)) {
+                                  return;
+                                }
 
-                          final confirm = await AppDialogs.showConfirmationDialog(
-                            context,
-                            'Daftarkan Antrean?',
-                            'Apakah Anda yakin ingin mendaftarkan pasien ke antrean ini?',
-                            confirmText: 'YA, DAFTAR',
-                            cancelText: 'BATAL',
-                          );
-                          if (!(confirm ?? false)) return;
-                          if (!context.mounted) return;
+                                final confirm =
+                                    await AppDialogs.showConfirmationDialog(
+                                  context,
+                                  'Daftarkan Antrean?',
+                                  'Apakah Anda yakin ingin mendaftarkan pasien ke antrean ini?',
+                                  confirmText: 'Daftar',
+                                  cancelText: 'Batal',
+                                );
+                                if (!(confirm ?? false)) return;
+                                if (!context.mounted) return;
 
-                          final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-                          final doc = provider.doctors.firstWhere(
-                            (d) => d.id == _selectedSchedule!.doctorId,
-                            orElse: () => _selectedSchedule?.doctor ?? DoctorModel(id: _selectedSchedule?.doctorId ?? 0, userId: 0),
-                          );
+                                final dateStr = DateFormat('yyyy-MM-dd')
+                                    .format(_selectedDate!);
+                                final doc = provider.doctors.firstWhere(
+                                  (d) =>
+                                      d.id == _selectedSchedule!.doctorId,
+                                  orElse: () =>
+                                      _selectedSchedule?.doctor ??
+                                      DoctorModel(
+                                          id: _selectedSchedule
+                                                  ?.doctorId ??
+                                              0,
+                                          userId: 0),
+                                );
 
-                          if (_isBlockedByClinicHoliday(provider.clinicHolidays, _selectedDate!)) {
-                            if (context.mounted) {
-                              AppDialogs.showNotificationDialog(
-                                context,
-                                'Tanggal Tidak Tersedia',
-                                'Tanggal kunjungan tersebut merupakan hari libur puskesmas.',
-                                isError: true,
-                              );
-                            }
-                            return;
-                          }
+                                if (_isBlockedByClinicHoliday(
+                                    provider.clinicHolidays,
+                                    _selectedDate!)) {
+                                  if (context.mounted) {
+                                    AppDialogs.showNotificationDialog(
+                                      context,
+                                      'Tanggal Tidak Tersedia',
+                                      'Tanggal kunjungan tersebut merupakan hari libur puskesmas.',
+                                      isError: true,
+                                    );
+                                  }
+                                  return;
+                                }
 
-                          if (_isBlockedByDoctorLeave(provider.doctorLeaves, doc.id, _selectedDate!)) {
-                            if (context.mounted) {
-                              AppDialogs.showNotificationDialog(
-                                context,
-                                'Tanggal Tidak Tersedia',
-                                'Dokter yang dipilih sedang cuti pada tanggal tersebut.',
-                                isError: true,
-                              );
-                            }
-                            return;
-                          }
+                                if (_isBlockedByDoctorLeave(
+                                    provider.doctorLeaves,
+                                    doc.id,
+                                    _selectedDate!)) {
+                                  if (context.mounted) {
+                                    AppDialogs.showNotificationDialog(
+                                      context,
+                                      'Tanggal Tidak Tersedia',
+                                      'Dokter yang dipilih sedang cuti pada tanggal tersebut.',
+                                      isError: true,
+                                    );
+                                  }
+                                  return;
+                                }
 
-                          final data = {
-                            'patient_id': widget.patient.id,
-                            'polyclinic_id': _selectedPolyId,
-                            'doctor_id': doc.id,
-                            'doctor_schedule_id': _selectedSchedule!.id,
-                            'date': dateStr,
-                          };
+                                final data = {
+                                  'patient_id': widget.patient.id,
+                                  'polyclinic_id': _selectedPolyId,
+                                  'doctor_id': doc.id,
+                                  'doctor_schedule_id':
+                                      _selectedSchedule!.id,
+                                  'date': dateStr,
+                                };
 
-                          await provider.bookQueueForPatient(data);
+                                await provider.bookQueueForPatient(data);
 
-                          if (context.mounted) {
-                            if (provider.error != null) {
-                              AppDialogs.showNotificationDialog(
-                                context,
-                                'Gagal Booking',
-                                provider.error!,
-                                isError: true,
-                                                    );
-                            } else {
-                              Navigator.pop(context);
-                              AppDialogs.showSuccessDialog(
-                                context,
-                                'Pendaftaran Sukses',
-                                'Antrean untuk pasien ${widget.patient.name} telah berhasil terdaftar secara manual.',
-                              );
-                            }
-                          }
-                        },
+                                if (context.mounted) {
+                                  if (provider.error != null) {
+                                    AppDialogs.showNotificationDialog(
+                                      context,
+                                      'Gagal Booking',
+                                      provider.error!,
+                                      isError: true,
+                                    );
+                                  } else {
+                                    Navigator.pop(context);
+                                    AppDialogs.showSuccessDialog(
+                                      context,
+                                      'Pendaftaran Sukses',
+                                      'Antrean untuk ${widget.patient.name} telah berhasil terdaftar.',
+                                    );
+                                  }
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
                           minimumSize: Size(double.infinity, btnH),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(btnR)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(btnR)),
                         ),
                         child: provider.isLoading
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2),
                               )
                             : Text(
                                 'Daftar',
-                                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold),
+                                style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
                               ),
                       ),
                     ),

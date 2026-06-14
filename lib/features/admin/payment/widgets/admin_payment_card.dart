@@ -15,51 +15,32 @@ class AdminPaymentCard extends StatelessWidget {
   });
 
   String _formatCurrency(double amount) {
-    return NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp',
-      decimalDigits: 0,
-    ).format(amount);
+    return NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(amount);
   }
 
   Color _getStatusColor(PaymentModel payment) {
     if (payment.status == 'pending' && payment.createdAt != null) {
-      final diff = DateTime.now().difference(payment.createdAt!);
-      if (diff.inHours >= 2) {
-        return AppTheme.errorColor;
-      }
+      if (DateTime.now().difference(payment.createdAt!).inHours >= 2) return AppTheme.errorColor;
     }
     switch (payment.status) {
-      case 'paid':
-        return AppTheme.successColor;
-      case 'waiting_verification':
-        return AppTheme.warningColor;
+      case 'paid': return AppTheme.successColor;
+      case 'waiting_verification': return AppTheme.warningColor;
       case 'failed':
-      case 'cancelled':
-        return AppTheme.errorColor;
-      default:
-        return AppTheme.secondaryColor;
+      case 'cancelled': return AppTheme.errorColor;
+      default: return AppTheme.secondaryColor;
     }
   }
 
   String _getStatusText(PaymentModel payment) {
     if (payment.status == 'pending' && payment.createdAt != null) {
-      final diff = DateTime.now().difference(payment.createdAt!);
-      if (diff.inHours >= 2) {
-        return 'Kadaluwarsa';
-      }
+      if (DateTime.now().difference(payment.createdAt!).inHours >= 2) return 'Kadaluwarsa';
     }
     switch (payment.status) {
-      case 'paid':
-        return 'Lunas';
-      case 'waiting_verification':
-        return 'Menunggu Verifikasi';
-      case 'failed':
-        return 'Gagal';
-      case 'cancelled':
-        return 'Batal / Kadaluwarsa';
-      default:
-        return 'Belum Bayar';
+      case 'paid': return 'Lunas';
+      case 'waiting_verification': return 'Menunggu Verifikasi';
+      case 'failed': return 'Gagal';
+      case 'cancelled': return 'Batal / Kadaluwarsa';
+      default: return 'Belum Bayar';
     }
   }
 
@@ -67,6 +48,7 @@ class AdminPaymentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final queueDate = payment.queue?.date ?? '';
     final polyClinicName = payment.queue?.polyclinic.name ?? 'Poli Puskesmas';
+    final statusColor = _getStatusColor(payment);
 
     return GestureDetector(
       onTap: onTap,
@@ -74,15 +56,9 @@ class AdminPaymentCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: AppTheme.backgroundGradient,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
+          border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,9 +69,9 @@ class AdminPaymentCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     payment.transactionNumber,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey[800],
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 14,
                     ),
                   ),
@@ -103,13 +79,14 @@ class AdminPaymentCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(payment).withValues(alpha: 0.1),
+                    color: statusColor.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     _getStatusText(payment),
-                    style: GoogleFonts.plusJakartaSans(
-                      color: _getStatusColor(payment),
+                    style: GoogleFonts.poppins(
+                      color: statusColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -117,7 +94,7 @@ class AdminPaymentCard extends StatelessWidget {
                 ),
               ],
             ),
-            const Divider(height: 24),
+            Divider(height: 24, color: Colors.white.withValues(alpha: 0.2)),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -126,9 +103,10 @@ class AdminPaymentCard extends StatelessWidget {
                   children: [
                     Text(
                       polyClinicName,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -136,8 +114,8 @@ class AdminPaymentCard extends StatelessWidget {
                       queueDate.isNotEmpty
                           ? DateFormat('dd MMMM yyyy').format(DateTime.parse(queueDate))
                           : 'Kunjungan Hari Ini',
-                      style: GoogleFonts.inter(
-                        color: Colors.grey[500],
+                      style: GoogleFonts.poppins(
+                        color: Colors.white.withValues(alpha: 0.72),
                         fontSize: 13,
                       ),
                     ),
@@ -145,10 +123,10 @@ class AdminPaymentCard extends StatelessWidget {
                 ),
                 Text(
                   _formatCurrency(payment.totalAmount),
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.secondaryColor,
+                    color: Colors.white,
                   ),
                 ),
               ],

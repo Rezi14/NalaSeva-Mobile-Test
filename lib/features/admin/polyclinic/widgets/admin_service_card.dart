@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/models/polyclinic_model.dart';
 import '../../../../core/theme/app_theme.dart';
 
@@ -24,28 +25,41 @@ class AdminServiceCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: AppTheme.backgroundGradient,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+              color: Colors.white.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.local_hospital_rounded, color: AppTheme.primaryColor, size: 24),
+            child: const Icon(Icons.local_hospital_rounded, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(polyclinic.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                  polyclinic.name,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('Code: ${polyclinic.code}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(
+                  'Code: ${polyclinic.code}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.72),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 12,
@@ -54,17 +68,29 @@ class AdminServiceCard extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.access_time_rounded, size: 12, color: Colors.grey),
+                        Icon(Icons.access_time_rounded, size: 12, color: Colors.white.withValues(alpha: 0.72)),
                         const SizedBox(width: 4),
-                        Text(operatingHours, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                        Text(
+                          operatingHours,
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            color: Colors.white.withValues(alpha: 0.72),
+                          ),
+                        ),
                       ],
                     ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.people_alt_rounded, size: 12, color: Colors.grey),
+                        Icon(Icons.people_alt_rounded, size: 12, color: Colors.white.withValues(alpha: 0.72)),
                         const SizedBox(width: 4),
-                        Text('Quota: $quota', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                        Text(
+                          'Quota: $quota',
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            color: Colors.white.withValues(alpha: 0.72),
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -76,11 +102,11 @@ class AdminServiceCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit_rounded, color: AppTheme.editColor, size: 20),
+                icon: Icon(Icons.edit_rounded, color: Colors.white.withValues(alpha: 0.9), size: 20),
                 onPressed: onEdit,
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline_rounded, color: AppTheme.deleteColor, size: 20),
+                icon: Icon(Icons.delete_outline_rounded, color: Colors.white.withValues(alpha: 0.75), size: 20),
                 onPressed: onDelete,
               ),
             ],

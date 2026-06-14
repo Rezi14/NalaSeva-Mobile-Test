@@ -24,13 +24,9 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _complaintController = TextEditingController();
   final _diagnosisController = TextEditingController();
-  final _treatmentNotesController = TextEditingController(); // Notes
-
-  // Structured medicines list for Opsi 3
+  final _treatmentNotesController = TextEditingController();
   final List<Map<String, dynamic>> _medicines = [];
   bool _isSubmitting = false;
-
-
 
   @override
   void initState() {
@@ -61,11 +57,8 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
     }
   }
 
-
-
   void _submit(QueueModel queue) async {
     if (_isSubmitting) return;
-
     final doctorId = context.read<AuthProvider>().user?.doctorId;
     if (doctorId == null) {
       if (mounted) {
@@ -78,17 +71,13 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
       }
       return;
     }
-
     setState(() => _isSubmitting = true);
-
     try {
       final provider = context.read<DoctorProvider>();
-      
-      // Refresh queues to get the latest status
       await provider.fetchMyQueues();
-      final freshQueue = provider.queues.where((q) => q.id == queue.id).firstOrNull;
-
-        if (freshQueue == null || freshQueue.status.isTerminal) {
+      final freshQueue =
+          provider.queues.where((q) => q.id == queue.id).firstOrNull;
+      if (freshQueue == null || freshQueue.status.isTerminal) {
         if (mounted) {
           AppDialogs.showNotificationDialog(
             context,
@@ -99,27 +88,23 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
         }
         return;
       }
+      if (!(_formKey.currentState?.validate() ?? false)) return;
 
-      if (!(_formKey.currentState?.validate() ?? false)) {
-        return;
-      }
-
-      // Format the treatment text to be perfectly readable and 100% DB compatible (Opsi 3)
-      String formattedTreatment = "";
+      String formattedTreatment = '';
       if (_treatmentNotesController.text.isNotEmpty) {
-        formattedTreatment += "📋 Catatan Tindakan:\n${_treatmentNotesController.text}";
+        formattedTreatment +=
+            '📋 Catatan Tindakan:\n${_treatmentNotesController.text}';
       }
-      
       if (_medicines.isNotEmpty) {
-        if (formattedTreatment.isNotEmpty) formattedTreatment += "\n\n";
-        formattedTreatment += "💊 Resep Obat:\n";
-        formattedTreatment += _medicines.map((m) {
-          return "- ${m['name']} (${m['qty']} Tab) - ${m['dose']}";
-        }).join("\n");
+        if (formattedTreatment.isNotEmpty) formattedTreatment += '\n\n';
+        formattedTreatment += '💊 Resep Obat:\n';
+        formattedTreatment += _medicines
+            .map((m) => '- ${m['name']} (${m['qty']} Tab) - ${m['dose']}')
+            .join('\n');
       }
 
-      // Map Flutter _medicines structure to backend prescription_items format
-      final List<Map<String, dynamic>> prescriptionItems = _medicines.map((m) {
+      final List<Map<String, dynamic>> prescriptionItems =
+          _medicines.map((m) {
         return {
           'medicine_id': m['medicine_id'],
           'quantity': int.tryParse(m['qty'].toString()) ?? 1,
@@ -141,22 +126,17 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
           context,
           'Berhasil',
           'Pemeriksaan berhasil disimpan & diselesaikan',
-          onOkPressed: () {
-            Navigator.pop(context);
-          },
+          onOkPressed: () => Navigator.pop(context),
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
-  void _showMedicalHistoryBottomSheet(BuildContext context, int patientUserId, String patientName) {
-    // Fetch EMR history before showing bottom sheet
+  void _showMedicalHistoryBottomSheet(
+      BuildContext context, int patientUserId, String patientName) {
     context.read<DoctorProvider>().fetchHistoryForPatient(patientUserId);
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -186,29 +166,22 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                   const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Rekam Medis (EMR)',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              Text(
-                                'Riwayat pemeriksaan $patientName',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          'Rekam Medis (EMR)',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          'Riwayat pemeriksaan $patientName',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.grey,
                           ),
                         ),
                       ],
@@ -220,21 +193,22 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                     child: Consumer<DoctorProvider>(
                       builder: (context, provider, child) {
                         if (provider.isLoading) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
-
                         if (provider.patientHistory.isEmpty) {
                           return Center(
                             child: Padding(
-                              padding: const EdgeInsets.all(32.0),
+                              padding: const EdgeInsets.all(32),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.folder_open_rounded, size: 64, color: Colors.grey.shade300),
+                                  Icon(Icons.folder_open_rounded,
+                                      size: 64, color: Colors.grey.shade300),
                                   const SizedBox(height: 16),
                                   Text(
                                     'Belum Ada Riwayat Kunjungan',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.grey.shade600,
@@ -244,7 +218,7 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                                   Text(
                                     'Ini adalah kunjungan pemeriksaan pertama pasien di rumah sakit ini.',
                                     textAlign: TextAlign.center,
-                                    style: GoogleFonts.inter(
+                                    style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       color: Colors.grey.shade500,
                                     ),
@@ -254,18 +228,17 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                             ),
                           );
                         }
-
                         return ListView.separated(
                           controller: controller,
                           padding: const EdgeInsets.all(24),
                           itemCount: provider.patientHistory.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 16),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 16),
                           itemBuilder: (context, index) {
                             final exam = provider.patientHistory[index];
-                            final dateStr = exam.createdAt != null 
-                                ? '${exam.createdAt!.day}/${exam.createdAt!.month}/${exam.createdAt!.year}' 
+                            final dateStr = exam.createdAt != null
+                                ? '${exam.createdAt!.day}/${exam.createdAt!.month}/${exam.createdAt!.year}'
                                 : '-';
-
                             return DoctorMedicalHistoryCard(
                               examination: exam,
                               formattedDate: dateStr,
@@ -276,7 +249,8 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 16),
                     child: SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -289,8 +263,8 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
                           ),
                         ),
                         child: Text(
-                          'Batal',
-                          style: GoogleFonts.plusJakartaSans(
+                          'Tutup',
+                          style: GoogleFonts.poppins(
                             color: Colors.grey.shade700,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -308,194 +282,252 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final queue = ModalRoute.of(context)!.settings.arguments as QueueModel;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: ResponsiveCenter(
-        maxWidth: 800,
-        child: Column(
-          children: [
-          // Header Screen
-          FadeInDown(
-            duration: const Duration(milliseconds: 600),
-            child: Container(
-              color: Colors.white,
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade200),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back_rounded, size: 20),
-                          onPressed: () async {
-                            final hasValue = _complaintController.text.trim().isNotEmpty ||
-                                _diagnosisController.text.trim().isNotEmpty ||
-                                _treatmentNotesController.text.trim().isNotEmpty ||
-                                _medicines.isNotEmpty;
-                            if (hasValue) {
-                              final confirm = await AppDialogs.showConfirmationDialog(
-                                context,
-                                'Batalkan Pemeriksaan?',
-                                'Apakah Anda yakin ingin keluar? Seluruh data pemeriksaan yang telah diisi akan hilang.',
-                                confirmText: 'YA, KELUAR',
-                                cancelText: 'TETAP DI SINI',
-                                isDestructive: true,
-                              );
-                              if ((confirm ?? false) && context.mounted) {
-                                Navigator.pop(context);
-                              }
-                            } else {
-                              Navigator.pop(context);
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          'Pemeriksaan Medis',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          
-          const Divider(height: 1),
-
-          Expanded(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppTheme.backgroundGradient,
+        ),
+        child: ResponsiveCenter(
+          maxWidth: 800,
+          child: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Patient Info Card with EMR button
+                  FadeInDown(
+                    duration: const Duration(milliseconds: 400),
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            onPressed: () async {
+                              final hasValue =
+                                  _complaintController.text.trim().isNotEmpty ||
+                                      _diagnosisController.text
+                                          .trim()
+                                          .isNotEmpty ||
+                                      _treatmentNotesController.text
+                                          .trim()
+                                          .isNotEmpty ||
+                                      _medicines.isNotEmpty;
+                              if (hasValue) {
+                                final confirm =
+                                    await AppDialogs.showConfirmationDialog(
+                                  context,
+                                  'Batalkan Pemeriksaan?',
+                                  'Apakah Anda yakin ingin keluar? Seluruh data pemeriksaan yang telah diisi akan hilang.',
+                                  confirmText: 'Keluar',
+                                  cancelText: 'Tetap Disini',
+                                  isDestructive: true,
+                                );
+                                if ((confirm ?? false) && context.mounted) {
+                                  Navigator.pop(context);
+                                }
+                              } else {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pemeriksaan Medis',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                queue.patient.fullName,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color:
+                                      Colors.white.withValues(alpha: 0.85),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Patient info card
                   FadeInUp(
                     duration: const Duration(milliseconds: 600),
                     child: DoctorPatientInfoCard(
                       queue: queue,
-                      onViewEMR: () => _showMedicalHistoryBottomSheet(context, queue.patient.userId, queue.patient.fullName),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Fields Section
-                  FadeInUp(
-                    duration: const Duration(milliseconds: 600),
-                    delay: const Duration(milliseconds: 100),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          DoctorMedicalTextArea(
-                            label: 'Keluhan Utama Pasien',
-                            placeholder: 'Contoh: Kepala pusing dan demam sejak 2 hari...',
-                            controller: _complaintController,
-                            maxLines: 3,
-                            validator: (v) => v == null || v.isEmpty ? 'Keluhan Utama tidak boleh kosong' : null,
-                          ),
-                          const SizedBox(height: 20),
-                          DoctorMedicalTextArea(
-                            label: 'Diagnosa Medis',
-                            placeholder: 'Contoh: Influenza / Hipertensi stadium 1...',
-                            controller: _diagnosisController,
-                            maxLines: 3,
-                            validator: (v) => v == null || v.isEmpty ? 'Diagnosa Medis tidak boleh kosong' : null,
-                          ),
-                        const SizedBox(height: 24),
-                        
-                        // Structured Medicine Input
-                        DoctorMedicineForm(
-                          medicines: _medicines,
-                          onMedicinesChanged: () => setState(() {}),
-                        ),
-                        const SizedBox(height: 24),
-                        
-                        // Non-medicine Treatment Notes
-                        FormField<bool>(
-                          validator: (value) {
-                            if (_medicines.isEmpty && _treatmentNotesController.text.trim().isEmpty) {
-                              return 'Harap masukkan Catatan Tindakan atau minimal satu Resep Obat';
-                            }
-                            return null;
-                          },
-                          builder: (state) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                DoctorMedicalTextArea(
-                                  label: 'Catatan Tindakan Medis (Opsional)',
-                                  placeholder: 'Contoh: Edukasi untuk kurangi garam, istirahat tirah baring...',
-                                  controller: _treatmentNotesController,
-                                  maxLines: 3,
-                                  onChanged: (val) => state.didChange(true), // Trigger re-evaluation
-                                ),
-                                if (state.hasError)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8, left: 4),
-                                    child: Text(
-                                      state.errorText!,
-                                      style: TextStyle(color: AppTheme.errorColor, fontSize: 12),
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
-                        ],
+                      onViewEMR: () => _showMedicalHistoryBottomSheet(
+                        context,
+                        queue.patient.userId,
+                        queue.patient.fullName,
                       ),
                     ),
                   ),
-                  
+
+                  const SizedBox(height: 24),
+
+                  // Form fields
+                  FadeInUp(
+                    duration: const Duration(milliseconds: 600),
+                    delay: const Duration(milliseconds: 100),
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        inputDecorationTheme: InputDecorationTheme(
+                          labelStyle: GoogleFonts.poppins(color: Colors.white),
+                          floatingLabelStyle: GoogleFonts.poppins(color: Colors.white),
+                        ),
+                        textTheme: Theme.of(context).textTheme.copyWith(
+                          bodyMedium: GoogleFonts.poppins(color: Colors.white),
+                          titleMedium: GoogleFonts.poppins(color: Colors.white),
+                        ),
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            DoctorMedicalTextArea(
+                              label: 'Keluhan Utama Pasien',
+                              placeholder:
+                                  'Contoh: Kepala pusing dan demam sejak 2 hari...',
+                              controller: _complaintController,
+                              maxLines: 3,
+                              validator: (v) => v == null || v.isEmpty
+                                  ? 'Keluhan Utama tidak boleh kosong'
+                                  : null,
+                            ),
+                            const SizedBox(height: 20),
+                            DoctorMedicalTextArea(
+                              label: 'Diagnosa Medis',
+                              placeholder:
+                                  'Contoh: Influenza / Hipertensi stadium 1...',
+                              controller: _diagnosisController,
+                              maxLines: 3,
+                              validator: (v) => v == null || v.isEmpty
+                                  ? 'Diagnosa Medis tidak boleh kosong'
+                                  : null,
+                            ),
+                            const SizedBox(height: 24),
+                            DoctorMedicineForm(
+                              medicines: _medicines,
+                              onMedicinesChanged: () => setState(() {}),
+                            ),
+                            const SizedBox(height: 24),
+                            FormField<bool>(
+                              validator: (value) {
+                                if (_medicines.isEmpty &&
+                                    _treatmentNotesController.text
+                                        .trim()
+                                        .isEmpty) {
+                                  return 'Harap masukkan Catatan Tindakan atau minimal satu Resep Obat';
+                                }
+                                return null;
+                              },
+                              builder: (state) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    DoctorMedicalTextArea(
+                                      label: 'Catatan Tindakan Medis (Opsional)',
+                                      placeholder:
+                                          'Contoh: Edukasi untuk kurangi garam, istirahat tirah baring...',
+                                      controller: _treatmentNotesController,
+                                      maxLines: 3,
+                                      onChanged: (val) => state.didChange(true),
+                                    ),
+                                    if (state.hasError)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 8, left: 4),
+                                        child: Text(
+                                          state.errorText!,
+                                          style: GoogleFonts.poppins(
+                                            color: AppTheme.errorColor,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ], 
+                        ), 
+                      ), 
+                    ),
+                  ), 
                   const SizedBox(height: 40),
 
-                  // Submit Button
+                  // Submit
                   FadeInUp(
                     duration: const Duration(milliseconds: 600),
                     delay: const Duration(milliseconds: 200),
                     child: Consumer<DoctorProvider>(
                       builder: (context, provider, _) {
                         return ElevatedButton.icon(
-                          onPressed: provider.isLoading ? null : () => _submit(queue),
+                          onPressed: provider.isLoading
+                              ? null
+                              : () => _submit(queue),
                           icon: provider.isLoading
                               ? const SizedBox(
                                   width: 18,
                                   height: 18,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white), 
                                   ),
                                 )
-                              : const Icon(Icons.save_rounded, color: Colors.white),
+                              : const Icon(Icons.save_rounded,
+                                  color: Colors.white),
                           label: Text(
-                            provider.isLoading ? 'Menyimpan...' : 'Selesai & Simpan Pemeriksaan',
-                            style: GoogleFonts.plusJakartaSans(
+                            provider.isLoading
+                                ? 'Menyimpan...'
+                                : 'Selesai & Simpan Pemeriksaan',
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 15,
+                              color: Colors.white,
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor,
+                            backgroundColor: AppTheme.primaryColor, 
                             foregroundColor: Colors.white,
-                            minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context))),
+                            disabledBackgroundColor: AppTheme.primaryColor.withValues(alpha: 0.6), 
+                            minimumSize: Size(
+                                double.infinity,
+                                ResponsiveHelper.buttonHeight(context)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  ResponsiveHelper.radiusButton(context)),
+                            ),
                             elevation: 0,
                           ),
                         );
@@ -507,12 +539,8 @@ class _ExaminationFormScreenState extends State<ExaminationFormScreen> {
               ),
             ),
           ),
-        ],
+        ),
       ),
-    ),
     );
   }
-
-
-
 }

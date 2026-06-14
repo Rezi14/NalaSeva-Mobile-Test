@@ -13,47 +13,6 @@ class PharmacyQueueCard extends StatelessWidget {
     required this.onTap,
   });
 
-  LinearGradient _getPolyGradient(String code) {
-    switch (code) {
-      case 'POL-UMM':
-        return const LinearGradient(
-          colors: [Color(0xFF0F9B8E), Color(0xFF047857)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case 'POL-GIG':
-        return const LinearGradient(
-          colors: [Color(0xFF0EA5E9), Color(0xFF0369A1)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case 'POL-KIA':
-        return const LinearGradient(
-          colors: [Color(0xFFEC4899), Color(0xFFBE185D)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case 'POL-ANK':
-        return const LinearGradient(
-          colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case 'POL-LNS':
-        return const LinearGradient(
-          colors: [Color(0xFFF59E0B), Color(0xFFB45309)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      default:
-        return const LinearGradient(
-          colors: [Color(0xFF6B7280), Color(0xFF374151)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final patientName = payment.queue?.patient.name ?? 'Pasien';
@@ -65,20 +24,20 @@ class PharmacyQueueCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: AppTheme.backgroundGradient,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: AppTheme.accentColor.withValues(alpha: 0.2),
             blurRadius: 16,
             offset: const Offset(0, 6),
-          )
+          ),
         ],
         border: Border.all(
-          color: isPriority 
-              ? Colors.orange.withValues(alpha: 0.4) 
-              : Colors.grey.shade100,
-          width: 1.5,
+          color: isPriority
+              ? AppTheme.warningColor.withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.3),
+          width: 1.2,
         ),
       ),
       child: Material(
@@ -88,22 +47,26 @@ class PharmacyQueueCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(18.0),
+            padding: const EdgeInsets.all(18),
             child: Row(
               children: [
                 Container(
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    gradient: _getPolyGradient(polyCode),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.35),
+                      width: 1,
+                    ),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     polyCode.split('-').last,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w900,
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Colors.white,
                     ),
                   ),
@@ -118,25 +81,27 @@ class PharmacyQueueCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               patientName,
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.black87,
+                                fontSize: 15,
+                                color: Colors.white,
                               ),
                             ),
                           ),
                           if (isPriority) ...[
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.orange.withValues(alpha: 0.1),
+                                color: AppTheme.warningColor
+                                    .withValues(alpha: 0.25),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 'Lansia',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.orange.shade700,
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 10,
                                 ),
@@ -148,8 +113,8 @@ class PharmacyQueueCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         polyName,
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.grey[600],
+                        style: GoogleFonts.poppins(
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 13,
                         ),
                       ),
@@ -159,30 +124,32 @@ class PharmacyQueueCard extends StatelessWidget {
                         runSpacing: 4,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               'Siap Disiapkan',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: AppTheme.primaryColor,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 10,
                               ),
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withValues(alpha: 0.08),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               itemsCount > 0 ? '$itemsCount Resep' : 'Tanpa Obat',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: Colors.blue.shade700,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 10,
                               ),
@@ -197,14 +164,15 @@ class PharmacyQueueCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey.shade100),
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.3)),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.chevron_right_rounded,
                     size: 20,
-                    color: AppTheme.primaryColor.withValues(alpha: 0.8),
+                    color: Colors.white,
                   ),
                 ),
               ],

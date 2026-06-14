@@ -147,7 +147,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                         children: [
                                           Text(
                                             'Tiket Antrean',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black87,
@@ -156,7 +156,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                           const SizedBox(height: 4),
                                           Text(
                                             'Detail dan kartu akses antrean Anda',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 13,
                                               color: Colors.grey,
                                             ),
@@ -258,14 +258,14 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                     children: [
                                       Text(
                                         puskesmasName,
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
                                       ),
                                       Text(
                                         puskesmasAddress,
-                                        style: GoogleFonts.inter(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.grey.shade600,
                                         ),
@@ -300,7 +300,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                  const SizedBox(width: 6),
                                                  Text(
                                                    'Petunjuk Rute',
-                                                   style: GoogleFonts.plusJakartaSans(
+                                                   style: GoogleFonts.poppins(
                                                      fontSize: 12,
                                                      fontWeight: FontWeight.bold,
                                                      color: AppTheme.primaryColor,
@@ -327,7 +327,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                               children: [
                                 Text(
                                   'Nomor Antrean Anda',
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.poppins(
                                     color: Colors.grey.shade500,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -339,7 +339,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                     fit: BoxFit.scaleDown,
                                     child: Text(
                                       queue.queueNumber,
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: GoogleFonts.poppins(
                                         fontSize: 64,
                                         fontWeight: FontWeight.w900,
                                         color: AppTheme.primaryColor,
@@ -350,7 +350,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   queue.polyclinic.name,
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.poppins(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black87,
@@ -399,7 +399,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   Text(
                                     'Tunjukkan QR ini pada petugas pendaftaran',
                                     textAlign: TextAlign.center,
-                                    style: GoogleFonts.inter(
+                                    style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.grey.shade600,
@@ -457,7 +457,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                           padding: const EdgeInsets.only(left: 8, bottom: 16),
                           child: Text(
                             'Detail Kunjungan',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -545,7 +545,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                     children: [
                                       Text(
                                         'LAYANAN PRIORITAS LANSIA',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w800,
                                           color: const Color(0xFF2E7D32), // Deep Emerald Green
@@ -564,7 +564,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                         ),
                                         child: Text(
                                           'GOLD',
-                                          style: GoogleFonts.inter(
+                                          style: GoogleFonts.poppins(
                                             fontSize: 9,
                                             fontWeight: FontWeight.w900,
                                             color: Colors.white,
@@ -576,7 +576,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   const SizedBox(height: 6),
                                   Text(
                                     'Pasien berhak mendapatkan kemudahan jalur antrean khusus NalaSeva (Jalur Prioritas Lansia). Silakan langsung verifikasi kehadiran Anda ke loket prioritas Puskesmas.',
-                                    style: GoogleFonts.inter(
+                                    style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       color: const Color(0xFF388E3C), // Emerald Medium Green
                                       height: 1.5,
@@ -613,7 +613,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                           Expanded(
                             child: Text(
                               'Harap datang 15 menit sebelum waktu estimasi. Antrean dapat hangus jika nomor terlewat 3 kali panggilan.',
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.poppins(
                                 fontSize: 12,
                                 color: Colors.red.shade800,
                                 height: 1.5,
@@ -645,7 +645,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                           ),
                           label: Text(
                             _isCancellationLocked(queue) ? 'Pembatalan Dikunci (< 2 Jam)' : 'Batalkan Antrean',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -740,7 +740,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       context,
       'Batalkan Antrean?',
       'Apakah Anda yakin ingin membatalkan antrean ini? Tindakan ini tidak dapat dibatalkan.',
-      confirmText: 'YA, BATALKAN',
+      confirmText: 'Batalkan',
       isDestructive: true,
     );
 

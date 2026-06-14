@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/models/prescription_item_model.dart';
 import '../../../../core/theme/app_theme.dart';
 
@@ -42,19 +43,19 @@ class PrescriptionItemRow extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Dosis: $instruction',
-                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                  style: GoogleFonts.poppins(color: Colors.grey[700], fontSize: 14),
                 ),
               ],
             ),
           ),
           Text(
             '$qty $unit',
-            style: const TextStyle(
+            style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
               fontSize: 16,
               color: AppTheme.secondaryColor,
