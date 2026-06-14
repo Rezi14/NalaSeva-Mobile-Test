@@ -24,7 +24,8 @@ class BookingDropdownCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: enabled ? Colors.white : Colors.grey.shade50,
+        gradient: enabled ? AppTheme.backgroundGradient : null,
+        color: enabled ? null : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey.shade200),
       ),
@@ -35,7 +36,14 @@ class BookingDropdownCard extends StatelessWidget {
           initialValue: value,
           decoration: InputDecoration(
             border: InputBorder.none,
-            icon: Icon(icon, color: enabled ? AppTheme.primaryColor : Colors.grey, size: 22),
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: enabled ? Colors.white : Colors.grey.shade200,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: enabled ? AppTheme.primaryColor : Colors.grey, size: 18),
+            ),
           ),
           hint: Text(hint, style: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 14)),
           items: items,

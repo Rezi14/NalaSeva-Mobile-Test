@@ -19,6 +19,7 @@ class PatientPaymentListScreen extends StatefulWidget {
 
 class _PatientPaymentListScreenState extends State<PatientPaymentListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _filterScrollController = ScrollController();
   String _searchQuery = '';
   String? _selectedStatusFilter;
 
@@ -33,6 +34,7 @@ class _PatientPaymentListScreenState extends State<PatientPaymentListScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _filterScrollController.dispose();
     super.dispose();
   }
 

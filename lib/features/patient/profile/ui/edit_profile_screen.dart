@@ -61,8 +61,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             address: _addressController.text.trim(),
             nationalId: _nikController.text.trim(),
             gender: _gender,
-            birthDate: _selectedBirthDate != null 
-                ? DateFormat('yyyy-MM-dd').format(_selectedBirthDate!) 
+            birthDate: _selectedBirthDate != null
+                ? DateFormat('yyyy-MM-dd').format(_selectedBirthDate!)
                 : null,
           );
       if (mounted) {
@@ -104,7 +104,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Colors.white,
       body: ResponsiveCenter(
         maxWidth: 700,
         child: Column(
@@ -160,15 +160,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           fontSize: 13,
                                           color: Colors.grey,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -263,7 +263,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       );
                     }).toList(),
@@ -300,51 +300,130 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               color: _selectedBirthDate == null ? Colors.grey : Colors.black87,
                               fontSize: 16,
                             ),
-                          ),
-                          const Icon(Icons.calendar_today_outlined, color: Colors.grey, size: 20),
-                        ],
+                          );
+                        }).toList(),
                       ),
-                    ),
+                      const SizedBox(height: 20),
+
+                      // Tanggal Lahir
+                      Text(
+                        'Tanggal Lahir',
+                        style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: _selectBirthDate,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.cake_outlined,
+                                      color: Colors.grey, size: 20),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    _selectedBirthDate == null
+                                        ? 'Pilih Tanggal Lahir'
+                                        : DateFormat('dd MMMM yyyy', 'id_ID')
+                                            .format(_selectedBirthDate!),
+                                    style: GoogleFonts.poppins(
+                                      color: _selectedBirthDate == null
+                                          ? Colors.grey
+                                          : Colors.black87,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Icon(Icons.calendar_today_outlined,
+                                  color: Colors.grey, size: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Nomor WhatsApp
+                      _buildSectionLabel('Nomor WhatsApp (Opsional)'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _phoneController,
+                        label: 'Nomor WhatsApp (Opsional)',
+                        icon: Icons.phone_android_outlined,
+                        keyboardType: TextInputType.phone,
+                        validator: (v) {
+                          if (v != null && v.isNotEmpty && v.length < 9) {
+                            return 'Nomor HP minimal 9 digit';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Alamat
+                      _buildSectionLabel('Alamat Rumah / Praktek (Opsional)'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _addressController,
+                        label: 'Alamat Rumah / Praktek (Opsional)',
+                        icon: Icons.location_on_outlined,
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Save Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _handleUpdate,
+                          style: ElevatedButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16)),
+                          child: isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
+                              : Text(
+                                  'SIMPAN PERUBAHAN',
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600),
+                                ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+                    ],
                   ),
-                ],
-              ),const SizedBox(height: 16),
-              _buildTextField(
-                controller: _phoneController,
-                label: 'Nomor WhatsApp (Opsional)',
-                icon: Icons.phone_android_outlined,
-                validator: (v) {
-                  if (v != null && v.isNotEmpty && v.length < 9) {
-                    return 'Nomor HP minimal 9 digit';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _addressController,
-                label: 'Alamat (Opsional)',
-                icon: Icons.location_on_outlined,
-                maxLines: 2,
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : _handleUpdate,
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                  child: isLoading 
-                      ? const CircularProgressIndicator(color: Colors.white) 
-                      : const Text('SIMPAN PERUBAHAN'),
-                ),
-              ),
-                  ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
+    );
+  }
+
+  Widget _buildSectionLabel(String label) {
+    return Text(
+      label,
+      style: GoogleFonts.poppins(
+        fontSize: 14,
+        color: Colors.grey.shade700,
+        fontWeight: FontWeight.w500,
+      ),
     );
   }
 
@@ -369,6 +448,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: GoogleFonts.poppins(
+            fontSize: 14, color: Colors.grey.shade600),
         prefixIcon: Icon(icon, color: Colors.grey),
         filled: true,
         fillColor: readOnly ? Colors.grey.shade100 : Colors.white,

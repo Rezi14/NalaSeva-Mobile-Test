@@ -102,7 +102,7 @@ class BookingResultDialog extends StatelessWidget {
                         children: [
                           Text(
                             isSuccess ? 'Pendaftaran Berhasil' : 'Pendaftaran Gagal',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.poppins(
                               fontSize: headSz,
                               fontWeight: FontWeight.bold,
                               color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
@@ -141,7 +141,7 @@ class BookingResultDialog extends StatelessWidget {
                 Text(
                   isSuccess ? 'Pendaftaran Berhasil' : 'Pendaftaran Gagal',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.poppins(
                     fontSize: headSz,
                     fontWeight: FontWeight.bold,
                     color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
