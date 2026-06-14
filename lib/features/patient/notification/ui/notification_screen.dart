@@ -28,20 +28,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<PatientProvider>();
-
-    final activeQueues = provider.myQueues
-      .where((q) => q.status.isActive)
-      .toList();
-    final completedQueues = provider.myQueues
-        .where((q) => q.status == QueueStatus.completed)
-        .toList();
-    final cancelledQueues = provider.myQueues
-        .where((q) => q.status == QueueStatus.cancelled)
-        .toList();
-
-    final hasAnyData = activeQueues.isNotEmpty ||
-        completedQueues.isNotEmpty ||
-        cancelledQueues.isNotEmpty;
+    final activeQueues = provider.myQueues.where((q) => q.status.isActive).toList();
+    final completedQueues = provider.myQueues.where((q) => q.status == QueueStatus.completed).toList();
+    final cancelledQueues = provider.myQueues.where((q) => q.status == QueueStatus.cancelled).toList();
+    final hasAnyData = activeQueues.isNotEmpty || completedQueues.isNotEmpty || cancelledQueues.isNotEmpty;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -49,102 +39,97 @@ class _NotificationScreenState extends State<NotificationScreen> {
         maxWidth: 800,
         child: Column(
           children: [
-          // ── Header ──────────────────────────────────────────────
-          FadeIn(
-            duration: const Duration(milliseconds: 400),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
+            FadeIn(
+              duration: const Duration(milliseconds: 400),
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: AppTheme.backgroundGradient,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
-                  child: AnimationLimiter(
-                    child: Column(
-                      children: [
-                        AnimationConfiguration.staggeredList(
-                          position: 0,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            verticalOffset: 30.0,
-                            child: FadeInAnimation(
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    icon: const Icon(
-                                        Icons.arrow_back_ios_new_rounded,
-                                        size: 20),
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    color: AppTheme.primaryColor,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Notifikasi',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                    child: AnimationLimiter(
+                      child: Column(
+                        children: [
+                          AnimationConfiguration.staggeredList(
+                            position: 0,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 30.0,
+                              child: FadeInAnimation(
+                                child: Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () => Navigator.pop(context),
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: const Icon(
+                                          Icons.arrow_back_ios_new_rounded,
+                                          size: 18,
+                                          color: Colors.white,
                                         ),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        'Pantau status antrean Anda',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 13,
-                                          color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Notifikasi',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Pantau status antrean Anda',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: Colors.white.withValues(alpha: 0.8),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // ── Body ────────────────────────────────────────────────
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: provider.fetchMyData,
-              color: AppTheme.primaryColor,
-              child: provider.isLoading && provider.myQueues.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : !hasAnyData
-                      ? _emptyState()
-                      : SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
-                          child: AnimationLimiter(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children:
-                                  AnimationConfiguration.toStaggeredList(
-                                duration: const Duration(milliseconds: 400),
-                                childAnimationBuilder: (widget) =>
-                                    SlideAnimation(
-                                  verticalOffset: 40.0,
-                                  child: FadeInAnimation(child: widget),
-                                ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: provider.fetchMyData,
+                color: AppTheme.primaryColor,
+                child: provider.isLoading && provider.myQueues.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : !hasAnyData
+                        ? _emptyState()
+                        : SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+                            child: AnimationLimiter(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // ── Antrean Aktif ──────────────
                                   if (activeQueues.isNotEmpty) ...[
                                     _sectionHeader(
                                       'Antrean Aktif',
@@ -157,19 +142,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                           icon: Icons.confirmation_number_rounded,
                                           iconColor: AppTheme.primaryColor,
                                           title: _statusLabel(q.status),
-                                          subtitle:
-                                              '${q.polyclinic.name} · No. Antrean ${q.queueNumber}',
+                                          subtitle: '${q.polyclinic.name} · No. Antrean ${q.queueNumber}',
                                           message: _statusMessage(q.status, q.polyclinic.name, q.queueNumber),
                                           badge: _statusBadge(q.status),
                                           badgeColor: _statusColor(q.status),
-                                          onTap: () => Navigator.pushNamed(
-                                              context, '/patient/home'),
+                                          onTap: () => Navigator.pushNamed(context, '/patient/home'),
                                           actionLabel: 'Lihat Tiket',
                                         )),
                                     const SizedBox(height: 24),
                                   ],
 
-                                  // ── Layanan Selesai ───────────
                                   if (completedQueues.isNotEmpty) ...[
                                     _sectionHeader(
                                       'Layanan Selesai',
@@ -182,18 +164,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                           iconColor: AppTheme.successColor,
                                           title: 'Pemeriksaan Selesai',
                                           subtitle: q.polyclinic.name,
-                                          message:
-                                              'Pemeriksaan Anda di ${q.polyclinic.name} telah selesai. Semoga lekas sembuh!',
+                                          message: 'Pemeriksaan Anda di ${q.polyclinic.name} telah selesai. Semoga lekas sembuh!',
                                           badge: 'SELESAI',
                                           badgeColor: AppTheme.successColor,
-                                          onTap: () => Navigator.pushNamed(
-                                              context, '/patient/history'),
+                                          onTap: () => Navigator.pushNamed(context, '/patient/history'),
                                           actionLabel: 'Lihat Rekam Medis',
                                         )),
                                     const SizedBox(height: 24),
                                   ],
 
-                                  // ── Dibatalkan ────────────────
                                   if (cancelledQueues.isNotEmpty) ...[
                                     _sectionHeader(
                                       'Dibatalkan',
@@ -206,15 +185,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                           iconColor: AppTheme.cancelColor,
                                           title: 'Antrean Dibatalkan',
                                           subtitle: q.polyclinic.name,
-                                          message:
-                                              'Antrean Anda di ${q.polyclinic.name} (No. ${q.queueNumber}) telah dibatalkan.',
-                                          badge: 'BATAL',
+                                          message: 'Antrean Anda di ${q.polyclinic.name} (No. ${q.queueNumber}) telah dibatalkan.',
+                                          badge: 'Batal',
                                           badgeColor: AppTheme.cancelColor,
                                         )),
                                     const SizedBox(height: 24),
                                   ],
 
-                                  // ── Saran Kesehatan ───────────
                                   _sectionHeader(
                                     'Saran Kesehatan',
                                     Icons.favorite_rounded,
@@ -223,8 +200,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                   const SizedBox(height: 12),
                                   ..._healthTips.map((tip) => PatientNotificationCard(
                                         icon: tip['icon'] as IconData,
-                                        iconColor:
-                                            tip['color'] as Color,
+                                        iconColor: tip['color'] as Color,
                                         title: tip['title'] as String,
                                         message: tip['message'] as String,
                                         subtitle: 'Tips Kesehatan',
@@ -233,16 +209,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               ),
                             ),
                           ),
-                        ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
+    );
+  }
 
   Widget _emptyState() {
     return ListView(
@@ -268,7 +241,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
               const SizedBox(height: 20),
               Text(
                 'Tidak ada notifikasi',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.poppins(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -278,7 +251,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
               Text(
                 'Notifikasi antrean Anda akan\nmuncul di sini.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.poppins(
                   fontSize: 13,
                   color: Colors.grey.shade600,
                   height: 1.6,
@@ -291,8 +264,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  Widget _sectionHeader(String label, IconData icon, Color color,
-      {int? badge}) {
+  Widget _sectionHeader(String label, IconData icon, Color color, {int? badge}) {
     return Row(
       children: [
         Container(
@@ -306,7 +278,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         const SizedBox(width: 10),
         Text(
           label,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.poppins(
             fontSize: 15,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
@@ -322,7 +294,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
             child: Text(
               '$badge',
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.poppins(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -333,7 +305,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ],
     );
   }
-
 
   String _statusLabel(QueueStatus status) {
     switch (status) {
@@ -348,8 +319,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
-  String _statusMessage(
-      QueueStatus status, String polyName, String queueNumber) {
+  String _statusMessage(QueueStatus status, String polyName, String queueNumber) {
     switch (status) {
       case QueueStatus.booked:
         return 'Pendaftaran Anda di $polyName dikonfirmasi. Nomor antrean: $queueNumber. Harap hadir tepat waktu.';
@@ -365,13 +335,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
   String _statusBadge(QueueStatus status) {
     switch (status) {
       case QueueStatus.booked:
-        return 'TERDAFTAR';
+        return 'Terdaftar';
       case QueueStatus.waiting:
-        return 'MENUNGGU';
+        return 'Menunggu';
       case QueueStatus.examining:
-        return 'DIPANGGIL';
+        return 'Dipanggil';
       default:
-        return 'AKTIF';
+        return 'Aktif';
     }
   }
 
@@ -393,22 +363,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
       'icon': Icons.water_drop_rounded,
       'color': Colors.blue.shade400,
       'title': 'Hidrasi Cukup',
-      'message':
-          'Minum air putih minimal 8 gelas sehari untuk menjaga hidrasi dan kesehatan tubuh Anda.',
+      'message': 'Minum air putih minimal 8 gelas sehari untuk menjaga hidrasi dan kesehatan tubuh Anda.',
     },
     {
       'icon': Icons.bedtime_rounded,
       'color': Colors.indigo.shade400,
       'title': 'Tidur Berkualitas',
-      'message':
-          'Pastikan tidur 7–8 jam per malam. Tidur cukup meningkatkan imunitas dan konsentrasi.',
+      'message': 'Pastikan tidur 7–8 jam per malam. Tidur cukup meningkatkan imunitas dan konsentrasi.',
     },
     {
       'icon': Icons.directions_run_rounded,
       'color': Colors.orange.shade400,
       'title': 'Aktif Bergerak',
-      'message':
-          'Lakukan aktivitas fisik ringan 30 menit sehari, seperti jalan kaki atau peregangan.',
+      'message': 'Lakukan aktivitas fisik ringan 30 menit sehari, seperti jalan kaki atau peregangan.',
     },
   ];
 }

@@ -32,7 +32,6 @@ class AdminExaminationCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header tanggal & badge
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -74,7 +73,6 @@ class AdminExaminationCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
 
-            // Info pasien
             Row(
               children: [
                 CircleAvatar(
@@ -111,7 +109,6 @@ class AdminExaminationCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Info dokter
             Row(
               children: [
                 CircleAvatar(

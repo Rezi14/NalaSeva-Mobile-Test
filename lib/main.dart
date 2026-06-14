@@ -24,7 +24,6 @@ import 'shared/widgets/session_timeout_listener.dart';
 import 'shared/widgets/connectivity_banner.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:device_preview/device_preview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,26 +51,23 @@ void main() async {
       PuskesmasProfileProvider(puskesmasProfileRepository);
 
   runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      builder: (context) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-              create: (_) => AuthProvider(authRepository, fcmService)),
-          ChangeNotifierProvider(
-              create: (_) => AdminProvider(adminRepository)),
-          ChangeNotifierProvider(
-              create: (_) => DoctorProvider(doctorRepository)),
-          ChangeNotifierProvider(
-              create: (_) => PatientProvider(patientRepository)),
-          ChangeNotifierProvider(
-              create: (_) => PaymentProvider(paymentRepository)),
-          ChangeNotifierProvider(
-              create: (_) => PharmacyProvider(pharmacyRepository)),
-          ChangeNotifierProvider.value(value: puskesmasProfileProvider),
-        ],
-        child: const NalasevaApp(),
-      ),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (_) => AuthProvider(authRepository, fcmService)),
+        ChangeNotifierProvider(
+            create: (_) => AdminProvider(adminRepository)),
+        ChangeNotifierProvider(
+            create: (_) => DoctorProvider(doctorRepository)),
+        ChangeNotifierProvider(
+            create: (_) => PatientProvider(patientRepository)),
+        ChangeNotifierProvider(
+            create: (_) => PaymentProvider(paymentRepository)),
+        ChangeNotifierProvider(
+            create: (_) => PharmacyProvider(pharmacyRepository)),
+        ChangeNotifierProvider.value(value: puskesmasProfileProvider),
+      ],
+      child: const NalasevaApp(),
     ),
   );
 }

@@ -26,28 +26,28 @@ class AdminQueueTile extends StatelessWidget {
 
     switch (queue.status) {
       case QueueStatus.booked:
-        badgeColor = AppTheme.warningColor.withValues(alpha: 0.1);
+        badgeColor = AppTheme.warningColor.withValues(alpha: 0.25);
         textColor = AppTheme.warningColor;
         break;
       case QueueStatus.waiting:
-        badgeColor = AppTheme.accentColor.withValues(alpha: 0.1);
+        badgeColor = AppTheme.accentColor.withValues(alpha: 0.25);
         textColor = AppTheme.accentColor;
         break;
       case QueueStatus.examining:
-        badgeColor = AppTheme.secondaryColor.withValues(alpha: 0.1);
+        badgeColor = AppTheme.secondaryColor.withValues(alpha: 0.25);
         textColor = AppTheme.secondaryColor;
         break;
       case QueueStatus.completed:
-        badgeColor = AppTheme.successColor.withValues(alpha: 0.1);
+        badgeColor = AppTheme.successColor.withValues(alpha: 0.25);
         textColor = AppTheme.successColor;
         break;
       case QueueStatus.cancelled:
-        badgeColor = AppTheme.cancelColor.withValues(alpha: 0.1);
+        badgeColor = AppTheme.cancelColor.withValues(alpha: 0.25);
         textColor = AppTheme.cancelColor;
         break;
       case QueueStatus.unknown:
-        badgeColor = Colors.grey.withValues(alpha: 0.1);
-        textColor = Colors.grey;
+        badgeColor = Colors.white.withValues(alpha: 0.2);
+        textColor = Colors.white70;
         break;
     }
 
@@ -57,29 +57,24 @@ class AdminQueueTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: AppTheme.backgroundGradient,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          border: Border.all(color: Colors.grey.shade100),
+          border: Border.all(
+              color: Colors.white.withValues(alpha: 0.15), width: 1),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 queue.queueNumber,
-                style: GoogleFonts.plusJakartaSans(
-                  color: AppTheme.primaryColor,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
@@ -92,18 +87,18 @@ class AdminQueueTile extends StatelessWidget {
                 children: [
                   Text(
                     queue.patient.fullName,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
-                      color: Colors.black87,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     queue.polyclinic.name,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: Colors.grey.shade600,
+                      color: Colors.white.withValues(alpha: 0.72),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -111,14 +106,17 @@ class AdminQueueTile extends StatelessWidget {
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: badgeColor,
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: textColor.withValues(alpha: 0.5)),
               ),
               child: Text(
                 label,
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.poppins(
                   color: textColor,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -130,12 +128,14 @@ class AdminQueueTile extends StatelessWidget {
               const SizedBox(width: 10),
               IconButton(
                 onPressed: onCall,
-                icon: const Icon(Icons.volume_up_rounded, color: AppTheme.primaryColor, size: 20),
+                icon: const Icon(Icons.volume_up_rounded,
+                    color: Colors.white, size: 20),
                 tooltip: 'Panggil Pasien',
                 style: IconButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   padding: const EdgeInsets.all(8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
               ),
             ],
@@ -143,12 +143,14 @@ class AdminQueueTile extends StatelessWidget {
               const SizedBox(width: 10),
               IconButton(
                 onPressed: onSkip,
-                icon: const Icon(Icons.low_priority_rounded, color: AppTheme.warningColor, size: 20),
+                icon: Icon(Icons.low_priority_rounded,
+                    color: AppTheme.warningColor, size: 20),
                 tooltip: 'Lewati & Pindah ke Belakang',
                 style: IconButton.styleFrom(
-                  backgroundColor: AppTheme.warningColor.withValues(alpha: 0.1),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   padding: const EdgeInsets.all(8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
               ),
             ],

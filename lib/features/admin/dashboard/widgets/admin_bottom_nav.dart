@@ -12,21 +12,17 @@ class AdminBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paddingV   = ResponsiveHelper.bottomNavPaddingV(context);
-    final iconSz     = ResponsiveHelper.navIconSize(context);
-    final centerPad  = ResponsiveHelper.bottomNavFabPadding(context);
+    final paddingV    = ResponsiveHelper.bottomNavPaddingV(context);
+    final iconSz      = ResponsiveHelper.navIconSize(context);
+    final centerPad   = ResponsiveHelper.bottomNavFabPadding(context);
     final centerIconSz = ResponsiveHelper.iconSize(context, base: 26);
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
+        color: AppTheme.cardColor,
+        border: const Border(
+          top: BorderSide(color: Color(0xFFDCEEE7), width: 1),
+        ),
       ),
       child: SafeArea(
         top: false,

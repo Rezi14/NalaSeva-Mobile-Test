@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/models/queue_model.dart';
 import '../../../../shared/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -20,7 +21,13 @@ class AdminPatientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = queue.patient.fullName.isNotEmpty
-        ? queue.patient.fullName.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
+        ? queue.patient.fullName
+            .split(' ')
+            .where((e) => e.isNotEmpty)
+            .map((e) => e[0])
+            .take(2)
+            .join()
+            .toUpperCase()
         : '?';
 
     Color statusColor;
@@ -28,51 +35,54 @@ class AdminPatientCard extends StatelessWidget {
     switch (queue.status) {
       case QueueStatus.booked:
         statusColor = AppTheme.warningColor;
-        statusBg = AppTheme.warningColor.withValues(alpha: 0.1);
+        statusBg = Colors.white.withValues(alpha: 0.2);
         break;
       case QueueStatus.waiting:
-        statusColor = AppTheme.accentColor;
-        statusBg = AppTheme.accentColor.withValues(alpha: 0.1);
+        statusColor = Colors.white;
+        statusBg = Colors.white.withValues(alpha: 0.2);
         break;
       case QueueStatus.examining:
         statusColor = AppTheme.secondaryColor;
-        statusBg = AppTheme.secondaryColor.withValues(alpha: 0.1);
+        statusBg = Colors.white.withValues(alpha: 0.2);
         break;
       case QueueStatus.completed:
         statusColor = AppTheme.successColor;
-        statusBg = AppTheme.successColor.withValues(alpha: 0.1);
+        statusBg = Colors.white.withValues(alpha: 0.2);
         break;
       case QueueStatus.cancelled:
         statusColor = AppTheme.cancelColor;
-        statusBg = AppTheme.cancelColor.withValues(alpha: 0.1);
+        statusBg = Colors.white.withValues(alpha: 0.2);
         break;
       case QueueStatus.unknown:
-        statusColor = Colors.grey;
-        statusBg = Colors.grey.withValues(alpha: 0.1);
+        statusColor = Colors.white70;
+        statusBg = Colors.white.withValues(alpha: 0.15);
         break;
     }
 
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: AppTheme.backgroundGradient,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade100),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.15),
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+              backgroundColor: Colors.white.withValues(alpha: 0.2),
               child: Text(
                 initials,
-                style: const TextStyle(
-                  color: AppTheme.primaryColor,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -83,17 +93,18 @@ class AdminPatientCard extends StatelessWidget {
                 children: [
                   Text(
                     queue.patient.fullName,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'ID: ${queue.queueNumber}',
-                    style: const TextStyle(
+                    'No: ${queue.queueNumber}',
+                    style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: Colors.white.withValues(alpha: 0.72),
                     ),
                   ),
                 ],
@@ -103,21 +114,23 @@ class AdminPatientCard extends StatelessWidget {
                 ? ElevatedButton(
                     onPressed: onCheckIn,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.successColor,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppTheme.primaryColor,
                       elevation: 0,
                       minimumSize: const Size(80, 40),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'ABSEN',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                         letterSpacing: 0.5,
+                        color: AppTheme.primaryColor,
                       ),
                     ),
                   )
@@ -125,26 +138,44 @@ class AdminPatientCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: statusBg,
                           borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          queue.status.displayName.toUpperCase(),
-                          style: TextStyle(
-                            color: statusColor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
                           ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: statusColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              queue.status.displayName.toUpperCase(),
+                              style: GoogleFonts.poppins(
+                                color: statusColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         queue.date,
-                        style: const TextStyle(
+                        style: GoogleFonts.poppins(
                           fontSize: 11,
-                          color: Colors.grey,
+                          color: Colors.white.withValues(alpha: 0.72),
                         ),
                       ),
                     ],

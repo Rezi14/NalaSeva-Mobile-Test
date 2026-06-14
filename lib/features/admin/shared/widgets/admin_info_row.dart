@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class AdminInfoRow extends StatelessWidget {
   final IconData icon;
@@ -26,7 +27,7 @@ class AdminInfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.poppins(
                   fontSize: 11,
                   color: Colors.grey,
                 ),
@@ -34,10 +35,10 @@ class AdminInfoRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 value,
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: AppTheme.primaryColor,
                 ),
               ),
             ],

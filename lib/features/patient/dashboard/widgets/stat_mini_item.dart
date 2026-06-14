@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class StatMiniItem extends StatelessWidget {
   final String label;
@@ -17,12 +18,19 @@ class StatMiniItem extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 10),
+          style: GoogleFonts.poppins(
+            color: Colors.white.withValues(alpha: 0.7), 
+            fontSize: 10,
+          ),
         ),
         const SizedBox(height: 2),
         Text(
           value,
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+          style: GoogleFonts.poppins(
+            color: Colors.white, 
+            fontSize: 15, 
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );

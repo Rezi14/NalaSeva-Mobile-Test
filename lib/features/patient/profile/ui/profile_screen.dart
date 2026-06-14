@@ -21,16 +21,14 @@ class ProfileScreen extends StatelessWidget {
         maxWidth: 800,
         child: Column(
           children: [
-            // ── Header gradient hijau (pendek, seperti edit profil) ──
-            FadeIn(
-              duration: const Duration(milliseconds: 400),
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: AppTheme.backgroundGradient,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
+          FadeIn(
+            duration: const Duration(milliseconds: 400),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
                 ),
                 child: SafeArea(
                   bottom: false,
@@ -39,28 +37,47 @@ class ProfileScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(
-                                Icons.arrow_back_ios_new_rounded,
-                                size: 20,
-                                color: Colors.white,
-                              ),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                            ),
-                            const SizedBox(width: 16),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Profil Saya',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                        AnimationConfiguration.staggeredList(
+                          position: 0,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            verticalOffset: 30.0,
+                            child: FadeInAnimation(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        color: AppTheme.primaryColor,
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Profil Saya',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Data diri dan informasi akun Anda',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -107,159 +124,93 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
-
-            // ── Konten scrollable (putih) ──
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
-                child: Column(
-                  children: [
-                    // Avatar + Nama + Email + Badge
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 450),
-                      delay: const Duration(milliseconds: 80),
-                      child: Column(
-                        children: [
-                          CircleAvatar(
-                            radius: 48,
-                            backgroundColor:
-                                AppTheme.primaryColor.withValues(alpha: 0.12),
-                            child: CircleAvatar(
-                              radius: 41,
-                              backgroundColor: AppTheme.primaryColor,
-                              child: Text(
-                                user?.name != null && user!.name.isNotEmpty
-                                    ? user.name
-                                        .split(' ')
-                                        .where((e) => e.isNotEmpty)
-                                        .map((e) => e[0])
-                                        .take(2)
-                                        .join()
-                                        .toUpperCase()
-                                    : 'P',
-                                style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            user?.name ?? 'Nama Pasien',
-                            style: GoogleFonts.poppins(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            user?.email ?? 'email@example.com',
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              color: Colors.grey.shade500,
-                            ),
-                          ),
-
-                        ],
-                      ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                child: CircleAvatar(
+                  radius: 54,
+                  backgroundColor: AppTheme.primaryColor,
+                  child: Text(
+                    user?.name != null && user!.name.isNotEmpty
+                        ? user.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
+                        : 'U',
+                    style: GoogleFonts.poppins(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-
-                    const SizedBox(height: 28),
-
-                    // Card Data Diri Pasien
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 500),
-                      delay: const Duration(milliseconds: 180),
-                      child: _buildInfoCard(
-                        title: 'Data Diri Pasien',
-                        rows: [
-                          _CardRow(
-                            icon: Icons.badge_outlined,
-                            label: 'NIK (Nomor Induk Kependudukan)',
-                            value: user?.nationalId ?? '-',
-                          ),
-                          _CardRow(
-                            icon: Icons.phone_android_outlined,
-                            label: 'Nomor WhatsApp/HP',
-                            value: user?.phone ?? '-',
-                          ),
-                          _CardRow(
-                            icon: Icons.location_on_outlined,
-                            label: 'Alamat Provinsi / Rumah',
-                            value: user?.address ?? '-',
-                          ),
-                          _CardRow(
-                            icon: Icons.person_outline,
-                            label: 'Jenis Kelamin',
-                            value: user?.gender ?? '-',
-                          ),
-                          _CardRow(
-                            icon: Icons.cake_outlined,
-                            label: 'Tanggal Lahir',
-                            value: user?.birthDate != null
-                                ? DateFormat('dd MMMM yyyy', 'id_ID')
-                                    .format(user!.birthDate!)
-                                : '-',
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Card Akun
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 500),
-                      delay: const Duration(milliseconds: 260),
-                      child: _buildInfoCard(
-                        title: 'Akun',
-                        rows: [
-                          _CardRow(
-                            icon: Icons.security_outlined,
-                            label: 'Role',
-                            value: user?.role.toUpperCase() ?? '-',
-                          ),
-                          _CardRow(
-                            icon: Icons.calendar_today_outlined,
-                            label: 'Bergabung Sejak',
-                            value: 'Mei 2024',
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Tombol logout
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 500),
-                      delay: const Duration(milliseconds: 340),
-                      child: ElevatedButton.icon(
-                        onPressed: () => _showLogoutConfirmation(context),
-                        icon: const Icon(Icons.logout_rounded,
-                            color: Colors.white),
-                        label: Text(
-                          'KELUAR DARI AKUN',
-                          style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.cancelColor,
-                          foregroundColor: Colors.white,
-                          minimumSize: Size(double.infinity,
-                              ResponsiveHelper.buttonHeight(context)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                ResponsiveHelper.radiusButton(context)),
-                          ),
-                          elevation: 0,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 100),
+              child: Text(
+                user?.name ?? 'Nama Pengguna',
+                style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 180),
+              child: Text(
+                user?.email ?? 'email@example.com',
+                style: GoogleFonts.poppins(color: Colors.grey[600]),
+              ),
+            ),
+            const SizedBox(height: 40),
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 260),
+              child: _buildInfoCard(
+                context,
+                title: 'Data Diri',
+                items: [
+                  _infoItem(Icons.phone_outlined, 'Nomor HP', user?.phone ?? '-'),
+                  _infoItem(Icons.location_on_outlined, 'Alamat', user?.address ?? '-'),
+                  _infoItem(Icons.badge_outlined, 'NIK', user?.nationalId ?? '-'),
+                  _infoItem(Icons.person_outline, 'Jenis Kelamin', user?.gender ?? '-'),
+                  _infoItem(Icons.cake_outlined, 'Tanggal Lahir', user?.birthDate != null ? DateFormat('dd MMMM yyyy').format(user!.birthDate!) : '-'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 340),
+              child: _buildInfoCard(
+                context,
+                title: 'Akun',
+                items: [
+                  _infoItem(Icons.security_outlined, 'Role', user?.role.toUpperCase() ?? '-'),
+                  _infoItem(Icons.calendar_today_outlined, 'Bergabung Sejak', 'Mei 2024'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+            FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              delay: const Duration(milliseconds: 420),
+              child: ElevatedButton.icon(
+                onPressed: () => _showLogoutConfirmation(context),
+                icon: const Icon(Icons.logout_rounded, color: Colors.white),
+                label: Text('Keluar dari Akun', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.cancelColor,
+                  foregroundColor: Colors.white,
+                  minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context))),
+                  elevation: 0,
                 ),
               ),
             ),
@@ -283,14 +234,7 @@ class ProfileScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
+          Text(title, style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
           const SizedBox(height: 16),
           ...rows.asMap().entries.map((entry) {
             final isLast = entry.key == rows.length - 1;
@@ -298,36 +242,8 @@ class ProfileScreen extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(row.icon, size: 18, color: Colors.white70),
-                    const SizedBox(width: 10),
-                    Text(
-                      row.label,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Padding(
-                  padding: const EdgeInsets.only(left: 28),
-                  child: Text(
-                    row.value,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                if (!isLast) ...[
-                  const SizedBox(height: 12),
-                  Divider(color: Colors.white.withValues(alpha: 0.15), height: 1),
-                  const SizedBox(height: 12),
-                ],
+                Text(label, style: GoogleFonts.poppins(color: Colors.grey[500], fontSize: 12)),
+                Text(value, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500)),
               ],
             );
           }),
@@ -341,7 +257,7 @@ class ProfileScreen extends StatelessWidget {
       context,
       'Konfirmasi Keluar',
       'Apakah Anda yakin ingin keluar dari akun Anda?',
-      confirmText: 'KELUAR',
+      confirmText: 'Keluar',
       isDestructive: true,
     );
 

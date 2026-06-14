@@ -78,14 +78,14 @@ class AdminDoctorFormSheet {
                   children: [
                   Text(
                     isEdit ? 'Edit Dokter' : 'Tambah Dokter Baru', 
-                    style: GoogleFonts.plusJakartaSans(fontSize: headSz, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(fontSize: headSz, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: pad),
                   TextFormField(
                     controller: nameController, 
                     decoration: const InputDecoration(
                       labelText: 'Nama Lengkap', 
-                      prefixIcon: Icon(Icons.person_outline_rounded),
+                      prefixIcon: Icon(Icons.person_outline_rounded, color: AppTheme.accentColor),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Nama lengkap tidak boleh kosong' : null,
                   ),
@@ -96,7 +96,7 @@ class AdminDoctorFormSheet {
                     maxLength: 16,
                     decoration: const InputDecoration(
                       labelText: 'NIK (Nomor Induk Kependudukan)', 
-                      prefixIcon: Icon(Icons.badge_outlined),
+                      prefixIcon: Icon(Icons.badge_outlined, color: AppTheme.accentColor),
                       counterText: '',
                     ),
                     validator: (v) {
@@ -111,7 +111,7 @@ class AdminDoctorFormSheet {
                       controller: emailController, 
                       decoration: const InputDecoration(
                         labelText: 'Email', 
-                        prefixIcon: Icon(Icons.email_outlined),
+                        prefixIcon: Icon(Icons.email_outlined, color: AppTheme.accentColor),
                       ),
                       validator: Validators.validateEmail,
                     ),
@@ -120,7 +120,7 @@ class AdminDoctorFormSheet {
                       controller: passwordController, 
                       decoration: const InputDecoration(
                         labelText: 'Kata Sandi', 
-                        prefixIcon: Icon(Icons.lock_outline_rounded),
+                        prefixIcon: Icon(Icons.lock_outline_rounded, color: AppTheme.accentColor),
                       ), 
                       obscureText: true,
                       validator: (v) {
@@ -131,12 +131,12 @@ class AdminDoctorFormSheet {
                     ),
                     const SizedBox(height: 16),
                   ],
-                  // Dropdown for Polyclinic Selection
+
                   DropdownButtonFormField<int>(
                     initialValue: selectedPolyclinicId,
                     decoration: const InputDecoration(
                       labelText: 'Layanan Poliklinik',
-                      prefixIcon: Icon(Icons.local_hospital_outlined),
+                      prefixIcon: Icon(Icons.local_hospital_outlined, color: AppTheme.accentColor),
                     ),
                     hint: const Text('Pilih Poliklinik'),
                     items: provider.polyclinics.map((poly) {
@@ -157,141 +157,164 @@ class AdminDoctorFormSheet {
                     controller: specController, 
                     decoration: const InputDecoration(
                       labelText: 'Spesialisasi', 
-                      prefixIcon: Icon(Icons.star_outline_rounded),
+                      prefixIcon: Icon(Icons.star_outline_rounded, color: AppTheme.accentColor),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Spesialisasi tidak boleh kosong' : null,
                   ),
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: licenseController, 
                     decoration: const InputDecoration(
                       labelText: 'Nomor SIP/Lisensi', 
-                      prefixIcon: Icon(Icons.card_membership_outlined),
+                      prefixIcon: Icon(Icons.card_membership_outlined, color: AppTheme.accentColor),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Nomor SIP / Lisensi tidak boleh kosong' : null,
                   ),
                   const SizedBox(height: 16),
+
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Gender Segmented Selection
+                    children: [ 
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Jenis Kelamin',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        child: DropdownButtonFormField<String>(
+                          initialValue: selectedGender,
+                          style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: AppTheme.primaryColor),
+                          decoration: InputDecoration(
+                            labelText: 'Jenis Kelamin',
+                            prefixIcon:
+                                const Icon(Icons.wc_rounded, color: AppTheme.accentColor,),
+                            contentPadding:
+                                const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                  color: Color(0xFFCDE8DE),
+                                  width: 1.5),
                             ),
-                            const SizedBox(height: 8),
-                            Container(
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => setState(() => selectedGender = 'Laki-laki'),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: selectedGender == 'Laki-laki' ? AppTheme.primaryColor : Colors.transparent,
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Laki-laki',
-                                          style: TextStyle(
-                                            color: selectedGender == 'Laki-laki' ? Colors.white : Colors.black87,
-                                            fontWeight: selectedGender == 'Laki-laki' ? FontWeight.bold : FontWeight.normal,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => setState(() => selectedGender = 'Perempuan'),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: selectedGender == 'Perempuan' ? AppTheme.primaryColor : Colors.transparent,
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Perempuan',
-                                          style: TextStyle(
-                                            color: selectedGender == 'Perempuan' ? Colors.white : Colors.black87,
-                                            fontWeight: selectedGender == 'Perempuan' ? FontWeight.bold : FontWeight.normal,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                  color: Color(0xFFCDE8DE),
+                                  width: 1.5),
                             ),
-                          ],
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                  color: AppTheme.accentColor,
+                                  width: 2),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                  color: AppTheme.errorColor,
+                                  width: 1.5),
+                            ),
+                          ),
+                          items: ['Laki-laki', 'Perempuan']
+                              .map((g) => DropdownMenuItem(
+                                    value: g,
+                                    child: Text(g,
+                                        style: GoogleFonts.poppins(
+                                            fontSize: 13)),
+                                  ))
+                              .toList(),
+                          onChanged: (val) =>
+                              setState(() => selectedGender = val),
+                          validator: (v) => v == null
+                              ? 'Pilih jenis kelamin'
+                              : null,
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // Birth Date Selection Card
+
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Tanggal Lahir',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            InkWell(
-                              onTap: selectBirthDate,
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                height: 48,
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.grey.shade300),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        selectedBirthDate == null
-                                            ? 'Pilih Tanggal'
-                                            : DateFormat('dd/MM/yyyy').format(selectedBirthDate!),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                        child: FormField<DateTime>(
+                          validator: (_) => selectedBirthDate == null
+                              ? 'Pilih tanggal lahir'
+                              : null,
+                          builder: (state) => Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              InkWell(
+                                onTap: () async {
+                                  await selectBirthDate();
+                                  state.didChange(selectedBirthDate);
+                                },
+                                borderRadius:
+                                    BorderRadius.circular(14),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white
+                                        .withValues(alpha: 0.9),
+                                    borderRadius:
+                                        BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: state.hasError
+                                          ? AppTheme.errorColor
+                                          : const Color(0xFFCDE8DE),
+                                      width: 1.5,
                                     ),
-                                    Icon(Icons.calendar_today_rounded, color: Colors.grey.shade500, size: 16),
-                                  ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today_rounded,
+                                        color: AppTheme.accentColor,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          selectedBirthDate == null
+                                              ? 'Tgl Lahir'
+                                              : DateFormat('dd/MM/yy')
+                                                  .format(
+                                                      selectedBirthDate!),
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: selectedBirthDate ==
+                                                    null
+                                                ? Colors.grey.shade400
+                                                : AppTheme.primaryColor,
+                                            fontWeight:
+                                                selectedBirthDate ==
+                                                        null
+                                                    ? FontWeight.w400
+                                                    : FontWeight.w600,
+                                          ),
+                                          overflow:
+                                              TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                              if (state.hasError)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 6, left: 4),
+                                  child: Text(
+                                    state.errorText!,
+                                    style: GoogleFonts.poppins(
+                                      color: AppTheme.errorColor,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -301,7 +324,7 @@ class AdminDoctorFormSheet {
                     controller: phoneController, 
                     decoration: const InputDecoration(
                       labelText: 'Nomor HP (Opsional)', 
-                      prefixIcon: Icon(Icons.phone_outlined),
+                      prefixIcon: Icon(Icons.phone_outlined, color: AppTheme.accentColor),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -309,7 +332,7 @@ class AdminDoctorFormSheet {
                     controller: addressController, 
                     decoration: const InputDecoration(
                       labelText: 'Alamat (Opsional)', 
-                      prefixIcon: Icon(Icons.location_on_outlined),
+                      prefixIcon: Icon(Icons.location_on_outlined,color: AppTheme.accentColor),
                     ),
                   ),
                   SizedBox(height: pad),
@@ -346,8 +369,8 @@ class AdminDoctorFormSheet {
                                 context,
                                 'Batalkan Perubahan?',
                                 'Apakah Anda yakin ingin membatalkan pengisian/perubahan data dokter ini?',
-                                confirmText: 'YA, BATALKAN',
-                                cancelText: 'TETAP EDIT',
+                                confirmText: 'Batalkan',
+                                cancelText: 'Tetap Edit',
                                 isDestructive: true,
                               );
                               if ((confirm ?? false) && context.mounted) {
@@ -366,7 +389,7 @@ class AdminDoctorFormSheet {
                           ),
                           child: Text(
                             'Batal',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.bold,
                               color: Colors.grey.shade700,
                             ),
@@ -385,8 +408,8 @@ class AdminDoctorFormSheet {
                               isEdit 
                                   ? 'Apakah Anda yakin ingin menyimpan perubahan data dokter ini?'
                                   : 'Apakah Anda yakin ingin menambahkan dokter baru ini?',
-                              confirmText: isEdit ? 'YA, UPDATE' : 'YA, SIMPAN',
-                              cancelText: 'BATAL',
+                              confirmText: isEdit ? 'Perbarui' : 'Simpan',
+                              cancelText: 'Batal',
                             );
                             if (!(confirm ?? false)) return;
 
@@ -445,7 +468,11 @@ class AdminDoctorFormSheet {
                                   height: 20,
                                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                 )
-                              : Text(isEdit ? 'Update' : 'Simpan', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold)),
+                              : Text(
+                                isEdit ? 'Perbarui' : 'Simpan', 
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white, fontWeight: FontWeight.bold)
+                                ),
                         ),
                       ),
                     ],

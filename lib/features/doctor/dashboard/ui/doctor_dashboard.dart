@@ -33,12 +33,14 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       provider.fetchMyQueues();
       provider.fetchMedicalRecords();
       provider.addListener(_onProviderError);
-      
+
       final authProvider = context.read<AuthProvider>();
       authProvider.checkAuth().then((_) {
         if (mounted) {
           final user = authProvider.user;
-          if (user != null && user.role == 'doctor' && user.isOnline != null) {
+          if (user != null &&
+              user.role == 'doctor' &&
+              user.isOnline != null) {
             provider.setOnlineStatus(user.isOnline!);
             _statusSynced = true;
           }
@@ -70,119 +72,132 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     final user = context.watch<AuthProvider>().user;
     final provider = context.watch<DoctorProvider>();
 
-    if (user != null && user.role == 'doctor' && user.isOnline != null && !_statusSynced) {
+    if (user != null &&
+        user.role == 'doctor' &&
+        user.isOnline != null &&
+        !_statusSynced) {
       _statusSynced = true;
       final doctorProvider = context.read<DoctorProvider>();
       Future.microtask(() {
-        if (mounted) {
-          doctorProvider.setOnlineStatus(user.isOnline!);
-        }
+        if (mounted) doctorProvider.setOnlineStatus(user.isOnline!);
       });
     }
 
     final initials = (user?.name ?? '').isNotEmpty
-      ? user!.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
-      : 'DR';
+        ? user!.name
+            .split(' ')
+            .where((e) => e.isNotEmpty)
+            .map((e) => e[0])
+            .take(2)
+            .join()
+            .toUpperCase()
+        : 'DR';
 
-    final myQueues = provider.queues.where((q) => q.doctorId == user?.doctorId).toList();
+    final myQueues =
+        provider.queues.where((q) => q.doctorId == user?.doctorId).toList();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
         children: [
-          // Premium Header
           FadeIn(
             duration: const Duration(milliseconds: 500),
             child: Container(
-              color: Colors.white,
+              decoration: const BoxDecoration(
+                gradient: AppTheme.backgroundGradient,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+              ),
               child: SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                   child: ResponsiveCenter(
                     maxWidth: 900,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => Navigator.pushNamed(context, '/doctor/profile'),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: const BoxDecoration(
-                                    color: AppTheme.primaryColor,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    initials,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => Navigator.pushNamed(context, '/doctor/profile'),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.18),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      initials,
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Portal Dokter',
-                                        style: GoogleFonts.inter(
-                                          color: Colors.grey.shade500,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Portal Dokter',
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white.withValues(alpha: 0.75),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        user?.name ?? 'Dokter',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          user?.name ?? 'Dokter',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey.shade200),
+                        const SizedBox(width: 16),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                          ),
+                          child: IconButton(
+                            onPressed: () => Navigator.pushNamed(context, '/doctor/profile'),
+                            icon: const Icon(Icons.person_outline_rounded, color: Colors.white),
+                            tooltip: 'Profil Saya',
+                          ),
                         ),
-                        child: IconButton(
-                          onPressed: () => Navigator.pushNamed(context, '/doctor/profile'),
-                          icon: const Icon(Icons.person_outline_rounded, color: AppTheme.primaryColor),
-                          tooltip: 'Profil Saya',
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              ),
             ),
           ),
-          
-          const Divider(height: 1),
 
           Expanded(
             child: RefreshIndicator(
@@ -194,7 +209,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                   authProvider.checkAuth(),
                 ]);
                 final user = authProvider.user;
-                if (user != null && user.role == 'doctor' && user.isOnline != null) {
+                if (user != null &&
+                    user.role == 'doctor' &&
+                    user.isOnline != null) {
                   provider.setOnlineStatus(user.isOnline!);
                 }
               },
@@ -206,77 +223,82 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    // Welcome & Active Toggle Status Card
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 500),
-                      delay: const Duration(milliseconds: 100),
-                      child: DoctorWelcomeCard(
-                        doctorName: user?.name ?? 'Dokter',
-                        isOnline: provider.isOnline,
-                        onToggleOnline: provider.toggleOnlineStatus,
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 100),
+                        child: DoctorWelcomeCard(
+                          doctorName: user?.name ?? 'Dokter',
+                          isOnline: provider.isOnline,
+                          onToggleOnline: provider.toggleOnlineStatus,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    // Stats Row
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 600),
-                      delay: const Duration(milliseconds: 200),
-                      child: _buildStatsRow(myQueues),
-                    ),
-                    const SizedBox(height: 24),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 600),
+                        delay: const Duration(milliseconds: 200),
+                        child: _buildStatsRow(myQueues),
+                      ),
+                      const SizedBox(height: 24),
 
-                    // Queue section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Antrean Aktif Saat Ini',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Antrean Aktif Saat Ini',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryColor,
+                            ),
                           ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () async {
-                            await Future.wait([
-                              provider.fetchMyQueues(),
-                              provider.fetchMedicalRecords(),
-                            ]);
-                          },
-                          icon: const Icon(Icons.refresh_rounded, size: 16, color: AppTheme.primaryColor),
-                          label: Text(
-                            'Refresh',
-                            style: GoogleFonts.plusJakartaSans(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
+                          TextButton.icon(
+                            onPressed: () async {
+                              await Future.wait([
+                                provider.fetchMyQueues(),
+                                provider.fetchMedicalRecords(),
+                              ]);
+                            },
+                            icon: const Icon(Icons.refresh_rounded,
+                                size: 16, color: AppTheme.primaryColor),
+                            label: Text(
+                              'Refresh',
+                              style: GoogleFonts.poppins(
+                                  color: AppTheme.primaryColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildQueueList(provider, myQueues),
-                    const SizedBox(height: 32),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _buildQueueList(provider, myQueues),
+                      const SizedBox(height: 32),
 
-                    // Analytics Chart (Kunjungan Pasien)
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 600),
-                      delay: const Duration(milliseconds: 300),
-                      child: DoctorWeeklyChart(medicalRecords: provider.medicalRecords),
-                    ),
-                  ],
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 600),
+                        delay: const Duration(milliseconds: 300),
+                        child: DoctorWeeklyChart(
+                            medicalRecords: provider.medicalRecords),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
         ],
       ),
     );
   }
 
   Widget _buildStatsRow(List<QueueModel> myQueues) {
-    final completedCount = myQueues.where((q) => q.status == QueueStatus.completed).length;
-    final activeCount = myQueues.where((q) => q.status == QueueStatus.waiting || q.status == QueueStatus.examining).length;
+    final completedCount =
+        myQueues.where((q) => q.status == QueueStatus.completed).length;
+    final activeCount = myQueues
+        .where((q) =>
+            q.status == QueueStatus.waiting ||
+            q.status == QueueStatus.examining)
+        .length;
 
     return Row(
       children: [
@@ -313,8 +335,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
-
-
   Widget _buildQueueList(DoctorProvider provider, List<QueueModel> myQueues) {
     if (provider.isLoading) {
       return const Center(
@@ -324,34 +344,46 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         ),
       );
     }
-    
-    final queues = myQueues.where((q) => q.status == QueueStatus.examining).toList();
-    
+
+    final queues =
+        myQueues.where((q) => q.status == QueueStatus.examining).toList();
+
     if (queues.isEmpty) {
       return FadeInUp(
         duration: const Duration(milliseconds: 500),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+          padding:
+              const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.grey.shade100),
+            border: Border.all(color: const Color(0xFFDCEEE7)),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.accentColor.withValues(alpha: 0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
                 radius: 40,
-                backgroundColor: Colors.grey.shade100,
-                child: Icon(Icons.people_alt_rounded, size: 40, color: Colors.grey.shade400),
+                backgroundColor:
+                    AppTheme.primaryColor.withValues(alpha: 0.08),
+                child: Icon(Icons.people_alt_rounded,
+                    size: 40,
+                    color: AppTheme.primaryColor.withValues(alpha: 0.5)),
               ),
               const SizedBox(height: 16),
               Text(
                 'Tidak ada antrean aktif saat ini',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  color: Colors.grey.shade600,
+                style: GoogleFonts.poppins(
+                  color: AppTheme.primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -360,7 +392,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               Text(
                 'Semua pasien hari ini telah selesai dilayani.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.poppins(
                   color: Colors.grey.shade400,
                   fontSize: 12,
                 ),
@@ -379,7 +411,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final q = queues[index];
-
           return AnimationConfiguration.staggeredList(
             position: index,
             duration: const Duration(milliseconds: 375),

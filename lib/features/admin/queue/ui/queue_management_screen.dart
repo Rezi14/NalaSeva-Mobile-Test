@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,9 +23,7 @@ class QueueManagementScreen extends StatefulWidget {
 class _QueueManagementScreenState extends State<QueueManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  
-  // State variables for filter
-  String? _selectedStatusFilter = QueueStatus.booked.value; 
+  String? _selectedStatusFilter;
   String? _selectedPolyclinicId;
 
   @override
@@ -40,25 +38,30 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
-    
+
     final filteredQueues = provider.queues.where((q) {
-      final matchesSearch = q.patient.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          q.queueNumber.toLowerCase().contains(_searchQuery.toLowerCase());
-      
-      final matchesStatus = _selectedStatusFilter == null || q.status.value == _selectedStatusFilter;
-      
-      final matchesPolyclinic = _selectedPolyclinicId == null || q.polyclinic.id.toString() == _selectedPolyclinicId;
-      
+      final matchesSearch =
+          q.patient.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              q.queueNumber.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesStatus =
+          _selectedStatusFilter == null || q.status.value == _selectedStatusFilter;
+      final matchesPolyclinic = _selectedPolyclinicId == null ||
+          q.polyclinic.id.toString() == _selectedPolyclinicId;
       return matchesSearch && matchesStatus && matchesPolyclinic;
     }).toList();
 
     final total = provider.queues.length;
-    final served = provider.queues.where((q) => q.status == QueueStatus.completed).length;
-    final waiting = provider.queues.where((q) => q.status == QueueStatus.waiting).length;
-    final examining = provider.queues.where((q) => q.status == QueueStatus.examining).length;
-    final cancelled = provider.queues.where((q) => q.status == QueueStatus.cancelled).length;
-    
-    final hasActiveFilter = _selectedStatusFilter != QueueStatus.booked.value || _selectedPolyclinicId != null;
+    final served =
+        provider.queues.where((q) => q.status == QueueStatus.completed).length;
+    final waiting =
+        provider.queues.where((q) => q.status == QueueStatus.waiting).length;
+    final examining =
+        provider.queues.where((q) => q.status == QueueStatus.examining).length;
+    final cancelled =
+        provider.queues.where((q) => q.status == QueueStatus.cancelled).length;
+
+    final hasActiveFilter =
+        _selectedStatusFilter != null || _selectedPolyclinicId != null;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -75,13 +78,10 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
                 onPressed: () => _openScanner(context),
                 backgroundColor: AppTheme.primaryColor,
                 elevation: 4,
-                icon: const Icon(
-                  Icons.qr_code_scanner_rounded,
-                  color: Colors.white,
-                ),
+                icon: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white),
                 label: Text(
-                  'SCAN ABSENSI',
-                  style: GoogleFonts.plusJakartaSans(
+                  'Scan Antrean',
+                  style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: 0.5,
@@ -95,328 +95,386 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
           maxWidth: 900,
           child: Column(
             children: [
-            // Header - static fade container with staggered slides
-            FadeIn(
-              duration: const Duration(milliseconds: 400),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
+              FadeIn(
+                duration: const Duration(milliseconds: 400),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: AppTheme.backgroundGradient,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(28),
+                      bottomRight: Radius.circular(28),
+                    ),
                   ),
-                ),
-                child: SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                    child: AnimationLimiter(
-                      child: Column(
-                        children: [
-                          AnimationConfiguration.staggeredList(
-                            position: 0,
-                            duration: const Duration(milliseconds: 375),
-                            child: SlideAnimation(
-                              verticalOffset: 30.0,
-                              child: FadeInAnimation(
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Manajemen Antrean',
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
+                  child: SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+                      child: AnimationLimiter(
+                        child: Column(
+                          children: [
+                            AnimationConfiguration.staggeredList(
+                              position: 0,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                verticalOffset: 30.0,
+                                child: FadeInAnimation(
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Manajemen Antrean',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            'Kelola pendaftaran pasien hari ini',
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontSize: 13,
-                                              color: Colors.grey,
+                                            Text(
+                                              'Kelola pendaftaran pasien hari ini',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.85),
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          AnimationConfiguration.staggeredList(
-                            position: 1,
-                            duration: const Duration(milliseconds: 375),
-                            child: SlideAnimation(
-                              verticalOffset: 30.0,
-                              child: FadeInAnimation(
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                        controller: _searchController,
-                                        onChanged: (val) => setState(() => _searchQuery = val),
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 14,
-                                          color: Colors.black87,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: 'Cari nama atau nomor antrean...',
-                                          hintStyle: GoogleFonts.plusJakartaSans(
-                                            color: Colors.grey.shade400,
-                                            fontSize: 14,
+                            const SizedBox(height: 20),
+                            AnimationConfiguration.staggeredList(
+                              position: 1,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                verticalOffset: 30.0,
+                                child: FadeInAnimation(
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white
+                                                .withValues(alpha: 0.9),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                           ),
-                                          prefixIcon: const Icon(Icons.search_rounded, size: 20, color: Colors.grey),
-                                          filled: true,
-                                          fillColor: Colors.grey.shade100,
-                                          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide.none,
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide.none,
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(
-                                              color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                                              width: 1.5,
+                                          child: TextField(
+                                            controller: _searchController,
+                                            onChanged: (val) => setState(
+                                                () => _searchQuery = val),
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              color: Colors.black87,
+                                            ),
+                                            decoration: InputDecoration(
+                                              hintText:
+                                                  'Cari nama atau nomor antrean...',
+                                              hintStyle: GoogleFonts.poppins(
+                                                color: Colors.grey.shade400,
+                                                fontSize: 14,
+                                              ),
+                                              prefixIcon: const Icon(
+                                                  Icons.search_rounded,
+                                                  size: 20,
+                                                  color: Colors.grey),
+                                              filled: true,
+                                              fillColor: Colors.transparent,
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 12,
+                                                      horizontal: 16),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                borderSide: BorderSide.none,
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                borderSide: BorderSide.none,
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                borderSide: const BorderSide(
+                                                    color: Colors.white,
+                                                    width: 1.5),
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
+                                      const SizedBox(width: 12),
+                                      InkWell(
                                         onTap: _showFilterSheet,
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius:
+                                            BorderRadius.circular(12),
                                         child: Container(
                                           padding: const EdgeInsets.all(12),
                                           decoration: BoxDecoration(
                                             color: hasActiveFilter
-                                                ? AppTheme.primaryColor.withValues(alpha: 0.1)
-                                                : Colors.white,
-                                            borderRadius: BorderRadius.circular(12),
+                                                ? Colors.white
+                                                : Colors.white
+                                                    .withValues(alpha: 0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                             border: Border.all(
                                               color: hasActiveFilter
-                                                  ? AppTheme.primaryColor.withValues(alpha: 0.3)
-                                                  : Colors.grey.shade200,
+                                                  ? AppTheme.primaryColor
+                                                      .withValues(alpha: 0.3)
+                                                  : Colors.white
+                                                      .withValues(alpha: 0.4),
                                             ),
                                           ),
                                           child: Icon(
                                             Icons.tune_rounded,
-                                            color: hasActiveFilter ? AppTheme.primaryColor : Colors.black87,
+                                            color: hasActiveFilter
+                                                ? AppTheme.primaryColor
+                                                : Colors.white,
                                             size: 20,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            
-            const Divider(height: 1),
 
-             // List with Stats Row integrated inside to scroll together
-             Expanded(
-               child: RefreshIndicator(
-                 onRefresh: provider.fetchQueues,
-                 child: provider.isLoading && provider.queues.isEmpty
-                     ? const Center(child: CircularProgressIndicator())
-                     : ListView.builder(
-                         padding: const EdgeInsets.all(24),
-                         itemCount: filteredQueues.isEmpty ? 3 : filteredQueues.length + 2,
-                         itemBuilder: (context, index) {
-                           if (index == 0) {
-                             // Stats Row at index 0 of the scrollable list
-                             return FadeInUp(
-                               duration: const Duration(milliseconds: 500),
-                               delay: const Duration(milliseconds: 250),
-                               child: Padding(
-                                 padding: const EdgeInsets.only(bottom: 24),
-                                 child: SingleChildScrollView(
-                                   scrollDirection: Axis.horizontal,
-                                   child: Row(
-                                     children: [
-                                       AdminMiniStatCard(width: 100, label: 'Total', value: total.toString(), bgColor: Colors.white, textColor: Colors.black87, border: true),
-                                       const SizedBox(width: 12),
-                                       AdminMiniStatCard(width: 100, label: 'Dilayani', value: served.toString(), bgColor: AppTheme.successColor.withValues(alpha: 0.1), textColor: AppTheme.successColor),
-                                       const SizedBox(width: 12),
-                                       AdminMiniStatCard(width: 100, label: 'Menunggu', value: waiting.toString(), bgColor: AppTheme.warningColor.withValues(alpha: 0.1), textColor: AppTheme.warningColor),
-                                       const SizedBox(width: 12),
-                                       AdminMiniStatCard(width: 100, label: 'Diperiksa', value: examining.toString(), bgColor: AppTheme.secondaryColor.withValues(alpha: 0.1), textColor: AppTheme.secondaryColor),
-                                       const SizedBox(width: 12),
-                                       AdminMiniStatCard(width: 100, label: 'Batal', value: cancelled.toString(), bgColor: AppTheme.cancelColor.withValues(alpha: 0.1), textColor: AppTheme.cancelColor),
-                                     ],
-                                   ),
-                                 ),
-                               ),
-                             );
-                           }
+              // List
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: provider.fetchQueues,
+                  child: provider.isLoading && provider.queues.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(24),
+                          itemCount: filteredQueues.isEmpty
+                              ? 3
+                              : filteredQueues.length + 2,
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return FadeInUp(
+                                duration: const Duration(milliseconds: 500),
+                                delay: const Duration(milliseconds: 250),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 24),
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: [
+                                        AdminMiniStatCard(
+                                            width: 100,
+                                            label: 'Total',
+                                            value: total.toString(),
+                                            bgColor: Colors.white,
+                                            textColor: AppTheme.primaryColor,
+                                            border: true),
+                                        const SizedBox(width: 12),
+                                        AdminMiniStatCard(
+                                            width: 100,
+                                            label: 'Dilayani',
+                                            value: served.toString(),
+                                            bgColor: AppTheme.successColor
+                                                .withValues(alpha: 0.1),
+                                            textColor: AppTheme.successColor),
+                                        const SizedBox(width: 12),
+                                        AdminMiniStatCard(
+                                            width: 100,
+                                            label: 'Menunggu',
+                                            value: waiting.toString(),
+                                            bgColor: AppTheme.warningColor
+                                                .withValues(alpha: 0.1),
+                                            textColor: AppTheme.warningColor),
+                                        const SizedBox(width: 12),
+                                        AdminMiniStatCard(
+                                            width: 100,
+                                            label: 'Diperiksa',
+                                            value: examining.toString(),
+                                            bgColor: AppTheme.secondaryColor
+                                                .withValues(alpha: 0.1),
+                                            textColor: AppTheme.secondaryColor),
+                                        const SizedBox(width: 12),
+                                        AdminMiniStatCard(
+                                            width: 100,
+                                            label: 'Batal',
+                                            value: cancelled.toString(),
+                                            bgColor: AppTheme.cancelColor
+                                                .withValues(alpha: 0.1),
+                                            textColor: AppTheme.cancelColor),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
 
-                           if (index == 1) {
-                             // Section Header label
-                             return FadeInUp(
-                               duration: const Duration(milliseconds: 500),
-                               delay: const Duration(milliseconds: 320),
-                               child: Padding(
-                                 padding: const EdgeInsets.only(bottom: 12),
-                                 child: Text(
-                                   'Pendaftaran Terbaru',
-                                   style: GoogleFonts.plusJakartaSans(
-                                     fontWeight: FontWeight.bold,
-                                     color: Colors.grey,
-                                     fontSize: 13,
-                                   ),
-                                 ),
-                               ),
-                             );
-                           }
+                            if (index == 1) {
+                              return FadeInUp(
+                                duration: const Duration(milliseconds: 500),
+                                delay: const Duration(milliseconds: 320),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: Text(
+                                    'Pendaftaran Terbaru',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryColor,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
 
-                           if (filteredQueues.isEmpty) {
-                             // Premium Empty State at index 2 if search results/queues are empty
-                             final isSearchingOrFiltering = hasActiveFilter || _searchQuery.isNotEmpty;
-                             return FadeInUp(
-                               duration: const Duration(milliseconds: 500),
-                               delay: const Duration(milliseconds: 200),
-                               child: Container(
-                                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
-                                 decoration: BoxDecoration(
-                                   color: Colors.white,
-                                   borderRadius: BorderRadius.circular(24),
-                                   border: Border.all(color: Colors.grey.shade100),
-                                   boxShadow: [
-                                     BoxShadow(
-                                       color: Colors.grey.shade50,
-                                       blurRadius: 16,
-                                       offset: const Offset(0, 8),
-                                     ),
-                                   ],
-                                 ),
-                                 child: Column(
-                                   mainAxisAlignment: MainAxisAlignment.center,
-                                   children: [
-                                     Container(
-                                       padding: const EdgeInsets.all(24),
-                                       decoration: BoxDecoration(
-                                         color: AppTheme.primaryColor.withValues(alpha: 0.05),
-                                         shape: BoxShape.circle,
-                                       ),
-                                       child: Icon(
-                                         isSearchingOrFiltering
-                                             ? Icons.search_off_rounded
-                                             : Icons.hourglass_disabled_rounded,
-                                         size: 64,
-                                         color: AppTheme.primaryColor,
-                                       ),
-                                     ),
-                                     const SizedBox(height: 24),
-                                     Text(
-                                       isSearchingOrFiltering
-                                           ? 'Hasil Tidak Ditemukan'
-                                           : 'Antrean Hari Ini Kosong',
-                                       style: GoogleFonts.plusJakartaSans(
-                                         fontSize: 18,
-                                         fontWeight: FontWeight.bold,
-                                         color: Colors.black87,
-                                       ),
-                                       textAlign: TextAlign.center,
+                            if (filteredQueues.isEmpty) {
+                              final isSearchingOrFiltering =
+                                  hasActiveFilter || _searchQuery.isNotEmpty;
+                              return FadeInUp(
+                                duration: const Duration(milliseconds: 500),
+                                delay: const Duration(milliseconds: 200),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 32, vertical: 48),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(
+                                        color: const Color(0xFFDCEEE7)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppTheme.accentColor
+                                            .withValues(alpha: 0.06),
+                                        blurRadius: 16,
+                                        offset: const Offset(0, 8),
                                       ),
-                                     const SizedBox(height: 12),
-                                     Text(
-                                       isSearchingOrFiltering
-                                           ? 'Tidak ada nomor antrean atau nama pasien yang cocok dengan pencarian Anda. Silakan periksa kembali filter Anda.'
-                                           : 'Belum ada pasien yang melakukan pendaftaran antrean hari ini. Semua data antrean akan muncul di sini setelah pasien mendaftar.',
-                                       style: GoogleFonts.plusJakartaSans(
-                                         fontSize: 13,
-                                         color: Colors.grey.shade600,
-                                         height: 1.5,
-                                       ),
-                                       textAlign: TextAlign.center,
-                                     ),
-                                     if (isSearchingOrFiltering) ...[
-                                       const SizedBox(height: 24),
-                                       OutlinedButton.icon(
-                                         onPressed: () {
-                                           setState(() {
-                                             _searchController.clear();
-                                             _searchQuery = '';
-                                             _selectedStatusFilter = QueueStatus.booked.value;
-                                             _selectedPolyclinicId = null;
-                                           });
-                                         },
-                                         icon: const Icon(Icons.refresh_rounded, size: 18),
-                                         label: Text(
-                                           'Reset Filter & Pencarian',
-                                           style: GoogleFonts.plusJakartaSans(
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                         style: OutlinedButton.styleFrom(
-                                           foregroundColor: AppTheme.primaryColor,
-                                           side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
-                                           shape: RoundedRectangleBorder(
-                                             borderRadius: BorderRadius.circular(12),
-                                           ),
-                                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                         ),
-                                       ),
-                                     ],
-                                   ],
-                                 ),
-                               ),
-                             );
-                           }
+                                    ],
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(24),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.primaryColor
+                                              .withValues(alpha: 0.05),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          isSearchingOrFiltering
+                                              ? Icons.search_off_rounded
+                                              : Icons.hourglass_disabled_rounded,
+                                          size: 64,
+                                          color: AppTheme.primaryColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 24),
+                                      Text(
+                                        isSearchingOrFiltering
+                                            ? 'Hasil Tidak Ditemukan'
+                                            : 'Antrean Hari Ini Kosong',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppTheme.primaryColor,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        isSearchingOrFiltering
+                                            ? 'Tidak ada nomor antrean atau nama pasien yang cocok.'
+                                            : 'Belum ada pasien yang mendaftar hari ini.',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey.shade600,
+                                          height: 1.5,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      if (isSearchingOrFiltering) ...[
+                                        const SizedBox(height: 24),
+                                        OutlinedButton.icon(
+                                          onPressed: () => setState(() {
+                                            _searchController.clear();
+                                            _searchQuery = '';
+                                            _selectedStatusFilter = null;
+                                            _selectedPolyclinicId = null;
+                                          }),
+                                          icon: const Icon(
+                                              Icons.refresh_rounded,
+                                              size: 18),
+                                          label: Text(
+                                            'Reset Filter & Pencarian',
+                                            style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor:
+                                                AppTheme.primaryColor,
+                                            side: BorderSide(
+                                                color: AppTheme.primaryColor
+                                                    .withValues(alpha: 0.5)),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 12),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
 
-                           // Queue Patient Card item
-                           final q = filteredQueues[index - 2];
-                           return FadeInUp(
-                             duration: const Duration(milliseconds: 500),
-                             delay: Duration(milliseconds: 400 + ((index - 2) * 80)),
-                             child: Padding(
-                               padding: const EdgeInsets.only(bottom: 16),
-                               child: AdminPatientCard(
-                                 queue: q,
-                                 onTap: () {
-                                   final provider = context.read<AdminProvider>();
-                                   Navigator.push(
-                                     context,
-                                     MaterialPageRoute(
-                                       builder: (context) => AdminBookingDetailScreen(queue: q),
-                                     ),
-                                   ).then((_) {
-                                     if (mounted) {
-                                       provider.fetchQueues();
-                                     }
-                                   });
-                                 },
-                               ),
-                             ),
-                           );
-                         },
-                       ),
-               ),
-             ),
+                            final q = filteredQueues[index - 2];
+                            return FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: Duration(
+                                  milliseconds: 400 + ((index - 2) * 80)),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: AdminPatientCard(
+                                  queue: q,
+                                  onTap: () {
+                                    final provider =
+                                        context.read<AdminProvider>();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            AdminBookingDetailScreen(queue: q),
+                                      ),
+                                    ).then((_) {
+                                      if (mounted) provider.fetchQueues();
+                                    });
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ),
 
-              // Bottom Navigation
               FadeInUp(
                 duration: const Duration(milliseconds: 500),
                 child: const AdminBottomNav(activeIndex: 1),
@@ -436,197 +494,200 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            final hasActiveFilter = _selectedStatusFilter != QueueStatus.booked.value || _selectedPolyclinicId != null;
-            return SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Filter Antrean',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          final hasActiveFilter =
+              _selectedStatusFilter != null || _selectedPolyclinicId != null;
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Filter Antrean',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
                         ),
-                        if (hasActiveFilter)
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                _selectedStatusFilter = QueueStatus.booked.value;
-                                _selectedPolyclinicId = null;
-                              });
-                              setSheetState(() {
-                                _selectedStatusFilter = QueueStatus.booked.value;
-                                _selectedPolyclinicId = null;
-                              });
-                            },
-                            child: Text(
-                              'Reset',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: AppTheme.errorColor,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      ),
+                      if (hasActiveFilter)
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedStatusFilter = null;
+                              _selectedPolyclinicId = null;
+                            });
+                            setSheetState(() {
+                              _selectedStatusFilter = null;
+                              _selectedPolyclinicId = null;
+                            });
+                          },
+                          child: Text(
+                            'Reset',
+                            style: GoogleFonts.poppins(
+                              color: AppTheme.errorColor,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                      ],
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Status Antrean',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade700,
                     ),
-                    const SizedBox(height: 20),
-
-                    // Filter Status
-                    Text(
-                      'Status Antrean',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _filterChip(
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _filterChip(
                           label: 'Semua',
                           isSelected: _selectedStatusFilter == null,
-                          onSelected: (selected) {
-                            if (selected) {
+                          onSelected: (s) {
+                            if (s) {
                               setState(() => _selectedStatusFilter = null);
                               setSheetState(() => _selectedStatusFilter = null);
                             }
-                          },
-                        ),
-                        _filterChip(
+                          }),
+                      _filterChip(
                           label: 'Booking',
-                          isSelected: _selectedStatusFilter == QueueStatus.booked.value,
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() => _selectedStatusFilter = QueueStatus.booked.value);
-                              setSheetState(() => _selectedStatusFilter = QueueStatus.booked.value);
+                          isSelected: _selectedStatusFilter ==
+                              QueueStatus.booked.value,
+                          onSelected: (s) {
+                            if (s) {
+                              setState(() => _selectedStatusFilter =
+                                  QueueStatus.booked.value);
+                              setSheetState(() => _selectedStatusFilter =
+                                  QueueStatus.booked.value);
                             }
-                          },
-                        ),
-                        _filterChip(
+                          }),
+                      _filterChip(
                           label: 'Menunggu',
-                          isSelected: _selectedStatusFilter == QueueStatus.waiting.value,
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() => _selectedStatusFilter = QueueStatus.waiting.value);
-                              setSheetState(() => _selectedStatusFilter = QueueStatus.waiting.value);
+                          isSelected: _selectedStatusFilter ==
+                              QueueStatus.waiting.value,
+                          onSelected: (s) {
+                            if (s) {
+                              setState(() => _selectedStatusFilter =
+                                  QueueStatus.waiting.value);
+                              setSheetState(() => _selectedStatusFilter =
+                                  QueueStatus.waiting.value);
                             }
-                          },
-                        ),
-                        _filterChip(
+                          }),
+                      _filterChip(
                           label: 'Dilayani',
-                          isSelected: _selectedStatusFilter == QueueStatus.completed.value,
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() => _selectedStatusFilter = QueueStatus.completed.value);
-                              setSheetState(() => _selectedStatusFilter = QueueStatus.completed.value);
+                          isSelected: _selectedStatusFilter ==
+                              QueueStatus.completed.value,
+                          onSelected: (s) {
+                            if (s) {
+                              setState(() => _selectedStatusFilter =
+                                  QueueStatus.completed.value);
+                              setSheetState(() => _selectedStatusFilter =
+                                  QueueStatus.completed.value);
                             }
-                          },
-                        ),
-                        _filterChip(
+                          }),
+                      _filterChip(
                           label: 'Diperiksa',
-                          isSelected: _selectedStatusFilter == QueueStatus.examining.value,
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() => _selectedStatusFilter = QueueStatus.examining.value);
-                              setSheetState(() => _selectedStatusFilter = QueueStatus.examining.value);
+                          isSelected: _selectedStatusFilter ==
+                              QueueStatus.examining.value,
+                          onSelected: (s) {
+                            if (s) {
+                              setState(() => _selectedStatusFilter =
+                                  QueueStatus.examining.value);
+                              setSheetState(() => _selectedStatusFilter =
+                                  QueueStatus.examining.value);
                             }
-                          },
-                        ),
-                        _filterChip(
+                          }),
+                      _filterChip(
                           label: 'Batal',
-                          isSelected: _selectedStatusFilter == QueueStatus.cancelled.value,
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() => _selectedStatusFilter = QueueStatus.cancelled.value);
-                              setSheetState(() => _selectedStatusFilter = QueueStatus.cancelled.value);
+                          isSelected: _selectedStatusFilter ==
+                              QueueStatus.cancelled.value,
+                          onSelected: (s) {
+                            if (s) {
+                              setState(() => _selectedStatusFilter =
+                                  QueueStatus.cancelled.value);
+                              setSheetState(() => _selectedStatusFilter =
+                                  QueueStatus.cancelled.value);
                             }
-                          },
-                        ),
-                      ],
+                          }),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Layanan Poliklinik',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade700,
                     ),
-                    const SizedBox(height: 24),
-
-                    // Filter Poliklinik
-                    Text(
-                      'Layanan Poliklinik',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _filterChip(
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _filterChip(
                           label: 'Semua',
                           isSelected: _selectedPolyclinicId == null,
-                          onSelected: (selected) {
-                            if (selected) {
+                          onSelected: (s) {
+                            if (s) {
                               setState(() => _selectedPolyclinicId = null);
                               setSheetState(() => _selectedPolyclinicId = null);
                             }
+                          }),
+                      ...provider.polyclinics.map((poly) {
+                        final isSelected =
+                            _selectedPolyclinicId == poly.id.toString();
+                        return _filterChip(
+                          label: poly.name,
+                          isSelected: isSelected,
+                          onSelected: (s) {
+                            if (s) {
+                              setState(() =>
+                                  _selectedPolyclinicId = poly.id.toString());
+                              setSheetState(() =>
+                                  _selectedPolyclinicId = poly.id.toString());
+                            }
                           },
-                        ),
-                        ...provider.polyclinics.map((poly) {
-                          final isSelected = _selectedPolyclinicId == poly.id.toString();
-                          return _filterChip(
-                            label: poly.name,
-                            isSelected: isSelected,
-                            onSelected: (selected) {
-                              if (selected) {
-                                setState(() => _selectedPolyclinicId = poly.id.toString());
-                                setSheetState(() => _selectedPolyclinicId = poly.id.toString());
-                              }
-                            },
-                          );
-                        }),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Apply Button
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        foregroundColor: Colors.white,
-                        minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(ResponsiveHelper.radiusButton(context)),
-                        ),
-                      ),
-                      child: Text(
-                        'Terapkan Filter',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        );
+                      }),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(double.infinity,
+                          ResponsiveHelper.buttonHeight(context)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.radiusButton(context)),
                       ),
                     ),
-                  ],
-                ),
+                    child: Text(
+                      'Terapkan Filter',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -638,10 +699,10 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
     return ChoiceChip(
       label: Text(
         label,
-        style: GoogleFonts.plusJakartaSans(
+        style: GoogleFonts.poppins(
           fontSize: 12,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Colors.white : Colors.black87,
+          color: isSelected ? Colors.white : AppTheme.primaryColor,
         ),
       ),
       selected: isSelected,
@@ -651,9 +712,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen> {
       side: BorderSide(
         color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       onSelected: onSelected,
     );
   }

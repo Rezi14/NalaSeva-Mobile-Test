@@ -358,7 +358,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                         Text(
                                           'Klik untuk mengganti tanggal kunjungan',
                                           style: GoogleFonts.poppins(
-                                            color: Colors.white.withValues(alpha: 0.85),
+                                            color: Colors.grey,
                                             fontSize: 11,
                                           ),
                                         ),
@@ -474,7 +474,7 @@ class _BookingScreenState extends State<BookingScreen> {
         child: provider.isLoading
             ? const CircularProgressIndicator(color: Colors.white)
             : Text(
-                'KONFIRMASI PENDAFTARAN',
+                'Konfirmasi Pendaftaran',
                 style: GoogleFonts.poppins(
                   fontWeight: FontWeight.bold,
                   color: canSubmit ? Colors.white : Colors.grey,
