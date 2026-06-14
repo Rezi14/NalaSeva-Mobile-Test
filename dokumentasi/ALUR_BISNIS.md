@@ -394,7 +394,9 @@ flowchart TD
 
     Start([Mulai Dispensing]):::startEnd --> Load[Load Resep Lunas dari GET /pharmacy/queues]:::process
     Load --> Select[Pilih Resep & Siapkan Obat Fisik]:::process
-    Select --> Dispense[Apoteker Tekan Serahkan Obat]:::process
+    Select --> CallAction{Panggil Pasien?}:::decision
+    CallAction -- Ya --> Call[Tekan Volume: Speak TTS & POST /pharmacy/queues/id/call FCM]:::process --> Dispense
+    CallAction -- Tidak --> Dispense[Apoteker Tekan Serahkan Obat]:::process
     Dispense --> API[POST /pharmacy/queues/id/dispense]:::process
     
     subgraph DB Transaction Backend
@@ -419,8 +421,11 @@ flowchart TD
 2. Aplikasi memicu request ke `GET /api/pharmacy/queues` untuk memuat seluruh daftar antrean resep yang telah lunas (status pembayaran `paid`) namun obatnya belum diserahkan (`dispensed_at IS NULL`).
 3. Apoteker memilih salah satu antrean resep untuk membuka halaman `prescription_detail_screen.dart`.
 4. Apoteker melihat rincian item obat beserta kuantitasnya, lalu menyiapkan obat fisik dari rak penyimpanan obat.
-5. Apoteker menekan tombol **"Serahkan Obat (Dispense)"**. Request dikirim ke `POST /api/pharmacy/queues/{id}/dispense`.
-6. Backend Laravel menjalankan logika penyerahan di dalam **Database Transaction (`DB::beginTransaction()`)** untuk menjamin keamanan stok:
+5. **Panggilan Pasien (Opsional)**: Apoteker dapat menekan tombol volume/panggil. Tindakan ini memicu:
+   - Pembacaan lokal nama pasien menggunakan Text-to-Speech (`TtsHelper.speak`).
+   - Request `POST /api/pharmacy/queues/{id}/call` yang mengirimkan push notification FCM (`Panggilan Apotek`) ke HP pasien.
+6. Apoteker menekan tombol **"Serahkan Obat (Dispense)"**. Request dikirim ke `POST /api/pharmacy/queues/{id}/dispense`.
+7. Backend Laravel menjalankan logika penyerahan di dalam **Database Transaction (`DB::beginTransaction()`)** untuk menjamin keamanan stok:
    - Sistem melakukan iterasi (looping) untuk setiap item resep yang diminta.
    - Sistem melakukan pengecekan real-time terhadap stok fisik obat di tabel `medicines`.
    - **Validasi Ketersediaan Stok**: Jika ada salah satu item obat yang kuantitas resepnya melebihi stok fisik yang tersisa di database:
@@ -429,8 +434,8 @@ flowchart TD
    - Jika semua stok aman, sistem mengurangi nilai kolom `stock` di tabel `medicines` sesuai dengan kuantitas resep.
    - Mengisi kolom tanggal penyerahan obat `dispensed_at = now()` pada tabel `payments`.
    - Mengirim **Notifikasi FCM ke Pasien**: *"Obat Selesai Diserahkan. Terima kasih atas kunjungan Anda!"*
-7. DB Transaction sukses dilakukan commit.
-8. Aplikasi Flutter secara optimistik langsung menghapus item antrean resep tersebut dari state list lokal apoteker tanpa harus memuat ulang seluruh daftar antrean dari server.
+8. DB Transaction sukses dilakukan commit.
+9. Aplikasi Flutter secara optimistik langsung menghapus item antrean resep tersebut dari state list lokal apoteker tanpa harus memuat ulang seluruh daftar antrean dari server.
 
 ---
 

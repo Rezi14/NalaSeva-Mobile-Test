@@ -127,4 +127,19 @@ class PharmacyProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> callPatient(int paymentId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _repository.callPrescriptionPatient(paymentId);
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

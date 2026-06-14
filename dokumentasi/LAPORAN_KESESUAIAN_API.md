@@ -8,8 +8,8 @@ Laporan ini menganalisis kesesuaian antara endpoint yang dideklarasikan pada dok
 
 Berdasarkan analisis statis kode sumber Flutter (pada direktori `lib/`), berikut adalah ringkasan kesesuaian endpoint API:
 
-- **Total Endpoint Dokumentasi**: **83**
-- **Endpoint yang Digunakan (Aktif)**: **69**
+- **Total Endpoint Dokumentasi**: **85**
+- **Endpoint yang Digunakan (Aktif)**: **71**
 - **Endpoint yang Tidak Digunakan**: **14**
 - **Endpoint Tidak Terdokumentasi**: **0** (Semua pemanggilan API dalam kode Flutter memiliki padanannya di dokumen API)
 
@@ -179,6 +179,7 @@ Berikut adalah daftar lengkap 83 endpoint beserta status kesesuaian dan penempat
 | 65 | Upload Bukti Pembayaran | `/api/payments/{id}/upload-proof` | `POST` | **Sesuai** | [PaymentRepository.uploadPaymentProof](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/repositories/payment_repository.dart#L45) |
 | 66 | Verifikasi Pembayaran Online | `/api/payments/{id}/verify` | `POST` | **Sesuai** | [PaymentRepository.verifyPayment](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/repositories/payment_repository.dart#L65) |
 | 67 | Verifikasi Pembayaran Tunai | `/api/payments/{id}/cash-pay` | `POST` | **Sesuai** | [PaymentRepository.cashPay](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/repositories/payment_repository.dart#L78) |
+| 67b | Load Gambar Bukti Transfer | `/api/payments/{id}/proof-image` | `GET` | **Sesuai** | Digunakan langsung sebagai URL gambar di `prescription_detail_screen.dart` dan `admin_payment_detail_screen.dart` |
 
 ---
 
@@ -189,6 +190,7 @@ Berikut adalah daftar lengkap 83 endpoint beserta status kesesuaian dan penempat
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 68 | Daftar Antrean Obat Apotek | `/api/pharmacy/queues` | `GET` | **Sesuai** | [PharmacyRepository.getPharmacyQueues](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/data/pharmacy_repository.dart#L35) |
 | 69 | Penyerahan Obat Pasien | `/api/pharmacy/queues/{id}/dispense` | `POST` | **Sesuai** | [PharmacyRepository.dispensePrescription](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/data/pharmacy_repository.dart#L46) |
+| 69b | Panggilan Suara Loket Apotek | `/api/pharmacy/queues/{id}/call` | `POST` | **Sesuai** | [PharmacyRepository.callPrescriptionPatient](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/data/pharmacy_repository.dart#L117) |
 | 70 | Ambil Semua Daftar Obat | `/api/medicines` | `GET` | **Sesuai** | [PharmacyRepository.getMedicines](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/data/pharmacy_repository.dart#L56) |
 | 71 | Ambil Detail Obat | `/api/medicines/{id}` | `GET` | **Sesuai** | [PharmacyRepository.getMedicine](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/data/pharmacy_repository.dart#L107) |
 | 72 | Tambah Obat Baru | `/api/medicines` | `POST` | **Sesuai** | [PharmacyRepository.addMedicine](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/data/pharmacy_repository.dart#L67) |

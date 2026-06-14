@@ -193,6 +193,7 @@ Pasien adalah pengguna akhir yang mendaftar sendiri, melakukan booking antrean s
   | Admin setujui bukti transfer | "Pembayaran Terverifikasi Lunas! Silakan mengambil obat di apotek." |
   | Admin tolak bukti transfer | "Verifikasi Pembayaran Gagal. Bukti transfer tidak valid, harap unggah ulang." |
   | Admin cash-pay | "Pembayaran Lunas (Tunai)! Silakan menuju apotek." |
+  | Apoteker panggil resep | "Panggilan kepada pasien {nama}, silakan mengambil obat Anda di loket Apotek." |
   | Apoteker serahkan obat | "Obat Selesai Diserahkan. Terima kasih atas kunjungan Anda!" |
   | Dokter cuti → antrean dibatalkan | "Antrean {queue_number} dibatalkan karena dokter cuti: {alasan}." |
   | Klinik libur → antrean dibatalkan | "Antrean {queue_number} dibatalkan karena puskesmas libur: {deskripsi}." |
@@ -327,7 +328,7 @@ Apoteker memproses penyerahan obat resep yang telah dibayar lunas, mengelola inv
   - Nama pasien.
   - Nomor invoice dan total tagihan.
   - Daftar obat: nama obat, jumlah yang diresepkan, instruksi pemakaian, harga per satuan (saat resep dibuat).
-  - **Panggilan Suara Apotek (TTS)**: Tombol volume untuk membacakan panggilan suara pasien secara lisan ke loket apotek menggunakan `TtsHelper.speak`.
+  - **Panggilan Suara Apotek (TTS & FCM)**: Tombol volume untuk membacakan panggilan suara pasien secara lisan ke loket apotek menggunakan `TtsHelper.speak`, sekaligus memicu backend API `POST pharmacy/queues/{id}/call` yang mengirimkan push notification `Panggilan Apotek` (dengan payload `type: 'prescription_called'`) ke HP pasien.
 
 #### F2.3 Serahkan Obat ke Pasien (Dispense) — DB Transaction
 - Apoteker menyiapkan obat fisik, lalu menekan tombol **"Serahkan Obat"**.
@@ -661,6 +662,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 | Fitur | Method | Endpoint | Aktor |
 |---|---|---|---|
 | Lihat Tagihan | `GET` | `payments` | Pasien, Admin |
+| Load Gambar Bukti Transfer | `GET` | `payments/{id}/proof-image` | Apoteker, Admin, Pasien |
 | Upload Bukti Transfer | `POST` | `payments/{id}/upload-proof` *(throttle 5/menit)* | Pasien |
 | Verifikasi Transfer | `POST` | `payments/{id}/verify` | Admin |
 | Pembayaran Tunai | `POST` | `payments/{id}/cash-pay` | Admin |
@@ -670,6 +672,7 @@ Admin memiliki hak akses tertinggi dan terlengkap. Admin mengelola keseluruhan d
 | Fitur | Method | Endpoint | Aktor |
 |---|---|---|---|
 | Lihat Antrean Resep Apotek | `GET` | `pharmacy/queues` | Admin, Apoteker |
+| Panggil Pasien Apotek | `POST` | `pharmacy/queues/{id}/call` | Apoteker, Admin |
 | Serahkan Obat (Dispense) | `POST` | `pharmacy/queues/{id}/dispense` | Apoteker |
 | Lihat Inventaris Obat | `GET` | `medicines` | Apoteker |
 | Tambah Obat | `POST` | `medicines` | Apoteker |

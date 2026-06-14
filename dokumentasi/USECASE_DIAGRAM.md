@@ -62,6 +62,7 @@ flowchart LR
       UC25(("Edit Data & Harga Obat")):::usecaseStyle
       UC26(("Hapus Obat (Soft Delete)")):::usecaseStyle
       UC28(("Serahkan Obat (Dispense)")):::usecaseStyle
+      UC28b(("Panggil Pasien (TTS & FCM)")):::usecaseStyle
     end
 
     subgraph Modul_Master ["Data Master (Admin)"]
@@ -128,6 +129,7 @@ flowchart LR
   Apoteker --> UC25
   Apoteker --> UC26
   Apoteker --> UC28
+  Apoteker --> UC28b
 
   %% Admin
   AdminActor --> UC2
@@ -437,6 +439,7 @@ flowchart LR
   subgraph ResepAp ["Resep & Penyerahan"]
     R1(["R: Memantau Antrean Resep Lunas"]):::rStyle
     R2(["R: Lihat Detail Resep & Harga Terkunci"]):::rStyle
+    U1b(["U: Panggil Pasien (TTS & FCM)"]):::uStyle
     U1(["U: Serahkan Obat (Dispense)"]):::uStyle
     R3(["R: Validasi Stok Kritis (Rollback)"]):::rStyle
     U2(["U: Kurangi Stok Obat Aktual"]):::uStyle
@@ -454,6 +457,7 @@ flowchart LR
   Apoteker --> D0
   Apoteker --> R1
   Apoteker --> R2
+  Apoteker --> U1b
   Apoteker --> U1
   Apoteker --> R3
   Apoteker --> U2
@@ -475,8 +479,11 @@ flowchart LR
 *   **R1: Memantau Antrean Resep Lunas**
     *   *Deskripsi*: Menampilkan resep obat pasien yang tagihannya lunas (`paid`) dan obatnya belum diserahkan (`dispensed_at IS NULL`).
     *   *API*: `GET /api/pharmacy/queues`
-*   **R2: Lihat Detail Resep & Harga Terkunci & Panggilan Suara**
-    *   *Deskripsi*: Menampilkan rincian obat, kuantiti, dan cara pakai resep, serta memicu panggilan suara TTS loket apotek untuk memanggil pasien mengambil obat.
+*   **R2: Lihat Detail Resep & Harga Terkunci**
+    *   *Deskripsi*: Menampilkan rincian obat, kuantiti, dan cara pakai resep yang harganya sudah dikunci.
+*   **U1b: Panggil Pasien (TTS & FCM)**
+    *   *Deskripsi*: Memicu panggilan suara TTS loket apotek secara lokal untuk memanggil pasien mengambil obat, sekaligus mengirimkan notifikasi FCM 'Panggilan Apotek' ke HP pasien.
+    *   *API*: `POST /api/pharmacy/queues/{id}/call`
 *   **U1: Serahkan Obat (Dispense)**
     *   *Deskripsi*: Memproses penyerahan obat fisik ke pasien.
     *   *Logika Bisnis*: Menggunakan **DB Transaction**. Sisi Flutter melakukan optimistic update dengan menghapus item dari list lokal secara instan.
@@ -770,9 +777,11 @@ Berikut adalah daftar rincian endpoint Laravel REST API yang digunakan untuk mel
 | **R** Lihat Rekam Medis | `GET /api/examinations` | Melihat rekam medis (Riwayat/Semua) | Pasien, Dokter, Admin |
 | **R** Lihat Tagihan | `GET /api/payments` | Menampilkan seluruh/daftar tagihan | Pasien, Admin |
 | **U** Upload Bukti Bayar | `POST /api/payments/{id}/upload-proof` | Mengupload bukti transfer (Image Picker)| Pasien |
+| **R** Load Gambar Bukti | `GET /api/payments/{id}/proof-image` | Mengambil file gambar bukti transfer | Apoteker, Admin, Pasien |
 | **U** Verifikasi Transfer | `POST /api/payments/{id}/verify` | Menyetujui/menolak verifikasi transfer | Admin |
 | **U** Bayar Tunai | `POST /api/payments/{id}/cash-pay` | Pembayaran langsung di loket kasir | Admin |
 | **R** Lihat Resep Apotek | `GET /api/pharmacy/queues` | Memantau antrean resep obat lunas | Apoteker, Admin |
+| **U** Panggil Pasien | `POST /api/pharmacy/queues/{id}/call` | Panggilan resep loket apotek & FCM | Apoteker, Admin |
 | **U** Serahkan Obat | `POST /api/pharmacy/queues/{id}/dispense`| Dispense obat ke pasien (DB Transaction) | Apoteker |
 | **C** Tambah Obat | `POST /api/medicines` | Menambahkan data obat baru | Apoteker |
 | **R** Lihat Obat | `GET /api/medicines` | Mengambil data inventaris obat | Apoteker, Dokter |

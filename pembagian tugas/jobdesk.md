@@ -293,8 +293,8 @@ Mengerjakan rekam medis dokter, sistem kasir, manajemen stok obat, farmasi/apote
     *   [dashboard_stats_model.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/models/dashboard_stats_model.dart)
     *   [payment_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/providers/payment_provider.dart) — ⚠️ Di `lib/shared/` (bukan `features/`): dipakai bersama pasien & admin.
     *   [payment_repository.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/shared/repositories/payment_repository.dart) — ⚠️ Di `lib/shared/repositories/` (bukan `features/`).
-    *   [pharmacy_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/logic/pharmacy_provider.dart)
-    *   [pharmacy_repository.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/data/pharmacy_repository.dart)
+    *   [pharmacy_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/logic/pharmacy_provider.dart) — Logic list resep, dispense resep, CRUD obat, dan panggil pasien (`callPatient`).
+    *   [pharmacy_repository.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/pharmacy/data/pharmacy_repository.dart) — Memanggil API `pharmacy/queues`, `dispense`, `medicines`, dan `call` (`callPrescriptionPatient`).
     *   [doctor_provider.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/logic/doctor_provider.dart)
     *   [doctor_repository.dart](file:///d:/Materi%20Semester%204/PBM/nalaseva%203/lib/features/doctor/data/doctor_repository.dart)
 
