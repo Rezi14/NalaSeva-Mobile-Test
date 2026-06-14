@@ -10,6 +10,7 @@ import '../widgets/auth_gender_button.dart';
 import '../widgets/auth_submit_button.dart';
 import '../../../core/utils/app_dialogs.dart';
 import '../../../core/utils/validators.dart';
+import '../../../shared/widgets/gradient_scaffold.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -64,15 +65,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             gender: _gender,
             birthDate: DateFormat('yyyy-MM-dd').format(_selectedBirthDate!),
           );
-
       if (mounted) {
         AppDialogs.showSuccessDialog(
           context,
           'Berhasil',
           'Registrasi berhasil! Silakan login.',
-          onOkPressed: () {
-            Navigator.pop(context);
-          },
+          onOkPressed: () => Navigator.pop(context),
         );
       }
     } catch (e) {
@@ -86,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     }
   }
-
+  
   Future<void> _selectBirthDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -105,9 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       },
     );
     if (picked != null && picked != _selectedBirthDate) {
-      setState(() {
-        _selectedBirthDate = picked;
-      });
+      setState(() => _selectedBirthDate = picked);
     }
   }
 
@@ -117,271 +113,276 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isLarge = screenWidth >= 600;
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.primaryColor.withValues(alpha: 0.05),
-              AppTheme.backgroundColor,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-              child: Container(
-                constraints: BoxConstraints(
-                  maxWidth: isLarge ? 500 : double.infinity,
-                ),
-                padding: isLarge ? const EdgeInsets.all(32) : EdgeInsets.zero,
-                decoration: isLarge
-                    ? BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
+    return GradientScaffold(
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: isLarge ? 500 : double.infinity,
+              ),
+              padding: isLarge ? const EdgeInsets.all(32) : EdgeInsets.zero,
+              decoration: isLarge
+                  ? BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                      border: Border.all(color: Colors.grey.shade100),
+                    )
+                  : null,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FadeInUp(
+                      child: Text(
+                        'Buat Akun Baru',
+                        style: isLarge
+                            ? GoogleFonts.poppins(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              )
+                            : GoogleFonts.poppins(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 200),
+                      child: Text(
+                        'Silakan lengkapi data diri Anda untuk mendaftar',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: isLarge
+                              ? Colors.grey.shade600
+                              : Colors.white.withValues(alpha: 0.85),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 36),
+
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 300),
+                      child: AuthTextField(
+                        controller: _nikController,
+                        label: 'NIK (16 Digit)',
+                        hintText: 'Masukkan 16 digit NIK',
+                        icon: Icons.badge_outlined,
+                        keyboardType: TextInputType.number,
+                        hasBorder: true,
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return 'NIK tidak boleh kosong';
+                          if (!RegExp(r'^[0-9]{16}$').hasMatch(v)) {
+                            return 'NIK harus berupa 16 digit angka';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 350),
+                      child: AuthTextField(
+                        controller: _nameController,
+                        label: 'Nama Lengkap',
+                        hintText: 'Masukkan nama lengkap',
+                        icon: Icons.person_outline,
+                        hasBorder: true,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return 'Nama tidak boleh kosong';
+                          if (v.trim().length < 3) return 'Nama minimal 3 karakter';
+                          if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(v.trim())) {
+                            return 'Nama hanya boleh berisi huruf dan spasi';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 400),
+                      child: AuthTextField(
+                        controller: _emailController,
+                        label: 'Email',
+                        hintText: 'Masukkan email',
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        hasBorder: true,
+                        validator: Validators.validateEmail,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 400),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: AuthGenderButton(
+                              label: _gender,
+                              icon: Icons.arrow_drop_down_rounded,
+                              isSelected: false,
+                              onTap: () {
+                                setState(() {
+                                  _gender = _gender == 'Laki-laki' ? 'Perempuan' : 'Laki-laki';
+                                });
+                              },
+                            ),
                           ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade100),
-                      )
-                    : null,
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      FadeInUp(
-                        child: Text(
-                          'Buat Akun Baru',
-                          style: isLarge
-                              ? GoogleFonts.outfit(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.primaryColor,
-                                )
-                              : Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryColor,
-                                  ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 200),
-                        child: Text(
-                          'Silakan lengkapi data diri Anda untuk mendaftar',
-                          style: TextStyle(color: Colors.grey[600]),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 36),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 400),
-                        child: AuthTextField(
-                          controller: _nikController,
-                          label: 'NIK (16 Digit)',
-                          icon: Icons.badge_outlined,
-                          keyboardType: TextInputType.number,
-                          hasBorder: true,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'NIK tidak boleh kosong';
-                            if (!RegExp(r'^[0-9]{16}$').hasMatch(v)) {
-                              return 'NIK harus berupa 16 digit angka';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 450),
-                        child: AuthTextField(
-                          controller: _nameController,
-                          label: 'Nama Lengkap',
-                          icon: Icons.person_outline,
-                          hasBorder: true,
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) return 'Nama tidak boleh kosong';
-                            if (v.trim().length < 3) return 'Nama minimal 3 karakter';
-                            if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(v.trim())) {
-                              return 'Nama hanya boleh berisi huruf dan spasi';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 500),
-                        child: AuthTextField(
-                          controller: _emailController,
-                          label: 'Email',
-                          icon: Icons.email_outlined,
-                          keyboardType: TextInputType.emailAddress,
-                          hasBorder: true,
-                          validator: Validators.validateEmail,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 550),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: AuthGenderButton(
-                                label: 'Laki-laki',
-                                icon: Icons.male_rounded,
-                                isSelected: _gender == 'Laki-laki',
-                                onTap: () => setState(() => _gender = 'Laki-laki'),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: AuthGenderButton(
-                                label: 'Perempuan',
-                                icon: Icons.female_rounded,
-                                isSelected: _gender == 'Perempuan',
-                                onTap: () => setState(() => _gender = 'Perempuan'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 575),
-                        child: FormField<DateTime>(
-                          validator: (value) => _selectedBirthDate == null ? 'Tanggal lahir tidak boleh kosong' : null,
-                          builder: (state) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                InkWell(
-                                  onTap: () async {
-                                    await _selectBirthDate();
-                                    state.didChange(_selectedBirthDate);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: state.hasError ? AppTheme.errorColor : Colors.grey[300]!),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.calendar_today_outlined, size: 20, color: Colors.grey[600]),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Text(
-                                            _selectedBirthDate == null 
-                                              ? 'Tanggal Lahir' 
-                                              : DateFormat('dd/MM/yyyy').format(_selectedBirthDate!),
-                                            style: GoogleFonts.inter(
-                                              fontSize: 14,
-                                              color: _selectedBirthDate == null ? Colors.grey[600] : Colors.black87,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                          const SizedBox(width: 16),
+
+                          Expanded(
+                            child: InkWell(
+                              onTap: _selectBirthDate,
+                              borderRadius: BorderRadius.circular(16),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.grey[300]!,
+                                    width: 1.5,
                                   ),
                                 ),
-                                if (state.hasError)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8, left: 16),
-                                    child: Text(
-                                      state.errorText!,
-                                      style: TextStyle(color: AppTheme.errorColor, fontSize: 12),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_rounded,
+                                      size: 18,
+                                      color: AppTheme.primaryColor,
                                     ),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        _selectedBirthDate == null
+                                            ? 'Tanggal Lahir'
+                                            : DateFormat('dd/MM/yyyy').format(_selectedBirthDate!),
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: _selectedBirthDate == null
+                                              ? Colors.grey
+                                              : AppTheme.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 600),
-                        child: AuthTextField(
-                          controller: _phoneController,
-                          label: 'Nomor WhatsApp',
-                          icon: Icons.phone_android_outlined,
-                          keyboardType: TextInputType.phone,
-                          hasBorder: true,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'Nomor WhatsApp tidak boleh kosong';
-                            final clean = v.replaceAll(RegExp(r'\s+'), '');
-                            if (!RegExp(r'^(\+62|62|0)8[1-9][0-9]{7,11}$').hasMatch(clean)) {
-                              return 'Format nomor WhatsApp tidak valid (contoh: 081234567890)';
-                            }
-                            return null;
-                          },
-                        ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 550),
+                      child: AuthTextField(
+                        controller: _phoneController,
+                        label: 'Nomor WhatsApp',
+                        hintText: 'Contoh: 081234567890',
+                        icon: Icons.phone_android_outlined,
+                        keyboardType: TextInputType.phone,
+                        hasBorder: true,
+                        validator: (v) {
+                          if (v == null || v.isEmpty) {
+                            return 'Nomor WhatsApp tidak boleh kosong';
+                          }
+                          final clean = v.replaceAll(RegExp(r'\s+'), '');
+                          if (!RegExp(r'^(\+62|62|0)8[1-9][0-9]{7,11}$')
+                              .hasMatch(clean)) {
+                            return 'Format nomor WhatsApp tidak valid (contoh: 081234567890)';
+                          }
+                          return null;
+                        },
                       ),
-                      const SizedBox(height: 16),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 700),
-                        child: AuthTextField(
-                          controller: _addressController,
-                          label: 'Alamat Lengkap',
-                          icon: Icons.location_on_outlined,
-                          maxLines: 2,
-                          hasBorder: true,
-                          validator: (v) => v == null || v.isEmpty ? 'Alamat tidak boleh kosong' : null,
-                        ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 600),
+                      child: AuthTextField(
+                        controller: _addressController,
+                        label: 'Alamat Lengkap',
+                        hintText: 'Masukkan alamat lengkap',
+                        icon: Icons.location_on_outlined,
+                        maxLines: 2,
+                        hasBorder: true,
+                        validator: (v) => v == null || v.isEmpty
+                            ? 'Alamat tidak boleh kosong'
+                            : null,
                       ),
-                      const SizedBox(height: 16),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 800),
-                        child: AuthTextField(
-                          controller: _passwordController,
-                          label: 'Password',
-                          icon: Icons.lock_outline,
-                          isPassword: true,
-                          hasBorder: true,
-                          validator: (v) => v == null || v.length < 8 ? 'Minimal 8 karakter' : null,
-                        ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 650),
+                      child: AuthTextField(
+                        controller: _passwordController,
+                        label: 'Password',
+                        hintText: 'Minimal 8 karakter',
+                        icon: Icons.lock_outline,
+                        isPassword: true,
+                        hasBorder: true,
+                        validator: (v) => v == null || v.length < 8
+                            ? 'Minimal 8 karakter'
+                            : null,
                       ),
-                      const SizedBox(height: 32),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 900),
-                        child: AuthSubmitButton(
-                          label: 'DAFTAR SEKARANG',
-                          isLoading: isLoading,
-                          onPressed: _handleRegister,
-                          borderRadius: 12,
-                        ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 700),
+                      child: AuthSubmitButton(
+                        label: 'Daftar Sekarang',
+                        isLoading: isLoading,
+                        onPressed: _handleRegister,
                       ),
-                      const SizedBox(height: 16),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 950),
-                        child: TextButton(
+                    ),
+                    const SizedBox(height: 16),
+
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 750),
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: 
+                        TextButton(
                           onPressed: () => Navigator.pop(context),
                           style: TextButton.styleFrom(
-                            foregroundColor: AppTheme.secondaryColor,
+                            foregroundColor: AppTheme.primaryColor,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: const Text(
+                          child: Text(
                             'Kembali ke Halaman Login',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -391,4 +392,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-

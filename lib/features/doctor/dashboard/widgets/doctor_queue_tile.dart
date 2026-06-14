@@ -28,89 +28,80 @@ class DoctorQueueTile extends StatelessWidget {
 
     switch (queue.status) {
       case QueueStatus.booked:
-        badgeColor = AppTheme.warningColor.withValues(alpha: 0.1);
-        textColor = AppTheme.warningColor;
+        badgeColor = const Color(0xFFFEF3C7).withValues(alpha: 0.25); 
+        textColor = const Color(0xFFFBBF24); 
         break;
       case QueueStatus.waiting:
-        badgeColor = AppTheme.accentColor.withValues(alpha: 0.1);
-        textColor = AppTheme.accentColor;
+        badgeColor = const Color(0xFFE0F2FE).withValues(alpha: 0.25); 
+        textColor = const Color(0xFF38BDF8);
         break;
       case QueueStatus.examining:
-        badgeColor = AppTheme.secondaryColor.withValues(alpha: 0.1);
-        textColor = AppTheme.secondaryColor;
+        badgeColor = Colors.white.withValues(alpha: 0.25);
+        textColor = Colors.white;
         break;
       case QueueStatus.completed:
-        badgeColor = AppTheme.successColor.withValues(alpha: 0.1);
-        textColor = AppTheme.successColor;
+        badgeColor = const Color(0xFFD1FAE5).withValues(alpha: 0.25); 
+        textColor = const Color(0xFF34D399);
         break;
       case QueueStatus.cancelled:
-        badgeColor = AppTheme.cancelColor.withValues(alpha: 0.1);
-        textColor = AppTheme.cancelColor;
+        badgeColor = const Color(0xFFFEE2E2).withValues(alpha: 0.25); 
+        textColor = const Color(0xFFFB7185);
         break;
       default:
-        badgeColor = Colors.grey.withValues(alpha: 0.1);
-        textColor = Colors.grey;
+        badgeColor = Colors.white.withValues(alpha: 0.2);
+        textColor = Colors.white70;
         break;
     }
 
     final cardPadding = ResponsiveHelper.paddingCard(context);
     final cardRadius = ResponsiveHelper.radiusCard(context);
-    final textHeadingSize = ResponsiveHelper.scale(context, 14, tablet: 16, tv: 18);
-    final textBodySize = ResponsiveHelper.scale(context, 12, tablet: 13, tv: 14);
-    final textCaptionSize = ResponsiveHelper.scale(context, 10, tablet: 11, tv: 12);
+    final textHeadingSize =
+        ResponsiveHelper.scale(context, 14, tablet: 16, tv: 18);
+    final textBodySize =
+        ResponsiveHelper.scale(context, 12, tablet: 13, tv: 14);
+    final textCaptionSize =
+        ResponsiveHelper.scale(context, 10, tablet: 11, tv: 12);
     final buttonRadius = ResponsiveHelper.radiusButton(context);
 
-    // Mobile Layout (Stacked/Column Layout)
+    final cardDecoration = BoxDecoration(
+      gradient: AppTheme.backgroundGradient,
+      borderRadius: BorderRadius.circular(cardRadius),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+    );
+
     if (ResponsiveHelper.isMobile(context)) {
       return Container(
         padding: EdgeInsets.all(cardPadding),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(cardRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          border: Border.all(
-            color: isExamining
-                ? AppTheme.secondaryColor.withValues(alpha: 0.3)
-                : Colors.grey.shade100,
-          ),
-        ),
+        decoration: cardDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Row: Queue Badge, Info, and Status Badge
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Queue Number Badge
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveHelper.scale(context, 12, tablet: 14, tv: 16),
-                    vertical: ResponsiveHelper.scale(context, 8, tablet: 10, tv: 12),
+                    horizontal: ResponsiveHelper.scale(context, 12,
+                        tablet: 14, tv: 16),
+                    vertical: ResponsiveHelper.scale(context, 8,
+                        tablet: 10, tv: 12),
                   ),
                   decoration: BoxDecoration(
-                    color: isExamining
-                        ? AppTheme.secondaryColor.withValues(alpha: 0.1)
-                        : AppTheme.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(ResponsiveHelper.scale(context, 10, tablet: 12, tv: 14)),
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(
+                        ResponsiveHelper.scale(context, 10,
+                            tablet: 12, tv: 14)),
                   ),
                   child: Text(
                     queue.queueNumber,
-                    style: GoogleFonts.plusJakartaSans(
-                      color: isExamining ? AppTheme.secondaryColor : AppTheme.primaryColor,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: textHeadingSize - 1,
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                
-                // Patient Details
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,26 +113,29 @@ class DoctorQueueTile extends StatelessWidget {
                               queue.patient.fullName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.bold,
                                 fontSize: textHeadingSize,
-                                color: Colors.black87,
+                                color: Colors.white,
                               ),
                             ),
                           ),
                           if (queue.patient.isElderly) ...[
                             const SizedBox(width: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 1.5),
                               decoration: BoxDecoration(
-                                color: AppTheme.warningColor.withValues(alpha: 0.1),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: AppTheme.warningColor.withValues(alpha: 0.2)),
+                                border: Border.all(
+                                    color:
+                                        Colors.white.withValues(alpha: 0.4)),
                               ),
                               child: Text(
                                 'LANSIA',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: AppTheme.warningColor,
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
                                   fontSize: 7,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -153,9 +147,9 @@ class DoctorQueueTile extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         queue.polyclinic.name,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: textBodySize,
-                          color: Colors.grey.shade600,
+                          color: Colors.white.withValues(alpha: 0.72),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -163,17 +157,18 @@ class DoctorQueueTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-
-                // Status Badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: badgeColor,
                     borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                        color: textColor.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     label,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       color: textColor,
                       fontSize: textCaptionSize - 1,
                       fontWeight: FontWeight.bold,
@@ -183,11 +178,10 @@ class DoctorQueueTile extends StatelessWidget {
                 ),
               ],
             ),
-            
-            // Bottom Row: Action Buttons
             if (isExamining || onSkip != null || onCall != null) ...[
               const SizedBox(height: 12),
-              const Divider(height: 1, color: Color(0xFFF1F5F9)),
+              Divider(
+                  height: 1, color: Colors.white.withValues(alpha: 0.2)),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -196,25 +190,25 @@ class DoctorQueueTile extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: onExamine,
-                        icon: Icon(
-                          Icons.medical_services_rounded,
-                          size: 14,
-                          color: Colors.white,
-                        ),
+                        icon: const Icon(Icons.medical_services_rounded,
+                            size: 14, color: AppTheme.primaryColor),
                         label: Text(
                           'PERIKSA PASIEN',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.poppins(
                             fontSize: textBodySize,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
+                            color: AppTheme.primaryColor,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryColor,
-                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppTheme.primaryColor,
                           elevation: 0,
                           minimumSize: const Size(double.infinity, 44),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(buttonRadius)),
                         ),
                       ),
                     )
@@ -223,25 +217,24 @@ class DoctorQueueTile extends StatelessWidget {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: onSkip,
-                          icon: Icon(
-                            Icons.rotate_right_rounded,
-                            color: AppTheme.cancelColor,
-                            size: 16,
-                          ),
+                          icon: const Icon(Icons.rotate_right_rounded,
+                              color: Colors.white, size: 16),
                           label: Text(
                             'LEWATI',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.poppins(
                               fontSize: textBodySize - 1,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.cancelColor,
+                              color: Colors.white,
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppTheme.cancelColor),
-                            foregroundColor: AppTheme.cancelColor,
-                            backgroundColor: AppTheme.cancelColor.withValues(alpha: 0.05),
+                            side: BorderSide(
+                                color: Colors.white.withValues(alpha: 0.5)),
+                            foregroundColor: Colors.white,
                             minimumSize: const Size(0, 44),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(buttonRadius)),
                           ),
                         ),
                       ),
@@ -251,20 +244,24 @@ class DoctorQueueTile extends StatelessWidget {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: onCall,
-                          icon: const Icon(Icons.campaign_rounded, size: 16, color: Colors.white),
+                          icon: const Icon(Icons.campaign_rounded,
+                              size: 16, color: AppTheme.primaryColor),
                           label: Text(
                             'PANGGIL',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.poppins(
                               fontSize: textBodySize - 1,
                               fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryColor,
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.warningColor,
-                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppTheme.primaryColor,
                             elevation: 0,
                             minimumSize: const Size(0, 44),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(buttonRadius)),
                           ),
                         ),
                       ),
@@ -277,51 +274,34 @@ class DoctorQueueTile extends StatelessWidget {
       );
     }
 
-    // Tablet/Desktop Layout (Row Layout)
+    // Tablet/Desktop Layout
     return Container(
       padding: EdgeInsets.all(cardPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(cardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(
-          color: isExamining
-              ? AppTheme.secondaryColor.withValues(alpha: 0.3)
-              : Colors.grey.shade100,
-        ),
-      ),
+      decoration: cardDecoration,
       child: Row(
         children: [
-          // Queue Number Badge (Identical to Admin but responsive)
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: ResponsiveHelper.scale(context, 14, tablet: 16, tv: 18),
-              vertical: ResponsiveHelper.scale(context, 10, tablet: 12, tv: 14),
+              horizontal: ResponsiveHelper.scale(context, 14,
+                  tablet: 16, tv: 18),
+              vertical: ResponsiveHelper.scale(context, 10,
+                  tablet: 12, tv: 14),
             ),
             decoration: BoxDecoration(
-              color: isExamining
-                  ? AppTheme.secondaryColor.withValues(alpha: 0.1)
-                  : AppTheme.primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(ResponsiveHelper.scale(context, 12, tablet: 14, tv: 16)),
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.scale(context, 12, tablet: 14, tv: 16)),
             ),
             child: Text(
               queue.queueNumber,
-              style: GoogleFonts.plusJakartaSans(
-                color: isExamining ? AppTheme.secondaryColor : AppTheme.primaryColor,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: textHeadingSize,
               ),
             ),
           ),
           const SizedBox(width: 16),
-
-          // Patient Details (Identical to Admin layout but responsive)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,27 +313,30 @@ class DoctorQueueTile extends StatelessWidget {
                         queue.patient.fullName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
                           fontSize: textHeadingSize,
-                          color: Colors.black87,
+                          color: Colors.white,
                         ),
                       ),
                     ),
                     if (queue.patient.isElderly) ...[
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warningColor.withValues(alpha: 0.1),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AppTheme.warningColor.withValues(alpha: 0.2)),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.4)),
                         ),
                         child: Text(
                           'LANSIA',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: AppTheme.warningColor,
-                            fontSize: ResponsiveHelper.scale(context, 8, tablet: 9, tv: 10),
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: ResponsiveHelper.scale(context, 8,
+                                tablet: 9, tv: 10),
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -364,9 +347,9 @@ class DoctorQueueTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   queue.polyclinic.name,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.poppins(
                     fontSize: textBodySize,
-                    color: Colors.grey.shade600,
+                    color: Colors.white.withValues(alpha: 0.72),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -374,20 +357,23 @@ class DoctorQueueTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-
-          // Status Badge (Identical to Admin but responsive)
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: ResponsiveHelper.scale(context, 10, tablet: 12, tv: 14),
-              vertical: ResponsiveHelper.scale(context, 6, tablet: 8, tv: 10),
+              horizontal: ResponsiveHelper.scale(context, 10,
+                  tablet: 12, tv: 14),
+              vertical: ResponsiveHelper.scale(context, 6,
+                  tablet: 8, tv: 10),
             ),
             decoration: BoxDecoration(
               color: badgeColor,
-              borderRadius: BorderRadius.circular(ResponsiveHelper.scale(context, 8, tablet: 10, tv: 12)),
+              borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.scale(context, 8, tablet: 10, tv: 12)),
+              border:
+                  Border.all(color: textColor.withValues(alpha: 0.5)),
             ),
             child: Text(
               label,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.poppins(
                 color: textColor,
                 fontSize: textCaptionSize,
                 fontWeight: FontWeight.bold,
@@ -395,8 +381,6 @@ class DoctorQueueTile extends StatelessWidget {
               ),
             ),
           ),
-
-          // Actions
           if (isExamining) ...[
             const SizedBox(width: 10),
             ElevatedButton.icon(
@@ -404,29 +388,34 @@ class DoctorQueueTile extends StatelessWidget {
               icon: Icon(
                 Icons.medical_services_rounded,
                 size: ResponsiveHelper.iconSize(context, base: 14),
-                color: Colors.white,
+                color: AppTheme.primaryColor,
               ),
               label: Text(
                 'PERIKSA',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.poppins(
                   fontSize: textBodySize - 1,
                   fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryColor,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                foregroundColor: Colors.white,
+                backgroundColor: Colors.white,
+                foregroundColor: AppTheme.primaryColor,
                 elevation: 0,
                 minimumSize: Size.zero,
                 padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveHelper.scale(context, 14, tablet: 16, tv: 18),
-                  vertical: ResponsiveHelper.scale(context, 12, tablet: 14, tv: 16),
+                  horizontal: ResponsiveHelper.scale(context, 14,
+                      tablet: 16, tv: 18),
+                  vertical: ResponsiveHelper.scale(context, 12,
+                      tablet: 14, tv: 16),
                 ),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(buttonRadius)),
               ),
             ),
           ] else ...[
-            if (onSkip != null || onCall != null) const SizedBox(width: 10),
+            if (onSkip != null || onCall != null)
+              const SizedBox(width: 10),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -435,13 +424,16 @@ class DoctorQueueTile extends StatelessWidget {
                     onPressed: onSkip,
                     icon: Icon(
                       Icons.rotate_right_rounded,
-                      color: AppTheme.cancelColor,
+                      color: Colors.white,
                       size: ResponsiveHelper.iconSize(context, base: 20),
                     ),
                     tooltip: 'Lewati Antrean',
                     style: IconButton.styleFrom(
-                      backgroundColor: AppTheme.cancelColor.withValues(alpha: 0.1),
-                      padding: EdgeInsets.all(ResponsiveHelper.scale(context, 10, tablet: 12, tv: 14)),
+                      backgroundColor:
+                          Colors.white.withValues(alpha: 0.2),
+                      padding: EdgeInsets.all(ResponsiveHelper.scale(
+                          context, 10,
+                          tablet: 12, tv: 14)),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -452,24 +444,31 @@ class DoctorQueueTile extends StatelessWidget {
                     icon: Icon(
                       Icons.campaign_rounded,
                       size: ResponsiveHelper.iconSize(context, base: 14),
+                      color: Colors.white,
                     ),
                     label: Text(
                       'PANGGIL',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.poppins(
                         fontSize: textBodySize - 1,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.warningColor,
-                      side: const BorderSide(color: AppTheme.warningColor),
+                      foregroundColor: Colors.white,
+                      side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.5)),
                       elevation: 0,
                       minimumSize: Size.zero,
                       padding: EdgeInsets.symmetric(
-                        horizontal: ResponsiveHelper.scale(context, 14, tablet: 16, tv: 18),
-                        vertical: ResponsiveHelper.scale(context, 12, tablet: 14, tv: 16),
+                        horizontal: ResponsiveHelper.scale(context, 14,
+                            tablet: 16, tv: 18),
+                        vertical: ResponsiveHelper.scale(context, 12,
+                            tablet: 14, tv: 16),
                       ),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(buttonRadius)),
                     ),
                   ),
               ],

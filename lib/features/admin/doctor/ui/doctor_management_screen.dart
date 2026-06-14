@@ -11,6 +11,7 @@ import '../../../../core/utils/app_dialogs.dart';
 import '../widgets/admin_doctor_card.dart';
 import '../widgets/admin_doctor_form_sheet.dart';
 import '../../../../core/utils/responsive_helper.dart';
+import '../../dashboard/widgets/admin_mini_stat_card.dart';
 
 class DoctorManagementScreen extends StatefulWidget {
   const DoctorManagementScreen({super.key});
@@ -56,21 +57,20 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
           maxWidth: 900,
           child: Column(
             children: [
-            // Premium Header with smooth bottom-up stagger
             FadeIn(
               duration: const Duration(milliseconds: 400),
               child: Container(
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  gradient: AppTheme.backgroundGradient,
                   borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
+                    bottomLeft: Radius.circular(28),
+                    bottomRight: Radius.circular(28),
                   ),
                 ),
                 child: SafeArea(
                   bottom: false,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
                     child: AnimationLimiter(
                       child: Column(
                         children: [
@@ -81,37 +81,52 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                               verticalOffset: 30.0,
                               child: FadeInAnimation(
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        if (Navigator.canPop(context)) {
-                                          Navigator.pop(context);
-                                        } else {
-                                          Navigator.pushReplacementNamed(context, '/admin/home');
-                                        }
-                                      },
-                                      icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
+                                    Container(
+                                      width: 42,
+                                      height: 42,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.25),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () {
+                                          if (Navigator.canPop(context)) {
+                                            Navigator.pop(context);
+                                          } else {
+                                            Navigator.pushReplacementNamed(context, '/admin/home');
+                                          }
+                                        },
+                                        icon: const Icon(
+                                          Icons.arrow_back_ios_new_rounded,
+                                          size: 18,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
+
                                     const SizedBox(width: 16),
+
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Manajemen Staf',
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontSize: 24,
+                                            'Manajemen Dokter',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 28,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
+                                              color: Colors.white,
                                             ),
                                           ),
+                                          const SizedBox(height: 2),
                                           Text(
-                                            '${provider.doctors.length} tenaga medis aktif',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            'Daftar dokter yang terdaftar di Puskesmas',
+                                            style: GoogleFonts.poppins(
                                               fontSize: 13,
-                                              color: Colors.grey,
+                                              color: Colors.white.withValues(alpha: 0.9),
+                                              height: 1.3,
                                             ),
                                           ),
                                         ],
@@ -135,19 +150,23 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                                       child: TextField(
                                         controller: _searchController,
                                         onChanged: (val) => setState(() => _searchQuery = val),
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           color: Colors.black87,
                                         ),
                                         decoration: InputDecoration(
-                                          hintText: 'Cari staf...',
-                                          hintStyle: GoogleFonts.plusJakartaSans(
+                                          hintText: 'Cari dokter...',
+                                          hintStyle: GoogleFonts.poppins(
                                             color: Colors.grey.shade400,
                                             fontSize: 14,
                                           ),
-                                          prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
+                                          prefixIcon: Icon(
+                                            Icons.search_rounded,
+                                            size: 20,
+                                            color: Colors.grey.shade500,
+                                          ),
                                           filled: true,
-                                          fillColor: Colors.grey.shade100,
+                                          fillColor: Colors.white.withValues(alpha: 0.92),
                                           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
@@ -168,30 +187,37 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 12),
+                                    
                                     Material(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
+                                      color: Colors.transparent, 
                                       child: InkWell(
                                         onTap: () {
                                           _showFilterSheet(context);
                                         },
-                                        borderRadius: BorderRadius.circular(12),
                                         child: Container(
-                                          padding: const EdgeInsets.all(12),
+                                          width: 48,
+                                          height: 48,
+                                          alignment: Alignment.center,
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(color: Colors.grey.shade200),
+                                            color: _selectedPolyclinicId != null
+                                                ? Colors.white
+                                                : Colors.white.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(14),
+                                            border: Border.all(
+                                              color: Colors.white.withValues(alpha: 0.5),
+                                              width: 1,
+                                            ),
                                           ),
                                           child: Icon(
                                             Icons.tune_rounded,
-                                            color: _selectedPolyclinicId != null 
-                                                ? AppTheme.primaryColor 
-                                                : Colors.black87,
+                                            color: _selectedPolyclinicId != null
+                                                ? AppTheme.primaryColor
+                                                : Colors.white.withValues(alpha: 0.8),
                                             size: 20,
                                           ),
                                         ),
                                       ),
-                                    ),
+                                    )
                                   ],
                                 ),
                               ),
@@ -206,7 +232,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
             ),
             
             const Divider(height: 1),
- 
+
             // Doctor List
             Expanded(
               child: RefreshIndicator(
@@ -222,11 +248,17 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       FadeInUp(
+                      duration: const Duration(milliseconds: 500),
+                      delay: const Duration(milliseconds: 350),
+                      child: _availabilityCard(provider),
+                      ),
+
+                      FadeInUp(
                         duration: const Duration(milliseconds: 500),
                         delay: const Duration(milliseconds: 200),
-                        child: _sectionTitle('Tenaga Medis'),
+                        child: _sectionTitle('dokter'),
                       ),
-                      const SizedBox(height: 16),
+
                       if (provider.isLoading && provider.doctors.isEmpty)
                         const Center(child: CircularProgressIndicator())
                       else if (doctors.isEmpty)
@@ -265,11 +297,12 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 24),
+                                
                                 Text(
                                   _searchQuery.isNotEmpty || _selectedPolyclinicId != null
-                                      ? 'Staf Tidak Ditemukan'
-                                      : 'Tidak Ada Staf Medis',
-                                  style: GoogleFonts.plusJakartaSans(
+                                      ? 'Dokter Tidak Ditemukan'
+                                      : 'Tidak Ada Dokter',
+                                  style: GoogleFonts.poppins(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black87,
@@ -277,12 +310,13 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 12),
+
                                 Text(
                                   _searchQuery.isNotEmpty
-                                      ? 'Tidak ada staf medis dengan nama atau spesialisasi "$_searchQuery".'
-                                      : 'Belum ada staf medis terdaftar untuk filter poliklinik terpilih.',
+                                      ? 'Tidak ada dokter dengan nama atau spesialisasi "$_searchQuery".'
+                                      : 'Belum ada dokter terdaftar untuk filter poliklinik terpilih.',
                                   textAlign: TextAlign.center,
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.poppins(
                                     fontSize: 13,
                                     color: Colors.grey.shade600,
                                     height: 1.5,
@@ -301,7 +335,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                                     icon: const Icon(Icons.refresh_rounded, size: 18),
                                     label: Text(
                                       'Reset Pencarian & Filter',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: GoogleFonts.poppins(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -340,15 +374,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                             );
                           },
                         ),
-                      
                       const SizedBox(height: 30),
-                      
-                      // Stats Card
-                      FadeInUp(
-                        duration: const Duration(milliseconds: 500),
-                        delay: const Duration(milliseconds: 350),
-                        child: _availabilityCard(provider),
-                      ),
                     ],
                   ),
                 ),
@@ -358,20 +384,30 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
           ],
         ),
       ),
-        floatingActionButton: ResponsiveCenter(
-          maxWidth: 900,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: FloatingActionButton(
-              onPressed: () => AdminDoctorFormSheet.show(context),
-              backgroundColor: AppTheme.primaryColor,
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: const Icon(Icons.add_rounded, color: Colors.white),
+
+      floatingActionButton: ResponsiveCenter(
+        maxWidth: 900,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Align(
+          alignment: Alignment.bottomRight,
+          child: FloatingActionButton.extended(
+            onPressed: () => AdminDoctorFormSheet.show(context),
+            backgroundColor: AppTheme.primaryColor,
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            icon: const Icon(Icons.person_add_alt_1_rounded, color: Colors.white, size: 22),
+            label: const Text(
+              'Tambah Dokter',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
+      ),
+
       ),
     );
   }
@@ -379,7 +415,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.plusJakartaSans(
+      style: GoogleFonts.poppins(
         fontSize: 16,
         fontWeight: FontWeight.bold,
         color: AppTheme.primaryColor,
@@ -411,7 +447,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
       context,
       'Hapus Dokter',
       'Apakah Anda yakin ingin menghapus ${doc.user?.name}?',
-      confirmText: 'HAPUS',
+      confirmText: 'Hapus',
       isDestructive: true,
     );
 
@@ -421,39 +457,29 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
   }
 
   Widget _availabilityCard(AdminProvider provider) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Row(
         children: [
-          Text(
-            'Ketersediaan Loket',
-            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+          Expanded(
+            child: AdminMiniStatCard(
+              label: 'Poli Aktif',
+              value: '${provider.polyclinics.length}',
+              bgColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+              textColor: AppTheme.primaryColor,
+            ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _statItem('${provider.polyclinics.length}', 'Poli Aktif'),
-              Container(width: 1, height: 32, color: Colors.grey.shade200),
-              _statItem('${provider.doctors.length}', 'Total Dokter'),
-            ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: AdminMiniStatCard(
+              label: 'Total Dokter',
+              value: '${provider.doctors.length}',
+              bgColor: AppTheme.accentColor.withValues(alpha: 0.1),
+              textColor: AppTheme.accentColor,
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _statItem(String value, String label) {
-    return Column(
-      children: [
-        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-      ],
     );
   }
 
@@ -479,8 +505,8 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Filter Tenaga Medis',
-                          style: GoogleFonts.plusJakartaSans(
+                          'Filter dokter',
+                          style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
@@ -495,7 +521,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                             },
                             child: Text(
                               'Reset',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 color: AppTheme.primaryColor,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -506,7 +532,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                     const SizedBox(height: 20),
                     Text(
                       'Berdasarkan Poliklinik',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey.shade700,
@@ -527,7 +553,7 @@ class _DoctorManagementScreenState extends State<DoctorManagementScreen> {
                           return ChoiceChip(
                             label: Text(
                               poly.name,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 color: isSelected ? Colors.white : Colors.black87,
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                               ),

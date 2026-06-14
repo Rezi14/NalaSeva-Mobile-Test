@@ -79,7 +79,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
           'Berhasil',
           'Profil berhasil diperbarui',
           onOkPressed: () {
-            Navigator.pop(context); // Close screen
+            Navigator.pop(context); 
           },
         );
       }
@@ -130,17 +130,16 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Colors.white,
       body: ResponsiveCenter(
         maxWidth: 700,
         child: Column(
           children: [
-          // Premium Header with smooth bottom-up stagger
           FadeIn(
             duration: const Duration(milliseconds: 400),
             child: Container(
               decoration: const BoxDecoration(
-                color: Colors.white,
+                gradient: AppTheme.backgroundGradient,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(24),
                   bottomRight: Radius.circular(24),
@@ -166,7 +165,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                                     icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
-                                    color: AppTheme.primaryColor,
+                                    color: Colors.white,
                                   ),
                                   const SizedBox(width: 16),
                                   Column(
@@ -174,18 +173,18 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                                     children: [
                                       Text(
                                         'Edit Profil Saya',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
+                                          color: Colors.white,
                                         ),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         'Perbarui data profesi dan kontak Anda',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey,
+                                          color: Colors.white.withValues(alpha: 0.8),
                                         ),
                                       ),
                                     ],
@@ -226,7 +225,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                     Expanded(
                       child: Text(
                         'Untuk keamanan data, Nomor NIK tidak dapat diubah secara mandiri.',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.poppins(
                           color: AppTheme.warningColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -284,7 +283,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                 children: [
                   Text(
                     'Jenis Kelamin',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.poppins(
                       color: Colors.grey.shade600,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -312,7 +311,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                               alignment: Alignment.center,
                               child: Text(
                                 v,
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   color: isSelected ? AppTheme.primaryColor : Colors.black87,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                   fontSize: 14,
@@ -347,7 +346,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                         children: [
                           Text(
                             'Tanggal Lahir',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.poppins(
                               color: Colors.grey.shade500,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -358,7 +357,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                             _selectedBirthDate == null
                                 ? 'Pilih Tanggal'
                                 : DateFormat('dd MMMM yyyy').format(_selectedBirthDate!),
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
@@ -408,7 +407,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
                       )
                     : Text(
                         'SIMPAN PERUBAHAN',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           letterSpacing: 0.5,

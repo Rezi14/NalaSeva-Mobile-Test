@@ -35,17 +35,16 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
       : 'DR';
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Colors.white,
       body: ResponsiveCenter(
         maxWidth: 800,
         child: Column(
           children: [
-          // Premium Header with smooth bottom-up stagger
           FadeIn(
             duration: const Duration(milliseconds: 400),
             child: Container(
               decoration: const BoxDecoration(
-                color: Colors.white,
+                gradient: AppTheme.backgroundGradient,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(24),
                   bottomRight: Radius.circular(24),
@@ -74,7 +73,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                                         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                                         padding: EdgeInsets.zero,
                                         constraints: const BoxConstraints(),
-                                        color: AppTheme.primaryColor,
+                                        color: Colors.white,
                                       ),
                                       const SizedBox(width: 16),
                                       Column(
@@ -82,18 +81,18 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                                         children: [
                                           Text(
                                             'Profil Saya',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
+                                              color: Colors.white,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             'Data profesi dan lisensi medis Anda',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 13,
-                                              color: Colors.grey,
+                                              color: Colors.white.withValues(alpha: 0.8),
                                             ),
                                           ),
                                         ],
@@ -102,12 +101,12 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                                   ),
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: AppTheme.editColor.withValues(alpha: 0.1),
+                                      color: Colors.white.withValues(alpha: 0.2),
                                       shape: BoxShape.circle,
                                     ),
                                     child: IconButton(
                                       onPressed: () => Navigator.pushNamed(context, '/doctor/edit-profile'),
-                                      icon: const Icon(Icons.edit_outlined, color: AppTheme.editColor),
+                                      icon: const Icon(Icons.edit_outlined, color: Colors.white),
                                       tooltip: 'Edit Profil',
                                     ),
                                   ),
@@ -138,7 +137,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                   backgroundColor: AppTheme.primaryColor,
                   child: Text(
                     initials,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -153,7 +152,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
               delay: const Duration(milliseconds: 100),
               child: Text(
                 user?.name ?? 'Nama Dokter',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -166,7 +165,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
               delay: const Duration(milliseconds: 200),
               child: Text(
                 user?.email ?? 'doctor@nalaseva.com',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.poppins(
                   color: Colors.grey[600],
                   fontSize: 14,
                 ),
@@ -187,7 +186,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                     ),
                     child: Text(
                       user.specialization!,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.primaryColor,
@@ -245,7 +244,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => _showLogoutConfirmation(context),
                 icon: const Icon(Icons.logout_rounded, color: Colors.white),
-                label: const Text('KELUAR DARI AKUN', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: Text('Keluar dari Akun', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.cancelColor,
                   foregroundColor: Colors.white,
@@ -275,7 +274,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
       context,
       'Konfirmasi Keluar',
       'Apakah Anda yakin ingin keluar dari akun Dokter Anda?',
-      confirmText: 'KELUAR',
+      confirmText: 'Keluar',
       isDestructive: true,
     );
 

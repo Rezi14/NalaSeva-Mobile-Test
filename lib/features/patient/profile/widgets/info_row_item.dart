@@ -22,14 +22,14 @@ class InfoRowItem extends StatelessWidget {
         const SizedBox(width: 16),
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade600),
+          style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600),
+            style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),

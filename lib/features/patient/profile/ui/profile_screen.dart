@@ -22,7 +22,6 @@ class ProfileScreen extends StatelessWidget {
         maxWidth: 800,
         child: Column(
           children: [
-          // Premium Header with smooth bottom-up stagger
           FadeIn(
             duration: const Duration(milliseconds: 400),
             child: Container(
@@ -64,7 +63,7 @@ class ProfileScreen extends StatelessWidget {
                                         children: [
                                           Text(
                                             'Profil Saya',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black87,
@@ -73,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
                                           const SizedBox(height: 4),
                                           Text(
                                             'Data diri dan informasi akun Anda',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 13,
                                               color: Colors.grey,
                                             ),
@@ -132,7 +131,7 @@ class ProfileScreen extends StatelessWidget {
                     user?.name != null && user!.name.isNotEmpty
                         ? user.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
                         : 'U',
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -147,7 +146,7 @@ class ProfileScreen extends StatelessWidget {
               delay: const Duration(milliseconds: 100),
               child: Text(
                 user?.name ?? 'Nama Pengguna',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
             FadeInUp(
@@ -155,7 +154,7 @@ class ProfileScreen extends StatelessWidget {
               delay: const Duration(milliseconds: 180),
               child: Text(
                 user?.email ?? 'email@example.com',
-                style: TextStyle(color: Colors.grey[600]),
+                style: GoogleFonts.poppins(color: Colors.grey[600]),
               ),
             ),
             const SizedBox(height: 40),
@@ -194,7 +193,7 @@ class ProfileScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () => _showLogoutConfirmation(context),
                 icon: const Icon(Icons.logout_rounded, color: Colors.white),
-                label: const Text('KELUAR DARI AKUN', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: Text('Keluar dari Akun', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.cancelColor,
                   foregroundColor: Colors.white,
@@ -226,7 +225,7 @@ class ProfileScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+          Text(title, style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
           const SizedBox(height: 16),
           ...items,
         ],
@@ -245,8 +244,8 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                Text(label, style: GoogleFonts.poppins(color: Colors.grey[500], fontSize: 12)),
+                Text(value, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -260,7 +259,7 @@ class ProfileScreen extends StatelessWidget {
       context,
       'Konfirmasi Keluar',
       'Apakah Anda yakin ingin keluar dari akun Anda?',
-      confirmText: 'KELUAR',
+      confirmText: 'Keluar',
       isDestructive: true,
     );
 

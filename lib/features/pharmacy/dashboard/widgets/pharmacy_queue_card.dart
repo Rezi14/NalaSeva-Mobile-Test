@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/models/payment_model.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/responsive_helper.dart';
-import '../../../../shared/constants/app_constants.dart';
 
 class PharmacyQueueCard extends StatelessWidget {
   final PaymentModel payment;
@@ -15,47 +13,6 @@ class PharmacyQueueCard extends StatelessWidget {
     required this.onTap,
   });
 
-  LinearGradient _getPolyGradient(String code) {
-    switch (code) {
-      case 'POL-UMM':
-        return const LinearGradient(
-          colors: [Color(0xFF0F9B8E), Color(0xFF047857)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case 'POL-GIG':
-        return const LinearGradient(
-          colors: [Color(0xFF0EA5E9), Color(0xFF0369A1)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case 'POL-KIA':
-        return const LinearGradient(
-          colors: [Color(0xFFEC4899), Color(0xFFBE185D)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case 'POL-ANK':
-        return const LinearGradient(
-          colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case 'POL-LNS':
-        return const LinearGradient(
-          colors: [Color(0xFFF59E0B), Color(0xFFB45309)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      default:
-        return const LinearGradient(
-          colors: [Color(0xFF6B7280), Color(0xFF374151)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final patientName = payment.queue?.patient.name ?? 'Pasien';
@@ -64,57 +21,52 @@ class PharmacyQueueCard extends StatelessWidget {
     final isPriority = payment.queue?.patient.isElderly ?? false;
     final itemsCount = payment.examination?.prescriptionItems.length ?? 0;
 
-    // Gunakan QueueStatus enum dari app_constants
-    final queueStatus = payment.queue?.status ?? QueueStatus.unknown;
-
-    final cardRadius = ResponsiveHelper.radiusCard(context);
-    final cardPadding = ResponsiveHelper.paddingCard(context);
-    final textBodySize = ResponsiveHelper.fontSizeBody(context);
-    final textCaptionSize = ResponsiveHelper.fontSizeCaption(context);
-    final smallRadius = ResponsiveHelper.radiusSmall(context);
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(cardRadius),
+        gradient: AppTheme.backgroundGradient,
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: AppTheme.accentColor.withValues(alpha: 0.2),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
         ],
         border: Border.all(
           color: isPriority
-              ? Colors.orange.withValues(alpha: 0.4)
-              : Colors.grey.shade100,
-          width: 1.5,
+              ? AppTheme.warningColor.withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.3),
+          width: 1.2,
         ),
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(cardRadius),
+        borderRadius: BorderRadius.circular(24),
         child: InkWell(
-          borderRadius: BorderRadius.circular(cardRadius),
+          borderRadius: BorderRadius.circular(24),
           onTap: onTap,
           child: Padding(
-            padding: EdgeInsets.all(cardPadding),
+            padding: const EdgeInsets.all(18),
             child: Row(
               children: [
                 Container(
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    gradient: _getPolyGradient(polyCode),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.35),
+                      width: 1,
+                    ),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     polyCode.split('-').last,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w900,
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Colors.white,
                     ),
                   ),
@@ -129,10 +81,10 @@ class PharmacyQueueCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               patientName,
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.bold,
-                                fontSize: textBodySize + 2,
-                                color: Colors.black87,
+                                fontSize: 15,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -140,21 +92,18 @@ class PharmacyQueueCard extends StatelessWidget {
                             const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
+                                  horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.orange.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(
-                                  smallRadius,
-                                ),
+                                color: AppTheme.warningColor
+                                    .withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 'Lansia',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.orange.shade700,
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: textCaptionSize - 1,
+                                  fontSize: 10,
                                 ),
                               ),
                             ),
@@ -164,9 +113,9 @@ class PharmacyQueueCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         polyName,
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.grey[600],
-                          fontSize: textCaptionSize,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 13,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -176,43 +125,33 @@ class PharmacyQueueCard extends StatelessWidget {
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withValues(
-                                alpha: 0.08,
-                              ),
-                              borderRadius: BorderRadius.circular(smallRadius),
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              queueStatus == QueueStatus.completed
-                                  ? 'Siap Layani (${queueStatus.displayName})'
-                                  : 'Siap Disiapkan',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: AppTheme.primaryColor,
+                              'Siap Disiapkan',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: textCaptionSize - 1,
+                                fontSize: 10,
                               ),
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(smallRadius),
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              itemsCount > 0
-                                  ? '$itemsCount Resep'
-                                  : 'Tanpa Obat',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: Colors.blue.shade700,
+                              itemsCount > 0 ? '$itemsCount Resep' : 'Tanpa Obat',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: textCaptionSize - 1,
+                                fontSize: 10,
                               ),
                             ),
                           ),
@@ -225,14 +164,15 @@ class PharmacyQueueCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey.shade100),
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.3)),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.chevron_right_rounded,
                     size: 20,
-                    color: AppTheme.primaryColor.withValues(alpha: 0.8),
+                    color: Colors.white,
                   ),
                 ),
               ],

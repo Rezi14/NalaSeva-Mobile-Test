@@ -24,10 +24,9 @@ import 'shared/widgets/connectivity_banner.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -35,9 +34,9 @@ void main() async {
   } catch (e) {
     debugPrint('Firebase init error (likely missing google-services.json): $e');
   }
-  
+
   await initializeDateFormatting('id_ID', null);
-  
+
   final apiClient = ApiClient();
   final authRepository = AuthRepository(apiClient);
   final adminRepository = AdminRepository(apiClient);
@@ -47,17 +46,24 @@ void main() async {
   final pharmacyRepository = PharmacyRepository(apiClient);
   final fcmService = FirebaseMessagingService(authRepository);
   final puskesmasProfileRepository = PuskesmasProfileRepository(apiClient);
-  final puskesmasProfileProvider = PuskesmasProfileProvider(puskesmasProfileRepository);
+  final puskesmasProfileProvider =
+      PuskesmasProfileProvider(puskesmasProfileRepository);
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider(authRepository, fcmService)),
-        ChangeNotifierProvider(create: (_) => AdminProvider(adminRepository)),
-        ChangeNotifierProvider(create: (_) => DoctorProvider(doctorRepository)),
-        ChangeNotifierProvider(create: (_) => PatientProvider(patientRepository)),
-        ChangeNotifierProvider(create: (_) => PaymentProvider(paymentRepository)),
-        ChangeNotifierProvider(create: (_) => PharmacyProvider(pharmacyRepository)),
+        ChangeNotifierProvider(
+            create: (_) => AuthProvider(authRepository, fcmService)),
+        ChangeNotifierProvider(
+            create: (_) => AdminProvider(adminRepository)),
+        ChangeNotifierProvider(
+            create: (_) => DoctorProvider(doctorRepository)),
+        ChangeNotifierProvider(
+            create: (_) => PatientProvider(patientRepository)),
+        ChangeNotifierProvider(
+            create: (_) => PaymentProvider(paymentRepository)),
+        ChangeNotifierProvider(
+            create: (_) => PharmacyProvider(pharmacyRepository)),
         ChangeNotifierProvider.value(value: puskesmasProfileProvider),
       ],
       child: const NalasevaApp(),
@@ -83,7 +89,6 @@ class _NalasevaAppState extends State<NalasevaApp> {
 
   Future<void> _checkInitialAuth() async {
     if (!mounted) return;
-
     try {
       final authProvider = context.read<AuthProvider>();
       await authProvider.checkAuth().timeout(
@@ -104,9 +109,7 @@ class _NalasevaAppState extends State<NalasevaApp> {
         } catch (e) {
           debugPrint('Error fetching puskesmas profile on start: $e');
         }
-        setState(() {
-          _isChecking = false;
-        });
+        setState(() => _isChecking = false);
       }
     }
   }
@@ -117,9 +120,15 @@ class _NalasevaAppState extends State<NalasevaApp> {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
+        home: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: AppTheme.backgroundGradient,
+            ),
+            child: const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
           ),
         ),
       );
@@ -153,8 +162,15 @@ class _NalasevaAppState extends State<NalasevaApp> {
       onGenerateRoute: AppRouter.onGenerateRoute,
       builder: (context, child) {
         return SessionTimeoutListener(
-          timeoutDuration: const Duration(minutes: 15), // Auto logout after 15 minutes of inactivity
-          child: ConnectivityBanner(child: child!),
+          timeoutDuration: const Duration(minutes: 15),
+          child: ConnectivityBanner(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: AppTheme.backgroundGradient,
+              ),
+              child: child!,
+            ),
+          ),
         );
       },
     );

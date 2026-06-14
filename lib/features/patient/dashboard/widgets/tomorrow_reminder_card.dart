@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../logic/patient_provider.dart';
 
 class TomorrowReminderCard extends StatelessWidget {
@@ -34,15 +35,11 @@ class TomorrowReminderCard extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(24, 24, 24, 0),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF0F766E), Color(0xFF0D9488)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: AppTheme.backgroundGradient,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0D9488).withValues(alpha: 0.25),
+              color: AppTheme.primaryColor.withValues(alpha: 0.2),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -53,7 +50,7 @@ class TomorrowReminderCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
+                color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.alarm_rounded, color: Colors.white, size: 22),
@@ -65,17 +62,17 @@ class TomorrowReminderCard extends StatelessWidget {
                 children: [
                   Text(
                     'PENGINGAT KUNJUNGAN BESOK',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: Colors.white.withValues(alpha: 0.85),
                       letterSpacing: 0.8,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Besok Anda dijadwalkan di ${q.polyclinic.name} pada jam ${q.estimatedServiceTime != null && q.estimatedServiceTime!.length >= 5 ? q.estimatedServiceTime!.substring(0, 5) : (q.estimatedServiceTime ?? "08:00")} WIB.',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,

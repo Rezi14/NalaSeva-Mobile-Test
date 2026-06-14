@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../../shared/models/medicine_model.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/responsive_helper.dart';
 
 class MedicineInventoryCard extends StatelessWidget {
   final MedicineModel medicine;
@@ -27,25 +27,15 @@ class MedicineInventoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lowStock = medicine.stock <= 20;
-    
-    final cardRadius = ResponsiveHelper.radiusCard(context);
-    final cardPadding = ResponsiveHelper.paddingCard(context);
-    final textBodySize = ResponsiveHelper.fontSizeBody(context);
-    final textCaptionSize = ResponsiveHelper.fontSizeCaption(context);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(cardPadding),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.cardColor,
-        borderRadius: BorderRadius.circular(cardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          )
-        ],
+        gradient: AppTheme.backgroundGradient,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+            color: Colors.white.withValues(alpha: 0.15), width: 1),
       ),
       child: Row(
         children: [
@@ -53,14 +43,12 @@ class MedicineInventoryCard extends StatelessWidget {
             height: 48,
             width: 48,
             decoration: BoxDecoration(
-              color: lowStock
-                  ? AppTheme.errorColor.withValues(alpha: 0.1)
-                  : AppTheme.primaryColor.withValues(alpha: 0.1),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.medication_rounded,
-              color: lowStock ? AppTheme.errorColor : AppTheme.primaryColor,
+              color: Colors.white,
             ),
           ),
           const SizedBox(width: 16),
@@ -70,9 +58,10 @@ class MedicineInventoryCard extends StatelessWidget {
               children: [
                 Text(
                   medicine.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold, 
-                    fontSize: textBodySize + 2,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -80,57 +69,93 @@ class MedicineInventoryCard extends StatelessWidget {
                   children: [
                     Text(
                       'Harga: ',
-                      style: TextStyle(
-                        color: Colors.grey[500], 
-                        fontSize: textCaptionSize,
-                      ),
+                      style: GoogleFonts.poppins(
+                          color: Colors.white.withValues(alpha: 0.72),
+                          fontSize: 13),
                     ),
                     Text(
                       _formatCurrency(medicine.price),
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.secondaryColor,
-                        fontSize: textCaptionSize,
+                        color: Colors.white,
+                        fontSize: 13,
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text(
+                      '${medicine.stock} ${medicine.unit}',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: lowStock
+                            ? AppTheme.warningColor
+                            : Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                    if (lowStock) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppTheme.warningColor
+                              .withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                              color: AppTheme.warningColor
+                                  .withValues(alpha: 0.5)),
+                        ),
+                        child: Text(
+                          'Hampir Habis!',
+                          style: GoogleFonts.poppins(
+                            color: AppTheme.warningColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],
             ),
           ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                '${medicine.stock} ${medicine.unit}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: textBodySize + 1,
-                  color: lowStock ? AppTheme.errorColor : Colors.grey[800],
+              IconButton(
+                icon: Icon(
+                  Icons.edit_rounded,
+                  color: Colors.white.withValues(alpha: 0.9),
+                  size: 20,
+                ),
+                onPressed: onEdit,
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.15),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.all(8),
                 ),
               ),
-              if (lowStock)
-                Text(
-                  'Hampir Habis!',
-                  style: TextStyle(
-                    color: AppTheme.errorColor, 
-                    fontSize: textCaptionSize - 2, 
-                    fontWeight: FontWeight.bold,
-                  ),
+              const SizedBox(height: 8),
+              IconButton(
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.white.withValues(alpha: 0.75),
+                  size: 20,
                 ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit_rounded, color: AppTheme.editColor, size: 20),
-                    onPressed: onEdit,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline_rounded, color: AppTheme.deleteColor, size: 20),
-                    onPressed: onDelete,
-                  ),
-                ],
-              )
+                onPressed: onDelete,
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.15),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
             ],
           ),
         ],

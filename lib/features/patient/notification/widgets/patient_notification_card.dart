@@ -34,14 +34,13 @@ class PatientNotificationCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: AppTheme.backgroundGradient, 
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.025),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: AppTheme.primaryColor.withValues(alpha: 0.15),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -51,10 +50,10 @@ class PatientNotificationCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
+                color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: iconColor, size: 20),
+              child: Icon(icon, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -67,28 +66,27 @@ class PatientNotificationCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           title,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Colors.white, 
                           ),
                         ),
                       ),
-                      if (badge != null && badgeColor != null) ...[
+                      if (badge != null) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: badgeColor!.withValues(alpha: 0.1),
+                            color: Colors.white.withValues(alpha: 0.25), 
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             badge!,
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.poppins(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: badgeColor,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -99,38 +97,38 @@ class PatientNotificationCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       subtitle!,
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.poppins(
                         fontSize: 11,
-                        color: Colors.grey.shade500,
+                        color: Colors.white.withValues(alpha: 0.75),
                       ),
                     ),
                   ],
                   const SizedBox(height: 6),
                   Text(
                     message,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.poppins(
                       fontSize: 13,
-                      color: Colors.grey.shade600,
+                      color: Colors.white.withValues(alpha: 0.9), 
                       height: 1.5,
                     ),
                   ),
                   if (actionLabel != null && onTap != null) ...[
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Text(
                           actionLabel!,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.poppins(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryColor,
+                            color: Colors.white, 
                           ),
                         ),
                         const SizedBox(width: 4),
                         const Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 11,
-                          color: AppTheme.primaryColor,
+                          color: Colors.white,
                         ),
                       ],
                     ),

@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart'; 
 import '../../../../../shared/models/doctor_model.dart';
 import '../../../../shared/models/schedule_model.dart';
 import '../../../../../core/theme/app_theme.dart';
@@ -23,22 +24,19 @@ class AdminDoctorCard extends StatelessWidget {
 
   Map<String, dynamic> _getDoctorStatusDetails() {
     final now = DateTime.now();
-
-    // 1. Dokter Cuti Hari Ini
     final todayDateStr = DateFormat('yyyy-MM-dd').format(now);
     final hasLeaveToday = doctorLeaves.any((leave) =>
         leave['doctor_id']?.toString() == doctor.id.toString() &&
         leave['leave_date']?.toString() == todayDateStr);
-    
+
     if (hasLeaveToday) {
       return {
         'label': 'Dokter Cuti Hari Ini',
         'color': AppTheme.errorColor,
-        'bgColor': AppTheme.errorColor.withValues(alpha: 0.1),
+        'bgColor': Colors.white.withValues(alpha: 0.2),
       };
     }
 
-    // 2. Pengecekan Jadwal Praktik (Prioritas Utama untuk menentukan Keaktifan Tugas hari ini)
     final todayName = DateFormat('EEEE', 'id_ID').format(now).toLowerCase();
     final doctorSchedulesToday = schedules.where((s) =>
         s.doctorId == doctor.id &&
@@ -47,8 +45,8 @@ class AdminDoctorCard extends StatelessWidget {
     if (doctorSchedulesToday.isEmpty) {
       return {
         'label': 'Tidak Aktif Hari Ini',
-        'color': Colors.grey.shade600,
-        'bgColor': Colors.grey.shade100,
+        'color': Colors.white,
+        'bgColor': Colors.white.withValues(alpha: 0.15),
       };
     }
 
@@ -63,37 +61,34 @@ class AdminDoctorCard extends StatelessWidget {
       }
     }
 
-    // Jika sedang di luar jam praktik aktif hari ini, status langsung "Tidak Aktif Hari Ini"
     if (!inSchedule) {
       return {
         'label': 'Tidak Aktif Hari Ini',
-        'color': Colors.grey.shade600,
-        'bgColor': Colors.grey.shade100,
+        'color': Colors.white,
+        'bgColor': Colors.white.withValues(alpha: 0.15),
       };
     }
 
     if (doctor.isOnline == null) {
       return {
         'label': 'Status Tidak Diketahui',
-        'color': Colors.grey.shade500,
-        'bgColor': Colors.grey.shade100,
+        'color': Colors.white,
+        'bgColor': Colors.white.withValues(alpha: 0.15),
       };
     }
 
-    // 3. Dokter Istirahat (Hanya bisa istirahat jika sedang di dalam jadwal praktik aktif)
     if (!doctor.isOnline!) {
       return {
         'label': 'Dokter Istirahat',
         'color': AppTheme.warningColor,
-        'bgColor': AppTheme.warningColor.withValues(alpha: 0.1),
+        'bgColor': Colors.white.withValues(alpha: 0.2),
       };
     }
 
-    // 4. Aktif Hari Ini
     return {
       'label': 'Aktif Hari Ini',
       'color': AppTheme.successColor,
-      'bgColor': AppTheme.successColor.withValues(alpha: 0.1),
+      'bgColor': Colors.white.withValues(alpha: 0.2),
     };
   }
 
@@ -110,19 +105,19 @@ class AdminDoctorCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: AppTheme.backgroundGradient,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
             child: Text(
               initials,
-              style: const TextStyle(
-                color: AppTheme.primaryColor,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -133,16 +128,26 @@ class AdminDoctorCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(
+                  name,
+                  style: GoogleFonts.poppins( 
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Colors.white,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.medical_services_rounded, size: 12, color: Colors.grey),
+                    Icon(Icons.medical_services_rounded, size: 12, color: Colors.white.withValues(alpha: 0.7)),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         '$polyName - ${doctor.specialization ?? "-"}',
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style: GoogleFonts.poppins( 
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.75),
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -160,6 +165,7 @@ class AdminDoctorCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: statusBgColor,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -175,7 +181,7 @@ class AdminDoctorCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       statusLabel,
-                      style: TextStyle(
+                      style: GoogleFonts.poppins( 
                         color: statusColor,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -188,11 +194,11 @@ class AdminDoctorCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit_rounded, size: 18, color: AppTheme.editColor),
+                    icon: Icon(Icons.edit_rounded, size: 18, color: Colors.white.withValues(alpha: 0.9)),
                     onPressed: onEdit,
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppTheme.deleteColor),
+                    icon: Icon(Icons.delete_outline_rounded, size: 18, color: Colors.white.withValues(alpha: 0.75)),
                     onPressed: onDelete,
                   ),
                 ],

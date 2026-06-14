@@ -22,7 +22,7 @@ class _LoginInputDecoration {
   static InputDecoration get({required String hintText, required IconData icon}) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: GoogleFonts.plusJakartaSans(color: Colors.grey.shade400, fontSize: 14),
+      hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 14),
       prefixIcon: Icon(icon, color: AppTheme.primaryColor, size: 20),
       filled: true,
       fillColor: Colors.grey.shade50,
@@ -86,7 +86,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                     children: [
                       Text(
                         'Tambah Hari Libur',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
@@ -95,7 +95,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                       const SizedBox(height: 16),
                       Text(
                         'Pilih Tanggal Libur',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -140,7 +140,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                             children: [
                               Text(
                                 DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(selectedDate),
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   color: Colors.black87,
                                   fontWeight: FontWeight.w500,
@@ -154,7 +154,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                       const SizedBox(height: 20),
                       Text(
                         'Deskripsi / Keterangan',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -163,7 +163,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: descriptionController,
-                        style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                        style: GoogleFonts.poppins(fontSize: 14),
                         decoration: _LoginInputDecoration.get(
                           hintText: 'Contoh: Libur Nasional Idul Fitri',
                           icon: Icons.description_rounded,
@@ -187,8 +187,8 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                                     context,
                                     'Batalkan Hari Libur?',
                                     'Apakah Anda yakin ingin membatalkan pengisian data hari libur ini?',
-                                    confirmText: 'YA, BATALKAN',
-                                    cancelText: 'KEMBALI',
+                                    confirmText: 'Batalkan',
+                                    cancelText: 'Kembali',
                                     isDestructive: true,
                                   );
                                   if ((confirm ?? false) && context.mounted) {
@@ -207,7 +207,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                               ),
                               child: Text(
                                 'Batal',
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.grey.shade700,
                                 ),
@@ -221,14 +221,13 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                                   ? null
                                   : () async {
                                       if (!formKey.currentState!.validate()) return;
-                                      
                                       final provider = context.read<AdminProvider>();
                                       final confirm = await AppDialogs.showConfirmationDialog(
                                         context,
                                         'Tambah Hari Libur?',
                                         'Apakah Anda yakin ingin menyimpan hari libur operasional klinik ini?',
-                                        confirmText: 'YA, SIMPAN',
-                                        cancelText: 'BATAL',
+                                        confirmText: 'Simpan',
+                                        cancelText: 'Batal',
                                       );
                                       if (!(confirm ?? false)) return;
 
@@ -275,7 +274,7 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
                                     )
                                   : Text(
                                       'Simpan',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: GoogleFonts.poppins(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -302,13 +301,12 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
 
     final description = holiday['description']?.toString() ?? 'hari libur ini';
     final provider = context.read<AdminProvider>();
-
     final confirmed = await AppDialogs.showConfirmationDialog(
       context,
       'Hapus Hari Libur?',
       'Apakah Anda yakin ingin menghapus "$description"? Tindakan ini tidak dapat dibatalkan.',
-      confirmText: 'YA, HAPUS',
-      cancelText: 'BATAL',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
       isDestructive: true,
     );
     if (!(confirmed ?? false) || !context.mounted) return;
@@ -335,162 +333,161 @@ class _AdminClinicHolidaysScreenState extends State<AdminClinicHolidaysScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
-
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Colors.white, 
       body: ResponsiveCenter(
         maxWidth: 800,
         child: Column(
           children: [
-          // Header
-          FadeIn(
-            duration: const Duration(milliseconds: 400),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
+            FadeIn(
+              duration: const Duration(milliseconds: 400),
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: AppTheme.backgroundGradient, 
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Libur Puskesmas',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            Text(
-                              'Kelola libur operasional klinik',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Libur Puskesmas',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white, 
+                                ),
+                              ),
+                              Text(
+                                'Kelola libur operasional klinik',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.white.withValues(alpha: 0.8), 
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Main list
-          Expanded(
-            child: provider.isLoading && provider.clinicHolidays.isEmpty
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
-                : provider.clinicHolidays.isEmpty
-                    ? Center(
-                        child: AnimationConfiguration.staggeredList(
-                          position: 0,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            verticalOffset: 50.0,
-                            child: FadeInAnimation(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(24),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                                      shape: BoxShape.circle,
+            // Main list
+            Expanded(
+              child: provider.isLoading && provider.clinicHolidays.isEmpty
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
+                  : provider.clinicHolidays.isEmpty
+                      ? Center(
+                          child: AnimationConfiguration.staggeredList(
+                            position: 0,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 50.0,
+                              child: FadeInAnimation(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.event_available_rounded,
+                                        size: 72,
+                                        color: AppTheme.primaryColor,
+                                      ),
                                     ),
-                                    child: const Icon(
-                                      Icons.event_available_rounded,
-                                      size: 72,
-                                      color: AppTheme.primaryColor,
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      'Tidak Ada Hari Libur',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Text(
-                                    'Tidak Ada Hari Libur',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Puskesmas buka penuh untuk melayani pasien.',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Puskesmas buka penuh untuk melayani pasien.',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        color: AppTheme.primaryColor,
-                        onRefresh: () => provider.fetchClinicHolidays(),
-                        child: AnimationLimiter(
-                          child: ListView.builder(
-                            padding: const EdgeInsets.all(24),
-                            itemCount: provider.clinicHolidays.length,
-                            itemBuilder: (context, index) {
-                              final holiday = provider.clinicHolidays[index];
-                              final dateStr = holiday['holiday_date']?.toString() ?? '';
-                              
-                              final parsedDate = DateTimeParser.parseDateOnly(dateStr);
-
-                              final formattedDate = parsedDate != null
-                                  ? DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(parsedDate)
-                                  : dateStr;
-
-                              return AnimationConfiguration.staggeredList(
-                                position: index,
-                                duration: const Duration(milliseconds: 375),
-                                child: SlideAnimation(
-                                  verticalOffset: 50.0,
-                                  child: FadeInAnimation(
-                                    child: AdminClinicHolidayCard(
-                                      holiday: holiday,
-                                      formattedDate: formattedDate,
-                                      onDelete: () => _deleteHoliday(context, holiday),
+                        )
+                      : RefreshIndicator(
+                          color: AppTheme.primaryColor,
+                          onRefresh: () => provider.fetchClinicHolidays(),
+                          child: AnimationLimiter(
+                            child: ListView.builder(
+                              padding: const EdgeInsets.all(24),
+                              itemCount: provider.clinicHolidays.length,
+                              itemBuilder: (context, index) {
+                                final holiday = provider.clinicHolidays[index];
+                                final dateStr = holiday['holiday_date']?.toString() ?? '';
+                                
+                                final parsedDate = DateTimeParser.parseDateOnly(dateStr);
+                                final formattedDate = parsedDate != null
+                                    ? DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(parsedDate)
+                                    : dateStr;
+                                return AnimationConfiguration.staggeredList(
+                                  position: index,
+                                  duration: const Duration(milliseconds: 375),
+                                  child: SlideAnimation(
+                                    verticalOffset: 50.0,
+                                    child: FadeInAnimation(
+                                      child: AdminClinicHolidayCard(
+                                        holiday: holiday,
+                                        formattedDate: formattedDate,
+                                        onDelete: () => _deleteHoliday(context, holiday),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
-    ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddHolidaySheet(context),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_rounded),
+        icon: const Icon(Icons.calendar_today_rounded, size: 20),
         label: Text(
-          'TAMBAH HARI LIBUR',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+          'Tambah Libur', 
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold, 
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );

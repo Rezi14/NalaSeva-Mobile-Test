@@ -14,7 +14,6 @@ import 'package:nalaseva/features/auth/ui/login_screen.dart';
 
 void main() {
   setUpAll(() {
-    // Disable Google Fonts runtime fetching in tests to avoid network calls
     GoogleFonts.config.allowRuntimeFetching = false;
   });
 
@@ -36,11 +35,9 @@ void main() {
         ),
       );
 
-      // Verify label is shown
       expect(find.text('Submit Test'), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsNothing);
 
-      // Tap button and verify onPressed is called
       await tester.tap(find.byType(AuthSubmitButton));
       await tester.pump();
 
@@ -64,11 +61,9 @@ void main() {
         ),
       );
 
-      // Verify loading indicator is shown and label is not visible
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       expect(find.text('Submit Test'), findsNothing);
 
-      // Tap button and verify onPressed is NOT called
       await tester.tap(find.byType(AuthSubmitButton));
       await tester.pump();
 
@@ -95,11 +90,9 @@ void main() {
         ),
       );
 
-      // Verify label and icon
       expect(find.text('Male'), findsOneWidget);
       expect(find.byIcon(Icons.male), findsOneWidget);
 
-      // Tap button
       await tester.tap(find.byType(AuthGenderButton));
       await tester.pump();
 
@@ -125,19 +118,15 @@ void main() {
         ),
       );
 
-      // Enter text
       await tester.enterText(find.byType(TextFormField), 'myPassword123');
       expect(controller.text, 'myPassword123');
 
-      // Verify text is obscured by default
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.obscureText, isTrue);
 
-      // Tap visibility toggle button
       await tester.tap(find.byType(IconButton));
       await tester.pump();
 
-      // Verify text is not obscured anymore
       final textFieldUnobscured = tester.widget<TextField>(find.byType(TextField));
       expect(textFieldUnobscured.obscureText, isFalse);
     });
@@ -175,12 +164,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Find the main container holding the login form
       final containerFinder = find.byType(Container);
       expect(containerFinder, findsAtLeastNWidgets(1));
 
-      // Under small screen width (360), isLarge is false.
-      // Confirm that email and password fields exist
       expect(find.byType(AuthTextField), findsNWidgets(2));
       expect(find.text('Selamat Datang'), findsOneWidget);
     });
@@ -199,12 +185,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Under large screen width (768), isLarge is true.
-      // Email and password fields should still exist.
       expect(find.byType(AuthTextField), findsNWidgets(2));
       expect(find.text('Selamat Datang'), findsOneWidget);
 
-      // Verify the large screen card container uses maxWidth: 500 constraint
       final container = tester.widget<Container>(
         find.ancestor(
           of: find.byType(Form),
@@ -228,11 +211,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Under 1080p widescreen, isLarge is true.
       expect(find.byType(AuthTextField), findsNWidgets(2));
       expect(find.text('Selamat Datang'), findsOneWidget);
 
-      // Verify container maxWidth is constrained to 500
       final container = tester.widget<Container>(
         find.ancestor(
           of: find.byType(Form),

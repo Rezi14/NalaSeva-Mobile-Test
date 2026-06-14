@@ -18,7 +18,8 @@ class AdminBookingDetailScreen extends StatefulWidget {
   const AdminBookingDetailScreen({super.key, required this.queue});
 
   @override
-  State<AdminBookingDetailScreen> createState() => _AdminBookingDetailScreenState();
+  State<AdminBookingDetailScreen> createState() =>
+      _AdminBookingDetailScreenState();
 }
 
 class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
@@ -31,20 +32,11 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
   }
 
   void _onSuccessMessage(String msg) {
-    AppDialogs.showNotificationDialog(
-      context,
-      'Berhasil',
-      msg,
-    );
+    AppDialogs.showNotificationDialog(context, 'Berhasil', msg);
   }
 
   void _onErrorMessage(String msg) {
-    AppDialogs.showNotificationDialog(
-      context,
-      'Gagal',
-      msg,
-      isError: true,
-    );
+    AppDialogs.showNotificationDialog(context, 'Gagal', msg, isError: true);
   }
 
   Future<String?> _showManualCheckInReasonDialog() async {
@@ -54,15 +46,15 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       'Kamera scanner / QR Code bermasalah',
       'HP Pasien mati / Habis baterai',
       'Kondisi darurat medis',
-      'Alasan lainnya'
+      'Alasan lainnya',
     ];
 
     return showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-        final maxW   = ResponsiveHelper.dialogMaxWidth(context);
+        final maxW = ResponsiveHelper.dialogMaxWidth(context);
         final radius = ResponsiveHelper.radiusDialog(context);
-        final btnR   = ResponsiveHelper.radiusButton(context);
+        final btnR = ResponsiveHelper.radiusButton(context);
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
@@ -89,7 +81,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                   Expanded(
                     child: Text(
                       'Konfirmasi Absen Manual',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -103,7 +95,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                 children: [
                   Text(
                     'Anda sedang melakukan absensi secara manual. Harap pilih alasan utama untuk pelaporan sistem:',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.poppins(
                       fontSize: 13,
                       color: Colors.grey.shade600,
                       height: 1.4,
@@ -111,7 +103,8 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                   ),
                   const SizedBox(height: 16),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(btnR),
@@ -122,23 +115,23 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                         value: selectedReason,
                         isExpanded: true,
                         dropdownColor: Colors.white,
-                        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
-                        style: GoogleFonts.inter(
-                          color: Colors.black87,
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                            color: Colors.grey),
+                        style: GoogleFonts.poppins(
+                          color: AppTheme.primaryColor,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
                         items: reasons.map((String reason) {
                           return DropdownMenuItem<String>(
                             value: reason,
-                            child: Text(reason),
+                            child: Text(reason,
+                                style: GoogleFonts.poppins(fontSize: 13)),
                           );
                         }).toList(),
                         onChanged: (String? newValue) {
                           if (newValue != null) {
-                            setDialogState(() {
-                              selectedReason = newValue;
-                            });
+                            setDialogState(() => selectedReason = newValue);
                           }
                         },
                       ),
@@ -151,7 +144,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                   onPressed: () => Navigator.pop(context, null),
                   child: Text(
                     'Batal',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       color: Colors.grey,
                       fontWeight: FontWeight.bold,
                     ),
@@ -165,14 +158,13 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(btnR),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     elevation: 0,
                   ),
                   child: Text(
                     'Konfirmasi Absen',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -184,33 +176,35 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
   }
 
   Future<void> _checkInPatient() async {
-    final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
+    final validationError =
+        ServiceTimeValidator.validateAdminAction(_currentQueue);
     if (validationError != null) {
       _onErrorMessage(validationError);
       return;
     }
-    
     if (_currentQueue.status != QueueStatus.booked) {
-      _onErrorMessage('Hanya antrean berstatus DIPESAN yang dapat diabsenkan.');
+      _onErrorMessage(
+          'Hanya antrean berstatus DIPESAN yang dapat diabsenkan.');
       return;
     }
-    
     final reason = await _showManualCheckInReasonDialog();
-    if (reason == null || !mounted) return; // Cancel check-in or if unmounted
-    
+    if (reason == null || !mounted) return;
     final provider = context.read<AdminProvider>();
     await provider.checkInQueue(_currentQueue.id, reason: reason);
     if (mounted) {
       if (provider.error != null) {
         _onErrorMessage(provider.error!);
       } else {
-        _onSuccessMessage('Berhasil mengubah status menjadi MENUNGGU (Absen)\nAlasan: $reason');
+        _onSuccessMessage(
+            'Berhasil mengubah status menjadi MENUNGGU (Absen)\nAlasan: $reason');
         setState(() {
-          final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+          final matchingQueues =
+              provider.queues.where((q) => q.id == _currentQueue.id);
           if (matchingQueues.isNotEmpty) {
             _currentQueue = matchingQueues.first;
           } else {
-            _currentQueue = _currentQueue.copyWith(status: QueueStatus.waiting);
+            _currentQueue =
+                _currentQueue.copyWith(status: QueueStatus.waiting);
           }
         });
       }
@@ -219,10 +213,10 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
 
   Future<void> _moveQueueToBack() async {
     if (_currentQueue.status != QueueStatus.booked) {
-      _onErrorMessage('Hanya antrean berstatus DIPESAN yang dapat dipindahkan ke belakang.');
+      _onErrorMessage(
+          'Hanya antrean berstatus DIPESAN yang dapat dipindahkan ke belakang.');
       return;
     }
-    
     final provider = context.read<AdminProvider>();
     final confirm = await AppDialogs.showConfirmationDialog(
       context,
@@ -231,14 +225,14 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       confirmText: 'Pindahkan',
       cancelText: 'Batal',
     );
-
     if (confirm ?? false) {
       await provider.moveQueueToBack(_currentQueue);
       if (mounted) {
         if (provider.error != null) {
           _onErrorMessage(provider.error!);
         } else {
-          final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+          final matchingQueues =
+              provider.queues.where((q) => q.id == _currentQueue.id);
           setState(() {
             if (matchingQueues.isNotEmpty) {
               _currentQueue = matchingQueues.first;
@@ -251,10 +245,10 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
 
   Future<void> _cancelQueue() async {
     if (_currentQueue.status.isTerminal) {
-      _onErrorMessage('Antrean yang sudah selesai atau dibatalkan tidak dapat dibatalkan lagi.');
+      _onErrorMessage(
+          'Antrean yang sudah selesai atau dibatalkan tidak dapat dibatalkan lagi.');
       return;
     }
-    
     final confirm = await AppDialogs.showConfirmationDialog(
       context,
       'Batalkan Antrean',
@@ -263,21 +257,23 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       cancelText: 'Tutup',
       isDestructive: true,
     );
-
     if ((confirm ?? false) && mounted) {
       final provider = context.read<AdminProvider>();
-      await provider.updateQueueStatus(_currentQueue.id, QueueStatus.cancelled);
+      await provider.updateQueueStatus(
+          _currentQueue.id, QueueStatus.cancelled);
       if (mounted) {
         if (provider.error != null) {
           _onErrorMessage(provider.error!);
         } else {
           _onSuccessMessage('Antrean berhasil dibatalkan');
           setState(() {
-            final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+            final matchingQueues =
+                provider.queues.where((q) => q.id == _currentQueue.id);
             if (matchingQueues.isNotEmpty) {
               _currentQueue = matchingQueues.first;
             } else {
-              _currentQueue = _currentQueue.copyWith(status: QueueStatus.cancelled);
+              _currentQueue =
+                  _currentQueue.copyWith(status: QueueStatus.cancelled);
             }
           });
         }
@@ -300,15 +296,16 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
               color: Colors.transparent,
               child: Builder(
                 builder: (ctx) {
-                  final maxW    = ResponsiveHelper.dialogMaxWidth(ctx);
+                  final maxW = ResponsiveHelper.dialogMaxWidth(ctx);
                   final padding = ResponsiveHelper.paddingDialog(ctx);
-                  final radius  = ResponsiveHelper.radiusDialog(ctx);
-                  final btnH    = ResponsiveHelper.buttonHeight(ctx);
-                  final btnR    = ResponsiveHelper.radiusButton(ctx);
-                  final iconSz  = ResponsiveHelper.iconSize(ctx, base: 40);
-                  final qNumSz  = ResponsiveHelper.fontSizeHeading(ctx) * 1.8;
-                  final fBody   = ResponsiveHelper.fontSizeBody(ctx);
-                  final fCap    = ResponsiveHelper.fontSizeCaption(ctx);
+                  final radius = ResponsiveHelper.radiusDialog(ctx);
+                  final btnH = ResponsiveHelper.buttonHeight(ctx);
+                  final btnR = ResponsiveHelper.radiusButton(ctx);
+                  final iconSz = ResponsiveHelper.iconSize(ctx, base: 40);
+                  final qNumSz =
+                      ResponsiveHelper.fontSizeHeading(ctx) * 1.8;
+                  final fBody = ResponsiveHelper.fontSizeBody(ctx);
+                  final fCap = ResponsiveHelper.fontSizeCaption(ctx);
 
                   return ConstrainedBox(
                     constraints: BoxConstraints(
@@ -317,7 +314,8 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                     ),
                     child: Container(
                       margin: EdgeInsets.symmetric(
-                        horizontal: ResponsiveHelper.isLandscape(ctx) ? 24 : 16,
+                        horizontal:
+                            ResponsiveHelper.isLandscape(ctx) ? 24 : 16,
                       ),
                       padding: EdgeInsets.all(padding),
                       decoration: BoxDecoration(
@@ -339,7 +337,8 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                             Container(
                               padding: EdgeInsets.all(padding * 0.8),
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                                color: AppTheme.primaryColor
+                                    .withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -350,8 +349,10 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                             ),
                             SizedBox(height: padding),
                             Text(
-                              isRecall ? 'PANGGILAN ULANG' : 'PANGGILAN SUARA',
-                              style: GoogleFonts.plusJakartaSans(
+                              isRecall
+                                  ? 'Panggilan Ulang'
+                                  : 'Panggilan Suara',
+                              style: GoogleFonts.poppins(
                                 fontSize: fCap,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.primaryColor,
@@ -361,17 +362,17 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                             SizedBox(height: padding * 0.3),
                             Text(
                               _currentQueue.queueNumber,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontSize: qNumSz,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.black87,
+                                color: AppTheme.primaryColor,
                               ),
                             ),
                             SizedBox(height: padding * 0.2),
                             Text(
                               _currentQueue.patient.fullName,
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontSize: fBody,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey.shade700,
@@ -383,7 +384,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                                   ? '🔊 "Panggilan ulang untuk nomor antrean ${_currentQueue.queueNumber}, ${_currentQueue.patient.fullName}, ke Ruang Pemeriksaan ${_currentQueue.polyclinic.name}..."'
                                   : '🔊 "Memanggil nomor antrean ${_currentQueue.queueNumber}, ${_currentQueue.patient.fullName}, ke Ruang Pemeriksaan ${_currentQueue.polyclinic.name}..."',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.poppins(
                                 fontSize: fCap,
                                 color: Colors.grey.shade500,
                                 fontStyle: FontStyle.italic,
@@ -400,21 +401,32 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                                     Navigator.pop(ctx);
                                     return;
                                   }
-                                  final provider = ctx.read<AdminProvider>();
+                                  final provider =
+                                      ctx.read<AdminProvider>();
                                   final navigator = Navigator.of(ctx);
-                                  await provider.updateQueueStatus(_currentQueue.id, QueueStatus.examining);
+                                  await provider.updateQueueStatus(
+                                      _currentQueue.id,
+                                      QueueStatus.examining);
                                   if (mounted) {
                                     if (provider.error != null) {
                                       _onErrorMessage(provider.error!);
                                     } else {
                                       navigator.pop();
-                                      _onSuccessMessage('Pasien dipanggil dan dimasukkan ke ruang periksa');
+                                      _onSuccessMessage(
+                                          'Pasien dipanggil dan dimasukkan ke ruang periksa');
                                       setState(() {
-                                        final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+                                        final matchingQueues = provider
+                                            .queues
+                                            .where((q) =>
+                                                q.id == _currentQueue.id);
                                         if (matchingQueues.isNotEmpty) {
-                                          _currentQueue = matchingQueues.first;
+                                          _currentQueue =
+                                              matchingQueues.first;
                                         } else {
-                                          _currentQueue = _currentQueue.copyWith(status: QueueStatus.examining);
+                                          _currentQueue =
+                                              _currentQueue.copyWith(
+                                                  status:
+                                                      QueueStatus.examining);
                                         }
                                       });
                                     }
@@ -425,14 +437,18 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(btnR),
+                                    borderRadius:
+                                        BorderRadius.circular(btnR),
                                   ),
                                 ),
                                 child: Text(
-                                  isRecall ? 'TUTUP' : 'PANGGIL & MASUKKAN',
-                                  style: GoogleFonts.plusJakartaSans(
+                                  isRecall
+                                      ? 'Tutup'
+                                      : 'Panggil & Masukkan',
+                                  style: GoogleFonts.poppins(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: ResponsiveHelper.fontSizeButton(ctx),
+                                    fontSize:
+                                        ResponsiveHelper.fontSizeButton(ctx),
                                   ),
                                 ),
                               ),
@@ -442,7 +458,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                               onPressed: () => Navigator.pop(ctx),
                               child: Text(
                                 'Batal',
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   color: Colors.grey.shade600,
                                   fontWeight: FontWeight.bold,
                                   fontSize: fBody,
@@ -498,7 +514,13 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
 
     final p = _currentQueue.patient;
     final initials = p.fullName.isNotEmpty
-        ? p.fullName.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase()
+        ? p.fullName
+            .split(' ')
+            .where((e) => e.isNotEmpty)
+            .map((e) => e[0])
+            .take(2)
+            .join()
+            .toUpperCase()
         : 'PS';
 
     final ageStr = p.birthDate != null
@@ -510,18 +532,49 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
         : 'Tidak Diisi';
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: Text(
-          'Detail Antrean Pasien',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 18),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 80,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                'Detail Antrean Pasien',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0.5,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -531,10 +584,11 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFDCEEE7)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 10,
+                    color: AppTheme.accentColor.withValues(alpha: 0.08),
+                    blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -554,7 +608,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                         alignment: Alignment.center,
                         child: Text(
                           initials,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -568,17 +622,17 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                           children: [
                             Text(
                               p.fullName,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 18,
+                              style: GoogleFonts.poppins(
+                                fontSize: 17,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                color: AppTheme.primaryColor,
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'NIK: ${p.nationalId ?? "Belum diisi"}',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
                                 color: Colors.grey.shade600,
                               ),
                             ),
@@ -591,17 +645,29 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Divider(height: 1),
                   ),
-                  AdminInfoRow(icon: Icons.face_rounded, label: 'Jenis Kelamin', value: p.gender ?? 'Tidak Diisi'),
+                  AdminInfoRow(
+                      icon: Icons.face_rounded,
+                      label: 'Jenis Kelamin',
+                      value: p.gender ?? 'Tidak Diisi'),
                   const SizedBox(height: 12),
-                  AdminInfoRow(icon: Icons.cake_rounded, label: 'Tanggal Lahir', value: '$dobStr ($ageStr)'),
+                  AdminInfoRow(
+                      icon: Icons.cake_rounded,
+                      label: 'Tanggal Lahir',
+                      value: '$dobStr ($ageStr)'),
                   const SizedBox(height: 12),
-                  AdminInfoRow(icon: Icons.phone_android_rounded, label: 'No. Telepon', value: p.phone ?? 'Tidak Diisi'),
+                  AdminInfoRow(
+                      icon: Icons.phone_android_rounded,
+                      label: 'No. Telepon',
+                      value: p.phone ?? 'Tidak Diisi'),
                   const SizedBox(height: 12),
-                  AdminInfoRow(icon: Icons.home_rounded, label: 'Alamat', value: p.address ?? 'Tidak Diisi'),
+                  AdminInfoRow(
+                      icon: Icons.home_rounded,
+                      label: 'Alamat',
+                      value: p.address ?? 'Tidak Diisi'),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // Booking Details Card
             Container(
@@ -609,10 +675,11 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFDCEEE7)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 10,
+                    color: AppTheme.accentColor.withValues(alpha: 0.08),
+                    blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -626,7 +693,7 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                       Expanded(
                         child: Text(
                           'Informasi Kunjungan',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
                             color: Colors.grey.shade800,
@@ -635,14 +702,15 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: badgeColor,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           statusLabel,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.poppins(
                             color: textColor,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -662,13 +730,17 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Nomor Antrean', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey)),
+                            Text(
+                              'Nomor Antrean',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 12, color: Colors.grey),
+                            ),
                             const SizedBox(height: 4),
                             FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
                                 _currentQueue.queueNumber,
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: 28,
                                   fontWeight: FontWeight.w900,
                                   color: AppTheme.primaryColor,
@@ -683,15 +755,19 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('Poli Tujuan', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey)),
+                            Text(
+                              'Poli Tujuan',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 12, color: Colors.grey),
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               _currentQueue.polyclinic.name,
                               textAlign: TextAlign.end,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                color: AppTheme.primaryColor,
                               ),
                             ),
                           ],
@@ -700,11 +776,14 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  AdminInfoRow(icon: Icons.calendar_month_rounded, label: 'Tanggal Kunjungan', value: _currentQueue.date),
+                  AdminInfoRow(
+                      icon: Icons.calendar_month_rounded,
+                      label: 'Tanggal Kunjungan',
+                      value: _currentQueue.date),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
 
             AdminBookingActionButtons(
               queue: _currentQueue,
@@ -712,54 +791,60 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
               onMoveToBack: _moveQueueToBack,
               onCancel: _cancelQueue,
               onCallPatient: () {
-                final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
+                final validationError =
+                    ServiceTimeValidator.validateAdminAction(_currentQueue);
                 if (validationError != null) {
                   _onErrorMessage(validationError);
                   return;
                 }
                 if (_currentQueue.status != QueueStatus.waiting) {
-                  _onErrorMessage('Hanya antrean berstatus MENUNGGU yang dapat dipanggil.');
+                  _onErrorMessage(
+                      'Hanya antrean berstatus MENUNGGU yang dapat dipanggil.');
                   return;
                 }
-                final cleanQueueNum = _currentQueue.queueNumber.replaceAll('-', ' ');
-                final text = "Panggilan untuk nomor antrean $cleanQueueNum, atas nama ${_currentQueue.patient.fullName}, silahkan menuju ke ruang ${_currentQueue.polyclinic.name}.";
+                final cleanQueueNum =
+                    _currentQueue.queueNumber.replaceAll('-', ' ');
+                final text =
+                    "Panggilan untuk nomor antrean $cleanQueueNum, atas nama ${_currentQueue.patient.fullName}, silahkan menuju ke ruang ${_currentQueue.polyclinic.name}.";
                 TtsHelper.speak(text);
                 _voiceCallingSimulation(isRecall: false);
               },
               onRecallPatient: () async {
-                final validationError = ServiceTimeValidator.validateAdminAction(_currentQueue);
+                final validationError =
+                    ServiceTimeValidator.validateAdminAction(_currentQueue);
                 if (validationError != null) {
                   _onErrorMessage(validationError);
                   return;
                 }
                 if (_currentQueue.status != QueueStatus.examining) {
-                  _onErrorMessage('Hanya antrean berstatus SEDANG DIPERIKSA yang dapat dipanggil ulang.');
+                  _onErrorMessage(
+                      'Hanya antrean berstatus SEDANG DIPERIKSA yang dapat dipanggil ulang.');
                   return;
                 }
                 final currentCount = _currentQueue.recallCount;
                 if (currentCount >= 3) {
-                  _onErrorMessage('Batas maksimal panggilan ulang (3 kali) untuk pasien ini telah tercapai.');
+                  _onErrorMessage(
+                      'Batas maksimal panggilan ulang (3 kali) untuk pasien ini telah tercapai.');
                   return;
                 }
-                
                 final provider = context.read<AdminProvider>();
                 await provider.recallQueue(_currentQueue.id);
-                
                 if (mounted) {
                   if (provider.error != null) {
                     _onErrorMessage(provider.error!);
                     return;
                   }
-                  
                   setState(() {
-                    final matchingQueues = provider.queues.where((q) => q.id == _currentQueue.id);
+                    final matchingQueues = provider.queues
+                        .where((q) => q.id == _currentQueue.id);
                     if (matchingQueues.isNotEmpty) {
                       _currentQueue = matchingQueues.first;
                     }
                   });
-
-                  final cleanQueueNum = _currentQueue.queueNumber.replaceAll('-', ' ');
-                  final text = "Panggilan ulang untuk nomor antrean $cleanQueueNum, atas nama ${_currentQueue.patient.fullName}, silahkan menuju ke ruang ${_currentQueue.polyclinic.name}. (Panggilan ke-${_currentQueue.recallCount})";
+                  final cleanQueueNum =
+                      _currentQueue.queueNumber.replaceAll('-', ' ');
+                  final text =
+                      "Panggilan ulang untuk nomor antrean $cleanQueueNum, atas nama ${_currentQueue.patient.fullName}, silahkan menuju ke ruang ${_currentQueue.polyclinic.name}. (Panggilan ke-${_currentQueue.recallCount})";
                   TtsHelper.speak(text);
                   _voiceCallingSimulation(isRecall: true);
                 }
@@ -770,5 +855,4 @@ class _AdminBookingDetailScreenState extends State<AdminBookingDetailScreen> {
       ),
     );
   }
-
 }

@@ -106,10 +106,10 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   child: Text(
                     label,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: AppTheme.primaryColor,
                     ),
                   ),
                 ),
@@ -167,28 +167,28 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: AppTheme.backgroundColor,
+        backgroundColor: Colors.white,
         body: Stack(
           children: [
             ResponsiveCenter(
               maxWidth: 950,
               child: Column(
                 children: [
-                // Header Section
                 FadeIn(
                   duration: const Duration(milliseconds: 400),
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: AppTheme.primaryColor,
                       borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(24),
-                        bottomRight: Radius.circular(24),
+                        bottomLeft: Radius.circular(32),
+                        bottomRight: Radius.circular(32),
                       ),
+                      gradient: AppTheme.backgroundGradient,
                     ),
+                    clipBehavior: Clip.antiAlias,
                     child: SafeArea(
                       bottom: false,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
                         child: AnimationLimiter(
                           child: Column(
                             children: [
@@ -206,7 +206,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                           children: [
                                             Text(
                                               'NalaSeva Admin',
-                                              style: GoogleFonts.plusJakartaSans(
+                                              style: GoogleFonts.poppins(
                                                 fontSize: 24,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.white,
@@ -214,7 +214,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                             ),
                                             Text(
                                               'Puskesmas Central Hub',
-                                              style: GoogleFonts.plusJakartaSans(
+                                              style: GoogleFonts.poppins(
                                                 fontSize: 14,
                                                 color: Colors.white.withValues(alpha: 0.8),
                                               ),
@@ -284,7 +284,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                           icon: const Icon(Icons.tv_rounded, size: 18, color: Colors.white),
                                           label: Text(
                                             'TV Monitor',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 13,
                                               color: Colors.white,
@@ -312,14 +312,12 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                   ),
                 ),
 
-                // Scrollable Content
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Clinic Live Status
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -331,10 +329,10 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                 children: [
                                   Text(
                                     'Status Langsung Klinik',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 18,
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: AppTheme.primaryColor,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                      fontSize: 18,
                                     ),
                                   ),
                                   TextButton(
@@ -355,9 +353,10 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                 child: Center(
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 20),
-                                    child: Text(
+                                    child: 
+                                    Text(
                                       'Belum ada poliklinik yang aktif',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                         color: Colors.grey,
                                         fontSize: 14,
                                       ),
@@ -380,10 +379,10 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                 itemBuilder: (context, index) {
                                   final poly = provider.polyclinics[index];
                                   final colors = [
-                                    AppTheme.primaryColor, // Emerald Green
-                                    AppTheme.successColor, // Mint Success Green
-                                    const Color(0xFF0D9488), // Teal Green
-                                    const Color(0xFF047857), // Forest Green
+                                    AppTheme.primaryColor,
+                                    AppTheme.successColor, 
+                                    const Color(0xFF0D9488), 
+                                    const Color(0xFF047857), 
                                   ];
                                   return FadeInUp(
                                     duration: const Duration(milliseconds: 500),
@@ -401,7 +400,6 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                               ),
                           ],
                         ),
-
                         const SizedBox(height: 30),
 
                         // Active Queues
@@ -416,10 +414,10 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                 children: [
                                   Text(
                                     'Pendaftaran Aktif Hari Ini',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 18,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 15,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                      color: AppTheme.primaryColor,
                                     ),
                                   ),
                                   TextButton(
@@ -444,7 +442,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                                     padding: const EdgeInsets.symmetric(vertical: 20),
                                     child: Text(
                                       'Tidak ada antrean aktif hari ini',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: GoogleFonts.poppins(
                                         color: Colors.grey,
                                         fontSize: 14,
                                       ),
@@ -584,7 +582,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
       context,
       'Lewati & Pindah ke Belakang',
       'Pasien ${queue.patient.fullName} belum check-in/absen. Apakah Anda yakin ingin memindahkan nomor antrean ${queue.queueNumber} ke posisi paling belakang?',
-      confirmText: 'PINDAHKAN',
+      confirmText: 'Pindahkan',
     );
 
     if ((confirm ?? false) && context.mounted) {

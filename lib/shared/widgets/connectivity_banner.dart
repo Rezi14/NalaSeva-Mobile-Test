@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 
 class ConnectivityBanner extends StatefulWidget {
@@ -87,14 +88,14 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
                       size: 24,
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'Koneksi Terputus',
-                            style: TextStyle(
+                            style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -102,7 +103,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
                           ),
                           Text(
                             'Menampilkan data offline. Periksa kembali internet Anda.',
-                            style: TextStyle(
+                            style: GoogleFonts.poppins(
                               color: Colors.white70,
                               fontSize: 11,
                             ),

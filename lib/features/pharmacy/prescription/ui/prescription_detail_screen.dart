@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:animate_do/animate_do.dart';
 import '../../../../shared/models/payment_model.dart';
 import '../../logic/pharmacy_provider.dart';
 import '../../../auth/logic/auth_provider.dart';
@@ -9,9 +8,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/tts_helper.dart';
 import '../../../../core/utils/app_dialogs.dart';
 import '../../../../core/utils/responsive_helper.dart';
-import '../../../../shared/widgets/web_image_widget.dart';
 import '../widgets/prescription_item_row.dart';
-import '../../../../shared/constants/app_constants.dart';
 
 class PrescriptionDetailScreen extends StatefulWidget {
   final PaymentModel payment;
@@ -31,16 +28,11 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
 
     try {
       await TtsHelper.speak(announcement);
-      
-      if (mounted) {
-        await context.read<PharmacyProvider>().callPatient(widget.payment.id);
-      }
-
       if (mounted) {
         AppDialogs.showNotificationDialog(
           context,
           'Panggilan Suara',
-          'Memanggil suara loket: "$announcement" dan mengirim notifikasi ke pasien.',
+          'Memanggil suara loket: "$announcement"',
         );
       }
     } catch (e) {
@@ -55,8 +47,8 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
     }
   }
 
-  void _showPaymentProofDialog() {
-    final absoluteUrl = 'https://nalaseva-api.up.railway.app/api/payments/${widget.payment.id}/proof-image';
+  void _showPaymentProofDialog(String proofPath) {
+    final absoluteUrl = 'https://nalaseva-api.up.railway.app/storage/$proofPath';
 
     showDialog(
       context: context,
@@ -78,7 +70,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
               children: [
                 Text(
                   'Struk Bukti Pembayaran QRIS',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     fontSize: ResponsiveHelper.fontSizeHeading(context),
                   ),
@@ -86,11 +78,29 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                 SizedBox(height: padding * 0.8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(btnR),
-                  child: createWebImage(
-                    imageUrl: absoluteUrl,
+                  child: Image.network(
+                    absoluteUrl,
                     fit: BoxFit.contain,
                     height: 380,
-                    width: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 240,
+                        color: Colors.grey[100],
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.broken_image_rounded, size: 56, color: Colors.grey[400]),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Gagal memuat bukti bayar\n(Mungkin dalam lingkungan lokal)',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
                 SizedBox(height: padding),
@@ -107,7 +117,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                     ),
                     child: Text(
                       'Tutup',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.poppins(
                         color: Colors.grey.shade700,
                         fontWeight: FontWeight.bold,
                         fontSize: ResponsiveHelper.fontSizeButton(context),
@@ -174,327 +184,292 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
     final gender = patient?.gender ?? '-';
 
     final prescriptionItems = widget.payment.examination?.prescriptionItems ?? [];
-    
-    final pagePadding = ResponsiveHelper.paddingPage(context);
-    final cardPadding = ResponsiveHelper.paddingCard(context);
-    final cardRadius = ResponsiveHelper.radiusCard(context);
-    final textBodySize = ResponsiveHelper.fontSizeBody(context);
-    final textHeadingSize = ResponsiveHelper.fontSizeHeading(context);
-    final smallRadius = ResponsiveHelper.radiusSmall(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: Column(
-        children: [
-          // Premium Header with smooth bottom-up stagger
-          FadeIn(
-            duration: const Duration(milliseconds: 400),
-            child: Container(
-              decoration: const BoxDecoration(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 6, bottom: 6),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushReplacementNamed(context, '/admin/home');
+                }
+              },
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
                 color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                  child: ResponsiveCenter(
-                    maxWidth: 800,
-                    child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            size: 20,
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          color: AppTheme.primaryColor,
-                        ),
-                        const SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Rincian Resep',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Penyiapan dan penyerahan resep obat',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                size: 20,
               ),
             ),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(pagePadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-            // Patient Details Card (With Integrated Payment Proof inside as requested!)
-            Text(
-              'Profil Informasi Pasien',
-              style: TextStyle(
-                fontSize: textHeadingSize,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryColor,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: EdgeInsets.all(cardPadding),
-              decoration: BoxDecoration(
-                color: AppTheme.cardColor,
-                borderRadius: BorderRadius.circular(cardRadius),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    patientName,
-                    style: TextStyle(fontSize: textBodySize + 6, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('NIK:', style: TextStyle(color: Colors.grey[600], fontSize: textBodySize)),
-                      Text(nationalId, style: TextStyle(fontWeight: FontWeight.bold, fontSize: textBodySize)),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Usia:', style: TextStyle(color: Colors.grey[600], fontSize: textBodySize)),
-                      Text('$age Tahun ($gender)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: textBodySize)),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Alamat:', style: TextStyle(color: Colors.grey[600], fontSize: textBodySize)),
-                      Expanded(
-                        child: Text(
-                          address,
-                          textAlign: TextAlign.end,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: textBodySize),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // INTEGRASI BUKTI PEMBAYARAN langsung di profil pasien!
-                  const Divider(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Status Pembayaran:',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: textBodySize),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.successColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(smallRadius),
-                        ),
-                        child: Text(
-                          'Lunas (${QueueStatus.completed.displayName})',
-                          style: TextStyle(
-                            color: AppTheme.successColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: textBodySize - 1,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  // Button to view proof, only shown if paymentProof path exists
-                  if (widget.payment.paymentProof != null) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppTheme.secondaryColor),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        icon: const Icon(Icons.receipt_long_rounded, color: AppTheme.secondaryColor),
-                        label: const Text(
-                          'Verifikasi Bukti QRIS Pasien',
-                          style: TextStyle(
-                            color: AppTheme.secondaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () => _showPaymentProofDialog(),
-                      ),
-                    ),
-                  ] else ...[
-                    // Cash payment or offline fallback
-                    Row(
-                      children: [
-                        Icon(Icons.info_outline_rounded, size: 16, color: Colors.grey[400]),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Dibayar tunai / lunas via admin loket.',
-                          style: TextStyle(color: Colors.grey[500], fontSize: 12, fontStyle: FontStyle.italic),
-                        ),
-                      ],
-                    )
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
-
-            // Prescription Items List Card
-            const Text(
-              'Rincian Resep Obat Dokter',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryColor,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: EdgeInsets.all(cardPadding),
-              decoration: BoxDecoration(
-                color: AppTheme.cardColor,
-                borderRadius: BorderRadius.circular(cardRadius),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
-                ],
-              ),
-              child: Column(
-                children: [
-                  if (prescriptionItems.isEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Text('Resep kosong / tidak ada obat yang diresepkan'),
-                    )
-                  ] else ...[
-                    ...prescriptionItems.map((item) => PrescriptionItemRow(item: item))
-                  ]
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Action Buttons (Voice Call + Serah Terima Obat)
-            Row(
+        ),
+        title: Text(
+          'Rincian Penyiapan Resep',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: Colors.white,
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: AppTheme.backgroundGradient,
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Voice Announcement Button using TtsHelper
-                SizedBox(
-                  height: 50,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppTheme.primaryColor, width: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                    ),
-                    onPressed: _announcePatient,
-                    child: const Icon(
-                      Icons.volume_up_rounded,
-                      color: AppTheme.primaryColor,
-                      size: 24,
-                    ),
+                Text(
+                  'Profil Informasi Pasien',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
-                if (isPharmacist) ...[
-                  const SizedBox(width: 16),
-                  // Dispense Button
-                  Expanded(
-                    child: SizedBox(
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        patientName,
+                        style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('NIK:', style: GoogleFonts.poppins(color: AppTheme.primaryColor)),
+                          Text(nationalId, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppTheme.accentColor)),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Usia:', style: GoogleFonts.poppins(color: AppTheme.primaryColor)),
+                          Text('$age Tahun ($gender)', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppTheme.accentColor)),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Alamat:', style: GoogleFonts.poppins(color: AppTheme.primaryColor)),
+                          Expanded(
+                            child: Text(
+                              address,
+                              textAlign: TextAlign.end,
+                              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppTheme.accentColor),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Status Pembayaran:',
+                            style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppTheme.successColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Lunas',
+                              style: GoogleFonts.poppins(
+                                color: AppTheme.successColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (widget.payment.paymentProof != null) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: AppTheme.secondaryColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.receipt_long_rounded, color: AppTheme.secondaryColor),
+                            label: Text(
+                              'Verifikasi Bukti QRIS Pasien',
+                              style: GoogleFonts.poppins(
+                                color: AppTheme.secondaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onPressed: () => _showPaymentProofDialog(widget.payment.paymentProof!),
                           ),
                         ),
-                        onPressed: _isProcessing ? null : _dispensePrescription,
-                        child: _isProcessing
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : Text(
-                                'Serahkan Obat (Selesai)',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                      ),
-                    ),
+                      ] else ...[
+                        Row(
+                          children: [
+                            Icon(Icons.info_outline_rounded, size: 16, color: Colors.grey[400]),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Dibayar tunai / lunas via admin loket.',
+                              style: GoogleFonts.poppins(color: Colors.grey[500], fontSize: 12, fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        )
+                      ],
+                    ],
                   ),
-                ] else ...[
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Container(
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  'Rincian Resep Obat Dokter',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      if (prescriptionItems.isEmpty) ...[
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Text('Resep kosong / tidak ada obat yang diresepkan'),
+                        )
+                      ] else ...[
+                        ...prescriptionItems.map((item) => PrescriptionItemRow(item: item))
+                      ]
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    SizedBox(
                       height: 50,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Text(
-                        'Hanya Apoteker yang dapat menyerahkan obat',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: const BorderSide(color: Colors.white, width: 1),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                        ),
+                        onPressed: _announcePatient,
+                        child: const Icon(
+                          Icons.volume_up_rounded,
+                          color: AppTheme.primaryColor,
+                          size: 24,
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    if (isPharmacist) ...[
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: SizedBox(
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryColor,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: _isProcessing ? null : _dispensePrescription,
+                            child: _isProcessing
+                                ? const CircularProgressIndicator(color: AppTheme.primaryColor)
+                                : Text(
+                                    'Serahkan Obat (Selesai)',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Container(
+                          height: 50,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                          ),
+                          child: Text(
+                            'Hanya Apoteker yang dapat menyerahkan obat',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 40),
               ],
             ),
-            ],
+          ),
         ),
       ),
-    ),
-  ],
-),
-);
+    );
   }
 }

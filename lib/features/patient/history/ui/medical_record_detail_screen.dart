@@ -19,186 +19,245 @@ class MedicalRecordDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: ResponsiveCenter(
-        maxWidth: 800,
-        child: Column(
-          children: [
-          // Header with Back Button
-          FadeInDown(
-            duration: const Duration(milliseconds: 600),
-            child: Container(
-              color: Colors.white,
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade200),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Detail Rekam Medis',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppTheme.backgroundGradient,
+        ),
+        child: ResponsiveCenter(
+          maxWidth: 800,
+          child: Column(
+            children: [
+              FadeInDown(
+                duration: const Duration(milliseconds: 400),
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.25),
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          Text(
-                            queue?.queueNumber ?? '-',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: Colors.grey,
-                            ),
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                                color: Colors.white, size: 18),
+                            onPressed: () => Navigator.pop(context),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          const Divider(height: 1),
-
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Basic Info Card
-                  FadeInUp(
-                    duration: const Duration(milliseconds: 500),
-                    child: _infoSection(
-                      'Informasi Kunjungan',
-                      [
-                        _infoTile(Icons.calendar_today_rounded, 'Tanggal', queue?.date ?? '-'),
-                        _infoTile(Icons.local_hospital_rounded, 'Poliklinik', queue?.polyclinic.name ?? '-'),
-                        _infoTile(Icons.person_rounded, 'Dokter', examination?.doctor?.name ?? 'Belum tersedia'),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Detail Rekam Medis',
+                              style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              queue?.queueNumber ?? '-',
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Colors.white.withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
+                ),
+              ),
 
-                  const SizedBox(height: 24),
-
-                  // Examination Details
-                  if (examination != null) ...[
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 500),
-                      delay: const Duration(milliseconds: 200),
-                      child: _infoSection(
-                        'Hasil Pemeriksaan',
-                        [
-                          _detailCard('Diagnosis', examination!.diagnosis, AppTheme.secondaryColor),
-                          const SizedBox(height: 16),
-                          _detailCard('Tindakan', examination!.treatment, AppTheme.accentColor),
-                          const SizedBox(height: 16),
-                          _detailCard('Catatan Tambahan', examination!.complaint, AppTheme.secondaryColor),
-                        ],
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        child: _infoSection(
+                          'Informasi Kunjungan',
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.06),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4)),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                _infoTile(Icons.calendar_today_rounded,
+                                    'Tanggal', queue?.date ?? '-'),
+                                const Divider(height: 24),
+                                _infoTile(Icons.local_hospital_rounded,
+                                    'Poliklinik', queue?.polyclinic.name ?? '-'),
+                                const Divider(height: 24),
+                                _infoTile(Icons.person_rounded, 'Dokter',
+                                    examination?.doctor?.name ?? 'Belum tersedia'),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ] else ...[
-                    FadeInUp(
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 40),
-                          child: Column(
+
+                      const SizedBox(height: 24),
+
+                      if (examination != null) ...[
+                        FadeInUp(
+                          duration: const Duration(milliseconds: 500),
+                          delay: const Duration(milliseconds: 200),
+                          child: _infoSection(
+                            'Hasil Pemeriksaan',
+                            Column(
+                              children: [
+                                _detailCard('Diagnosis', examination!.diagnosis,
+                                    AppTheme.secondaryColor),
+                                const SizedBox(height: 16),
+                                _detailCard('Tindakan', examination!.treatment,
+                                    AppTheme.accentColor),
+                                const SizedBox(height: 16),
+                                _detailCard('Catatan Tambahan',
+                                    examination!.complaint,
+                                    AppTheme.secondaryColor),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ] else ...[
+                        FadeInUp(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 40),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.pending_actions_rounded,
+                                      size: 48,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Data pemeriksaan belum tersedia atau masih dalam proses.',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white.withValues(alpha: 0.85),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 32),
+
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 400),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.25)),
+                          ),
+                          child: Row(
                             children: [
-                              Icon(Icons.pending_actions_rounded, size: 64, color: Colors.grey.shade300),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Data pemeriksaan belum tersedia atau masih dalam proses.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.grey.shade500),
+                              const Icon(Icons.info_outline_rounded,
+                                  color: Colors.white, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Hasil pemeriksaan ini bersifat rahasia dan hanya dapat diakses oleh Anda dan tenaga medis terkait.',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ),
-                  ],
 
-                  const SizedBox(height: 32),
-
-                  // Footer / Additional Note
-                  FadeInUp(
-                    duration: const Duration(milliseconds: 500),
-                    delay: const Duration(milliseconds: 400),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.info_outline_rounded, color: Colors.grey, size: 20),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Hasil pemeriksaan ini bersifat rahasia dan hanya dapat diakses oleh Anda dan tenaga medis terkait.',
-                              style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade600),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                      const SizedBox(height: 24),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-  Widget _infoSection(String title, List<Widget> children) {
+  Widget _infoSection(String title, Widget child) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 16),
-        ...children,
+        child,
       ],
     );
   }
 
   Widget _infoTile(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: AppTheme.primaryColor),
-          const SizedBox(width: 12),
-          Text('$label:', style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade600)),
-          const SizedBox(width: 8),
-          Text(value, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87)),
-        ],
-      ),
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 18, color: AppTheme.primaryColor),
+        ),
+        const SizedBox(width: 12),
+        Text('$label:',
+            style: GoogleFonts.poppins(
+                fontSize: 14, color: Colors.grey.shade600)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(value,
+              style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.primaryColor)),
+        ),
+      ],
     );
   }
 
@@ -209,9 +268,11 @@ class MedicalRecordDetailScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10),
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -230,7 +291,7 @@ class MedicalRecordDetailScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: color,
@@ -241,9 +302,9 @@ class MedicalRecordDetailScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              color: Colors.black87,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: AppTheme.primaryColor,
               height: 1.5,
             ),
           ),

@@ -71,7 +71,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           'Berhasil',
           'Profil berhasil diperbarui',
           onOkPressed: () {
-            Navigator.pop(context); // Close screen
+            Navigator.pop(context); 
           },
         );
       }
@@ -109,7 +109,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         maxWidth: 700,
         child: Column(
           children: [
-          // Premium Header with smooth bottom-up stagger
           FadeIn(
             duration: const Duration(milliseconds: 400),
             child: Container(
@@ -148,7 +147,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     children: [
                                       Text(
                                         'Edit Profil',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black87,
@@ -157,7 +156,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       const SizedBox(height: 4),
                                       Text(
                                         'Perbarui data diri dan kontak akun Anda',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 13,
                                           color: Colors.grey,
                                         ),
@@ -183,7 +182,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-              // Info Banner read-only fields
               Container(
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.only(bottom: 24),
@@ -199,7 +197,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Expanded(
                       child: Text(
                         'Untuk keamanan data, Nomor NIK tidak dapat diubah secara mandiri.',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.poppins(
                           color: AppTheme.warningColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -237,7 +235,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   Text(
                     'Jenis Kelamin',
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -259,7 +257,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               alignment: Alignment.center,
                               child: Text(
                                 v,
-                                style: TextStyle(
+                                style: GoogleFonts.poppins(
                                   color: isSelected ? AppTheme.primaryColor : Colors.black87,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                 ),
@@ -278,7 +276,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   Text(
                     'Tanggal Lahir',
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 8),
                   InkWell(
@@ -298,7 +296,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             _selectedBirthDate == null 
                                 ? 'Pilih Tanggal Lahir' 
                                 : DateFormat('dd MMMM yyyy').format(_selectedBirthDate!),
-                            style: TextStyle(
+                            style: GoogleFonts.poppins(
                               color: _selectedBirthDate == null ? Colors.grey : Colors.black87,
                               fontSize: 16,
                             ),
@@ -364,7 +362,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       keyboardType: keyboardType,
       maxLines: maxLines,
       readOnly: readOnly,
-      style: GoogleFonts.plusJakartaSans(
+      style: GoogleFonts.poppins(
         color: readOnly ? Colors.grey.shade600 : Colors.black87,
         fontSize: 15,
         fontWeight: FontWeight.w600,

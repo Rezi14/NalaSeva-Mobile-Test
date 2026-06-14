@@ -20,32 +20,45 @@ class DoctorWelcomeCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppTheme.primaryColor, Color(0xFF047857)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: AppTheme.backgroundGradient,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.15),
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withValues(alpha: 0.2),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Container(
+            width: 58,
+            height: 58,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.medical_services_rounded,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+          const SizedBox(width: 16),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Selamat Bertugas,',
-                  style: GoogleFonts.plusJakartaSans(
+                  'Selamat Bertugas',
+                  style: GoogleFonts.poppins(
                     color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -54,30 +67,30 @@ class DoctorWelcomeCard extends StatelessWidget {
                   doctorName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
           ),
+
           InkWell(
             onTap: onToggleOnline,
             borderRadius: BorderRadius.circular(30),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 8,
+              ),
               decoration: BoxDecoration(
-                color: isOnline
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : AppTheme.cancelColor.withValues(alpha: 0.8),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(
-                  color: isOnline
-                      ? Colors.white.withValues(alpha: 0.4)
-                      : AppTheme.cancelColor.withValues(alpha: 0.4),
+                  color: Colors.white.withValues(alpha: 0.25),
                 ),
               ),
               child: Row(
@@ -87,16 +100,18 @@ class DoctorWelcomeCard extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: isOnline ? AppTheme.successColor : Colors.white,
+                      color: isOnline
+                          ? AppTheme.successColor
+                          : AppTheme.errorColor,
                       shape: BoxShape.circle,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    isOnline ? 'Aktif Praktek' : 'Istirahat',
-                    style: GoogleFonts.plusJakartaSans(
+                    isOnline ? 'Aktif' : 'Istirahat',
+                    style: GoogleFonts.poppins(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

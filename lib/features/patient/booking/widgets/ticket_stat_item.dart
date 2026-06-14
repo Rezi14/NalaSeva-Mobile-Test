@@ -21,12 +21,12 @@ class TicketStatItem extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500),
+            style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey.shade500),
           ),
           const SizedBox(height: 6),
           Text(
             value,
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.poppins(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
@@ -37,7 +37,7 @@ class TicketStatItem extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             unit,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.poppins(
               fontSize: 11,
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w500,

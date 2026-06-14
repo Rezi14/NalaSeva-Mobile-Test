@@ -43,12 +43,12 @@ class DoctorPatientInfoCard extends StatelessWidget {
                   children: [
                     Text(
                       queue.patient.fullName,
-                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'No. Antrean: ${queue.queueNumber}  •  ${queue.polyclinic.name}',
-                      style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600),
+                      style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600),
                     ),
                   ],
                 ),
@@ -58,16 +58,20 @@ class DoctorPatientInfoCard extends StatelessWidget {
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 12),
-          // View EMR Button
+          // View EMR Button - FIX POPPINS FORCE
           OutlinedButton.icon(
             onPressed: onViewEMR,
             icon: const Icon(Icons.history_edu_rounded, size: 18),
-            label: const Text('LIHAT REKAM MEDIS (EMR) PASIEN'),
+            label: const Text('Lihat Rekam Medis (EMR) Pasien'),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppTheme.primaryColor,
               side: const BorderSide(color: AppTheme.primaryColor),
               minimumSize: const Size(double.infinity, 44),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              textStyle: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
           ),
         ],

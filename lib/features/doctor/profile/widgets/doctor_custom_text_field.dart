@@ -28,7 +28,7 @@ class DoctorCustomTextField extends StatelessWidget {
       keyboardType: keyboardType,
       maxLines: maxLines,
       readOnly: readOnly,
-      style: GoogleFonts.plusJakartaSans(
+      style: GoogleFonts.poppins(
         color: readOnly ? Colors.grey.shade600 : Colors.black87,
         fontSize: 15,
         fontWeight: FontWeight.w600,
