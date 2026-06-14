@@ -38,9 +38,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       authProvider.checkAuth().then((_) {
         if (mounted) {
           final user = authProvider.user;
-          if (user != null &&
-              user.role == 'doctor' &&
-              user.isOnline != null) {
+          if (user != null && user.role == 'doctor' && user.isOnline != null) {
             provider.setOnlineStatus(user.isOnline!);
             _statusSynced = true;
           }
@@ -85,16 +83,17 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
 
     final initials = (user?.name ?? '').isNotEmpty
         ? user!.name
-            .split(' ')
-            .where((e) => e.isNotEmpty)
-            .map((e) => e[0])
-            .take(2)
-            .join()
-            .toUpperCase()
+              .split(' ')
+              .where((e) => e.isNotEmpty)
+              .map((e) => e[0])
+              .take(2)
+              .join()
+              .toUpperCase()
         : 'DR';
 
-    final myQueues =
-        provider.queues.where((q) => q.doctorId == user?.doctorId).toList();
+    final myQueues = provider.queues
+        .where((q) => q.doctorId == user?.doctorId)
+        .toList();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -121,7 +120,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                       children: [
                         Expanded(
                           child: InkWell(
-                            onTap: () => Navigator.pushNamed(context, '/doctor/profile'),
+                            // onTap: () =>
+                            //     Navigator.pushNamed(context, '/doctor/profile'),
                             borderRadius: BorderRadius.circular(12),
                             child: Padding(
                               padding: const EdgeInsets.all(4.0),
@@ -131,9 +131,15 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.18),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.18,
+                                      ),
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                                      border: Border.all(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                      ),
                                     ),
                                     alignment: Alignment.center,
                                     child: Text(
@@ -148,13 +154,16 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
                                           'Portal Dokter',
                                           style: GoogleFonts.poppins(
-                                            color: Colors.white.withValues(alpha: 0.75),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.75,
+                                            ),
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -183,11 +192,17 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.18),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: IconButton(
-                            onPressed: () => Navigator.pushNamed(context, '/doctor/profile'),
-                            icon: const Icon(Icons.person_outline_rounded, color: Colors.white),
+                            onPressed: () =>
+                                Navigator.pushNamed(context, '/doctor/profile'),
+                            icon: const Icon(
+                              Icons.person_outline_rounded,
+                              color: Colors.white,
+                            ),
                             tooltip: 'Profil Saya',
                           ),
                         ),
@@ -259,13 +274,17 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                                 provider.fetchMedicalRecords(),
                               ]);
                             },
-                            icon: const Icon(Icons.refresh_rounded,
-                                size: 16, color: AppTheme.primaryColor),
+                            icon: const Icon(
+                              Icons.refresh_rounded,
+                              size: 16,
+                              color: AppTheme.primaryColor,
+                            ),
                             label: Text(
                               'Refresh',
                               style: GoogleFonts.poppins(
-                                  color: AppTheme.primaryColor,
-                                  fontWeight: FontWeight.bold),
+                                color: AppTheme.primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
@@ -278,7 +297,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                         duration: const Duration(milliseconds: 600),
                         delay: const Duration(milliseconds: 300),
                         child: DoctorWeeklyChart(
-                            medicalRecords: provider.medicalRecords),
+                          medicalRecords: provider.medicalRecords,
+                        ),
                       ),
                     ],
                   ),
@@ -292,12 +312,15 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   }
 
   Widget _buildStatsRow(List<QueueModel> myQueues) {
-    final completedCount =
-        myQueues.where((q) => q.status == QueueStatus.completed).length;
+    final completedCount = myQueues
+        .where((q) => q.status == QueueStatus.completed)
+        .length;
     final activeCount = myQueues
-        .where((q) =>
-            q.status == QueueStatus.waiting ||
-            q.status == QueueStatus.examining)
+        .where(
+          (q) =>
+              q.status == QueueStatus.waiting ||
+              q.status == QueueStatus.examining,
+        )
         .length;
 
     return Row(
@@ -345,16 +368,16 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       );
     }
 
-    final queues =
-        myQueues.where((q) => q.status == QueueStatus.examining).toList();
+    final queues = myQueues
+        .where((q) => q.status == QueueStatus.examining)
+        .toList();
 
     if (queues.isEmpty) {
       return FadeInUp(
         duration: const Duration(milliseconds: 500),
         child: Container(
           width: double.infinity,
-          padding:
-              const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -372,11 +395,12 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
             children: [
               CircleAvatar(
                 radius: 40,
-                backgroundColor:
-                    AppTheme.primaryColor.withValues(alpha: 0.08),
-                child: Icon(Icons.people_alt_rounded,
-                    size: 40,
-                    color: AppTheme.primaryColor.withValues(alpha: 0.5)),
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.08),
+                child: Icon(
+                  Icons.people_alt_rounded,
+                  size: 40,
+                  color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                ),
               ),
               const SizedBox(height: 16),
               Text(

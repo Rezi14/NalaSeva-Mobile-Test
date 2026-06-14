@@ -16,7 +16,6 @@ import '../../logic/patient_provider.dart';
 import '../../history/widgets/status_badge.dart';
 import '../../profile/widgets/info_row_item.dart';
 import '../widgets/ticket_cutout.dart';
-import '../widgets/ticket_stat_item.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/providers/puskesmas_profile_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -68,32 +67,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     final puskesmasProfile = puskesmasProfileProvider.profile;
     final puskesmasName = puskesmasProfile?.name ?? 'Puskesmas Sehat Utama';
     final puskesmasAddress = puskesmasProfile?.address ?? 'Jl. Raya Sehat No. 12';
-
-    // Calculate dynamic queue position and estimation based on actual queue number from DB
-    int queuePosition = 3;
-    int avgTimeMultiplier = queue.avgWaitingTime ?? 15;
-    int estimatedTime = 15;
-
-    if (queue.status == QueueStatus.examining) {
-      queuePosition = 0;
-      estimatedTime = 0;
-    } else if (queue.status.isTerminal) {
-      queuePosition = 0;
-      estimatedTime = 0;
-    } else {
-      if (queue.positionWaiting != null) {
-        queuePosition = queue.positionWaiting!;
-      } else {
-        final match = RegExp(r'(\d+)\u0000?$').firstMatch(queue.queueNumber);
-        if (match != null) {
-          final numVal = int.tryParse(match.group(1) ?? '');
-          if (numVal != null) {
-            queuePosition = numVal > 0 ? numVal - 1 : 0;
-          }
-        }
-      }
-      estimatedTime = queuePosition * avgTimeMultiplier;
-    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -255,7 +228,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                           Text(
                                             'Tiket Antrean',
                                             style: GoogleFonts.poppins(
-                                              fontSize: 24,
                                               fontWeight: FontWeight.bold,
                                               fontSize: 16,
                                             ),
@@ -395,89 +367,52 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                           color: Colors.grey.shade600,
                                         ),
                                       ),
-                                       if (puskesmasProfile?.latitude != null && puskesmasProfile?.longitude != null) ...[
-                                         const SizedBox(height: 8),
-                                         InkWell(
-                                           onTap: () async {
-                                             final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${puskesmasProfile!.latitude},${puskesmasProfile.longitude}');
-                                             try {
-                                               if (await canLaunchUrl(url)) {
-                                                 await launchUrl(url, mode: LaunchMode.externalApplication);
-                                               } else {
-                                                 // Try direct launch in case package visibility check fails on some devices
-                                                 await launchUrl(url, mode: LaunchMode.externalApplication);
-                                               }
-                                             } catch (e, stack) {
-                                               AppLogger.error('Gagal membuka petunjuk rute', error: e, stackTrace: stack, tag: 'BookingDetailScreen');
-                                             }
-                                           },
-                                           borderRadius: BorderRadius.circular(20),
-                                           child: Container(
-                                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                             decoration: BoxDecoration(
-                                               color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                                               borderRadius: BorderRadius.circular(20),
-                                             ),
-                                             child: Row(
-                                               mainAxisSize: MainAxisSize.min,
-                                               children: [
-                                                 const Icon(Icons.directions_rounded, color: AppTheme.primaryColor, size: 16),
-                                                 const SizedBox(width: 6),
-                                                 Text(
-                                                   'Petunjuk Rute',
-                                                   style: GoogleFonts.poppins(
-                                                     fontSize: 12,
-                                                     fontWeight: FontWeight.bold,
-                                                     color: AppTheme.primaryColor,
-                                                   ),
-                                                 ),
-                                               ],
-                                             ),
-                                           ),
-                                         ),
-                                       ],
+                                      if (puskesmasProfile?.latitude != null && puskesmasProfile?.longitude != null) ...[
+                                        const SizedBox(height: 8),
+                                        InkWell(
+                                          onTap: () async {
+                                            final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${puskesmasProfile!.latitude},${puskesmasProfile.longitude}');
+                                            try {
+                                              if (await canLaunchUrl(url)) {
+                                                await launchUrl(url, mode: LaunchMode.externalApplication);
+                                              } else {
+                                                // Try direct launch in case package visibility check fails on some devices
+                                                await launchUrl(url, mode: LaunchMode.externalApplication);
+                                              }
+                                            } catch (e, stack) {
+                                              AppLogger.error('Gagal membuka petunjuk rute', error: e, stackTrace: stack, tag: 'BookingDetailScreen');
+                                            }
+                                          },
+                                          borderRadius: BorderRadius.circular(20),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(Icons.directions_rounded, color: AppTheme.primaryColor, size: 16),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  'Petunjuk Rute',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppTheme.primaryColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
                               ),
-
-                          // Middle Part (Queue Info)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 32),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Nomor Antrean Anda',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.grey.shade500,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      queue.queueNumber,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 64,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppTheme.primaryColor,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  queue.polyclinic.name,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
+                              const SizedBox(height: 24),
                             ],
                           ),
                         ),
@@ -646,29 +581,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Detail Section
-                  FadeInUp(
-                    duration: const Duration(milliseconds: 600),
-                    delay: const Duration(milliseconds: 200),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8, bottom: 16),
-                          child: Text(
-                            'Detail Kunjungan',
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                         ),
                       ],
 
@@ -723,126 +635,20 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                 _isCancellationLocked(queue) ? Icons.lock_clock_rounded : Icons.cancel_rounded,
                                 size: 18,
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'LAYANAN PRIORITAS LANSIA',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w800,
-                                          color: const Color(0xFF2E7D32), // Deep Emerald Green
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 6,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.amber.shade800,
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        child: Text(
-                                          'GOLD',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w900,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Pasien berhak mendapatkan kemudahan jalur antrean khusus NalaSeva (Jalur Prioritas Lansia). Silakan langsung verifikasi kehadiran Anda ke loket prioritas Puskesmas.',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      color: const Color(0xFF388E3C), // Emerald Medium Green
-                                      height: 1.5,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+                              label: Text(
+                                _isCancellationLocked(queue) ? 'Pembatalan Dikunci (< 2 Jam)' : 'Batalkan Antrean',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 24),
-
-                  // Warning Box
-                  FadeInUp(
-                    duration: const Duration(milliseconds: 600),
-                    delay: const Duration(milliseconds: 400),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.red.shade100),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.info_rounded, color: Colors.red.shade400, size: 20),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Harap datang 15 menit sebelum waktu estimasi. Antrean dapat hangus jika nomor terlewat 3 kali panggilan.',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.red.shade800,
-                                height: 1.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                      const SizedBox(height: 40),
+                    ],
                   ),
-
-                  const SizedBox(height: 32),
-
-                  // Action Buttons
-                  FadeInUp(
-                    duration: const Duration(milliseconds: 600),
-                    delay: const Duration(milliseconds: 600),
-                    child: Column(
-                      children: [
-                        TextButton.icon(
-                          onPressed: _isCancellationLocked(queue) ? null : () => _showCancelConfirmation(context, queue),
-                          style: TextButton.styleFrom(
-                            foregroundColor: _isCancellationLocked(queue) ? Colors.grey.shade500 : Colors.red,
-                            minimumSize: Size(double.infinity, ResponsiveHelper.buttonHeight(context)),
-                          ),
-                          icon: Icon(
-                            _isCancellationLocked(queue) ? Icons.lock_clock_rounded : Icons.cancel_rounded,
-                            size: 18,
-                          ),
-                          label: Text(
-                            _isCancellationLocked(queue) ? 'Pembatalan Dikunci (< 2 Jam)' : 'Batalkan Antrean',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                ],
+                ),
               ),
             ),
           ],
@@ -871,7 +677,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       final scheduleStartTime = queue.doctorSchedule?.startTime;
 
       if (scheduleStartTime == null || scheduleStartTime.isEmpty) {
-        return !isGracePeriod; // Jika jadwal kosong, izinkan jika grace period, tapi asumsikan terkunci di luar grace period (atau false seperti aslinya, kita ikuti aslinya false)
+        return !isGracePeriod;
       }
 
       final minutesOfDay = DateTimeParser.parseMinutesOfDay(scheduleStartTime);
@@ -885,17 +691,14 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           minutesOfDay % 60,
         );
 
-        // Aturan Backend 1: Jika waktu pelayanan sudah dimulai/terlewat, pembatalan DIKUNCI mutlak
         if (now.isAfter(serviceTime) || now.isAtSameMomentAs(serviceTime)) {
           return true;
         }
 
-        // Aturan Backend 2: Jika masih dalam grace period 15 menit, dan belum waktu praktik, DIBUKA
         if (isGracePeriod) {
           return false;
         }
 
-        // Aturan Backend 3: Jika di luar grace period, cek apakah jaraknya kurang dari 2 jam
         final difference = serviceTime.difference(now);
         if (difference.inMinutes <= 120) {
           return true;
@@ -944,7 +747,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           isError: true,
         );
       } else {
-        Navigator.pop(context); // Go back to dashboard
+        Navigator.pop(context);
         AppDialogs.showNotificationDialog(
           context,
           'Berhasil',
