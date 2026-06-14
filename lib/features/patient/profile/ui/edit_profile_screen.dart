@@ -61,8 +61,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             address: _addressController.text.trim(),
             nationalId: _nikController.text.trim(),
             gender: _gender,
-            birthDate: _selectedBirthDate != null 
-                ? DateFormat('yyyy-MM-dd').format(_selectedBirthDate!) 
+            birthDate: _selectedBirthDate != null
+                ? DateFormat('yyyy-MM-dd').format(_selectedBirthDate!)
                 : null,
           );
       if (mounted) {
@@ -71,7 +71,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           'Berhasil',
           'Profil berhasil diperbarui',
           onOkPressed: () {
-            Navigator.pop(context); // Close screen
+            Navigator.pop(context);
           },
         );
       }
@@ -104,249 +104,329 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Colors.white,
       body: ResponsiveCenter(
         maxWidth: 700,
         child: Column(
           children: [
-          // Premium Header with smooth bottom-up stagger
-          FadeIn(
-            duration: const Duration(milliseconds: 400),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                  child: AnimationLimiter(
-                    child: Column(
-                      children: [
-                        AnimationConfiguration.staggeredList(
-                          position: 0,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            verticalOffset: 30.0,
-                            child: FadeInAnimation(
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    color: AppTheme.primaryColor,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Edit Profil',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Perbarui data diri dan kontak akun Anda',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 13,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+            // ── Header gradient hijau ──
+            FadeIn(
+              duration: const Duration(milliseconds: 400),
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: AppTheme.backgroundGradient,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
                   ),
                 ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-              // Info Banner read-only fields
-              Container(
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 24),
-                decoration: BoxDecoration(
-                  color: AppTheme.warningColor.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.warningColor.withValues(alpha: 0.15)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline_rounded, color: AppTheme.warningColor, size: 22),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Untuk keamanan data, Nomor NIK tidak dapat diubah secara mandiri.',
-                        style: GoogleFonts.inter(
-                          color: AppTheme.warningColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              _buildTextField(
-                controller: _nikController,
-                label: 'NIK (Tidak dapat diubah)',
-                icon: Icons.badge_outlined,
-                keyboardType: TextInputType.number,
-                readOnly: true,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _nameController,
-                label: 'Nama Lengkap',
-                icon: Icons.person_outline,
-                validator: (v) => v!.isEmpty ? 'Nama tidak boleh kosong' : null,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _emailController,
-                label: 'Email',
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                validator: Validators.validateEmail,
-              ),
-              const SizedBox(height: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Jenis Kelamin',
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: ['Laki-laki', 'Perempuan'].map((v) {
-                      final isSelected = _gender == v;
-                      return Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(right: v == 'Laki-laki' ? 12.0 : 0),
-                          child: InkWell(
-                            onTap: () => setState(() => _gender = v),
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              decoration: BoxDecoration(
-                                color: isSelected ? AppTheme.primaryColor.withValues(alpha: 0.1) : Colors.transparent,
-                                border: Border.all(color: isSelected ? AppTheme.primaryColor : Colors.grey.shade400),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                v,
-                                style: TextStyle(
-                                  color: isSelected ? AppTheme.primaryColor : Colors.black87,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+                    child: AnimationLimiter(
+                      child: Column(
+                        children: [
+                          AnimationConfiguration.staggeredList(
+                            position: 0,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 30.0,
+                              child: FadeInAnimation(
+                                child: Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      icon: const Icon(
+                                          Icons.arrow_back_ios_new_rounded,
+                                          size: 20),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Edit Profil Saya',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Perbarui data profesi dan kontak Anda',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: Colors.white
+                                                .withValues(alpha: 0.8),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Tanggal Lahir',
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  InkWell(
-                    onTap: _selectBirthDate,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade400),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _selectedBirthDate == null 
-                                ? 'Pilih Tanggal Lahir' 
-                                : DateFormat('dd MMMM yyyy').format(_selectedBirthDate!),
-                            style: TextStyle(
-                              color: _selectedBirthDate == null ? Colors.grey : Colors.black87,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const Icon(Icons.calendar_today_outlined, color: Colors.grey, size: 20),
                         ],
                       ),
                     ),
                   ),
-                ],
-              ),const SizedBox(height: 16),
-              _buildTextField(
-                controller: _phoneController,
-                label: 'Nomor WhatsApp (Opsional)',
-                icon: Icons.phone_android_outlined,
-                validator: (v) {
-                  if (v != null && v.isNotEmpty && v.length < 9) {
-                    return 'Nomor HP minimal 9 digit';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _addressController,
-                label: 'Alamat (Opsional)',
-                icon: Icons.location_on_outlined,
-                maxLines: 2,
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : _handleUpdate,
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                  child: isLoading 
-                      ? const CircularProgressIndicator(color: Colors.white) 
-                      : const Text('SIMPAN PERUBAHAN'),
-                ),
-              ),
-                  ],
                 ),
               ),
             ),
-          ),
-        ],
+
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Warning banner
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.only(bottom: 24),
+                        decoration: BoxDecoration(
+                          color: AppTheme.warningColor.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                              color: AppTheme.warningColor
+                                  .withValues(alpha: 0.15)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.info_outline_rounded,
+                                color: AppTheme.warningColor, size: 22),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Untuk keamanan data, Nomor NIK tidak dapat diubah secara mandiri.',
+                                style: GoogleFonts.poppins(
+                                  color: AppTheme.warningColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // NIK (read-only)
+                      _buildSectionLabel('NIK (Nomor Induk Kependudukan)'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _nikController,
+                        label: 'NIK (Tidak dapat diubah)',
+                        icon: Icons.badge_outlined,
+                        keyboardType: TextInputType.number,
+                        readOnly: true,
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Nama Lengkap
+                      _buildSectionLabel('Nama Lengkap'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _nameController,
+                        label: 'Nama Lengkap',
+                        icon: Icons.person_outline,
+                        validator: (v) =>
+                            v!.isEmpty ? 'Nama tidak boleh kosong' : null,
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Email
+                      _buildSectionLabel('Email'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _emailController,
+                        label: 'Email',
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: Validators.validateEmail,
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Jenis Kelamin
+                      Text(
+                        'Jenis Kelamin',
+                        style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: ['Laki-laki', 'Perempuan'].map((v) {
+                          final isSelected = _gender == v;
+                          return Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                  right: v == 'Laki-laki' ? 12.0 : 0),
+                              child: InkWell(
+                                onTap: () => setState(() => _gender = v),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? AppTheme.primaryColor
+                                            .withValues(alpha: 0.1)
+                                        : Colors.transparent,
+                                    border: Border.all(
+                                        color: isSelected
+                                            ? AppTheme.primaryColor
+                                            : Colors.grey.shade400),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    v,
+                                    style: GoogleFonts.poppins(
+                                      color: isSelected
+                                          ? AppTheme.primaryColor
+                                          : Colors.black87,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Tanggal Lahir
+                      Text(
+                        'Tanggal Lahir',
+                        style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: _selectBirthDate,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.cake_outlined,
+                                      color: Colors.grey, size: 20),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    _selectedBirthDate == null
+                                        ? 'Pilih Tanggal Lahir'
+                                        : DateFormat('dd MMMM yyyy', 'id_ID')
+                                            .format(_selectedBirthDate!),
+                                    style: GoogleFonts.poppins(
+                                      color: _selectedBirthDate == null
+                                          ? Colors.grey
+                                          : Colors.black87,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Icon(Icons.calendar_today_outlined,
+                                  color: Colors.grey, size: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Nomor WhatsApp
+                      _buildSectionLabel('Nomor WhatsApp (Opsional)'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _phoneController,
+                        label: 'Nomor WhatsApp (Opsional)',
+                        icon: Icons.phone_android_outlined,
+                        keyboardType: TextInputType.phone,
+                        validator: (v) {
+                          if (v != null && v.isNotEmpty && v.length < 9) {
+                            return 'Nomor HP minimal 9 digit';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Alamat
+                      _buildSectionLabel('Alamat Rumah / Praktek (Opsional)'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _addressController,
+                        label: 'Alamat Rumah / Praktek (Opsional)',
+                        icon: Icons.location_on_outlined,
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Save Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _handleUpdate,
+                          style: ElevatedButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16)),
+                          child: isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
+                              : Text(
+                                  'SIMPAN PERUBAHAN',
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600),
+                                ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
+    );
+  }
+
+  Widget _buildSectionLabel(String label) {
+    return Text(
+      label,
+      style: GoogleFonts.poppins(
+        fontSize: 14,
+        color: Colors.grey.shade700,
+        fontWeight: FontWeight.w500,
+      ),
     );
   }
 
@@ -364,13 +444,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       keyboardType: keyboardType,
       maxLines: maxLines,
       readOnly: readOnly,
-      style: GoogleFonts.plusJakartaSans(
+      style: GoogleFonts.poppins(
         color: readOnly ? Colors.grey.shade600 : Colors.black87,
         fontSize: 15,
         fontWeight: FontWeight.w600,
       ),
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: GoogleFonts.poppins(
+            fontSize: 14, color: Colors.grey.shade600),
         prefixIcon: Icon(icon, color: Colors.grey),
         filled: true,
         fillColor: readOnly ? Colors.grey.shade100 : Colors.white,

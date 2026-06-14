@@ -42,19 +42,18 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: Consumer<PatientProvider>(
-        builder: (context, provider, child) {
-          return ResponsiveCenter(
-            maxWidth: 700,
-            child: Column(
-              children: [
+      backgroundColor: Colors.white,
+      body: Consumer<PatientProvider>(builder: (context, provider, child) {
+        return ResponsiveCenter(
+          maxWidth: 700,
+          child: Column(
+            children: [
               // Premium Header with smooth bottom-up stagger
               FadeIn(
                 duration: const Duration(milliseconds: 400),
                 child: Container(
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    gradient: AppTheme.backgroundGradient,
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(24),
                       bottomRight: Radius.circular(24),
@@ -83,27 +82,26 @@ class _BookingScreenState extends State<BookingScreen> {
                                         ),
                                         padding: EdgeInsets.zero,
                                         constraints: const BoxConstraints(),
-                                        color: AppTheme.primaryColor,
+                                        color: Colors.white,
                                       ),
                                       const SizedBox(width: 16),
                                       Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Ambil Antrean',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
+                                              color: Colors.white,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             'Daftar antrean poliklinik secara online',
-                                            style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.poppins(
                                               fontSize: 13,
-                                              color: Colors.grey,
+                                              color: Colors.white.withValues(alpha: 0.85),
                                             ),
                                           ),
                                         ],
@@ -145,7 +143,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   value: p.id,
                                   child: Text(
                                     p.name,
-                                    style: GoogleFonts.inter(fontSize: 14),
+                                    style: GoogleFonts.poppins(fontSize: 14),
                                   ),
                                 ),
                               )
@@ -201,7 +199,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   s.id, // Using schedule ID for more precision
                               child: Text(
                                 "$doctorName (${s.dayOfWeek}, $startStr - $endStr | $quotaText)",
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.poppins(
                                   fontSize: 12,
                                   color: Colors.black87,
                                   fontWeight: FontWeight.normal,
@@ -319,9 +317,10 @@ class _BookingScreenState extends State<BookingScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(18),
                             decoration: BoxDecoration(
+                              gradient: selectedDoctorId == null ? null : AppTheme.backgroundGradient,
                               color: selectedDoctorId == null
                                   ? Colors.grey.shade50
-                                  : Colors.white,
+                                  : null,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(color: Colors.grey.shade200),
                             ),
@@ -331,7 +330,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   Icons.calendar_month_rounded,
                                   color: selectedDoctorId == null
                                       ? Colors.grey
-                                      : AppTheme.primaryColor,
+                                      : Colors.white,
                                   size: 22,
                                 ),
                                 const SizedBox(width: 16),
@@ -346,10 +345,10 @@ class _BookingScreenState extends State<BookingScreen> {
                                             : _formatIndonesianDate(
                                                 selectedDate,
                                               ),
-                                        style: GoogleFonts.inter(
+                                        style: GoogleFonts.poppins(
                                           color: selectedDoctorId == null
                                               ? Colors.grey.shade400
-                                              : Colors.black87,
+                                              : Colors.white,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 14,
                                         ),
@@ -358,8 +357,8 @@ class _BookingScreenState extends State<BookingScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           'Klik untuk mengganti tanggal kunjungan',
-                                          style: GoogleFonts.inter(
-                                            color: Colors.grey,
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white.withValues(alpha: 0.85),
                                             fontSize: 11,
                                           ),
                                         ),
@@ -371,7 +370,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   const Icon(
                                     Icons.arrow_forward_ios_rounded,
                                     size: 14,
-                                    color: Colors.grey,
+                                    color: Colors.white,
                                   ),
                               ],
                             ),
@@ -403,7 +402,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                     children: [
                                       Text(
                                         'Layanan Antrean Prioritas',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14,
                                           color: Colors.amber.shade900,
@@ -412,7 +411,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                       const SizedBox(height: 2),
                                       Text(
                                         'Anda terdeteksi sebagai lansia (usia >= 60 tahun). Antrean Anda akan secara otomatis didahulukan oleh sistem.',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.amber.shade800,
                                         ),
@@ -438,15 +437,14 @@ class _BookingScreenState extends State<BookingScreen> {
             ],
           ),
         );
-      },
-      ),
+      }),
     );
   }
 
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.plusJakartaSans(
+      style: GoogleFonts.poppins(
         fontSize: 16,
         fontWeight: FontWeight.bold,
         color: Colors.black87,
@@ -477,7 +475,7 @@ class _BookingScreenState extends State<BookingScreen> {
             ? const CircularProgressIndicator(color: Colors.white)
             : Text(
                 'KONFIRMASI PENDAFTARAN',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.poppins(
                   fontWeight: FontWeight.bold,
                   color: canSubmit ? Colors.white : Colors.grey,
                 ),
@@ -616,8 +614,6 @@ class _BookingScreenState extends State<BookingScreen> {
       }
     }
 
-
-
     // Proteksi tanggal di masa lalu atau jam praktik hari ini yang sudah terlewat (Tugas 2)
     final now = DateTime.now();
     final selectedDateOnly = DateTime(
@@ -709,16 +705,11 @@ class _BookingScreenState extends State<BookingScreen> {
   DoctorModel _resolveDoctor(PatientProvider provider, ScheduleModel schedule) {
     return provider.doctors.firstWhere(
       (d) => d.id == schedule.doctorId,
-      orElse: () =>
-          schedule.doctor ?? DoctorModel(id: schedule.doctorId, userId: 0),
+      orElse: () => schedule.doctor ?? DoctorModel(id: schedule.doctorId, userId: 0),
     );
   }
 
-  bool _isBookableDate(
-    DateTime date,
-    ScheduleModel schedule,
-    PatientProvider provider,
-  ) {
+  bool _isBookableDate(DateTime date, ScheduleModel schedule, PatientProvider provider) {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
     final isHoliday = provider.clinicHolidays.contains(dateStr);
     final isLeave = provider.doctorLeaves.contains(dateStr);
@@ -752,17 +743,10 @@ class _BookingScreenState extends State<BookingScreen> {
     return date.isAfter(today);
   }
 
-  DateTime? _getNearestDateForWeekday(
-    ScheduleModel schedule,
-    PatientProvider provider,
-  ) {
+  DateTime? _getNearestDateForWeekday(ScheduleModel schedule, PatientProvider provider) {
     final now = DateTime.now();
     DateTime date = DateTime(now.year, now.month, now.day);
-    final maxDate = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    ).add(const Duration(days: 7));
+    final maxDate = DateTime(now.year, now.month, now.day).add(const Duration(days: 7));
     while (date.isBefore(maxDate) || date.isAtSameMomentAs(maxDate)) {
       if (_isBookableDate(date, schedule, provider)) {
         return date;
@@ -774,28 +758,10 @@ class _BookingScreenState extends State<BookingScreen> {
 
   String _formatIndonesianDate(DateTime date) {
     final months = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember',
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
     ];
-    final days = [
-      'Senin',
-      'Selasa',
-      'Rabu',
-      'Kamis',
-      'Jumat',
-      'Sabtu',
-      'Minggu',
-    ];
+    final days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
     final dayName = days[date.weekday - 1];
     final monthName = months[date.month - 1];
     return '$dayName, ${date.day} $monthName ${date.year}';

@@ -102,7 +102,7 @@ class BookingResultDialog extends StatelessWidget {
                         children: [
                           Text(
                             isSuccess ? 'Pendaftaran Berhasil' : 'Pendaftaran Gagal',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.poppins(
                               fontSize: headSz,
                               fontWeight: FontWeight.bold,
                               color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
@@ -111,7 +111,7 @@ class BookingResultDialog extends StatelessWidget {
                           SizedBox(height: 8),
                           Text(
                             message,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.poppins(
                               fontSize: bodySz,
                               color: Colors.grey[700],
                               height: 1.5,
@@ -141,7 +141,7 @@ class BookingResultDialog extends StatelessWidget {
                 Text(
                   isSuccess ? 'Pendaftaran Berhasil' : 'Pendaftaran Gagal',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.poppins(
                     fontSize: headSz,
                     fontWeight: FontWeight.bold,
                     color: isSuccess ? AppTheme.successColor : AppTheme.errorColor,
@@ -151,7 +151,7 @@ class BookingResultDialog extends StatelessWidget {
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.poppins(
                     fontSize: bodySz,
                     color: Colors.grey[700],
                     height: 1.5,
@@ -174,7 +174,7 @@ class BookingResultDialog extends StatelessWidget {
                   onPressed: onFinished,
                   child: Text(
                     'Selesai',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.poppins(
                       fontSize: btnFontSz,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

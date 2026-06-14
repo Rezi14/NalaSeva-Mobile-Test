@@ -18,6 +18,7 @@ class PatientPaymentListScreen extends StatefulWidget {
 
 class _PatientPaymentListScreenState extends State<PatientPaymentListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _filterScrollController = ScrollController();
   String _searchQuery = '';
   String? _selectedStatusFilter;
 
@@ -32,37 +33,76 @@ class _PatientPaymentListScreenState extends State<PatientPaymentListScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _filterScrollController.dispose();
     super.dispose();
   }
 
-
-
   Widget _filterChip({required String label, required String? status}) {
     final isSelected = _selectedStatusFilter == status;
-    return ChoiceChip(
-      label: Text(
-        label,
-        style: GoogleFonts.plusJakartaSans(
-          fontSize: 12,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Colors.white : Colors.black87,
-        ),
-      ),
-      selected: isSelected,
-      selectedColor: AppTheme.primaryColor,
-      backgroundColor: Colors.grey.shade100,
-      checkmarkColor: Colors.white,
-      side: BorderSide(
-        color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      onSelected: (selected) {
+    return GestureDetector(
+      onTap: () {
         setState(() {
-          _selectedStatusFilter = selected ? status : null;
+          _selectedStatusFilter = isSelected ? null : status;
         });
       },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(
+            color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.35),
+            width: 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            color: isSelected ? AppTheme.primaryColor : Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _scrollArrowButton({required bool isLeft}) {
+    return Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.25),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        icon: Icon(
+          isLeft ? Icons.chevron_left_rounded : Icons.chevron_right_rounded,
+          color: Colors.white,
+          size: 18,
+        ),
+        onPressed: () {
+          if (!_filterScrollController.hasClients) return;
+          final target = _filterScrollController.offset + (isLeft ? -120.0 : 120.0);
+          _filterScrollController.animateTo(
+            target.clamp(0.0, _filterScrollController.position.maxScrollExtent),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        },
+      ),
     );
   }
 
@@ -78,9 +118,9 @@ class _PatientPaymentListScreenState extends State<PatientPaymentListScreen> {
               final matchesSearch = p.transactionNumber.toLowerCase().contains(_searchQuery.toLowerCase()) ||
                   (p.queue?.patient.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
                   (p.queue?.polyclinic.name.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
-              
+
               final matchesStatus = _selectedStatusFilter == null || p.status == _selectedStatusFilter;
-              
+
               return matchesSearch && matchesStatus;
             }).toList();
 
@@ -208,27 +248,51 @@ class _PatientPaymentListScreenState extends State<PatientPaymentListScreen> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              // Filter horizontal ChoiceChips
+                              // Filter horizontal pills with gradient background
                               AnimationConfiguration.staggeredList(
                                 position: 2,
                                 duration: const Duration(milliseconds: 375),
                                 child: SlideAnimation(
                                   verticalOffset: 30.0,
                                   child: FadeInAnimation(
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      physics: const BouncingScrollPhysics(),
-                                      child: Row(
+                                    child: Container(
+                                      height: 56,
+                                      decoration: BoxDecoration(
+                                        gradient: AppTheme.backgroundGradient,
+                                        borderRadius: BorderRadius.circular(50),
+                                      ),
+                                      child: Stack(
+                                        alignment: Alignment.center,
                                         children: [
-                                          _filterChip(label: 'Semua', status: null),
-                                          const SizedBox(width: 8),
-                                          _filterChip(label: 'Belum Bayar', status: 'pending'),
-                                          const SizedBox(width: 8),
-                                          _filterChip(label: 'Verifikasi', status: 'waiting_verification'),
-                                          const SizedBox(width: 8),
-                                          _filterChip(label: 'Lunas', status: 'paid'),
-                                          const SizedBox(width: 8),
-                                          _filterChip(label: 'Gagal', status: 'failed'),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 6),
+                                            child: SingleChildScrollView(
+                                              controller: _filterScrollController,
+                                              scrollDirection: Axis.horizontal,
+                                              physics: const BouncingScrollPhysics(),
+                                              child: Row(
+                                                children: [
+                                                  _filterChip(label: 'Semua', status: null),
+                                                  const SizedBox(width: 10),
+                                                  _filterChip(label: 'Belum Bayar', status: 'pending'),
+                                                  const SizedBox(width: 10),
+                                                  _filterChip(label: 'Verifikasi', status: 'waiting_verification'),
+                                                  const SizedBox(width: 10),
+                                                  _filterChip(label: 'Lunas', status: 'paid'),
+                                                  const SizedBox(width: 10),
+                                                  _filterChip(label: 'Gagal', status: 'failed'),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            left: 6,
+                                            child: _scrollArrowButton(isLeft: true),
+                                          ),
+                                          Positioned(
+                                            right: 6,
+                                            child: _scrollArrowButton(isLeft: false),
+                                          ),
                                         ],
                                       ),
                                     ),

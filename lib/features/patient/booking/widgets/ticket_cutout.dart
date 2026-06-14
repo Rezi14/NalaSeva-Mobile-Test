@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
 
 class TicketCutout extends StatelessWidget {
   const TicketCutout({
@@ -14,7 +13,7 @@ class TicketCutout extends StatelessWidget {
           height: 20,
           width: 10,
           decoration: const BoxDecoration(
-            color: AppTheme.backgroundColor,
+            color: Colors.white,
             borderRadius: BorderRadius.only(
               topRight: Radius.circular(10),
               bottomRight: Radius.circular(10),
@@ -47,7 +46,7 @@ class TicketCutout extends StatelessWidget {
           height: 20,
           width: 10,
           decoration: const BoxDecoration(
-            color: AppTheme.backgroundColor,
+            color: Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(10),
               bottomLeft: Radius.circular(10),
