@@ -8,13 +8,37 @@ class PuskesmasProfileRepository {
 
   PuskesmasProfileRepository(this._apiClient);
 
+  String _errorMessage(DioException e, String defaultMsg) {
+    return ErrorParser.parse(e, defaultMsg);
+  }
+
+  void _checkResponse(Response response, String defaultError) {
+    final data = response.data;
+    if (data is Map) {
+      final isNotSuccess = data.containsKey('status') && data['status'] != 'success';
+      final isHttpError = response.statusCode != null && response.statusCode! >= 400;
+
+      if (isNotSuccess || isHttpError) {
+        if (data['errors'] is Map) {
+          final errors = data['errors'] as Map;
+          final messages = errors.values
+              .expand((v) => v is List ? v.map((e) => e.toString()) : [v.toString()])
+              .join('\n');
+          if (messages.isNotEmpty) throw messages;
+        }
+        throw data['message'] ?? defaultError;
+      }
+    }
+  }
+
   Future<PuskesmasProfileModel> fetchProfile() async {
     try {
       final response = await _apiClient.dio.get('puskesmas-profile');
+      _checkResponse(response, 'Gagal mengambil profil Puskesmas');
       final responseData = response.data['data'];
       return PuskesmasProfileModel.fromJson(responseData);
     } on DioException catch (e) {
-      throw ErrorParser.parse(e, 'Gagal mengambil profil Puskesmas');
+      throw _errorMessage(e, 'Gagal mengambil profil Puskesmas');
     }
   }
 
@@ -38,10 +62,11 @@ class PuskesmasProfileRepository {
           'longitude': longitude,
         },
       );
+      _checkResponse(response, 'Gagal memperbarui profil Puskesmas');
       final responseData = response.data['data'];
       return PuskesmasProfileModel.fromJson(responseData);
     } on DioException catch (e) {
-      throw ErrorParser.parse(e, 'Gagal memperbarui profil Puskesmas');
+      throw _errorMessage(e, 'Gagal memperbarui profil Puskesmas');
     }
   }
 }

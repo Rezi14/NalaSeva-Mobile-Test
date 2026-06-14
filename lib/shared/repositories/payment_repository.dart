@@ -15,10 +15,10 @@ class PaymentRepository {
   void _checkResponse(Response response, String defaultError) {
     final data = response.data;
     if (data is Map) {
-      final isErrorStatus = data['status'] == 'error';
+      final isNotSuccess = data.containsKey('status') && data['status'] != 'success';
       final isHttpError = response.statusCode != null && response.statusCode! >= 400;
 
-      if (isErrorStatus || isHttpError) {
+      if (isNotSuccess || isHttpError) {
         if (data['errors'] is Map) {
           final errors = data['errors'] as Map;
           final messages = errors.values

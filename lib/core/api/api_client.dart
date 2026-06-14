@@ -45,6 +45,22 @@ class ApiClient {
         }
         return handler.next(options);
       },
+      onResponse: (response, handler) {
+        final data = response.data;
+        if (data is Map && data.containsKey('status') && data['status'] != 'success') {
+          final errorMsg = data['message']?.toString() ?? 'Terjadi kesalahan';
+          return handler.reject(
+            DioException(
+              requestOptions: response.requestOptions,
+              response: response,
+              type: DioExceptionType.badResponse,
+              error: errorMsg,
+              message: errorMsg,
+            ),
+          );
+        }
+        return handler.next(response);
+      },
       onError: (e, handler) async {
         if (e.response?.statusCode == 401) {
           // Hapus token akses sesi yang kedaluwarsa beserta data id terkait
