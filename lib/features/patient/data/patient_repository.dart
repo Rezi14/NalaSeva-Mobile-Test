@@ -35,7 +35,12 @@ class PatientRepository {
               .join('\n');
           if (messages.isNotEmpty) throw messages;
         }
-        throw data['message'] ?? defaultError;
+
+        final msg = data['message']?.toString();
+        if (data['status'] == 'error' || ErrorParser.isSystemError(msg)) {
+          throw defaultError;
+        }
+        throw msg ?? defaultError;
       }
     }
   }
