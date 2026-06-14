@@ -120,8 +120,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                       children: [
                         Expanded(
                           child: InkWell(
-                            // onTap: () =>
-                            //     Navigator.pushNamed(context, '/doctor/profile'),
                             borderRadius: BorderRadius.circular(12),
                             child: Padding(
                               padding: const EdgeInsets.all(4.0),
