@@ -239,47 +239,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                               color: Colors.grey,
                                             ),
                                           ),
-                                          if (puskesmasProfile?.latitude != null && puskesmasProfile?.longitude != null) ...[
-                                            const SizedBox(height: 8),
-                                            InkWell(
-                                              onTap: () async {
-                                                final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${puskesmasProfile!.latitude},${puskesmasProfile.longitude}');
-                                                try {
-                                                  if (await canLaunchUrl(url)) {
-                                                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                                                  } else {
-                                                    // Try direct launch in case package visibility check fails on some devices
-                                                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                                                  }
-                                                } catch (e, stack) {
-                                                  AppLogger.error('Gagal membuka petunjuk rute', error: e, stackTrace: stack, tag: 'BookingDetailScreen');
-                                                }
-                                              },
-                                              borderRadius: BorderRadius.circular(20),
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                                decoration: BoxDecoration(
-                                                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                                                  borderRadius: BorderRadius.circular(20),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    const Icon(Icons.directions_rounded, color: AppTheme.primaryColor, size: 16),
-                                                    const SizedBox(width: 6),
-                                                    Text(
-                                                      'Petunjuk Rute',
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 12,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: AppTheme.primaryColor,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
                                         ],
                                       ),
                                     ),

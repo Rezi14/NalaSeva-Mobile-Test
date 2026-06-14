@@ -54,6 +54,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _handleRegister() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    
+    if (_selectedBirthDate == null) {
+      AppDialogs.showNotificationDialog(
+        context,
+        'Registrasi Gagal',
+        'Silakan pilih tanggal lahir Anda terlebih dahulu.',
+        isError: true,
+      );
+      return;
+    }
+
     try {
       await context.read<AuthProvider>().register(
             name: _nameController.text.trim(),
